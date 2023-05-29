@@ -1,0 +1,113 @@
+:root
+  +tints($sgs-blue, sgs-black)
+  +shades($sgs-blue, sgs-black)
+  +tones($sgs-blue, sgs-black)
+
+// Use CSS variables in components
+
+:root
+  --s: 1rem
+  --border-radius: 5px
+  --border-radius-sm: 3px
+
+  --app-bg-color: #{lighten($sgs-black, 75%)}
+  --text-color: #{$sgs-black}
+
+  --hover-bg-color: #{lighten($sgs-blue, 55%)}
+  --drop-border-color: #{$sgs-blue}
+  --drop-shadow-color: #{rgba($sgs-blue, 0.3)}
+  --selected-bg-color: #{lighten($sgs-blue, 50%)}
+
+  --ai-bg-color: #{lighten($sgs-purple, 40%)}
+
+  --link-text-color: #{$sgs-blue}
+  --link-hover-text-color: #{lighten($sgs-blue, 5%)}
+
+  --overridden-color: #{mix($sgs-blue, $sgs-red, 35%)}
+
+  --button-primary-bg-color: #{$primary}
+  --button-primary-border-color: #{$primary}
+  --button-primary-text-color: #FFF
+  --button-primary-hover-bg-color: #{$primary-dark-1}
+  --button-primary-hover-border-color:  #{$primary-dark-1}
+  --button-primary-hover-text-color: #FFF
+
+  --button-default-bg-color: transparent
+  --button-default-border-color: transparent
+  --button-default-text-color: $sgs-black
+  --button-default-hover-bg-color: #EEE
+  --button-default-hover-border-color: #EEE
+  --button-default-hover-text-color: $primary
+
+  --button-secondary-bg-color: transparent
+  --button-secondary-border-color: #{$primary}
+  --button-secondary-text-color: $primary
+  --button-secondary-hover-bg-color: transparent
+  --button-secondary-hover-border-color: #{$primary-dark-1}
+  --button-secondary-hover-text-color: $primary
+
+  --button-disabled-text-color: #{$black-light-3}
+  --button-disabled-bg-color: #{$grey-light-1}
+  --button-disabled-border-color: #{$grey-light-1}
+  --button-disabled-hover-text-color: #{$black-light-3}
+  --button-disabled-hover-bg-color: #{$grey-light-1}
+  --button-disabled-hover-border-color: #{$grey-light-1}
+
+  --button-alert-text-color: #fff
+  --button-alert-bg-color: #{$red-dark-1}
+  --button-alert-border-color: #{$red-dark-1}
+  --button-alert-hover-text-color: #fff
+  --button-alert-hover-bg-color: #{$red-light-2}
+  --button-alert-hover-border-color: #{$red-light-2}
+
+  --button-alert-secondary-text-color: #{$red-dark-1}
+  --button-alert-secondary-bg-color: #fff
+  --button-alert-secondary-border-color: #{$red-dark-1}
+  --button-alert-secondary-hover-text-color: #{$red-dark-1}
+  --button-alert-secondary-hover-bg-color: #{$red-light-3}
+  --button-alert-secondary-hover-border-color: #{$red-dark-1}
+
+  --button-ai-bg-color: transparent
+  --button-ai-border-color: transparent
+  --button-ai-text-color: #{$sgs-purple}
+  --button-ai-hover-bg-color: #{lighten($sgs-purple, 10%)}
+  --button-ai-hover-border-color:  #{lighten($sgs-purple, 10%)}
+  --button-ai-hover-text-color: #FFF
+
+  // --button-link-bg-color:
+  // --button-link-border-color
+  // --button-link-text-color:
+  // --button-link-hover-bg-color
+  // --button-link-hover-border-color
+  // --button-link-hover-text-color
+  // --button-link-alt-text-color
+  // --button-link-hover-text-color
+
+  // --button-disabled-bg-color
+  // --button-disabled-border-color
+  // --button-disabled-text-color
+  // --button-disabled-hover-bg-color
+  // --button-disabled-hover-border-color
+  // --button-disabled-hover-text-color
+
+  --badge-bg-color: #{$grey-light-3}
+  --badge-text-color: #{$black-light-2}
+  --badge-disabled-bg-color: #{$grey-light-2}
+  --badge-disabled-text-color: #{$grey-dark-1}
+  --badge-info-bg-color: #{$primary-light-3}
+  --badge-info-text-color: #{$primary-dark-1}
+  --badge-success-bg-color: #{$primary-light-3}
+  --badge-success-text-color: #{$primary-dark-1}
+  --badge-progress-bg-color: #{$accent-light-3}
+  --badge-progress-text-color: #{$accent-dark-1}
+  --badge-error-bg-color: #{$red-light-3}
+  --badge-error-text-color: #{$red-dark-1}
+  --badge-important-bg-color: #{$red-light-1}
+  --badge-important-text-color: #fff
+  --badge-alert-bg-color: #{$red}
+  --badge-alert-text-color: #fff
+  --badge-alert-positive-bg-color: #{$primary-dark-1}
+  --badge-alert-positive-text-color: #fff
+
+  --app-header-bg-color: #{$sgs-black}
+  --app-header-text-color: white

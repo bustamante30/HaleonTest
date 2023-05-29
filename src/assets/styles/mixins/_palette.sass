@@ -1,0 +1,24 @@
+@use "sass:math"
+@mixin generate($base-color, $num-tints, $variable-prefix, $class-prefix, $mix-color)
+  $step: math.div(100%, $num-tints)
+
+  @for $i from 1 through $num-tints
+    $tint-color: mix(#fff, $base-color, ($step * $i))
+    $variable-name: $variable-prefix + $i
+    $class-name: $class-prefix + $i
+
+    --#{$variable-name}: #{$tint-color}
+    .#{$class-name}
+      background-color: var(--#{$variable-name})
+
+@mixin tints($base-color, $variable-prefix, $class-prefix: $variable-prefix, $num-tints: 10)
+  $variable-prefix: $variable-prefix + '_tint_'
+  @include generate($base-color, $num-tints, $variable-prefix, $class-prefix, $mix-color: #ffffff)
+
+@mixin shades($base-color, $variable-prefix, $class-prefix: $variable-prefix, $num-tints: 10)
+  $variable-prefix: $variable-prefix + '_shade_'
+  @include generate($base-color, $num-tints, $variable-prefix, $class-prefix, $mix-color: #000000)
+
+@mixin tones($base-color, $variable-prefix, $class-prefix: $variable-prefix, $num-tints: 10)
+  $variable-prefix: $variable-prefix + '_tone_'
+  @include generate($base-color, $num-tints, $variable-prefix, $class-prefix, $mix-color: #808080)

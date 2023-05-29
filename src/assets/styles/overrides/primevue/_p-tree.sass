@@ -1,0 +1,45 @@
+.p-dialog.folder-tree
+  .p-dialog-header
+    padding: $s50 $s
+    background: #f2f2f2
+    span
+      font-size: 1rem
+    .p-dialog-header-icon svg
+        height: 0.8rem
+        width: 0.8rem
+  .p-dialog-footer
+    padding: $s50 $s $s
+  .p-dialog-content
+    padding: 0
+    .p-tree
+      border: none
+      border-radius: 0
+      padding: $s50
+      .p-tree-wrapper
+        width: 100%
+        overflow: auto
+      .p-tree-container
+        .p-treenode
+          display: block
+          .p-treenode-content
+            white-space: nowrap
+            padding: $s25 0
+            padding-right: $s
+            &:not(.p-highlight):hover
+              background: var(--hover-bg-color) !important
+              color: inherit !important
+            &.p-highlight,
+            &.p-highlight:hover
+              background: var(--selected-bg-color) !important
+              color: inherit !important
+              outline: none
+            .p-tree-toggler
+              margin-right: $s25
+              svg
+                height: 0.8rem
+                width: 0.8rem
+            .p-treenode-icon
+              display: none
+            .p-treenode-label .node
+              +flex
+              width: 100%

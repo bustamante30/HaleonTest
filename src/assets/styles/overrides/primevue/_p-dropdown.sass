@@ -1,0 +1,37 @@
+.p-dropdown
+  width: 100%
+  .p-dropdown-label
+    padding: $s25 $s50
+    color: var(--text-color)
+    font-family: $font
+    font-weight: 600
+
+.p-dropdown
+  &.sm
+    font-size: 0.9rem
+    .p-dropdown-label
+      font-size: 0.9rem
+
+.p-dropdown-panel
+  .p-dropdown-items
+    .p-dropdown-item-group
+      padding: $s50 $s
+      background: $grey-light-3
+      font-weight: 500
+      line-height: 1
+    .p-dropdown-item
+      padding: $s50 $s
+
+.p-dropdown-panel
+  &.sm
+    .p-dropdown-items
+      .p-dropdown-item-group
+        font-size: 0.8rem
+      .p-dropdown-item
+        font-size: 0.9rem
+        &:hover
+          background: rgba($primary, 0.2)
+          color: $black-light-1
+        &.p-highlight
+          background: rgba($primary, 0.8)
+          color: $grey-light-3

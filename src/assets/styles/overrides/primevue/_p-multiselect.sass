@@ -1,0 +1,36 @@
+.p-multiselect
+  .p-multiselect-label
+    padding: $s25 $s50
+    color: var(--text-color)
+    font-family: $font
+    font-weight: 600
+
+.p-multiselect
+  &.sm
+    font-size: 0.9rem
+    .p-multiselect-label
+      font-size: 0.9rem
+
+.p-multiselect-panel
+  .p-multiselect-items
+    .p-multiselect-item-group
+      padding: $s50 $s
+      background: $grey-light-3
+      font-weight: 500
+      line-height: 1
+    .p-multiselect-item
+      padding: $s50 $s
+
+.p-multiselect-panel
+  &.sm
+    .p-multiselect-items
+      .p-multiselect-item-group
+        font-size: 0.8rem
+      .p-multiselect-item
+        font-size: 0.9rem
+        &:hover
+          background: rgba($primary, 0.2)
+          color: $black-light-1
+        &.p-highlight
+          background: rgba($primary, 0.8)
+          color: $grey-light-3

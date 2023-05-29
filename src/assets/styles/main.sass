@@ -1,0 +1,61 @@
+@import './icons/material'
+@import './includes'
+@import './variables'
+
+body
+  color: #333
+  background: var(--app-bg-color)
+  +reset-space
+  min-height: 100vh
+  .p-component
+    font-family: $font
+
+#app
+  +container
+  height: 100vh
+
+.card
+  background: #fff
+  padding: $s
+  border-radius: 5px
+
+.disabled
+  opacity: 0.3
+
+.separator
+  display: inline-block
+  padding: 0 0.5em
+  opacity: 0.3
+
+.divider
+  opacity: 0.1
+  display: block
+  padding-bottom: $s
+  margin-bottom: $s50
+  border-bottom: 1px solid $sgs-gray
+
+a
+  cursor: pointer
+  color: var(--link-text-color)
+  text-decoration: none
+  font-weight: 500
+  +flex
+  color: var(--link-text-color)
+  > span
+    color: var(--link-text-color)
+  > span.material-icons
+    color: var(--link-text-color)
+  > span + span.material-icons
+    margin-left: $s25
+  > span.material-icons + span
+    margin-left: $s25
+  &:hover
+    color: var(--link-hover-text-color)
+    > span
+      color: var(--link-hover-text-color)
+
+.input.overridden,
+.overridden .input,
+.overridden .p-autocomplete-input
+  border-left-width: 5px
+  border-color: var(--overridden-color)
