@@ -24,13 +24,13 @@ jobs:
             - task: ExtractFiles@1
               inputs:
                 archiveFilePatterns: '**/imagecarrier-ui.zip'
-                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/'
+                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
             - task: AzureStaticWebApp@0
               inputs:
-                cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/'
+                cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 app_location: '/'
                 output_location: 'wwwroot'
                 skip_app_build: true
