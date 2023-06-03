@@ -85,7 +85,7 @@ jobs:
           archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/imagecarrier-ui.zip"
           includeRootFolder: false
         enabled: true
-        displayName: "Zip ingestion app"
+        displayName: "Zip ImageCarrier-UI app"
 
       - task: PublishBuildArtifacts@1
         condition: or( eq(variables.HOSTAPPBUILT, 'true'), eq(variables.IMGCARRIERAPPBUILT, 'true'))
