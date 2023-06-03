@@ -36,7 +36,7 @@ jobs:
       #   displayName: Print variables and environment
 
       - script: |
-          npm -g install
+          npm install
         displayName: "npm install"
 
       - script: |
@@ -60,25 +60,13 @@ jobs:
         env:
           AZURE_DEVOPS_EXT_PAT: "$(System.AccessToken)"
 
-      # - script: |
-      #     npm run dev --parallel=3 --configuration=ci --skip-nx-cache
-      #   displayName: "Compile and Hot-Reload for Development"
-
-      # - script: |
-      #     npm run build --parallel=3 --configuration=ci --skip-nx-cache
-      #   displayName: "Type-Check, Compile and Minify for Production"
-
-      # - script: |
-      #     npm run test:unit -t test --parallel=3 --configuration=ci --skip-nx-cache
-      #   displayName: "Unit Tests"
-
-      # - script: |
-      #     npm run test:unit
-      #   displayName: "Full Tests"
+      - script: |
+          npm run build
+        displayName: "Full Build"
 
       - script: |
-          npm run build -t build --parallel=3 --skip-nx-cache
-        displayName: "Full Build"
+          npm run test:unit
+        displayName: "Unit Tests"
 
       - bash: |
           if [ -d $(system.defaultworkingdirectory)/dist ]; then
