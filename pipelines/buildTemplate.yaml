@@ -73,11 +73,11 @@ jobs:
       #   displayName: "Unit Tests"
 
       - script: |
-          npx nx run-many -t test --parallel=3 --configuration=ci --skip-nx-cache
+          npm run test:unit -t test --parallel=3 --configuration=ci --skip-nx-cache
         displayName: "Full Tests"
 
       - script: |
-          npx nx run-many -t build --parallel=3 --skip-nx-cache
+          npm run build -t build --parallel=3 --skip-nx-cache
         displayName: "Full Build"
 
       - bash: |
