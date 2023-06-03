@@ -1,0 +1,32 @@
+trigger:
+- "master"
+
+name: "ImageCarrier-UI"
+
+variables:
+  AzureSubscription: 'Photon - Development (147099a6-f404-4edb-9d44-1beb5673b4fd)'
+  ArtifactName: 'ImageCarrierUI'
+
+stages:
+  - stage: Build
+    displayName: 'Build'
+    variables:
+      - group: 'dev-azure-imgcarrier-variable-group'
+    jobs:
+    - template: buildTemplate.yaml
+      parameters:          
+        environment: 'dev'
+        ArtifactName:  '$(ArtifactName)'
+
+  - stage: Deploy_Dev
+    displayName: 'Deploy to Dev'
+    condition: succeeded('Build')
+    dependsOn: Build
+    variables:
+      - group: 'dev-azure-imgcarrier-variable-group'
+    jobs:
+      - template: deploymentTemplate.yaml
+        parameters:
+          environment: 'dev'
+          ArtifactName:  '$(ArtifactName)'
+          AzureSubscription:  '$(AzureSubscription)'

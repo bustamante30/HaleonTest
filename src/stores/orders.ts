@@ -1,9 +1,10 @@
 import ordersData from "@/data/mock/orders";
 import { defineStore } from "pinia";
 
+
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
-    orders: [],
+    orders: [] as { id: string; preview: boolean; select: boolean; orderDate: Date; brandName: string; name: string; image: string; weight: string; itemCode: string; printerName: string; printerLocation: string; packType: string; mySGSNumber: string; }[],
     filters: {} as any,
     selectedOrder: null,
     options: {

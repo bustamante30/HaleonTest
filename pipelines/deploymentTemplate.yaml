@@ -1,0 +1,38 @@
+parameters:  
+  - name: environment
+  - name: ArtifactName
+  - name: AzureSubscription
+
+jobs:
+  - deployment:
+    displayName: '${{ parameters.environment }}'
+    environment: '${{ parameters.environment }}'
+    pool:
+      vmImage: "ubuntu-20.04"
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: DownloadBuildArtifacts@1
+              displayName: 'Download latest build artifact'
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: '${{ parameters.ArtifactName }}'
+                downloadPath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
+
+            - task: ExtractFiles@1
+              inputs:
+                archiveFilePatterns: '**/imagecarrier-ui.zip'
+                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                cleanDestinationFolder: true
+                overwriteExistingFiles: true
+
+            - task: AzureStaticWebApp@0
+              inputs:
+                cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                app_location: '/'
+                output_location: 'wwwroot'
+                skip_app_build: true
+              env:
+                azure_static_web_apps_api_token: $(StaticWebAppToken)
