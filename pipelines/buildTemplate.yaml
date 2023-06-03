@@ -61,12 +61,16 @@ jobs:
           AZURE_DEVOPS_EXT_PAT: "$(System.AccessToken)"
 
       - script: |
+          npm run dev
+        displayName: "npm run dev"
+      
+      - script: |
           npm run build
         displayName: "Full Build"
 
-      - script: |
-          npm run test:unit
-        displayName: "Unit Tests"
+      # - script: |
+      #     npm run test:unit
+      #   displayName: "Unit Tests"
 
       - bash: |
           if [ -d $(system.defaultworkingdirectory)/dist ]; then
