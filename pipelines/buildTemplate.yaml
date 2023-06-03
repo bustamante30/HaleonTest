@@ -60,17 +60,17 @@ jobs:
         env:
           AZURE_DEVOPS_EXT_PAT: "$(System.AccessToken)"
 
-          - script: |
-              npm run dev --parallel=3 --configuration=ci --skip-nx-cache
-            displayName: "Compile and Hot-Reload for Development"
+      - script: |
+          npm run dev --parallel=3 --configuration=ci --skip-nx-cache
+        displayName: "Compile and Hot-Reload for Development"
 
-          - script: |
-              npm run build --parallel=3 --configuration=ci --skip-nx-cache
-            displayName: "Type-Check, Compile and Minify for Production"
+      - script: |
+          npm run build --parallel=3 --configuration=ci --skip-nx-cache
+        displayName: "Type-Check, Compile and Minify for Production"
 
-          - script: |
-              npm run test:unit -t test --parallel=3 --configuration=ci --skip-nx-cache
-            displayName: "Unit Tests"
+      - script: |
+          npm run test:unit -t test --parallel=3 --configuration=ci --skip-nx-cache
+        displayName: "Unit Tests"
 
       - bash: |
           if [ -d $(system.defaultworkingdirectory)/dist ]; then
