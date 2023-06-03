@@ -18,7 +18,7 @@ export const useOrdersStore = defineStore("ordersStore", {
   },
   actions: {
     async getOrders() {
-      this.orders = ordersData;
+      // this.orders = ordersData;
     },
     async getOrderById(id: string, state: any) {
       this.selectedOrder = this.orders.find((order: any) => order.id === id) as any

@@ -7,7 +7,7 @@ export const useColorsStore = defineStore("colorsStore", {
   }),
   actions: {
     async getColors() {
-      this.colors = colorsData;
+      // this.colors = colorsData;
     }
   },
 });
