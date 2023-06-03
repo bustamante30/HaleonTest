@@ -60,9 +60,9 @@ jobs:
         env:
           AZURE_DEVOPS_EXT_PAT: "$(System.AccessToken)"
 
-      - script: |
-          npm run dev
-        displayName: "npm run dev"
+      # - script: |
+      #     npm run dev
+      #   displayName: "npm run dev"
       
       - script: |
           npm run build
