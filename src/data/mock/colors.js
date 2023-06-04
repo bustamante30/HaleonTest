@@ -20,4 +20,4 @@ function generateColors(count) {
   return jobs
 }
 
-export default generateColors(5)
+export default generateColors(8)

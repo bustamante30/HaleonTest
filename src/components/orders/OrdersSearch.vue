@@ -13,11 +13,15 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['search'])
+
 const items = computed(() => [])
 
 const isFiltersVisible = ref(false)
 
-function search() {
+function search(filters) {
+  isFiltersVisible.value = false
+  emit('search', filters)
 }
 
 function toggleFilters() {
@@ -28,12 +32,14 @@ function toggleFilters() {
 <template lang="pug">
 .orders-search
   .search
-    prime-auto-complete(placeholder="Search: Enter upto 5 terms .." v-model="value" :suggestions="items" @complete="search")
+    .input
+      prime-auto-complete.search-input(placeholder="Search by Brand, Product, Printer ..." v-model="value" :suggestions="items" @complete="search")
+      span.material-icons.outline search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
     sgs-mask(@click="toggleFilters")
-    advanced-search(:sections="config.sections" :filters="filters")
+    advanced-search(:sections="config.sections" :filters="filters" @search="search")
 </template>
 
 <style lang="sass" scoped>
@@ -44,4 +50,22 @@ function toggleFilters() {
   .search
     +flex
     flex: 1
+    .input
+      flex: 1
+      position: relative
+      span.material-icons
+        +absolute-w
+        +flex(center, center)
+        left: $s50
+        font-size: 1.5rem
+        opacity: 0.6
+</style>
+
+<style lang="sass">
+@import "@/assets/styles/includes"
+
+.search-input
+  .p-autocomplete-input
+    padding-left: $s150
+    width: 100%
 </style>

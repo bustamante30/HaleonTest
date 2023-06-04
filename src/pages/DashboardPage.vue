@@ -29,6 +29,10 @@ onBeforeMount(() => {
   ordersStore.initAdvancedFilters()
   ordersStore.getOrders()
 })
+
+function search(filters) {
+  ordersStore.setFilters(filters)
+}
 </script>
 
 <template lang="pug">
@@ -41,7 +45,7 @@ onBeforeMount(() => {
         template(#header)
           header
             h1 Recent Orders
-            orders-search(:config="userFilterConfig" :filters="filters")
+            orders-search(:config="userFilterConfig" :filters="filters" @search="search")
         orders-table(:config="config" :data="orders" :filters="filterTokens")
     router-view
 </template>

@@ -29,6 +29,7 @@ import MultiSelect from 'primevue/multiselect'
 import OverlayPanel from 'primevue/overlaypanel'
 import Panel from 'primevue/panel'
 import Tooltip from 'primevue/tooltip'
+import BadgeDirective from 'primevue/badgedirective';
 
 const app = createApp(App)
 
@@ -43,6 +44,7 @@ app.component('SgsScrollpanel', ScrollPanel)
 
 // Prime Components & Directives
 app.directive('tooltip', Tooltip)
+app.directive('badge', BadgeDirective)
 app.component('PrimeAutoComplete', AutoComplete)
 app.component('PrimeCalendar', Calendar)
 app.component('PrimeCheckbox', Checkbox)

@@ -9,9 +9,11 @@ header.app-header
   h3
     router-link(to="/") Image Carrier Re-Order
   .tools
+    router-link(to="/" v-tooltip.bottom="{ value: 'Manage Users' }")
+      span.material-icons.outline groups
     router-link(to="/" v-tooltip.bottom="{ value: 'Saved Orders' }")
       span.material-icons.outline bookmark
-    router-link(to="/" v-tooltip.bottom="{ value: 'Reorder Cart' }")
+    router-link(to="/" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="4")
       span.material-icons.outline shopping_cart
     user-profile
 </template>

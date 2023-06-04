@@ -41,27 +41,41 @@ function buy() {
       template(#header)
         header
           h1.title
-            span Re-Order: {{ selectedOrder.name }}
+            span Re-Order:&nbsp;
+            span {{ selectedOrder.name }}
           a.close(@click="router.push('/')")
             span.material-icons.outline close
+      //- .card.context
+        .details
+          h4
+            span Item Code: {{ selectedOrder.itemCode }}
+            span.separator |
+            span {{ selectedOrder.packType }}
+            span.separator |
+            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocation }}
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-        .details
-          h4
+        .card.details
+          .f
+            label Client
             span {{ selectedOrder.brandName }}
-          p
+          .f
+            label Description
+            span {{ selectedOrder.name }}
+          .f
+            label Item Code
             span {{ selectedOrder.itemCode }}
-            span.separator |
+          .f
+            label Pack Type
             span {{ selectedOrder.packType }}
-          .printer
-            h3 Printer
-            p {{ selectedOrder.printerName }}
-            p {{ selectedOrder.printerLocation }}
+          .f
+            label Printer
+            span {{ selectedOrder.printerName }}
+            span.separator /
+            span {{ selectedOrder.printerLocation }}
       .card
         colors-table(:config="config" :data="colors" isEditable="true")
-      .card
-        iframe.pdf(src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
       template(#footer)
         footer
           .actions
@@ -137,6 +151,20 @@ function buy() {
       .printer
         background: rgba($sgs-gray, 0.05)
         padding: $s75 $s
+
+  .f
+    padding: $s25 0
+    font-weight: 600
+    border-bottom: 1px solid rgba($sgs-gray, 0.1)
+    label
+      font-weight: 500
+      width: 7rem
+      display: inline-block
+      &:after
+        content: ":"
+        margin-right: $s50
+        display: inline-block
+
   footer
     padding: $s
     .actions

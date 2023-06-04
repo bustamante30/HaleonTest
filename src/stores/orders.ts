@@ -6,7 +6,7 @@ export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     orders: [] as { id: string; preview: boolean; select: boolean; orderDate: Date; brandName: string; name: string; image: string; weight: string; itemCode: string; printerName: string; printerLocation: string; packType: string; mySGSNumber: string; }[],
     filters: {} as any,
-    selectedOrder: null,
+    selectedOrder: ordersData[0],
     options: {
       locations: [] as any[],
       imageCarrierCodeTypes: [] as any[]
@@ -19,10 +19,15 @@ export const useOrdersStore = defineStore("ordersStore", {
   },
   actions: {
     async getOrders() {
+      console.log('Getting recent orders')
       this.orders = ordersData;
+      this.selectedOrder = this.orders[0]
     },
     async getOrderById(id: string, state: any) {
-      this.selectedOrder = this.orders.find((order: any) => order.id === id) as any
+      this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
+    },
+    setFilters(filters: any) {
+      this.filters = { ...this.filters, ...filters }
     },
     resetFilters() {
       this.filters['itemCode'] = null

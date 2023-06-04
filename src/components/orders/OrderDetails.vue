@@ -41,32 +41,31 @@ function buy() {
       template(#header)
         header
           h1.title
-            span {{ selectedOrder.name }}
+            span {{ selectedOrder.brandName }} / {{ selectedOrder.name }}
           a.close(@click="router.push('/')")
             span.material-icons.outline close
-      .card.summary(v-if="selectedOrder")
-        .thumbnail
-          prime-image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+      .card.context
         .details
           h4
-            span {{ selectedOrder.brandName }}
-          p
-            span {{ selectedOrder.itemCode }}
+            span Item Code: {{ selectedOrder.itemCode }}
             span.separator |
             span {{ selectedOrder.packType }}
-          .printer
-            h3 Printer
-            p {{ selectedOrder.printerName }}
-            p {{ selectedOrder.printerLocation }}
-      .card
-        colors-table(:config="config" :data="colors")
+            span.separator |
+            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocation }}
+      .card.summary(v-if="selectedOrder")
+        .thumbnail
+          prime-image.image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          sgs-button.sm(label="View PDF")
+        .details
+          colors-table.p-datatable-sm(:config="config" :data="colors")
       .card
         iframe.pdf(src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
       template(#footer)
         footer
           .actions
-            sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button(label="Re-Order" @click="router.push(`/${selectedId}/reorder`)")
+            //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
+            sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="router.push(`/${selectedId}/reorder`)")
+            sgs-button(icon="redo" label="Re-Order" @click="router.push(`/${selectedId}/reorder`)")
 </template>
 
 <style lang="sass">
@@ -120,13 +119,19 @@ function buy() {
         opacity: 1
   .card
     padding: $s $s2
+  .card.context
+    +flex-fill
+    padding-bottom: 0
   .card.summary
     +flex-fill
     align-items: flex-start
     .thumbnail
-      width: 16rem
-      > *
+      width: 25rem
+      > .image
         width: 100%
+        margin-bottom: $s
+      > button
+        margin: 0 auto
     .details
       flex: 1
       padding: 0 $s

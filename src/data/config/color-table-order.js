@@ -5,7 +5,7 @@ export default {
       field: 'colour',
       freeze: 'left',
       width: 12
-    },  
+    },
     {
       header: 'Image Carrier ID #',
       field: 'imageId',
@@ -14,7 +14,7 @@ export default {
     {
       header: 'Number of Sets (Qty)',
       field: 'sets',
-      type: 'edit-sets',
+      type: 'number',
       width: 18
     },
   ]

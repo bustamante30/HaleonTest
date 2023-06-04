@@ -65,6 +65,6 @@ span.menu-item
   cursor: pointer
   padding: $s50 $s
   span.material-icons
-    font-size: $s
+    font-size: 20px
     padding: 0 $s50
 </style>

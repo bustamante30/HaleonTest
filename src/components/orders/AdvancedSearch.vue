@@ -1,5 +1,5 @@
 <template lang="pug">
-form.advanced-search
+form.advanced-search(@submit.prevent="() => {}")
   sgs-scrollpanel
     template(#header)
       header
@@ -18,12 +18,13 @@ form.advanced-search
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
       .actions
-        sgs-button.default(label="Clear")
-        sgs-button(label="Search" @click="")
+        sgs-button.default(label="Reset" @click.prevent="reset")
+        sgs-button(label="Search" @click.prevent="search")
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
+import router from '@/router'
 
 const props = defineProps({
   sections: {
@@ -36,16 +37,9 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['search'])
 
-const advancedFilters = computed({
-  get: () => props.filters,
-  set: (val) => {
-    console.log(val)
-    // count.value = val - 1
-  }
-})
-
+const advancedFilters = ref()
 
 const imageCarrierCodeTypes = ref([
   { label: 'UPC Code', value: 'UPC' },
@@ -56,9 +50,16 @@ const imageCarrierCodeTypes = ref([
 
 let imageCarrierCodeType = ref('UPC')
 
-function update(event) {
-  console.log(event)
-  emit('change')
+onBeforeMount(() => {
+  advancedFilters.value = { ...props.filters }
+})
+
+function reset() {
+  advancedFilters.value = { ...props.filters }
+}
+
+function search() {
+  emit('search', advancedFilters.value)
 }
 </script>
 

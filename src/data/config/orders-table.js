@@ -4,6 +4,11 @@ export default {
         header: 'Thumbnail',
         field: 'image',
         type: 'image',
+        width: 12
+      },
+      {
+        header: 'Brand Name',
+        field: 'brandName',
         width: 18
       },
       {
@@ -13,11 +18,6 @@ export default {
         path: '/$1',
         pathParams: ['id'],
         freeze: 'left',
-      },
-      {
-        header: 'Brand Name',
-        field: 'brandName',
-        width: 18
       },
       {
         header: 'Order Date',
@@ -58,9 +58,10 @@ export default {
   ],
   actions: (order) => {
     return [
-      { icon: 'gps_fixed', label: 'Track Order', event: 'track' },
+      // { icon: 'gps_fixed', label: 'Track Order', event: 'track' },
       { icon: 'redo', label: 'Order Again', event: 'reorder' },
-      { icon: 'edit', label: 'Update Order', event: 'edit' }
+      { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
+      // { icon: 'edit', label: 'Update Order', event: 'edit' }
     ]
   }
 }
