@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userSessionStore } from "@/stores/usersession";
+import jwtDecode from "jwt-decode";
 
 const authConfig = {
   auth: {
@@ -11,10 +12,6 @@ const authConfig = {
     postLogoutRedirectUri:
     "http://localhost:3000",
   },
-  // cache: {
-  //   storeAuthStateInCookie: true,
-  //   cacheLocation: "memoryStorage",
-  // },
 };
 
 const requestScope = {
@@ -109,6 +106,14 @@ export const useAuthStore = defineStore("auth", {
     async updateUserStore(tokenResponse: any) {
       this.currentUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
+      this.accessToken = tokenResponse.accessToken
+      console.log(this.accessToken)
+      // const decodedBearer = jwtDecode(
+      //   this.$auth.$storage.getUniversal('_token.aad')
+      // )
+      // this.currentUser.username = user.displayName as string
+      // this.currentUser.email = user.email as string
+      // console.log(user)
     },
   },
 });
