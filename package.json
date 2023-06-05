@@ -13,9 +13,11 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@azure/msal-browser": "^2.37.0",
     "@tsconfig/node18": "^2.0.1",
     "lodash": "^4.17.21",
     "luxon": "^3.3.0",
+    "pico-emitter": "^1.2.1",
     "pinia": "^2.0.35",
     "primeicons": "^6.0.1",
     "primevue": "^3.27.0",

@@ -1,22 +1,33 @@
 <script setup>
-import { ref } from 'vue'
-import router from '@/router'
+import { ref } from "vue";
+import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
 
 const props = defineProps({
   user: {
     type: Object,
-    default: () => ({ initials: 'AL' })
-  }
-})
+    default: () => ({ initials: "AL" }),
+  },
+});
 
-const isPopupVisible = ref(false)
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
+
+const isPopupVisible = ref(false);
 
 function togglePopup() {
-  isPopupVisible.value = !isPopupVisible.value
+  isPopupVisible.value = !isPopupVisible.value;
 }
 
-function logout() {
-  router.push('/auth/login')
+async function logout() {
+  if (authStore.currentUser.isLoggedIn) {
+    await authStore.logout();
+  }
+  if (authb2cStore.currentB2CUser.isLoggedIn) {
+    await authb2cStore.logout();
+  }
+  // router.push('/')
 }
 </script>
 
@@ -61,5 +72,4 @@ function logout() {
       padding-top: $s
       border-top: 1px solid #EEE
       +flex($h: right)
-
 </style>
