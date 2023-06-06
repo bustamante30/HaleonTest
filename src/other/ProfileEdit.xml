@@ -6,7 +6,8 @@
   PolicySchemaVersion="0.3.0.0"
   TenantId="sgscophoton.onmicrosoft.com"
   PolicyId="B2C_1A_ProfileEdit"
-  PublicPolicyUri="http://sgscophoton.onmicrosoft.com/B2C_1A_ProfileEdit">
+  PublicPolicyUri="http://sgscophoton.onmicrosoft.com/B2C_1A_ProfileEdit"
+  TenantObjectId="55585cc8-a22e-4b2d-a859-26d84e110f59">
 
   <BasePolicy>
     <TenantId>sgscophoton.onmicrosoft.com</TenantId>

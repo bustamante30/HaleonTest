@@ -29,7 +29,7 @@
           DefaultValue="{Policy:TenantObjectId}" />
         <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken"
           PartnerClaimType="idp_access_token" />
-  
+        <OutputClaim ClaimTypeReferenceId="email"/>
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
