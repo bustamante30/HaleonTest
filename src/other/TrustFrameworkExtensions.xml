@@ -85,8 +85,7 @@
             <Item Key="scope">email profile</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
-            <Item Key="client_id">
-              70409938910-1ottbt7vsgn5jqvdalgsh7n1n5fl7h0p.apps.googleusercontent.com</Item>
+            <Item Key="client_id">70409938910-1ottbt7vsgn5jqvdalgsh7n1n5fl7h0p.apps.googleusercontent.com</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleSecret" />
