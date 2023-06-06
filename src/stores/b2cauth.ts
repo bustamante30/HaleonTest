@@ -15,23 +15,18 @@ const authB2CConfig = {
     responseMode: "query",
     redirectUri: "http://localhost:3000/b2clogin",
     postLogoutRedirectUri: "http://localhost:3000",
+    navigateToLoginRequestUrl: true,
   },
-  // cache: {
-  //   storeAuthStateInCookie: true,
-  //   cacheLocation: "memoryStorage",
-  // },
-};
-// const requestScope = {
-//   scopes: [
-//     "openid",
-//     //  "profile",
-//     // "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/ImageCarrierPOCScope",
-//   ],
-// };
-const requestScope = {
-  scopes: ["openid"],
-};
 
+};
+const requestScope = {
+  scopes: [
+    "openid",
+    "profile",
+    "email",
+    "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/.default",
+  ],
+};
 export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => ({
     msalB2cInstance: new PublicClientApplication(authB2CConfig),
@@ -60,18 +55,24 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       const accounts = this.msalB2cInstance.getAllAccounts();
       if (accounts.length == 0) {
         console.log("no logged in account detected");
-        // await this.msalB2cInstance.loginRedirect();
         return;
       }
       this.account = accounts[0];
     },
     async login() {
       try {
+        // let tokenResponse = {};
         let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
-        const accessTokenRequest = {
-          scopes: ["openid", "https://graph.microsoft.com/.default"],
-          account: this.msalB2cInstance.getAllAccounts()[0],
-        };
+        // const accessTokenRequest = {
+        //   scopes: [
+        //     "openid",
+        //     "profile",
+        //     "email",
+        //     "https://graph.microsoft.com/.default",
+        //     "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read"
+        //   ],
+        //   account: this.msalB2cInstance.getAllAccounts()[0],
+        // };
 
         if (tokenResponse) {
           this.account = tokenResponse.account;
@@ -87,9 +88,11 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");
           try {
-            tokenResponse = await this.msalB2cInstance.acquireTokenSilent(
-              accessTokenRequest
-            );
+            tokenResponse = await this.msalB2cInstance.acquireTokenSilent({
+              scopes: [
+                "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
+              ],
+            });
             await this.updateUserStore(tokenResponse);
           } catch (err) {
             await this.msalB2cInstance.acquireTokenRedirect(requestScope);
@@ -98,7 +101,12 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log(
             "[Auth Store]  No account or tokenResponse present. User must now login."
           );
-          await this.msalB2cInstance.loginRedirect();
+          await this.msalB2cInstance.loginRedirect()
+          // await this.msalB2cInstance.loginRedirect({
+          //   scopes: [
+          //     "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
+          //   ],
+          // });
         }
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
@@ -112,8 +120,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log("logout successful");
           this.currentB2CUser.isLoggedIn = false;
           localStorage.clear();
-          // let msalInstance: PublicClientApplication = this.msalB2cInstance as PublicClientApplication;
-          // msalInstance["browserStorage"].clear();
+          sessionStorage.clear();
         })
         .catch((error) => {
           console.error(error);

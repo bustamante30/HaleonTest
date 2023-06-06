@@ -98,6 +98,7 @@ export const useAuthStore = defineStore("auth", {
           console.log("logout successful");
           this.currentUser.isLoggedIn = false;
           localStorage.clear()
+          sessionStorage.clear();
         })
         .catch((error) => {
           console.error(error);
@@ -108,12 +109,11 @@ export const useAuthStore = defineStore("auth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken
       console.log(this.accessToken)
-      // const decodedBearer = jwtDecode(
-      //   this.$auth.$storage.getUniversal('_token.aad')
-      // )
-      // this.currentUser.username = user.displayName as string
-      // this.currentUser.email = user.email as string
-      // console.log(user)
+      let decodedBearer = jwtDecode(this.accessToken) as object
+      this.currentUser.username = decodedBearer.displayName as string
+      this.currentUser.email = decodedBearer.upn as string
+      console.log('decodedBearer' + decodedBearer)
+      console.log('currentUser' + this.currentUser)
     },
   },
 });

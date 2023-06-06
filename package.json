@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "test:unit": "vitest",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@azure/msal-browser": "^2.37.0",
     "@tsconfig/node18": "^2.0.1",
+    "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "luxon": "^3.3.0",
     "pico-emitter": "^1.2.1",
