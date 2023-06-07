@@ -8,14 +8,13 @@ import { userB2CSessionStore } from "@/stores/userb2csession";
 
 const authB2CConfig = {
   auth: {
-    clientId: "66a0287e-e110-40dd-9091-78002341c362", // import.meta.env.VITE_AAD_CLIEND_ID,
-    authority:
-      "https://sgscophoton.b2clogin.com/sgscophoton.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN",
-    knownAuthorities: ["sgscophoton.b2clogin.com"],
+    clientId: import.meta.env.VITE_B2C_CLIENT_ID, // "66a0287e-e110-40dd-9091-78002341c362",
+    authority: import.meta.env.VITE_B2C_AUTHORITY, // "https://sgscophoton.b2clogin.com/sgscophoton.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN",
+    knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY,], //["sgscophoton.b2clogin.com"],
     responseMode: "query",
     // redirectUri: "http://localhost:3000/b2clogin",
-    redirectUri: "https://brave-flower-001e3df0f.3.azurestaticapps.net/b2clogin",
-    postLogoutRedirectUri: "https://brave-flower-001e3df0f.3.azurestaticapps.net",
+    redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL, // "https://brave-flower-001e3df0f.3.azurestaticapps.net/b2clogin",
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL, // "https://brave-flower-001e3df0f.3.azurestaticapps.net",
     navigateToLoginRequestUrl: true,
   },
 
@@ -25,7 +24,8 @@ const requestScope = {
     "openid",
     "profile",
     "email",
-    "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/.default",
+    import.meta.env.VITE_B2C_TOKEN_SCOPE
+    // "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
   ],
 };
 export const useB2CAuthStore = defineStore("b2cauth", {
@@ -91,7 +91,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           try {
             tokenResponse = await this.msalB2cInstance.acquireTokenSilent({
               scopes: [
-                "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
+                import.meta.env.VITE_B2C_TOKEN_SCOPE // "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
               ],
             });
             await this.updateUserStore(tokenResponse);

@@ -5,13 +5,12 @@ import jwtDecode from "jwt-decode";
 
 const authConfig = {
   auth: {
-    clientId: "ac45b74a-2cd1-49f9-b192-e965e5d3ebfa", // import.meta.env.VITE_AAD_CLIEND_ID,
-    authority:"https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1",
+    clientId: import.meta.env.VITE_AAD_CLIEND_ID, // "ac45b74a-2cd1-49f9-b192-e965e5d3ebfa"
+    authority: import.meta.env.VITE_AAD_AUTHORITY,// "https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1",
     responseMode: "query",
     // redirectUri: "http://localhost:3000/login",
-    redirectUri: "https://brave-flower-001e3df0f.3.azurestaticapps.net/login",
-    postLogoutRedirectUri:
-    "https://brave-flower-001e3df0f.3.azurestaticapps.net",
+    redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,// "https://brave-flower-001e3df0f.3.azurestaticapps.net/login",
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL// "https://brave-flower-001e3df0f.3.azurestaticapps.net",
   },
 };
 
@@ -57,7 +56,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         let tokenResponse = await this.msalInstance.handleRedirectPromise();
         const accessTokenRequest = {
-          scopes: ["api://add0c5cd-c3a8-44fa-8161-ac6250e7a19a/access_as_user"],
+          scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],// ["api://add0c5cd-c3a8-44fa-8161-ac6250e7a19a/access_as_user"],
           account: this.msalInstance.getAllAccounts()[0],
         };
 
