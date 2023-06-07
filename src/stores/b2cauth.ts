@@ -13,8 +13,9 @@ const authB2CConfig = {
       "https://sgscophoton.b2clogin.com/sgscophoton.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN",
     knownAuthorities: ["sgscophoton.b2clogin.com"],
     responseMode: "query",
-    redirectUri: "http://localhost:3000/b2clogin",
-    postLogoutRedirectUri: "http://localhost:3000",
+    // redirectUri: "http://localhost:3000/b2clogin",
+    redirectUri: "https://brave-flower-001e3df0f.3.azurestaticapps.net/b2clogin",
+    postLogoutRedirectUri: "https://brave-flower-001e3df0f.3.azurestaticapps.net",
     navigateToLoginRequestUrl: true,
   },
 
