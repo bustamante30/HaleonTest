@@ -19,7 +19,7 @@ const store = createStore({
     };
   },
   mutations :{
-    setAccessToken(state, token){
+    setAccessToken(state, token): void{
       state.accessToken = token;
     }
   }

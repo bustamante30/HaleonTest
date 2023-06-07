@@ -110,8 +110,8 @@ export const useAuthStore = defineStore("auth", {
       this.accessToken = tokenResponse.accessToken
       console.log(this.accessToken)
       let decodedBearer = jwtDecode(this.accessToken) as object
-      this.currentUser.username = decodedBearer.displayName as string
-      this.currentUser.email = decodedBearer.upn as string
+      // this.currentUser.username = decodedBearer.displayName as string
+      // this.currentUser.email = decodedBearer.upn as string
       console.log('decodedBearer' + decodedBearer)
       console.log('currentUser' + this.currentUser)
     },

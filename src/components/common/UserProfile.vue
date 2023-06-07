@@ -27,7 +27,6 @@ async function logout() {
   if (authb2cStore.currentB2CUser.isLoggedIn) {
     await authb2cStore.logout();
   }
-  // router.push('/')
 }
 </script>
 
