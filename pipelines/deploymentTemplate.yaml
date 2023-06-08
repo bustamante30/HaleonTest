@@ -31,6 +31,8 @@ jobs:
                 overwriteExistingFiles: true
 
             - task: AzureStaticWebApp@0
+              enabled: true #requires linux agent, so new stage needed and artefact should be exported in this one
+              displayName: "Deploying to ${{ parameters.environment }}"
               inputs:
                 cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 app_location: '/'
@@ -38,7 +40,7 @@ jobs:
                 config_file_location: '/dist'
                 skip_app_build: true
                 skip_api_build: true
-                is_static_export: false
+                # is_static_export: false #meant to be used with Next.js apps
                 verbose: true
               env:
                 azure_static_web_apps_api_token: $(StaticWebAppToken)
