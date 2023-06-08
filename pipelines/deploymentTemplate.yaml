@@ -49,7 +49,7 @@ jobs:
                 output_location: 'wwwroot'
                 config_file_location: '/'
                 skip_app_build: true
-                # is_static_export: false #meant to be used with Next.js apps
+                is_static_export: false #meant to be used with Next.js apps
                 verbose: true
               env:
                 azure_static_web_apps_api_token: $(StaticWebAppToken)
