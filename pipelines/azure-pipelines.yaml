@@ -19,16 +19,16 @@ stages:
         environment: 'dev'
         ArtifactName:  '$(ArtifactName)'
 
-  # - stage: Deploy_Dev
-  #   displayName: 'Deploy to Dev'
-  #   condition: succeeded('Build')
-  #   dependsOn: Build
-  #   variables:
-  #     - group: 'dev-azure-imgcarrier-variable-group'
-  #     - group: 'dev-azure-imgcarrier-ui-variable-group'
-  #   jobs:
-  #     - template: deploymentTemplate.yaml
-  #       parameters:
-  #         environment: 'dev'
-  #         ArtifactName:  '$(ArtifactName)'
-  #         AzureSubscription:  '$(AzureSubscription)'
+  - stage: Deploy_Dev
+    displayName: 'Deploy to Dev'
+    condition: succeeded('Build')
+    dependsOn: Build
+    variables:
+      - group: 'dev-azure-imgcarrier-variable-group'
+      - group: 'dev-azure-imgcarrier-ui-variable-group'
+    jobs:
+      - template: deploymentTemplate.yaml
+        parameters:
+          environment: 'dev'
+          ArtifactName:  '$(ArtifactName)'
+          AzureSubscription:  '$(AzureSubscription)'

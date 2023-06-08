@@ -78,11 +78,10 @@ jobs:
           fi
 
       - task: CopyFiles@2
-        displayName: 'Copy staticwebapp.config.json'
+        displayName: 'Copy staticwebapp.config to dist'
         condition: succeededOrFailed()
         inputs:
           SourceFolder: '$(System.Defaultworkingdirectory)'
-          # Contents: '**\bin\${{ parameters.BuildConfiguration }}\${{ parameters.SqlProjectName }}.dacpac'
           Contents: '**/staticwebapp.config.json'
           TargetFolder: '$(system.defaultworkingdirectory)/dist'
           OverWrite: true
