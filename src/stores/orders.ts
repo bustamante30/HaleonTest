@@ -23,7 +23,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.orders = ordersData;
       this.selectedOrder = this.orders[0]
     },
-    async getOrderById(id: string, state: any) {
+    async getOrderById(id: string) {
       this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
     },
     setFilters(filters: any) {

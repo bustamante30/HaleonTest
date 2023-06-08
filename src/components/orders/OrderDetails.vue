@@ -23,7 +23,7 @@ const props = defineProps({
 onBeforeMount(() => {
   ordersStore.getOrders()
   colorsStore.getColors()
-  ordersStore.getOrderById(props.selectedId, )
+  ordersStore.getOrderById(props.selectedId)
 })
 
 
