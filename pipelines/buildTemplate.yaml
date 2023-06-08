@@ -80,7 +80,7 @@ jobs:
       - task: ArchiveFiles@2
         condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
         inputs:
-          rootFolderOrFile: "$(system.defaultworkingdirectory)/dist"
+          rootFolderOrFile: "$(system.defaultworkingdirectory)"
           archiveType: "zip"
           archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/imagecarrier-ui.zip"
           includeRootFolder: false
