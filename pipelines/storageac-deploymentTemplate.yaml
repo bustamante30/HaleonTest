@@ -22,18 +22,18 @@ jobs:
                 buildType: 'current'
                 downloadType: 'single'
                 artifactName: '${{ parameters.ArtifactName }}'
-                downloadPath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
+                downloadPath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}'
 
             - task: ExtractFiles@1
               inputs:
                 archiveFilePatterns: '**/${{ parameters.BuildNumber }}'
-                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/${{ parameters.ArtifactName }}'
+                destinationFolder: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
             - task: AzureFileCopy@3
               inputs:
-                sourcePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/${{ parameters.ArtifactName }}'
+                sourcePath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}'
                 Destination: 'AzureBlob'
                 azureSubscription: '${{ parameters.AzureSubscription }}'
                 storage: '$(StorageName)'
