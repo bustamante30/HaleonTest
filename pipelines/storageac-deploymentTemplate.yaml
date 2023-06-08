@@ -1,0 +1,41 @@
+parameters:  
+  - name: environment
+  - name: ArtifactName
+  - name: AzureSubscription
+  - name: BuildNumber
+
+jobs:
+  - deployment:
+    displayName: '${{ parameters.environment }}'
+    environment: '${{ parameters.environment }}'
+    pool:
+      vmImage: "ubuntu-20.04"
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+              submodules: true
+            - task: DownloadBuildArtifacts@1
+              displayName: 'Download latest build artifact'
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: '${{ parameters.ArtifactName }}'
+                downloadPath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
+
+            - task: ExtractFiles@1
+              inputs:
+                archiveFilePatterns: '**/${{ parameters.BuildNumber }}'
+                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                cleanDestinationFolder: true
+                overwriteExistingFiles: true
+
+            - task: AzureFileCopy@3
+              inputs:
+                sourcePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                Destination: 'AzureBlob'
+                azureSubscription: '${{ parameters.AzureSubscription }}'
+                storage: '$(StorageName)'
+                containerName: '$web'
+                cleanTargetBeforeCopy: true

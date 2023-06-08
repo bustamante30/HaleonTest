@@ -29,7 +29,8 @@ stages:
       - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-variable-group'
     jobs:
-      - template: deploymentTemplate.yaml
+      - template: storageac-deploymentTemplate.yaml
+      # - template: staticwebapp-deploymentTemplate.yaml
         parameters:
           environment: 'dev'
           ArtifactName:  '$(ArtifactName)'
