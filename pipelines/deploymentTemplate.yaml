@@ -13,6 +13,8 @@ jobs:
       runOnce:
         deploy:
           steps:
+            - checkout: self
+              submodules: true
             - task: DownloadBuildArtifacts@1
               displayName: 'Download latest build artifact'
               inputs:
