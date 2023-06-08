@@ -1,6 +1,7 @@
 parameters:  
   - name: environment
   - name: ArtifactName
+  - name: BuildNumber
 
 jobs:
   - job: Job_Build
@@ -91,7 +92,7 @@ jobs:
         inputs:
           rootFolderOrFile: "$(system.defaultworkingdirectory)/dist"
           archiveType: "zip"
-          archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/imagecarrier-ui.zip"
+          archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}"
           includeRootFolder: true
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
@@ -103,7 +104,7 @@ jobs:
           artifactName: '${{ parameters.ArtifactName }}'
         
       - bash: |
-          if [ -f "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/imagecarrier-ui.zip" ]; then
+          if [ -f "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}" ]; then
             echo "Source directory exists."
           else
             echo "Source directory does not exist."

@@ -2,6 +2,7 @@ parameters:
   - name: environment
   - name: ArtifactName
   - name: AzureSubscription
+  - name: BuildNumber
 
 jobs:
   - deployment:
@@ -25,7 +26,7 @@ jobs:
 
             - task: ExtractFiles@1
               inputs:
-                archiveFilePatterns: '**/imagecarrier-ui.zip'
+                archiveFilePatterns: '**/${{ parameters.BuildNumber }}'
                 destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
@@ -39,7 +40,6 @@ jobs:
                 output_location: 'wwwroot'
                 config_file_location: '/dist'
                 skip_app_build: true
-                skip_api_build: true
                 # is_static_export: false #meant to be used with Next.js apps
                 verbose: true
               env:

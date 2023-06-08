@@ -6,6 +6,7 @@ name: "ImageCarrier-UI"
 variables:
   AzureSubscription: 'Photon - Development (147099a6-f404-4edb-9d44-1beb5673b4fd)'
   ArtifactName: 'ImageCarrierUI'
+  BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
 
 stages:
   - stage: Build
@@ -18,6 +19,7 @@ stages:
       parameters:          
         environment: 'dev'
         ArtifactName:  '$(ArtifactName)'
+        BuildNumber:  '$(BuildNumber)'
 
   - stage: Deploy_Dev
     displayName: 'Deploy to Dev'
@@ -32,3 +34,4 @@ stages:
           environment: 'dev'
           ArtifactName:  '$(ArtifactName)'
           AzureSubscription:  '$(AzureSubscription)'
+          BuildNumber:  '$(BuildNumber)'
