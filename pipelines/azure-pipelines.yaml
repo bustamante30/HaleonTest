@@ -4,7 +4,7 @@ trigger:
 name: "ImageCarrier-UI"
 
 variables:
-  AzureSubscription: 'photon-dev-ai-cr'
+  AzureSubscription: 'Photon - Development (147099a6-f404-4edb-9d44-1beb5673b4fd)'
   ArtifactName: 'ImageCarrierUI'
   BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
 
