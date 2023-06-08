@@ -66,6 +66,6 @@ function toggleFilters() {
 
 .search-input
   .p-autocomplete-input
-    padding-left: $s150
+    padding-left: $s3
     width: 100%
 </style>

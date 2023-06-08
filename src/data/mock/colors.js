@@ -8,6 +8,7 @@ function generateColor(i) {
   return {
     colour: faker.helpers.arrayElement(['Cyan', 'Magenta', 'Yellow', 'Black', 'Pantone 2145 C', 'Pantone 281 C', 'Spot Varnish']),
     imageId: faker.datatype.number({ min: 10000, max: 999999}) + refIdSuffix,
+    serialNumber: faker.datatype.number({ min: 10000, max: 999999}),
     sets: faker.datatype.number({ min: 1, max: 10 }),
   }
 }

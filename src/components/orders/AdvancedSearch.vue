@@ -17,12 +17,13 @@ form.advanced-search(@submit.prevent="() => {}")
             prime-inputtext.sm(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].code")
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
-      .actions
-        sgs-button.default(label="Reset" @click.prevent="reset")
-        sgs-button(label="Search" @click.prevent="search")
+      footer
+        .actions
+          sgs-button.default(label="Reset" @click.prevent="reset")
+          sgs-button(label="Search" @click.prevent="search")
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed, onBeforeMount } from 'vue'
 import router from '@/router'
 
@@ -94,11 +95,5 @@ function search() {
   .fields
     +flex
     gap: $s
-  .actions
-    +flex(center, right)
-    padding: $s 0 0
-    gap: $s
-    // > *
-    //   flex: 1
 
 </style>

@@ -20,12 +20,19 @@ const id = route.params.id
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 
+@keyframes slide
+  0%
+    transform: translateX(40vw)
+  100%
+    transform: translate(0)
+
 .page.order-confirm
   .container
     +fixed-e
     +container
-    width: 60vw
+    width: 70vw
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
-    z-index: 6000
+    z-index: $z-popup-page
+    animation: slide 0.2s ease-in
 </style>

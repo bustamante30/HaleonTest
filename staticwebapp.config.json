@@ -10,10 +10,8 @@
         "redirect": "/login"
       },
       {
-        "route": "/landing-page"
-      },
-      {
-        "route": "/dashboard*"
+        "route": "/dashboard*",
+        "allowedRoles": ["administrator", "authenticated"]
       }
     ],
     "navigationFallback": {

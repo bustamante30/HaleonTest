@@ -1,5 +1,5 @@
-<script setup>
-import { computed, onBeforeMount } from "vue";
+<script lang="ts" setup>
+import { ref, computed, onBeforeMount } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table'
@@ -9,6 +9,8 @@ import { useColorsStore } from '@/stores/colors'
 
 const colorsStore = useColorsStore()
 
+const preview = ref()
+
 const colors = computed(() => colorsStore.colors)
 
 const props = defineProps({
@@ -16,20 +18,24 @@ const props = defineProps({
     type: String,
     default: () => "",
   },
- });
+ })
 
 onBeforeMount(() => {
   ordersStore.getOrders()
   colorsStore.getColors()
-  ordersStore.getOrderById(props.selectedId)
-});
+  ordersStore.getOrderById(props.selectedId, )
+})
 
 
-const ordersStore = useOrdersStore();
-const selectedOrder = computed(() => ordersStore.selectedOrder);
+const ordersStore = useOrdersStore()
+const selectedOrder = computed(() => ordersStore.selectedOrder)
 
 function buy() {
   router.push(`/${props.selectedId}/confirm`)
+}
+
+function viewPreview() {
+  preview?.value?.scrollIntoView()
 }
 </script>
 
@@ -55,16 +61,16 @@ function buy() {
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button.sm(label="View PDF")
+          sgs-button.sm(label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors")
       .card
-        iframe.pdf(src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
+        iframe#preview.pdf(ref="preview" src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
       template(#footer)
         footer
+          .secondary-actions &nbsp;
           .actions
             //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="router.push(`/${selectedId}/reorder`)")
             sgs-button(icon="redo" label="Re-Order" @click="router.push(`/${selectedId}/reorder`)")
 </template>
 
@@ -85,7 +91,7 @@ function buy() {
     max-height: 80%
 
 .p-image-mask
-  z-index: 6001 !important
+  z-index: $z-image-mask !important
 </style>
 
 <style lang="sass" scoped>
@@ -105,7 +111,7 @@ function buy() {
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container
-    z-index: 5000
+    z-index: $z-popup-page
     animation: slide 0.2s ease-in
   header
     +flex-fill
@@ -140,12 +146,6 @@ function buy() {
       .printer
         background: rgba($sgs-gray, 0.05)
         padding: $s75 $s
-  footer
-    padding: $s
-    .actions
-      +flex($h: right)
-      > *
-        margin-left: $s
 
 iframe.pdf
   width: 100%

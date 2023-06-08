@@ -26,6 +26,7 @@ body
   display: inline-block
   padding: 0 0.5em
   opacity: 0.3
+  font-weight: normal
 
 .divider
   opacity: 0.1
@@ -54,8 +55,15 @@ a
     > span
       color: var(--link-hover-text-color)
 
-.input.overridden,
-.overridden .input,
-.overridden .p-autocomplete-input
-  border-left-width: 5px
-  border-color: var(--overridden-color)
+footer:not(.panel-footer)
+  border-top: 1px solid #EEE
+  padding: $s
+  .p-dialog-footer &
+    padding: $s 0 0
+  +flex-fill
+  .secondary-actions
+    +flex($h: left)
+    gap: $s50
+  .actions
+    +flex($h: right)
+    gap: $s50

@@ -4,6 +4,13 @@
   color: var(--text-color)
   font-weight: 600
   width: 100%
+  border: 1px solid rgba($sgs-gray, 0.3)
+  &:hover
+    border: 1px solid rgba($sgs-blue, 1)
+  &:enabled:focus
+    border: 1px solid rgba($sgs-blue, 1)
+    box-shadow: 0 0 0 0.2em rgba($sgs-blue, 0.2)
+
 
 .p-inputtext.inline
   border-width: 0

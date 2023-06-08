@@ -3,6 +3,8 @@ button(:disabled="disabled" :class="{ rounded: rounded, icon: icon && !label }")
   i.icon.material-icons.outline(v-if="icon && iconPosition === 'left'" :class="[icon, iconClass]") {{ icon }}
   span(v-if="label") {{ label }}
   i.icon.material-icons.outline(v-if="icon && iconPosition === 'right'" :class="[icon, iconClass]") {{ icon }}
+  span.badge
+    slot(name="badge")
 </template>
 
 <script setup>
@@ -53,6 +55,7 @@ button
 
 button
   padding: $s75 $s
+  position: relative
   &.lg
     padding: 15px 45px
   &.sm
@@ -160,4 +163,11 @@ span
   display: inline-block
   + i.icon
     margin-left: $s50
+
+span.badge
+  +absolute-ne
+  transform: translate(50%,-50%)
+  transform-origin: 100% 0
+  margin: 0
+
 </style>
