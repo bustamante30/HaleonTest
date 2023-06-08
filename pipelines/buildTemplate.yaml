@@ -93,7 +93,7 @@ jobs:
           rootFolderOrFile: "$(system.defaultworkingdirectory)/dist"
           archiveType: "zip"
           archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}"
-          includeRootFolder: true
+          includeRootFolder: false
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
 
