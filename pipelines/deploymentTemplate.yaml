@@ -33,6 +33,10 @@ jobs:
                 cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 app_location: '/'
                 output_location: 'wwwroot'
+                config_file_location: '/assets'
                 skip_app_build: true
+                skip_api_build: true
+                is_static_export: false
+                verbose: true
               env:
                 azure_static_web_apps_api_token: $(StaticWebAppToken)
