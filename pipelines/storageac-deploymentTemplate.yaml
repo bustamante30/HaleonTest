@@ -27,13 +27,13 @@ jobs:
             - task: ExtractFiles@1
               inputs:
                 archiveFilePatterns: '**/${{ parameters.BuildNumber }}'
-                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
             - task: AzureFileCopy@3
               inputs:
-                sourcePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                sourcePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
                 Destination: 'AzureBlob'
                 azureSubscription: '${{ parameters.AzureSubscription }}'
                 storage: '$(StorageName)'
