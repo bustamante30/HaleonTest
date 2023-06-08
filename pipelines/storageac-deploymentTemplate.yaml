@@ -9,7 +9,7 @@ jobs:
     displayName: '${{ parameters.environment }}'
     environment: '${{ parameters.environment }}'
     pool:
-      vmImage: "ubuntu-20.04"
+      vmImage: "windows-latest"
     strategy:
       runOnce:
         deploy:
