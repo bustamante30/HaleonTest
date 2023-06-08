@@ -77,13 +77,23 @@ jobs:
             echo "##vso[task.setVariable variable=IMGCARRIERAPPBUILT]true"
           fi
 
+      - task: CopyFiles@2
+        displayName: 'Copy staticwebapp.config.json'
+        condition: succeededOrFailed()
+        inputs:
+          SourceFolder: '$(System.Defaultworkingdirectory)'
+          # Contents: '**\bin\${{ parameters.BuildConfiguration }}\${{ parameters.SqlProjectName }}.dacpac'
+          Contents: '**/staticwebapp.config.json'
+          TargetFolder: '$(system.defaultworkingdirectory)/dist'
+          OverWrite: true
+
       - task: ArchiveFiles@2
         condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
         inputs:
-          rootFolderOrFile: "$(system.defaultworkingdirectory)"
+          rootFolderOrFile: "$(system.defaultworkingdirectory)/dist"
           archiveType: "zip"
           archiveFile: "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/imagecarrier-ui.zip"
-          includeRootFolder: false
+          includeRootFolder: true
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
 
