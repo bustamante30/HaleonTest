@@ -2,10 +2,12 @@
     "trailingSlash": "auto",
     "routes": [
       {
-        "route": "/b2clogin"
+        "route": "/b2clogin",
+        "redirect": "/b2clogin"
       },
       {
-        "route": "/login"
+        "route": "/login",
+        "redirect": "/login"
       },
       {
         "route": "/landing-page"
