@@ -63,7 +63,9 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     async login() {
       try {
         // let tokenResponse = {};
+        console.log('B2C login page')
         let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
+        console.log('B2C login page' + tokenResponse)
         // const accessTokenRequest = {
         //   scopes: [
         //     "openid",
