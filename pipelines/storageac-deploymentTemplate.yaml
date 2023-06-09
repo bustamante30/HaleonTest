@@ -37,7 +37,6 @@ jobs:
                 sourcePath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\imgapp\'
                 Destination: 'AzureBlob'
                 azureSubscription: '${{ parameters.AzureSubscription }}'
-                # azureSubscription: 'photon-dev-ai-cr'
                 storage: '$(StorageName)'
                 containerName: '$web'
                 cleanTargetBeforeCopy: true
