@@ -31,6 +31,8 @@ import Panel from 'primevue/panel'
 import Tooltip from 'primevue/tooltip'
 import BadgeDirective from 'primevue/badgedirective';
 import Message from 'primevue/message'
+import { ValidationProvider } from 'vee-validate';
+import ToastService from 'primevue/toastservice';
 
 const app = createApp(App)
 
@@ -60,4 +62,5 @@ app.component('PrimePanel', Panel)
 app.component('PrimeOverlayPanel', OverlayPanel)
 app.component('PrimeImage', Image)
 app.component('Message',Message)
+app.use(ToastService);
 app.mount('#app')

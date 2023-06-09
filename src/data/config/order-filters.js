@@ -29,15 +29,19 @@ function filterConfig(role) {
           },
           {
             name: 'printerLocation',
-            label: 'Printer Location',
+            label: 'Shipping Location',
             short: 'Location',
-            type: 'select',
+            type: 'printerLoc',
             options: 'locations',
           },
           {
             name: 'packagingReference',
             label: 'Packaging Reference',
             short: 'Ref',
+          },
+          {
+            name: 'previousPONumber',
+            label: 'Previous PO Number',
           },
         ]
       },
