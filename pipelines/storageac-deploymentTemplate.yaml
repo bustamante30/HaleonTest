@@ -16,6 +16,7 @@ jobs:
           steps:
             - checkout: self
               submodules: true
+
             - task: DownloadBuildArtifacts@1
               displayName: 'Download latest build artifact'
               inputs:
@@ -35,7 +36,8 @@ jobs:
               inputs:
                 sourcePath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\imgapp\'
                 Destination: 'AzureBlob'
-                azureSubscription: '${{ parameters.AzureSubscription }}'
+                # azureSubscription: '${{ parameters.AzureSubscription }}'
+                azureSubscription: 'Photon - Development (147099a6-f404-4edb-9d44-1beb5673b4fd)'
                 storage: '$(StorageName)'
                 containerName: '$web'
                 cleanTargetBeforeCopy: true
