@@ -18,6 +18,7 @@ form.advanced-search(@submit.prevent="() => {}")
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
       footer
+        .secondaryactions
         .actions
           sgs-button.default(label="Reset" @click.prevent="reset")
           sgs-button(label="Search" @click.prevent="search")

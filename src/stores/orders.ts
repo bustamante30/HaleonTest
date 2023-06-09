@@ -1,25 +1,32 @@
-import ordersData from "@/data/mock/orders";
-import { defineStore } from "pinia";
+import ordersData from '@/data/mock/orders';
+import { DateTime } from 'luxon';
+import { defineStore } from 'pinia';
 
-
-export const useOrdersStore = defineStore("ordersStore", {
+export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
-    orders: [] as { id: string; preview: boolean; select: boolean; orderDate: Date; brandName: string; name: string; image: string; weight: string; itemCode: string; printerName: string; printerLocation: string; packType: string; mySGSNumber: string; }[],
+    orders: [] as any[],
     filters: {} as any,
     selectedOrder: ordersData[0],
     options: {
       locations: [] as any[],
       imageCarrierCodeTypes: [] as any[]
+    },
+    checkout: {
+      expectedDate: DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
+      purchaseOrder: null,
+      shippingAddrress: null
     }
   }),
   getters: {
     filteredOrders() {
 
+    },
+    cart(state) {
+      return state.orders.filter((order, i) => i <= 2)
     }
   },
   actions: {
     async getOrders() {
-      console.log('Getting recent orders')
       this.orders = ordersData;
       this.selectedOrder = this.orders[0]
     },
@@ -54,6 +61,9 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     setFilter(field: any, value: any) {
       this.filters[field] = value
+    },
+    updateCheckout(checkout: any) {
+      this.checkout = { ...checkout }
     }
   },
 });

@@ -90,7 +90,7 @@ function addToCart() {
       template(#footer)
         footer
           .secondary-actions &nbsp;
-            sgs-button.default.back(label="Back" @click="router.push(`/${selectedId}`)")
+            sgs-button.default.back(label="Back" @click="router.push(`/dashboard/${selectedId}`)")
           .actions
             sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart")
               template(#badge)
@@ -104,7 +104,7 @@ function addToCart() {
       .details
         p Order added to cart successfully
         p
-          router-link(to="/dashboard/cart") View Cart
+          router-link(to="/cart") View Cart
 </template>
 
 <style lang="sass">

@@ -8,7 +8,7 @@ const route = useRoute()
 const id = route.params.id
 
 function back() {
-  router.push('/')
+  router.push('/dashboard')
 }
 </script>
 
