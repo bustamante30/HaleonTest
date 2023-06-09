@@ -17,7 +17,7 @@ import Message from 'primevue/message';
 
 <template lang="pug">
 .p-message-info
-  message(:closable='true') Welcome to Image Portal
+  message(:closable='true') Welcome To Image Carrier Reorder
 </template>
 
 <script>
