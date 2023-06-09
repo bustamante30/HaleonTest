@@ -32,7 +32,7 @@ const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function buy() {
-  router.push(`/${props.selectedId}/confirm`)
+  router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
 function addToCart() {
@@ -51,7 +51,7 @@ function addToCart() {
           h1.title
             span Re-Order:&nbsp;
             span {{ selectedOrder.name }}
-          a.close(@click="router.push('/')")
+          a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       //- .card.context
         .details
@@ -95,7 +95,7 @@ function addToCart() {
             sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(label="Re-Order Now" @click="router.push(`/${selectedId}/confirm`)")
+            sgs-button(label="Re-Order Now" @click="router.push(`/dashboard/${selectedId}/confirm`)")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" @close="")
     .cart-message
@@ -104,7 +104,7 @@ function addToCart() {
       .details
         p Order added to cart successfully
         p
-          router-link(to="/cart") View Cart
+          router-link(to="/dashboard/cart") View Cart
 </template>
 
 <style lang="sass">

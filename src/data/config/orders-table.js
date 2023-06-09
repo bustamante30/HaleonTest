@@ -15,7 +15,7 @@ export default {
         header: 'Project Description',
         field: 'name',
         type: 'link',
-        path: '/$1',
+        path: '/dashboard/$1',
         pathParams: ['id'],
         freeze: 'left',
       },

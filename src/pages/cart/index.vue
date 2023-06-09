@@ -6,7 +6,7 @@
       template(#header)
         header
           h1.title Shopping Cart
-          a.close(@click="router.push('/')")
+          a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       .shopping-cart
         .orders

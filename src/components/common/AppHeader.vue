@@ -7,18 +7,18 @@ import UserProfile from './UserProfile.vue'
 header.app-header
   app-logo.logo(:size="1.5")
   h3
-    router-link(to="/") Image Carrier Re-Order
+    router-link(to="/dashboard") Image Carrier Re-Order
   .nav
-    router-link(to="/") Dashboard
-    router-link(to="/") Manage Users
-    router-link(to="/") Help
+    router-link(to="/dashboard") Dashboard
+    router-link(to="/dashboard") Manage Users
+    router-link(to="/dashboard") Help
   span.separator
   .tools
     //- router-link(to="/" v-tooltip.bottom="{ value: 'Manage Users' }")
     //-   span.material-icons.outline groups
     //- router-link(to="/" v-tooltip.bottom="{ value: 'Saved Orders' }")
     //-   span.material-icons.outline bookmark
-    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="4")
+    router-link(to="/dashboard/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="4")
       span.material-icons.outline shopping_cart
     user-profile
 </template>

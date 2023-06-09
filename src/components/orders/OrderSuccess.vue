@@ -31,7 +31,7 @@ const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function back() {
-  router.push('/')
+  router.push('/dashboard')
 }
 </script>
 

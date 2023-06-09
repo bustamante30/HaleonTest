@@ -1,32 +1,20 @@
 import { defineStore } from "pinia";
-import {
-  PublicClientApplication,
-  type AccountInfo,
-  LogLevel,
-} from "@azure/msal-browser";
+import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
+import jwtDecode from "jwt-decode";
 
 const authB2CConfig = {
   auth: {
-    clientId: import.meta.env.VITE_B2C_CLIENT_ID, // "66a0287e-e110-40dd-9091-78002341c362",
-    authority: import.meta.env.VITE_B2C_AUTHORITY, // "https://sgscophoton.b2clogin.com/sgscophoton.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN",
-    knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY,], //["sgscophoton.b2clogin.com"],
-    responseMode: "query",
-    // redirectUri: "http://localhost:3000/b2clogin",
-    redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL, // "https://brave-flower-001e3df0f.3.azurestaticapps.net/b2clogin",
-    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL, // "https://brave-flower-001e3df0f.3.azurestaticapps.net",
+    clientId: import.meta.env.VITE_B2C_CLIENT_ID,
+    authority: import.meta.env.VITE_B2C_AUTHORITY,
+    knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY],
+    redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL,
     navigateToLoginRequestUrl: true,
   },
-
 };
 const requestScope = {
-  scopes: [
-    "openid",
-    "profile",
-    "email",
-    import.meta.env.VITE_B2C_TOKEN_SCOPE
-    // "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
-  ],
+  scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => ({
@@ -62,21 +50,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     },
     async login() {
       try {
-        // let tokenResponse = {};
-        console.log('B2C login page')
+        console.log("B2C login page");
         let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
-        console.log('B2C login page' + tokenResponse)
-        // const accessTokenRequest = {
-        //   scopes: [
-        //     "openid",
-        //     "profile",
-        //     "email",
-        //     "https://graph.microsoft.com/.default",
-        //     "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read"
-        //   ],
-        //   account: this.msalB2cInstance.getAllAccounts()[0],
-        // };
-
         if (tokenResponse) {
           this.account = tokenResponse.account;
         } else {
@@ -92,9 +67,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log("[Auth Store] User has logged in, but no tokens.");
           try {
             tokenResponse = await this.msalB2cInstance.acquireTokenSilent({
-              scopes: [
-                import.meta.env.VITE_B2C_TOKEN_SCOPE // "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
-              ],
+              scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
             });
             await this.updateUserStore(tokenResponse);
           } catch (err) {
@@ -104,12 +77,10 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log(
             "[Auth Store]  No account or tokenResponse present. User must now login."
           );
-          await this.msalB2cInstance.loginRedirect()
-          // await this.msalB2cInstance.loginRedirect({
-          //   scopes: [
-          //     "https://sgscophoton.onmicrosoft.com/66a0287e-e110-40dd-9091-78002341c362/image.read",
-          //   ],
-          // });
+          // await this.msalB2cInstance.loginRedirect()
+          await this.msalB2cInstance.loginRedirect({
+            scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
+          });
         }
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
@@ -132,6 +103,12 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     async updateUserStore(tokenResponse: any) {
       this.currentB2CUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
+      this.accessToken = tokenResponse.accessToken
+      console.log(this.accessToken)
+      let decodedBearer = jwtDecode(this.accessToken) as object
+      // this.currentUser.username = decodedBearer.displayName as string
+      // this.currentUser.email = decodedBearer.upn as string
+      console.log('b2c decodedBearer' + decodedBearer)
     },
   },
 });

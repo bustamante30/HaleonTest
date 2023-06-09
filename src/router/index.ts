@@ -20,7 +20,6 @@ const router = createRouter({
           path: ":id",
           name: "order-detail",
           component: () => import("@/pages/orders/OrderDetailPage.vue"),
-          children: [],
         },
         {
           path: ":id/reorder",

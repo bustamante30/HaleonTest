@@ -5,17 +5,16 @@ import jwtDecode from "jwt-decode";
 
 const authConfig = {
   auth: {
-    clientId: import.meta.env.VITE_AAD_CLIEND_ID, // "ac45b74a-2cd1-49f9-b192-e965e5d3ebfa"
-    authority: import.meta.env.VITE_AAD_AUTHORITY,// "https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1",
+    clientId: import.meta.env.VITE_AAD_CLIEND_ID, 
+    authority: import.meta.env.VITE_AAD_AUTHORITY,
     responseMode: "query",
-    // redirectUri: "http://localhost:3000/login",
-    redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,// "https://brave-flower-001e3df0f.3.azurestaticapps.net/login",
-    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL// "https://brave-flower-001e3df0f.3.azurestaticapps.net",
+    redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL
   },
 };
 
 const requestScope = {
-  scopes: ["api://add0c5cd-c3a8-44fa-8161-ac6250e7a19a/access_as_user"],
+  scopes:  [import.meta.env.VITE_AAD_TOKEN_SCOPE],
 };
 
 export const useAuthStore = defineStore("auth", {
@@ -46,7 +45,6 @@ export const useAuthStore = defineStore("auth", {
       const accounts = this.msalInstance.getAllAccounts();
       if (accounts.length == 0) {
         console.log("no logged in account detected");
-        // await this.msalInstance.loginRedirect();
         return;
       }
       this.account = accounts[0];
@@ -56,10 +54,10 @@ export const useAuthStore = defineStore("auth", {
       try {
         let tokenResponse = await this.msalInstance.handleRedirectPromise();
         const accessTokenRequest = {
-          scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],// ["api://add0c5cd-c3a8-44fa-8161-ac6250e7a19a/access_as_user"],
+          scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
           account: this.msalInstance.getAllAccounts()[0],
         };
-
+        console.log('accessTokenRequest'+ accessTokenRequest)
         if (tokenResponse) {
           this.account = tokenResponse.account;
         } else {
@@ -85,7 +83,7 @@ export const useAuthStore = defineStore("auth", {
           console.log(
             "[Auth Store]  No account or tokenResponse present. User must now login."
           );
-          await this.msalInstance.loginRedirect();
+          await this.msalInstance.loginRedirect(requestScope);
         }
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);

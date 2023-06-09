@@ -33,7 +33,7 @@ function confirm() {
 }
 
 function placeOrder() {
-  router.push(`/${props.selectedId}/success`)
+  router.push(`/dashboard/${props.selectedId}/success`)
 }
 
 function updateCheckout() {
@@ -78,7 +78,7 @@ function updateCheckout() {
     template(#footer)
       footer
         .secondary-actions
-          sgs-button.default(label="Back" @click="router.push(`/${props.selectedId}/reorder`)")
+          sgs-button.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder`)")
         .actions
           sgs-button(label="Confirm" @click="confirm()")
 

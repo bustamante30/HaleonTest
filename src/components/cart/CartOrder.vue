@@ -60,8 +60,8 @@ function goto(path) {
         .secondary-actions
         .actions
           sgs-button.sm.alert.secondary(icon="delete")
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/${order.id}`)")
-          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/${order.id}/confirm`)")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
+          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)")
 </template>
 
 <style lang="sass" scoped>

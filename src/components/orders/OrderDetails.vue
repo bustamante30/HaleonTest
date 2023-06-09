@@ -21,6 +21,7 @@ const props = defineProps({
  })
 
 onBeforeMount(() => {
+  console.log('order id' + props.selectedId)
   ordersStore.getOrders()
   colorsStore.getColors()
   ordersStore.getOrderById(props.selectedId)
@@ -31,7 +32,7 @@ const ordersStore = useOrdersStore()
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 
 function buy() {
-  router.push(`/${props.selectedId}/confirm`)
+  router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
 function viewPreview() {
@@ -48,7 +49,7 @@ function viewPreview() {
         header
           h1.title
             span {{ selectedOrder.brandName }} / {{ selectedOrder.name }}
-          a.close(@click="router.push('/')")
+          a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       .card.context
         .details
@@ -71,7 +72,7 @@ function viewPreview() {
           .secondary-actions &nbsp;
           .actions
             //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button(icon="redo" label="Re-Order" @click="router.push(`/${selectedId}/reorder`)")
+            sgs-button(icon="redo" label="Re-Order" @click="router.push(`/dashboard/${selectedId}/reorder`)")
 </template>
 
 <style lang="sass">
