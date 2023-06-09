@@ -27,13 +27,13 @@ jobs:
             - task: ExtractFiles@1
               inputs:
                 archiveFilePatterns: '**\${{ parameters.BuildNumber }}'
-                destinationFolder: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\${{ parameters.ArtifactName }}'
+                destinationFolder: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\imgapp\'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
             - task: AzureFileCopy@3
               inputs:
-                sourcePath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\${{ parameters.ArtifactName }}'
+                sourcePath: '$(System.DefaultWorkingDirectory)\${{ parameters.environment }}\imgapp\'
                 Destination: 'AzureBlob'
                 azureSubscription: '${{ parameters.AzureSubscription }}'
                 storage: '$(StorageName)'
