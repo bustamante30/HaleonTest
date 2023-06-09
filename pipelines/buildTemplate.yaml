@@ -78,14 +78,14 @@ jobs:
             echo "##vso[task.setVariable variable=IMGCARRIERAPPBUILT]true"
           fi
 
-      # - task: CopyFiles@2
-      #   displayName: 'Copy staticwebapp.config to dist'
-      #   condition: succeededOrFailed()
-      #   inputs:
-      #     SourceFolder: '$(System.Defaultworkingdirectory)'
-      #     Contents: '**/staticwebapp.config.json'
-      #     TargetFolder: '$(system.defaultworkingdirectory)/dist'
-      #     OverWrite: true
+      - task: CopyFiles@2
+        displayName: 'Copy staticwebapp.config to dist'
+        condition: succeededOrFailed()
+        inputs:
+          SourceFolder: '$(System.Defaultworkingdirectory)'
+          Contents: '**/staticwebapp.config.json'
+          TargetFolder: '$(system.defaultworkingdirectory)/dist'
+          OverWrite: true
 
       - task: ArchiveFiles@2
         condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
