@@ -14,7 +14,7 @@ stages:
     displayName: 'Build'
     variables:
       - group: 'dev-azure-imgcarrier-variable-group'
-      - group: 'dev-azure-imgcarrier-ui-variable-group'
+      # - group: 'dev-azure-imgcarrier-ui-variable-group'
     jobs:
     - template: buildTemplate.yaml
       parameters:          
@@ -23,17 +23,17 @@ stages:
         BuildNumber:  '$(BuildNumber)'
         TerraformBackendServiceConnection: '$(TerraformBackendServiceConnection)'
 
-  # - stage: Deploy_Dev
-  #   displayName: 'Deploy to Dev'
-  #   condition: succeeded('Build')
-  #   dependsOn: Build
-  #   variables:
-  #     - group: 'dev-azure-imgcarrier-variable-group'
-  #     - group: 'dev-azure-imgcarrier-ui-variable-group'
-  #   jobs:
-  #     - template: staticwebapp-deploymentTemplate.yaml
-  #       parameters:
-  #         environment: 'dev'
-  #         ArtifactName:  '$(ArtifactName)'
-  #         AzureSubscription:  '$(AzureSubscription)'
-  #         BuildNumber:  '$(BuildNumber)'
+  - stage: Deploy_Dev
+    displayName: 'Deploy to Dev'
+    condition: succeeded('Build')
+    dependsOn: Build
+    variables:
+      - group: 'dev-azure-imgcarrier-variable-group'
+      # - group: 'dev-azure-imgcarrier-ui-variable-group'
+    jobs:
+      - template: staticwebapp-deploymentTemplate.yaml
+        parameters:
+          environment: 'dev'
+          ArtifactName:  '$(ArtifactName)'
+          AzureSubscription:  '$(AzureSubscription)'
+          BuildNumber:  '$(BuildNumber)'
