@@ -66,16 +66,6 @@ jobs:
             $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
         env:
           # the recommended way to map to an env variable
-          VITE_MYSGSURL: $(VITEMYSGSURL)
-          VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
-          VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
-          VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
-          VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
-          VITE_LOGOUT_URL: $(VITELOGOUTURL)
-          VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
-          VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
-          VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
-          VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
           VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       
       - bash: |
@@ -92,10 +82,7 @@ jobs:
       - script: |
           echo 'ResourceGroupName: $(ResourceGroupName)'
           echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
-          echo 'VITE_B2C_KNOWN_AUTHORITY: $VITE_B2C_KNOWN_AUTHORITY'
         displayName: 'Print KeyVault variables'
-        env:
-          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       - script: |
           npm install
@@ -125,9 +112,31 @@ jobs:
       # - script: |
       #     npm run dev
       #   displayName: "npm run dev"
-      - script: |
-          npm run build
-        displayName: "Full Build"
+
+      # - script: |
+      #     npm run build
+      #   displayName: "Full Build"
+
+      - task: PowerShell@2
+        displayName: 'Full Build'
+        inputs:
+          targetType: 'inline'
+          script: |
+            npm run build
+            $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
+        env:
+          # the recommended way to map to an env variable
+          VITE_MYSGSURL: $(VITEMYSGSURL)
+          VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
+          VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
+          VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
+          VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
+          VITE_LOGOUT_URL: $(VITELOGOUTURL)
+          VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
+          VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
+          VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
+          VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
+          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       # - script: |
       #     npm run test:unit
