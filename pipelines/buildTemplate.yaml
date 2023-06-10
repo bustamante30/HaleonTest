@@ -92,7 +92,7 @@ jobs:
       - script: |
           echo 'ResourceGroupName: $(ResourceGroupName)'
           echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
-          echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
+          echo 'VITE_B2C_KNOWN_AUTHORITY: $env:VITE_B2C_KNOWN_AUTHORITY'
         displayName: 'Print KeyVault variables'
 
       - script: |
