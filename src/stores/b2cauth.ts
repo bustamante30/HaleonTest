@@ -5,16 +5,16 @@ import jwtDecode from "jwt-decode";
 
 const authB2CConfig = {
   auth: {
-    clientId: import.meta.env.VITEB2CCLIENTID,
-    authority: import.meta.env.VITEB2CAUTHORITY,
-    knownAuthorities: [import.meta.env.VITEB2CKNOWNAUTHORITY],
-    redirectUri: import.meta.env.VITEB2CREDIRECTURL,
-    postLogoutRedirectUri: import.meta.env.VITELOGOUTURL,
+    clientId: import.meta.env.VITE_B2C_CLIENT_ID,
+    authority: import.meta.env.VITE_B2C_AUTHORITY,
+    knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY],
+    redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL,
     navigateToLoginRequestUrl: true,
   },
 };
 const requestScope = {
-  scopes: ["openid", "profile", "email", import.meta.env.VITEB2CTOKENSCOPE],
+  scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => ({
@@ -67,7 +67,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log("[Auth Store] User has logged in, but no tokens.");
           try {
             tokenResponse = await this.msalB2cInstance.acquireTokenSilent({
-              scopes: [import.meta.env.VITEB2CTOKENSCOPE],
+              scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
             });
             await this.updateUserStore(tokenResponse);
           } catch (err) {
@@ -79,7 +79,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           );
           // await this.msalB2cInstance.loginRedirect()
           await this.msalB2cInstance.loginRedirect({
-            scopes: [import.meta.env.VITEB2CTOKENSCOPE],
+            scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
           });
         }
       } catch (error) {

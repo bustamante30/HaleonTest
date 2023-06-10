@@ -5,16 +5,16 @@ import jwtDecode from "jwt-decode";
 
 const authConfig = {
   auth: {
-    clientId: import.meta.env.VITEAADCLIENDID, 
-    authority: import.meta.env.VITEAADAUTHORITYY,
+    clientId: import.meta.env.VITE_AAD_CLIEND_ID, 
+    authority: import.meta.env.VITE_AAD_AUTHORITY,
     responseMode: "query",
-    redirectUri: import.meta.env.VITEAADREDIRECTURL,
-    postLogoutRedirectUri: import.meta.env.VITELOGOUTURL
+    redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL
   },
 };
 
 const requestScope = {
-  scopes:  [import.meta.env.VITEAADTOKENSCOPE],
+  scopes:  [import.meta.env.VITE_AAD_TOKEN_SCOPE],
 };
 
 export const useAuthStore = defineStore("auth", {
@@ -54,7 +54,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         let tokenResponse = await this.msalInstance.handleRedirectPromise();
         const accessTokenRequest = {
-          scopes: [import.meta.env.VITEAADTOKENSCOPE],
+          scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
           account: this.msalInstance.getAllAccounts()[0],
         };
         console.log('accessTokenRequest'+ accessTokenRequest)

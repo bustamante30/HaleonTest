@@ -57,11 +57,19 @@ jobs:
           SecretsFilter: '*'
           RunAsPreJob: false
 
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            Write-Host "Using the mapped env var for this task works and is recommended: $env:MY_MAPPED_ENV_VAR"
+        env:
+          MY_MAPPED_ENV_VAR: $(PAT) # the recommended way to map to an env variable
+
       - script: |
-          echo 'VITEMYSGSURL: $(VITEMYSGSURL)'
-          echo 'VITEAADCLIENDID: $(VITEAADCLIENDID)'
-          echo 'VITEAADAUTHORITYY: $(VITEAADAUTHORITYY)'
-          echo 'VITEAADTOKENSCOPE: $(VITEAADTOKENSCOPE)'
+          echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
+          echo 'VITE_AAD_CLIEND_ID: $(VITE_AAD_CLIEND_ID)'
+          echo 'VITE_AAD_AUTHORITY: $(VITE_AAD_AUTHORITY)'
+          echo 'VITE_AAD_TOKEN_SCOPE: $(VITE_AAD_TOKEN_SCOPE)'
         displayName: 'Print KeyVault variables'
 
       - script: |
