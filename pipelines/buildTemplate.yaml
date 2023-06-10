@@ -78,8 +78,6 @@ jobs:
           VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
           VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       
-        env:
-          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       - bash: |
           echo "My secret variable: $VITE_B2C_KNOWN_AUTHORITY"
           if [ "${VITE_B2C_KNOWN_AUTHORITY}" = "sgscophoton.b2clogin.com" ]; then
