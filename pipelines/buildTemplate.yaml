@@ -125,6 +125,12 @@ jobs:
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
 
+      - task: PublishBuildArtifacts@1
+        condition: or( eq(variables.HOSTAPPBUILT, 'true'), eq(variables.IMGCARRIERAPPBUILT, 'true'))
+        inputs:
+          PathtoPublish: $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/
+          artifactName: '${{ parameters.ArtifactName }}'
+
       - task: AzureCLI@2
         displayName: 'Remove IP from Key Vault Firewall'
         inputs:
@@ -134,12 +140,6 @@ jobs:
           inlineScript: |
             # Remove IP from Key Vault Firewall
             az keyvault network-rule remove --name '$(KeyVaultName)' --ip-address "$(BuildAgentIP.address)/32"
-
-      - task: PublishBuildArtifacts@1
-        condition: or( eq(variables.HOSTAPPBUILT, 'true'), eq(variables.IMGCARRIERAPPBUILT, 'true'))
-        inputs:
-          PathtoPublish: $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/
-          artifactName: '${{ parameters.ArtifactName }}'
         
       - bash: |
           if [ -f "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}" ]; then
