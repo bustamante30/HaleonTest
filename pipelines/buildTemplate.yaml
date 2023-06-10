@@ -57,32 +57,32 @@ jobs:
           SecretsFilter: '*'
           RunAsPreJob: false
 
-      - task: PowerShell@2
-        displayName: 'Tag KeyVault Secrets to env'
-        inputs:
-          targetType: 'inline'
-          script: |
-            Write-Host "Using the mapped env var for this task works and is VITE_B2C_KNOWN_AUTHORITY: $env:VITE_B2C_KNOWN_AUTHORITY"
-            $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
-        env:
-          # the recommended way to map to an env variable
-          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
+      # - task: PowerShell@2
+      #   displayName: 'Tag KeyVault Secrets to env'
+      #   inputs:
+      #     targetType: 'inline'
+      #     script: |
+      #       Write-Host "Using the mapped env var for this task works and is VITE_B2C_KNOWN_AUTHORITY: $env:VITE_B2C_KNOWN_AUTHORITY"
+      #       $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
+      #   env:
+      #     # the recommended way to map to an env variable
+      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       
-      - bash: |
-          echo "My env variable: $VITE_B2C_KNOWN_AUTHORITY"
-          if [ "$VITE_B2C_KNOWN_AUTHORITY" = "$(VITEB2CKNOWNAUTHORITY)" ]; then
-              echo "String are equal."
-          else
-              echo "String are not equal."
-          fi
-          echo "--------------------------------------------"
-        env:
-          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
+      # - bash: |
+      #     echo "My env variable: $VITE_B2C_KNOWN_AUTHORITY"
+      #     if [ "$VITE_B2C_KNOWN_AUTHORITY" = "$(VITEB2CKNOWNAUTHORITY)" ]; then
+      #         echo "String are equal."
+      #     else
+      #         echo "String are not equal."
+      #     fi
+      #     echo "--------------------------------------------"
+      #   env:
+      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
-      - script: |
-          echo 'ResourceGroupName: $(ResourceGroupName)'
-          echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
-        displayName: 'Print KeyVault variables'
+      # - script: |
+      #     echo 'ResourceGroupName: $(ResourceGroupName)'
+      #     echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
+      #   displayName: 'Print KeyVault variables'
 
       - script: |
           npm install
