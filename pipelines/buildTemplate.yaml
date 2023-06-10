@@ -61,11 +61,23 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            Write-Host "Using the mapped env var for this task works and is recommended: $env:MY_MAPPED_ENV_VAR"
+            Write-Host "Using the mapped env var for this task works and is recommended: $env:VITE_MYSGSURL"
         env:
-          MY_MAPPED_ENV_VAR: $(PAT) # the recommended way to map to an env variable
+          # the recommended way to map to an env variable
+          VITE_MYSGSURL: $(VITEMYSGSURL)
+          VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
+          VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
+          VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
+          VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
+          VITE_LOGOUT_URL: $(VITELOGOUTURL)
+          VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
+          VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
+          VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
+          VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
+          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       - script: |
+          echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
           echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
           echo 'VITE_AAD_CLIEND_ID: $(VITE_AAD_CLIEND_ID)'
           echo 'VITE_AAD_AUTHORITY: $(VITE_AAD_AUTHORITY)'
