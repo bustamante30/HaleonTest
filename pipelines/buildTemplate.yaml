@@ -58,10 +58,11 @@ jobs:
           RunAsPreJob: false
 
       - task: PowerShell@2
+        displayName: 'Tag KeyVault Secrets to env'
         inputs:
           targetType: 'inline'
           script: |
-            Write-Host "Using the mapped env var for this task works and is recommended: $env:VITE_MYSGSURL"
+            Write-Host "Using the mapped env var for this task works and is VITE_MYSGSURL: $env:VITE_MYSGSURL"
         env:
           # the recommended way to map to an env variable
           VITE_MYSGSURL: $(VITEMYSGSURL)

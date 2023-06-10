@@ -1,5 +1,5 @@
 trigger:
-- "staticwebapp"
+- "azure-kv-staticwebapp"
 
 name: "StaticWebApp-ImageCarrier-UI"
 
@@ -14,7 +14,6 @@ stages:
     displayName: 'Build'
     variables:
       - group: 'dev-azure-imgcarrier-variable-group'
-      # - group: 'dev-azure-imgcarrier-ui-variable-group'
     jobs:
     - template: buildTemplate.yaml
       parameters:          
@@ -29,7 +28,6 @@ stages:
     dependsOn: Build
     variables:
       - group: 'dev-azure-imgcarrier-variable-group'
-      # - group: 'dev-azure-imgcarrier-ui-variable-group'
     jobs:
       - template: staticwebapp-deploymentTemplate.yaml
         parameters:
