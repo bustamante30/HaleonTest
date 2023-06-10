@@ -77,6 +77,14 @@ jobs:
           VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
           VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
           VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
+      
+      - bash: |
+          echo "My secret variable: $VITE_B2C_KNOWN_AUTHORITY"
+          if [ "$VITE_B2C_KNOWN_AUTHORITY" = "sgscophoton.b2clogin.com" ]; then
+              echo "Strings are equal."
+          else
+              echo "Strings are not equal."
+          fi
 
       - script: |
           echo 'ResourceGroupName: $(ResourceGroupName)'
