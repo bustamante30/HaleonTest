@@ -81,12 +81,13 @@ jobs:
       - bash: |
           echo "My env variable: $VITE_B2C_KNOWN_AUTHORITY"
           if [ "$VITE_B2C_KNOWN_AUTHORITY" = "$(VITEB2CKNOWNAUTHORITY)" ]; then
-              echo "String $VITE_B2C_KNOWN_AUTHORITY are equal."
+              echo "String are equal."
           else
-              echo "String $VITE_B2C_KNOWN_AUTHORITY are not equal."
+              echo "String are not equal."
           fi
-
           echo "--------------------------------------------"
+        env:
+          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       - script: |
           echo 'ResourceGroupName: $(ResourceGroupName)'
