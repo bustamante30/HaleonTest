@@ -2,6 +2,7 @@ parameters:
   - name: environment
   - name: ArtifactName
   - name: BuildNumber
+  - name: TerraformBackendServiceConnection
 
 jobs:
   - job: Job_Build

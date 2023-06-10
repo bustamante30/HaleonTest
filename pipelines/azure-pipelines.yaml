@@ -7,6 +7,7 @@ variables:
   AzureSubscription: 'photon-dev-ai-cr'
   ArtifactName: 'ImageCarrierUI'
   BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
+  TerraformBackendServiceConnection: 'terraform-service-principle'
 
 stages:
   - stage: Build
@@ -20,6 +21,7 @@ stages:
         environment: 'dev'
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(BuildNumber)'
+        TerraformBackendServiceConnection: '$(TerraformBackendServiceConnection)'
 
   # - stage: Deploy_Dev
   #   displayName: 'Deploy to Dev'
