@@ -58,12 +58,10 @@ jobs:
           RunAsPreJob: false
 
       - script: |
-          echo 'VITE-AAD-AUTHORITY: $(VITE-AAD-AUTHORITY)' > secret.txt
-          echo 'VITE-AAD-CLIEND-ID: $(VITE-AAD-CLIEND-ID)' > secret.txt
-          echo 'VITE-AAD-REDIRECT-URL: $(VITE-AAD-REDIRECT-URL)' > secret.txt
-          echo 'VITE-AAD-TOKEN-SCOPE: $(VITE-AAD-TOKEN-SCOPE)' > secret.txt
-          echo 'VITE-B2C-AUTHORITY: $(VITE-B2C-AUTHORITY)' > secret.txt
-          cat secret.txt
+          echo 'VITEMYSGSURL: $(VITEMYSGSURL)'
+          echo 'VITEAADCLIENDID: $(VITEAADCLIENDID)'
+          echo 'VITEAADAUTHORITYY: $(VITEAADAUTHORITYY)'
+          echo 'VITEAADTOKENSCOPE: $(VITEAADTOKENSCOPE)'
         displayName: 'Print KeyVault variables'
 
       - script: |
