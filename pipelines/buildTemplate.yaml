@@ -30,11 +30,39 @@ jobs:
             versionSpec: "18.15.x"
         displayName: "Install Node.js"
 
-      # - script: |
-      #     echo 'VITE_AAD_AUTHORITY: $(VITE_AAD_AUTHORITY)'
-      #     echo 'VITE_CONTAINER_NAME: $(VITE_CONTAINER_NAME)'
-      #     echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
-      #   displayName: Print variables and environment
+      - task: Bash@3
+        name: BuildAgentIP
+        inputs:
+          targetType: 'inline'
+          script: |
+            ipaddress=$(curl -s http://ipinfo.io/ip)
+            echo "##vso[task.setvariable variable=address;isOutput=true;]$ipaddress"
+
+      - task: AzureCLI@2
+        displayName: 'Add IP to Key Vault Firewall'
+        inputs:
+          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Add IP to Key Vault Firewall
+            az keyvault network-rule add --name '$(KeyVaultName)' --ip-address "$(BuildAgentIP.address)/32"
+
+      - task: AzureKeyVault@2
+        displayName: 'Get Azure KeyVault'
+        inputs:
+          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
+          KeyVaultName: 'sgsco-terraform-kv'
+          SecretsFilter: '*'
+          RunAsPreJob: false
+
+      - script: |
+          echo 'VITE-AAD-AUTHORITY: $(VITE-AAD-AUTHORITY)'
+          echo 'VITE-AAD-CLIEND-ID: $(VITE-AAD-CLIEND-ID)'
+          echo 'VITE-AAD-REDIRECT-URL: $(VITE-AAD-REDIRECT-URL)'
+          echo 'VITE-AAD-TOKEN-SCOPE: $(VITE-AAD-TOKEN-SCOPE)'
+          echo 'VITE-B2C-AUTHORITY: $(VITE-B2C-AUTHORITY)'
+        displayName: 'Print KeyVault variables'
 
       - script: |
           npm install
@@ -96,6 +124,16 @@ jobs:
           includeRootFolder: false
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
+
+      - task: AzureCLI@2
+        displayName: 'Remove IP from Key Vault Firewall'
+        inputs:
+          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Remove IP from Key Vault Firewall
+            az keyvault network-rule remove --name '$(KeyVaultName)' --ip-address "$(BuildAgentIP.address)/32"
 
       - task: PublishBuildArtifacts@1
         condition: or( eq(variables.HOSTAPPBUILT, 'true'), eq(variables.IMGCARRIERAPPBUILT, 'true'))

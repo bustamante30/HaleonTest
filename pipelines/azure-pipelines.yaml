@@ -21,17 +21,17 @@ stages:
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(BuildNumber)'
 
-  - stage: Deploy_Dev
-    displayName: 'Deploy to Dev'
-    condition: succeeded('Build')
-    dependsOn: Build
-    variables:
-      - group: 'dev-azure-imgcarrier-variable-group'
-      - group: 'dev-azure-imgcarrier-ui-variable-group'
-    jobs:
-      - template: staticwebapp-deploymentTemplate.yaml
-        parameters:
-          environment: 'dev'
-          ArtifactName:  '$(ArtifactName)'
-          AzureSubscription:  '$(AzureSubscription)'
-          BuildNumber:  '$(BuildNumber)'
+  # - stage: Deploy_Dev
+  #   displayName: 'Deploy to Dev'
+  #   condition: succeeded('Build')
+  #   dependsOn: Build
+  #   variables:
+  #     - group: 'dev-azure-imgcarrier-variable-group'
+  #     - group: 'dev-azure-imgcarrier-ui-variable-group'
+  #   jobs:
+  #     - template: staticwebapp-deploymentTemplate.yaml
+  #       parameters:
+  #         environment: 'dev'
+  #         ArtifactName:  '$(ArtifactName)'
+  #         AzureSubscription:  '$(AzureSubscription)'
+  #         BuildNumber:  '$(BuildNumber)'
