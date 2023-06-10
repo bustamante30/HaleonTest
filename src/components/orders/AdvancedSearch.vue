@@ -22,7 +22,6 @@ form.advanced-search(@submit.prevent="() => {}")
           .actions
             sgs-button.default(label="Reset" @click.prevent="reset")
             sgs-button(label="Search" @click.prevent="onSubmit")
-            small#dd-error.p-error {{ errorMessage || &apos;&nbsp;&apos; }}
             Toast(ref="toast")
 </template>
 
@@ -31,11 +30,11 @@ import { ref, computed, onBeforeMount, onMounted} from 'vue'
 import router from '@/router'
 import PrimeVue from 'primevue/config'
 import Dropdown from 'primevue/dropdown'
-import { useField, useForm } from 'vee-validate';
-import { useToast } from 'primevue/usetoast';
-import 'primevue/resources/themes/saga-blue/theme.css';
-import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
+import { useField, useForm } from 'vee-validate'
+import { useToast } from 'primevue/usetoast'
+import 'primevue/resources/themes/saga-blue/theme.css'
+import 'primevue/resources/primevue.min.css'
+import 'primeicons/primeicons.css'
 
 const props = defineProps({
   sections: {
