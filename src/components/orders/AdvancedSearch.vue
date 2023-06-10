@@ -1,5 +1,7 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="() => {}")
+    button.close-button(@click.prevent="closeForm")
+      i.pi.pi-times
     sgs-scrollpanel
       template(#header)
         header
@@ -10,7 +12,7 @@ form.advanced-search(@submit.prevent="() => {}")
           h4(v-if="section.label") {{ section.label }}
           .f(v-for="filter in section.filters")
             label(v-if="filter.label") {{ filter.label }}
-            prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name].type" name="printerLoc" :inputId="printerLoc"  :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :class="['w-full md:w-14rem', { 'p-invalid': errorMessage }]" aria-describedby='dd-error')
+            prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name].type" name="printerLoc" :inputId="printerLoc"  :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value")
             prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
             .fields(v-else-if="filter.type === 'imageCarrierCodeType'")
               prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].type" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
@@ -29,8 +31,7 @@ form.advanced-search(@submit.prevent="() => {}")
 import { ref, computed, onBeforeMount, onMounted} from 'vue'
 import router from '@/router'
 import PrimeVue from 'primevue/config'
-import Dropdown from 'primevue/dropdown'
-import { useField, useForm } from 'vee-validate'
+//import Dropdown from 'primevue/dropdown'
 import { useToast } from 'primevue/usetoast'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
@@ -47,31 +48,40 @@ const props = defineProps({
   }
 })
 
-// const { handleSubmit, resetForm } = useForm();
-// const { value, errorMessage } = useField('value', validateField);
-// const toast = useToast();
 
-const { handleSubmit, resetForm } = useForm();
-const { value: printerName, errorMessage: printerNameError } = useField('printerName', validatePrinterName);
- const { value: printerLocation, errorMessage: printerLocationError } = useField('printerLocation', validatePrinterLocation);
  const toast = useToast();
+
+ interface AdvancedFilters {
+  itemCode: string | null;
+  orderDate: string | null;
+  printerName: string | null;
+  printerLocation: string | null;
+  packagingReference: string | null;
+  previousPONumber: string | null;
+  imageCarrierId: string | null;
+  imageCarrierCode: string | null;
+  imageCarrierCodeType: string | null;
+  // Add more properties as needed
+}
 
 const emit = defineEmits(['search'])
 
-const advancedFilters = ref()
+const advancedFilters = ref<AdvancedFilters>();
+//toRefs(ref(props.filters));
 
 const imageCarrierCodeTypes = ref([
+  { label: 'SELECT', value: 'SEL' },
   { label: 'UPC Code', value: 'UPC' },
   { label: 'QR Code', value: 'QR' },
   { label: 'EAN Code', value: 'EAN' },
   { label: 'Data Matrix Code', value: 'DATA_MATRIX' },
 ])
 
-let imageCarrierCodeType = ref('UPC')
+let imageCarrierCodeType = ref('SEL')
 
 const printerLocations = ref([
     { label: 'SELECT', value: 'SEL' },
-    { label: 'Alabama', value: 'AL' },
+    { label: 'Albama', value: 'AL' },
     { label: 'Arizona', value: 'AZ' },
     { label: 'California', value: 'CL' },
     { label: 'Georgia', value: 'GA' },
@@ -79,12 +89,19 @@ const printerLocations = ref([
   
   let printerLoc = ref('SEL')
 
+const closeForm = () => {
+  const form = document.querySelector(".advanced-search") as HTMLFormElement;
+  if (form) {
+    form.style.display = "none";
+  }
+};
+  
+
 onBeforeMount(() => {
   advancedFilters.value = { ...props.filters }
 })
 
 function reset() {
-  printerLoc.value = 'SEL';
   advancedFilters.value = { ...props.filters }
 }
 
@@ -92,25 +109,16 @@ function search() {
   emit('search', advancedFilters.value)
 }
 
-// function validateField(value) {
-//     console.log('validateField', value)
-//     if (!value) {
-//         return 'You must select a printer location.';
-//     }
-
-//     return true;
-// }
-// const onSubmit = handleSubmit((values) => {
-//   console.log('TEM')
-// })
-
 function onSubmit() {
-    if (!validateForm()) {
+  //const onSubmit = handleSubmit((values) => {
+    console.log('submitValues',advancedFilters.value)
+    const validationErrors = validateForm();
+    if (validationErrors) {
       console.log("Validation Error")
       toast.add({
         severity: 'error',
         summary: 'Validation Error',
-        detail: 'You must enter information into at least 1 field. Printer Name and Location must have an entry',
+        detail: validationErrors,
       });
       return;
     }
@@ -126,44 +134,27 @@ function onSubmit() {
   }
 
 function validateForm() {
-  if (!printerName.value || !printerLocation.value) {
-    console.log("printerNameVal", printerName.value)
-    console.log("printerLocationVal", printerLocation.value)
-    return false;
+  debugger
+  if(!advancedFilters.value?.printerName)
+  {
+    return 'You must select a printer.';
+  }
+  if (advancedFilters.value?.printerLocation?.type == 'SEL') {
+    return 'You must select a printer location.';
   }
 
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter((field) => field !== 'printerName' && field !== 'printerLocation');
-console.log("additionalFields",additionalFields)
   for (const field of additionalFields) {
     const value = advancedFilters.value[field];
-    if (value && value.trim() !== '') {
-      console.log("additionalfieldsvalue", value)
-      return true;
+    if (value != undefined && value != '' && value != null && value?.type != 'SEL') {
+      return null;
     }
   }
 
-  return false;
+  return 'You must enter information into atleast 1 field. Printer Name and Location must have an entry';
 }
 
-function validatePrinterName(value) {
-  console.log("printer:", value)
-  if (!value || value.trim() === '') {
-    console.log("printer:", value)
-    return 'You must select a printer';
-  }
-
-  return true;
-}
-
-  function validatePrinterLocation(value) {
-    console.log("printerLoc:", value);
-  if (!value || value === 'SEL') {
-    return 'You must select a printer location.';
-  }
-
-  return true;
-}
 </script>
 
 <style lang="sass" scoped>
@@ -197,5 +188,12 @@ function validatePrinterName(value) {
   .fields
     +flex
     gap: $s
-
+.close-button
+  position: absolute
+  top: $s
+  right: $s
+  background: none
+  border: none
+  cursor: pointer
+  outline: none
 </style>

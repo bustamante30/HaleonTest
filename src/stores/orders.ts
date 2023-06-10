@@ -44,7 +44,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.filters['packagingReference'] = null
       this.filters['previousPONumber'] = null
       this.filters['imageCarrierId'] = null
-      this.filters['imageCarrierCode'] = { type: 'UPC', code: null }
+      this.filters['imageCarrierCode'] = { type: 'SEL', code: null }
     },
     initAdvancedFilters() {
       this.options.locations = [
