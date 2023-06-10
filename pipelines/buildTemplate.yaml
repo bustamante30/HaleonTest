@@ -63,6 +63,7 @@ jobs:
           targetType: 'inline'
           script: |
             Write-Host "Using the mapped env var for this task works and is VITE_MYSGSURL: $env:VITE_MYSGSURL"
+            echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
         env:
           # the recommended way to map to an env variable
           VITE_MYSGSURL: $(VITEMYSGSURL)
@@ -78,11 +79,9 @@ jobs:
           VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       - script: |
+          echo 'ResourceGroupName: $(ResourceGroupName)'
           echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
           echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
-          echo 'VITE_AAD_CLIEND_ID: $(VITE_AAD_CLIEND_ID)'
-          echo 'VITE_AAD_AUTHORITY: $(VITE_AAD_AUTHORITY)'
-          echo 'VITE_AAD_TOKEN_SCOPE: $(VITE_AAD_TOKEN_SCOPE)'
         displayName: 'Print KeyVault variables'
 
       - script: |
@@ -113,7 +112,6 @@ jobs:
       # - script: |
       #     npm run dev
       #   displayName: "npm run dev"
-      
       - script: |
           npm run build
         displayName: "Full Build"
