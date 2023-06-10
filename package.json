@@ -30,11 +30,12 @@
     "pinia": "^2.0.35",
     "pnpm": "^8.6.1",
     "primeicons": "^6.0.1",
-    "primevue": "^3.27.0",
+    "primevue": "^3.29.2",
     "pug": "^3.0.2",
     "pug-plain-loader": "^1.1.0",
     "sass": "^1.62.0",
     "sass-loader": "^13.2.2",
+    "vee-validate": "^4.9.6",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "vuex": "^4.1.0"

@@ -23,15 +23,19 @@ form.advanced-search(@submit.prevent="() => {}")
             sgs-button.default(label="Reset" @click.prevent="reset")
             sgs-button(label="Search" @click.prevent="onSubmit")
             small#dd-error.p-error {{ errorMessage || &apos;&nbsp;&apos; }}
+            Toast(ref="toast")
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount, onMounted} from 'vue'
 import router from '@/router'
 import PrimeVue from 'primevue/config'
 import Dropdown from 'primevue/dropdown'
 import { useField, useForm } from 'vee-validate';
 import { useToast } from 'primevue/usetoast';
+import 'primevue/resources/themes/saga-blue/theme.css';
+import 'primevue/resources/primevue.min.css';
+import 'primeicons/primeicons.css';
 
 const props = defineProps({
   sections: {
@@ -44,9 +48,14 @@ const props = defineProps({
   }
 })
 
+// const { handleSubmit, resetForm } = useForm();
+// const { value, errorMessage } = useField('value', validateField);
+// const toast = useToast();
+
 const { handleSubmit, resetForm } = useForm();
-const { value, errorMessage } = useField('value', validateField);
-const toast = useToast();
+const { value: printerName, errorMessage: printerNameError } = useField('printerName', validatePrinterName);
+ const { value: printerLocation, errorMessage: printerLocationError } = useField('printerLocation', validatePrinterLocation);
+ const toast = useToast();
 
 const emit = defineEmits(['search'])
 
@@ -76,6 +85,7 @@ onBeforeMount(() => {
 })
 
 function reset() {
+  printerLoc.value = 'SEL';
   advancedFilters.value = { ...props.filters }
 }
 
@@ -83,17 +93,78 @@ function search() {
   emit('search', advancedFilters.value)
 }
 
-function validateField(value) {
-    console.log('validateField', value)
-    if (!value) {
-        return 'You must select a printer location.';
+// function validateField(value) {
+//     console.log('validateField', value)
+//     if (!value) {
+//         return 'You must select a printer location.';
+//     }
+
+//     return true;
+// }
+// const onSubmit = handleSubmit((values) => {
+//   console.log('TEM')
+// })
+
+function onSubmit() {
+    if (!validateForm()) {
+      console.log("Validation Error")
+      toast.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'You must enter information into at least 1 field. Printer Name and Location must have an entry',
+      });
+      return;
     }
 
-    return true;
+    // Proceed with form submission if all validations pass
+    // ...
+
+    toast.add({
+      severity: 'success',
+      summary: 'Form Submitted',
+      detail: 'Searching Reorders',
+    });
+  }
+
+function validateForm() {
+  if (!printerName.value || !printerLocation.value) {
+    console.log("printerNameVal", printerName.value)
+    console.log("printerLocationVal", printerLocation.value)
+    return false;
+  }
+
+  const fields = Object.keys(advancedFilters.value);
+  const additionalFields = fields.filter((field) => field !== 'printerName' && field !== 'printerLocation');
+console.log("additionalFields",additionalFields)
+  for (const field of additionalFields) {
+    const value = advancedFilters.value[field];
+    if (value && value.trim() !== '') {
+      console.log("additionalfieldsvalue", value)
+      return true;
+    }
+  }
+
+  return false;
 }
-const onSubmit = handleSubmit((values) => {
-  console.log('TEM')
-})
+
+function validatePrinterName(value) {
+  console.log("printer:", value)
+  if (!value || value.trim() === '') {
+    console.log("printer:", value)
+    return 'You must select a printer';
+  }
+
+  return true;
+}
+
+  function validatePrinterLocation(value) {
+    console.log("printerLoc:", value);
+  if (!value || value === 'SEL') {
+    return 'You must select a printer location.';
+  }
+
+  return true;
+}
 </script>
 
 <style lang="sass" scoped>

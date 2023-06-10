@@ -42,6 +42,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.filters['printerName'] = 'ABC Inc'
       this.filters['printerLocation'] =  { type: 'SEL', code: null }
       this.filters['packagingReference'] = null
+      this.filters['previousPONumber'] = null
       this.filters['imageCarrierId'] = null
       this.filters['imageCarrierCode'] = { type: 'UPC', code: null }
     },
