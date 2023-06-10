@@ -78,15 +78,20 @@ jobs:
           VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
           VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       
+        env:
+          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
       - bash: |
           echo "My secret variable: $VITE_B2C_KNOWN_AUTHORITY"
-          if [ "$(VITE_B2C_KNOWN_AUTHORITY)" = "sgscophoton.b2clogin.com" ]; then
+          if [ "${VITE_B2C_KNOWN_AUTHORITY}" = "sgscophoton.b2clogin.com" ]; then
               echo "String VITE_B2C_KNOWN_AUTHORITY are equal."
           else
               echo "String VITE_B2C_KNOWN_AUTHORITY are not equal."
+          fi
+
           echo "--------------------------------------------"
+
           echo "My secret variable: $VITEB2CKNOWNAUTHORITY"
-          if [ "$(VITEB2CKNOWNAUTHORITY)" = "sgscophoton.b2clogin.com" ]; then
+          if [ "${VITEB2CKNOWNAUTHORITY}" = "sgscophoton.b2clogin.com" ]; then
               echo "String VITEB2CKNOWNAUTHORITY are equal."
           else
               echo "String VITEB2CKNOWNAUTHORITY are not equal."
