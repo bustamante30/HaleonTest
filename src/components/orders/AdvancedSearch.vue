@@ -12,10 +12,10 @@ form.advanced-search(@submit.prevent="() => {}")
           h4(v-if="section.label") {{ section.label }}
           .f(v-for="filter in section.filters")
             label(v-if="filter.label") {{ filter.label }}
-            prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name].type" name="printerLoc" :inputId="printerLoc"  :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value")
+            prime-dropdown.sm(v-if="filter.type === 'printerLoc'"  v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
             prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
             .fields(v-else-if="filter.type === 'imageCarrierCodeType'")
-              prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].type" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
+              prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name]" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
               prime-inputtext.sm(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].code")
             prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
       template(#footer)
@@ -27,8 +27,8 @@ form.advanced-search(@submit.prevent="() => {}")
             Toast(ref="toast")
 </template>
 
-<script lang="ts" setup>
-import { ref, computed, onBeforeMount, onMounted} from 'vue'
+<script  lang="ts" setup>
+import { ref, computed, onBeforeMount} from 'vue'
 import router from '@/router'
 import PrimeVue from 'primevue/config'
 //import Dropdown from 'primevue/dropdown'
@@ -36,6 +36,7 @@ import { useToast } from 'primevue/usetoast'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
+import type Dropdown from 'primevue/dropdown'
 
 const props = defineProps({
   sections: {
@@ -45,11 +46,13 @@ const props = defineProps({
   filters: {
     type: Object,
     default: () => {}
+  
   }
 })
 
 
  const toast = useToast();
+
 
  interface AdvancedFilters {
   itemCode: string | null;
@@ -67,27 +70,29 @@ const props = defineProps({
 const emit = defineEmits(['search'])
 
 const advancedFilters = ref<AdvancedFilters>();
+
 //toRefs(ref(props.filters));
 
 const imageCarrierCodeTypes = ref([
-  { label: 'SELECT', value: 'SEL' },
+ // { label: 'SELECT', value: 'SEL' },
   { label: 'UPC Code', value: 'UPC' },
   { label: 'QR Code', value: 'QR' },
   { label: 'EAN Code', value: 'EAN' },
   { label: 'Data Matrix Code', value: 'DATA_MATRIX' },
 ])
 
-let imageCarrierCodeType = ref('SEL')
+let imageCarrierCodeType = ref('UPC')
 
 const printerLocations = ref([
-    { label: 'SELECT', value: 'SEL' },
+    //{ label: 'SELECT', value: 'SEL' },
     { label: 'Albama', value: 'AL' },
     { label: 'Arizona', value: 'AZ' },
     { label: 'California', value: 'CL' },
     { label: 'Georgia', value: 'GA' },
+    { label: 'Iowa', value: 'IA' },
   ])
   
-  let printerLoc = ref('SEL')
+  let printerLoc = ref('AL')
 
 const closeForm = () => {
   const form = document.querySelector(".advanced-search") as HTMLFormElement;
@@ -99,10 +104,12 @@ const closeForm = () => {
 
 onBeforeMount(() => {
   advancedFilters.value = { ...props.filters }
+
 })
 
 function reset() {
   advancedFilters.value = { ...props.filters }
+  //advancedFilters.value?.printerLocation?.type ='SEL';
 }
 
 function search() {
@@ -119,6 +126,7 @@ function onSubmit() {
         severity: 'error',
         summary: 'Validation Error',
         detail: validationErrors,
+        life: 3000
       });
       return;
     }
@@ -134,15 +142,16 @@ function onSubmit() {
   }
 
 function validateForm() {
-  debugger
+debugger
   if(!advancedFilters.value?.printerName)
   {
     return 'You must select a printer.';
   }
-  if (advancedFilters.value?.printerLocation?.type == 'SEL') {
+  if (advancedFilters.value?.printerLocation == null) {
     return 'You must select a printer location.';
   }
 
+  const errorMessage ='You must enter information into atleast 1 field. Printer Name and Location must have an entry';
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter((field) => field !== 'printerName' && field !== 'printerLocation');
   for (const field of additionalFields) {
@@ -152,7 +161,9 @@ function validateForm() {
     }
   }
 
-  return 'You must enter information into atleast 1 field. Printer Name and Location must have an entry';
+
+
+  return errorMessage;
 }
 
 </script>
