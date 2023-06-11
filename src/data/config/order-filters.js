@@ -6,7 +6,7 @@ function filterConfig(role) {
         filters: [
           {
             name: 'itemCode',
-            label: 'Item Code',
+            label: 'Item Number',
             short: 'Item',
           },
           {
@@ -36,12 +36,16 @@ function filterConfig(role) {
           },
           {
             name: 'packagingReference',
-            label: 'Packaging Reference',
+            label: 'Printer Reference Number',
             short: 'Ref',
           },
           {
             name: 'previousPONumber',
             label: 'Previous PO Number',
+          },
+          {
+            name: 'sGSReferenceNumber',
+            label: 'SGS Reference Number',
           },
         ]
       },
@@ -51,7 +55,7 @@ function filterConfig(role) {
         filters: [
           {
             name: 'imageCarrierId',
-            label: 'Image Carrier Id',
+            label: 'Printer Plate Code',
             short: 'Carrier Id',
           },
           {

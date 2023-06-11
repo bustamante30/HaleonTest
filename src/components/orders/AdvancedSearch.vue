@@ -132,12 +132,11 @@ function onSubmit() {
     }
 
     // Proceed with form submission if all validations pass
-    // ...
-
     toast.add({
       severity: 'success',
       summary: 'Form Submitted',
       detail: 'Searching Reorders',
+      life: 3000
     });
   }
 
