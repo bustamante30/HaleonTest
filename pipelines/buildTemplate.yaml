@@ -59,6 +59,7 @@ jobs:
 
       - script: |
           echo "Setting environment variables"
+          echo "clientid: $(dev-imagecarrier-ui-b2c-client-id)"
           echo "##vso[task.setvariable variable=VITE_AAD_CLIEND_ID]$(dev-imagecarrier-ui-b2c-client-id)"
           echo "##vso[task.setvariable variable=VITE_B2C_CLIENT_ID]$(dev-imagecarrier-ui-aad-client-id)"
         displayName: 'Set environment variables'
