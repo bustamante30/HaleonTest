@@ -3,7 +3,6 @@ import { useAuthStore } from "../stores/auth";
 
 class ApiService {
   private baseUrl: string;
-  private authStore;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -14,11 +13,11 @@ class ApiService {
       const response: AxiosResponse<T> = await axios(config);
       return response.data;
     } catch (error) {
-      throw new Error(`Request failed: ${error.message}`);
+      throw new Error(`Request failed: ${error}`);
     }
   }
 
-  public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    public async get<T>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
 
     const fullUrl = `${this.baseUrl}${url}`;
     const requestConfig: AxiosRequestConfig = {
@@ -29,7 +28,10 @@ class ApiService {
       
       headers: {"Authorization" : `Bearer ${localStorage.getItem("token")}`}
     };
-
+      if (params) {
+          requestConfig.params = params
+        }
+        console.log(requestConfig.headers?.Authorization);
     return this.request<T>(requestConfig);
   }
 
@@ -43,7 +45,8 @@ class ApiService {
       ...config,
       method: 'post',
       url: fullUrl,
-      data: data,
+        data: data,
+      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
     };
 
     return this.request<T>(requestConfig);

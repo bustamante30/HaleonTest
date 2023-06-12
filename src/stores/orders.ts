@@ -1,6 +1,7 @@
 import ordersData from '@/data/mock/orders';
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
+import ReorderService from "@/services/ReorderService";
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
@@ -26,8 +27,15 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-    async getOrders() {
-      this.orders = ordersData;
+      async getOrders() {
+
+          this.orders = await ReorderService.getRecentReorders()
+          for (let i = 0; i < this.orders.length; i++) {
+              this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
+              this.orders[i].createdAt = DateTime.fromISO(this.orders[i].createdAt).toLocaleString(DateTime.DATETIME_MED)
+          }
+        console.log(this.orders)
+      //this.orders = ordersData;
       this.selectedOrder = this.orders[0]
     },
     async getOrderById(id: string) {

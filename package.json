@@ -20,6 +20,7 @@
     "@azure/msal-browser": "^2.37.0",
     "@import-meta-env/babel": "^0.4.3",
     "@tsconfig/node18": "^2.0.1",
+    "@types/axios": "^0.14.0",
     "@vitejs/plugin-vue-jsx": "^3.0.1",
     "axios": "^1.4.0",
     "cypress": "^12.14.0",
