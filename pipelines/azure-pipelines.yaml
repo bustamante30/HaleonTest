@@ -1,5 +1,5 @@
 trigger:
-- "azure-kv-staticwebapp"
+- "staticwebapp"
 
 name: "StaticWebApp-ImageCarrier-UI"
 
