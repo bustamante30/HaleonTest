@@ -57,32 +57,11 @@ jobs:
           SecretsFilter: '*'
           RunAsPreJob: false
 
-      # - task: PowerShell@2
-      #   displayName: 'Tag KeyVault Secrets to env'
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       Write-Host "Using the mapped env var for this task works and is VITE_B2C_KNOWN_AUTHORITY: $env:VITE_B2C_KNOWN_AUTHORITY"
-      #       $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
-      #   env:
-      #     # the recommended way to map to an env variable
-      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
-      
-      # - bash: |
-      #     echo "My env variable: $VITE_B2C_KNOWN_AUTHORITY"
-      #     if [ "$VITE_B2C_KNOWN_AUTHORITY" = "$(VITEB2CKNOWNAUTHORITY)" ]; then
-      #         echo "String are equal."
-      #     else
-      #         echo "String are not equal."
-      #     fi
-      #     echo "--------------------------------------------"
-      #   env:
-      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
-
-      # - script: |
-      #     echo 'ResourceGroupName: $(ResourceGroupName)'
-      #     echo 'VITEMYSGSURL-KV: $(VITEMYSGSURL)'
-      #   displayName: 'Print KeyVault variables'
+      - script: |
+          echo "Setting environment variables"
+          echo "##vso[task.setvariable variable=VITE_AAD_CLIEND_ID]$(dev-imagecarrier-ui-b2c-client-id)"
+          echo "##vso[task.setvariable variable=VITE_B2C_CLIENT_ID]$(dev-imagecarrier-ui-aad-client-id)"
+        displayName: 'Set environment variables'
 
       - script: |
           npm install
@@ -113,30 +92,30 @@ jobs:
       #     npm run dev
       #   displayName: "npm run dev"
 
-      # - script: |
-      #     npm run build
-      #   displayName: "Full Build"
+      - script: |
+          npm run build
+        displayName: "Full Build"
 
-      - task: PowerShell@2
-        displayName: 'Full Build'
-        inputs:
-          targetType: 'inline'
-          script: |
-            npm run build
-            $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
-        env:
-          # the recommended way to map to an env variable
-          VITE_MYSGSURL: $(VITEMYSGSURL)
-          VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
-          VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
-          VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
-          VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
-          VITE_LOGOUT_URL: $(VITELOGOUTURL)
-          VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
-          VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
-          VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
-          VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
-          VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
+      # - task: PowerShell@2
+      #   displayName: 'Full Build'
+      #   inputs:
+      #     targetType: 'inline'
+      #     script: |
+      #       npm run build
+      #       $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
+      #   env:
+      #     # the recommended way to map to an env variable
+      #     VITE_MYSGSURL: $(VITEMYSGSURL)
+      #     VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
+      #     VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
+      #     VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
+      #     VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
+      #     VITE_LOGOUT_URL: $(VITELOGOUTURL)
+      #     VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
+      #     VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
+      #     VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
+      #     VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
+      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
 
       # - script: |
       #     npm run test:unit
