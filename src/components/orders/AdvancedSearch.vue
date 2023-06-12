@@ -141,7 +141,6 @@ function onSubmit() {
   }
 
 function validateForm() {
-debugger
   if(!advancedFilters.value?.printerName)
   {
     return 'You must select a printer.';
