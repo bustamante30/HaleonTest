@@ -2,7 +2,7 @@ export default {
     cols: [
       {
         header: 'Thumbnail',
-        field: 'image',
+        field: 'thumbNail',
         type: 'image',
         width: 12
       },
@@ -13,7 +13,7 @@ export default {
       },
       {
         header: 'Project Description',
-        field: 'name',
+        field: 'description',
         type: 'link',
         path: '/dashboard/$1',
         pathParams: ['id'],
@@ -21,8 +21,7 @@ export default {
       },
       {
         header: 'Order Date',
-        field: 'orderDate',
-        type: 'date',
+        field: 'createdAt',
         width: 15
       },
       {
@@ -33,7 +32,7 @@ export default {
       {
         header: 'Item Code',
         field: 'itemCode',
-        width: 12
+        width: 5
       },
       {
         header: 'Printer Name',
@@ -42,7 +41,7 @@ export default {
       },
       {
         header: 'Printer Location',
-        field: 'printerLocation',
+        field: 'printerLocationName',
         width: 12
       },
       {
@@ -52,9 +51,14 @@ export default {
       },
       {
         header: 'My SGS Job #',
-        field: 'mySGSNumber',
+        field: 'sgsId',
         width: 12
       },
+      {
+        header: 'Status',
+        field: 'orderStatus',
+        width: 5
+      }
   ],
   actions: (order) => {
     return [
