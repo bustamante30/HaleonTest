@@ -2,7 +2,6 @@ parameters:
   - name: environment
   - name: ArtifactName
   - name: BuildNumber
-  - name: TerraformBackendServiceConnection
 
 jobs:
   - job: Job_Build
@@ -30,39 +29,6 @@ jobs:
         inputs:
             versionSpec: "18.15.x"
         displayName: "Install Node.js"
-
-      - task: Bash@3
-        name: BuildAgentIP
-        inputs:
-          targetType: 'inline'
-          script: |
-            ipaddress=$(curl -s http://ipinfo.io/ip)
-            echo "##vso[task.setvariable variable=address;isOutput=true;]$ipaddress"
-
-      - task: AzureCLI@2
-        displayName: 'Add IP to Key Vault Firewall'
-        inputs:
-          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
-          scriptType: bash
-          scriptLocation: inlineScript
-          inlineScript: |
-            # Add IP to Key Vault Firewall
-            az keyvault network-rule add --name '$(KeyVaultName)' --ip-address "$(BuildAgentIP.address)/32"
-
-      - task: AzureKeyVault@2
-        displayName: 'Get Azure KeyVault'
-        inputs:
-          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
-          KeyVaultName: 'sgsco-terraform-kv'
-          SecretsFilter: '*'
-          RunAsPreJob: false
-
-      # - script: |
-      #     echo "Setting environment variables"
-      #     echo "clientid: $(dev-imagecarrier-ui-b2c-client-id)"
-      #     echo "##vso[task.setvariable variable=VITE_AAD_CLIEND_ID]$(dev-imagecarrier-ui-b2c-client-id)"
-      #     echo "##vso[task.setvariable variable=VITE_B2C_CLIENT_ID]$(dev-imagecarrier-ui-aad-client-id)"
-      #   displayName: 'Set environment variables'
 
       - script: |
           npm install
@@ -97,31 +63,6 @@ jobs:
           npm run build
         displayName: "Full Build"
 
-      # - task: PowerShell@2
-      #   displayName: 'Full Build'
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       npm run build
-      #       $env:VITE_B2C_KNOWN_AUTHORITY -eq "sgscophoton.b2clogin.com"
-      #   env:
-      #     # the recommended way to map to an env variable
-      #     VITE_MYSGSURL: $(VITEMYSGSURL)
-      #     VITE_AAD_CLIEND_ID: $(VITEAADCLIENDID)
-      #     VITE_AAD_AUTHORITY: $(VITEAADAUTHORITYY)
-      #     VITE_AAD_TOKEN_SCOPE: $(VITEAADTOKENSCOPE)
-      #     VITE_AAD_REDIRECT_URL: $(VITEAADREDIRECTURL)
-      #     VITE_LOGOUT_URL: $(VITELOGOUTURL)
-      #     VITE_B2C_CLIENT_ID: $(VITEB2CCLIENTID)
-      #     VITE_B2C_TOKEN_SCOPE: $(VITEB2CTOKENSCOPE)
-      #     VITE_B2C_REDIRECT_URL: $(VITEB2CREDIRECTURL)
-      #     VITE_B2C_AUTHORITY: $(VITEB2CAUTHORITY)
-      #     VITE_B2C_KNOWN_AUTHORITY: $(VITEB2CKNOWNAUTHORITY)
-
-      # - script: |
-      #     npm run test:unit
-      #   displayName: "Unit Tests"
-
       - bash: |
           if [ -d $(system.defaultworkingdirectory)/dist ]; then
             echo "##vso[task.setVariable variable=IMGCARRIERAPPBUILT]true"
@@ -152,16 +93,6 @@ jobs:
           PathtoPublish: $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/
           artifactName: '${{ parameters.ArtifactName }}'
 
-      - task: AzureCLI@2
-        displayName: 'Remove IP from Key Vault Firewall'
-        inputs:
-          azureSubscription: '${{ parameters.TerraformBackendServiceConnection }}'
-          scriptType: bash
-          scriptLocation: inlineScript
-          inlineScript: |
-            # Remove IP from Key Vault Firewall
-            az keyvault network-rule remove --name '$(KeyVaultName)' --ip-address "$(BuildAgentIP.address)/32"
-        
       - bash: |
           if [ -f "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}" ]; then
             echo "Source directory exists."
