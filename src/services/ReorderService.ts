@@ -6,11 +6,22 @@ const httpService = new ApiService(baseUrl)
 
 class ReorderService {
 
-    public static getRecentReorders() {
-        let params = {
-            "pageNumber": 1,
-            "pageCount": 10,
-            "printerId": 1
+    public static getRecentReorders(query?: string) {
+        let params = {}
+        if (query=="") {
+             params = {
+                "pageNumber": 1,
+                "pageCount": 10,
+                "printerId": 1
+            }
+        }
+       else {
+            params = {
+                "pageNumber": 1,
+                "pageCount": 10,
+                "printerId": 1,
+                "searchText": query
+            }
         }
         return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
     }

@@ -41,8 +41,15 @@ export const useOrdersStore = defineStore('ordersStore', {
     async getOrderById(id: string) {
       this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
     },
-    setFilters(filters: any) {
-      this.filters = { ...this.filters, ...filters }
+    async setFilters(filters: any) {
+        this.filters = { ...this.filters, ...filters }
+        this.orders = await ReorderService.getRecentReorders(filters.query)
+        for (let i = 0; i < this.orders.length; i++) {
+            this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
+            this.orders[i].createdAt = DateTime.fromISO(this.orders[i].createdAt).toLocaleString(DateTime.DATETIME_MED)
+        }
+        this.selectedOrder = this.orders[0]
+        console.log(this.orders);
     },
     resetFilters() {
       this.filters['itemCode'] = null
@@ -69,8 +76,9 @@ export const useOrdersStore = defineStore('ordersStore', {
       ]
       this.resetFilters()
     },
-    setFilter(field: any, value: any) {
-      this.filters[field] = value
+    async setFilter(field: any, value: any) {
+        this.filters[field] = value
+        
     },
     updateCheckout(checkout: any) {
       this.checkout = { ...checkout }
