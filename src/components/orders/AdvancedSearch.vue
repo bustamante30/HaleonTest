@@ -102,12 +102,12 @@ const closeForm = () => {
   
 
 onBeforeMount(() => {
-  advancedFilters.value = { ...props.filters }
+  advancedFilters.value = { ...props.filters as AdvancedFilters}
 
 })
 
 function reset() {
-  advancedFilters.value = { ...props.filters }
+  advancedFilters.value = { ...props.filters as AdvancedFilters}
 }
 
 function search() {
@@ -141,17 +141,17 @@ function onSubmit() {
 function validateForm() {
   if(!advancedFilters.value?.printerName)
   {
-    return 'You must select a printer.';
+    return 'You must select a printer.'
   }
   if (advancedFilters.value?.printerLocation == null) {
-    return 'You must select a printer location.';
+    return 'You must select a printer location.'
   }
 
   const errorMessage ='You must enter information into atleast 1 field. Printer Name and Location must have an entry';
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter((field) => field !== 'printerName' && field !== 'printerLocation');
   for (const field of additionalFields) {
-    const value = advancedFilters.value[field];
+    const value = (advancedFilters.value as any)[field]
     if (value != undefined && value != '' && value != null && value?.type != 'SEL') {
       return null;
     }
