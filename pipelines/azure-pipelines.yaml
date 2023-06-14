@@ -1,7 +1,7 @@
 trigger:
-- "staticwebapp"
+- "master"
 
-name: "StaticWebApp-ImageCarrier-UI"
+name: "ImageCarrier-UI"
 
 variables:
   AzureSubscription: 'photon-dev-ai-cr'
@@ -29,7 +29,7 @@ stages:
       - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-static-variable-group'
     jobs:
-      - template: staticwebapp-deploymentTemplate.yaml
+      - template: deploymentTemplate.yaml
         parameters:
           environment: 'dev'
           ArtifactName:  '$(ArtifactName)'
