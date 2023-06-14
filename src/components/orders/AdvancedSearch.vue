@@ -74,7 +74,6 @@ const advancedFilters = ref<AdvancedFilters>();
 //toRefs(ref(props.filters));
 
 const imageCarrierCodeTypes = ref([
- // { label: 'SELECT', value: 'SEL' },
   { label: 'UPC Code', value: 'UPC' },
   { label: 'QR Code', value: 'QR' },
   { label: 'EAN Code', value: 'EAN' },
@@ -84,7 +83,7 @@ const imageCarrierCodeTypes = ref([
 let imageCarrierCodeType = ref('UPC')
 
 const printerLocations = ref([
-    //{ label: 'SELECT', value: 'SEL' },
+   
     { label: 'Albama', value: 'AL' },
     { label: 'Arizona', value: 'AZ' },
     { label: 'California', value: 'CL' },
@@ -109,7 +108,6 @@ onBeforeMount(() => {
 
 function reset() {
   advancedFilters.value = { ...props.filters }
-  //advancedFilters.value?.printerLocation?.type ='SEL';
 }
 
 function search() {

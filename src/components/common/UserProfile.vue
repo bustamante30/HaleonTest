@@ -16,14 +16,19 @@ const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
 const initials = () => {
-  // const names = authStore.currentUser.firstName.split(' ')
-  // const firstName = names[0]
-  // const lastName = names[names.length - 1]
+  if (
+    authStore.currentUser &&
+    authStore.currentUser.firstName &&
+    authStore.currentUser.lastName
+  ) {
+    const firstLetterOfFirstName = authStore.currentUser.firstName.charAt(0);
+    const firstLetterOfLastName = authStore.currentUser.lastName.charAt(0);
 
-  const firstLetterOfFirstName = authStore.currentUser.firstName.charAt(0)
-  const firstLetterOfLastName = authStore.currentUser.lastName.charAt(0)
+    return firstLetterOfFirstName + firstLetterOfLastName;
+  }
 
-  return firstLetterOfFirstName + firstLetterOfLastName
+  // Default value if any of the properties are null
+  return 'AB';
 }
 
 const isPopupVisible = ref(false);
@@ -39,17 +44,15 @@ async function logout() {
   if (authb2cStore.currentB2CUser.isLoggedIn) {
     await authb2cStore.logout();
   }
-  // router.push('/')
 }
 </script>
 
 <template lang="pug">
 .user-profile
   span.avatar(@click="togglePopup()") {{ initials() }}
-  //- a.avatar(@click="togglePopup()") {{ user.initials }}
   .popup(v-if="isPopupVisible")
-    h4 {{authStore.currentUser.displayName}}
-    h6 {{authStore.currentUser.email}}
+    h4 {{ authStore.currentUser.displayName || 'Hi User' }}
+    h6 {{ authStore.currentUser.email || 'User@gmail.com' }}
     footer
       sgs-button.sm(label="Logout" @click="logout()")
 

@@ -3,7 +3,7 @@ import { computed, onBeforeMount } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
-import Welcome from "../components/common/Welcome.vue";
+import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
 import { keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
@@ -50,7 +50,7 @@ function search(filters) {
     template(#header)
       app-header
     main
-      Welcome(:user="username")
+      welcome(:user="username")
       sgs-scrollpanel
         template(#header)
           header
