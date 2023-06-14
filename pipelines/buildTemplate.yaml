@@ -8,7 +8,7 @@ jobs:
     displayName: Build
     
     pool:
-        vmImage: "ubuntu-20.04"
+        vmImage: 'ubuntu-latest'
     
     variables:
       CI: "true"
@@ -29,12 +29,6 @@ jobs:
         inputs:
             versionSpec: "18.15.x"
         displayName: "Install Node.js"
-
-      # - script: |
-      #     echo 'VITE_AAD_AUTHORITY: $(VITE_AAD_AUTHORITY)'
-      #     echo 'VITE_CONTAINER_NAME: $(VITE_CONTAINER_NAME)'
-      #     echo 'VITE_MYSGSURL: $(VITE_MYSGSURL)'
-      #   displayName: Print variables and environment
 
       - script: |
           npm install
@@ -64,28 +58,24 @@ jobs:
       # - script: |
       #     npm run dev
       #   displayName: "npm run dev"
-      
+
       - script: |
           npm run build
         displayName: "Full Build"
-
-      # - script: |
-      #     npm run test:unit
-      #   displayName: "Unit Tests"
 
       - bash: |
           if [ -d $(system.defaultworkingdirectory)/dist ]; then
             echo "##vso[task.setVariable variable=IMGCARRIERAPPBUILT]true"
           fi
 
-      # - task: CopyFiles@2
-      #   displayName: 'Copy staticwebapp.config to dist'
-      #   condition: succeededOrFailed()
-      #   inputs:
-      #     SourceFolder: '$(System.Defaultworkingdirectory)'
-      #     Contents: '**/staticwebapp.config.json'
-      #     TargetFolder: '$(system.defaultworkingdirectory)/dist'
-      #     OverWrite: true
+      - task: CopyFiles@2
+        displayName: 'Copy staticwebapp.config to dist'
+        condition: succeededOrFailed()
+        inputs:
+          SourceFolder: '$(System.Defaultworkingdirectory)'
+          Contents: '**/staticwebapp.config.json'
+          TargetFolder: '$(system.defaultworkingdirectory)/dist'
+          OverWrite: true
 
       - task: ArchiveFiles@2
         condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
@@ -102,7 +92,7 @@ jobs:
         inputs:
           PathtoPublish: $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/
           artifactName: '${{ parameters.ArtifactName }}'
-        
+
       - bash: |
           if [ -f "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/${{ parameters.BuildNumber }}" ]; then
             echo "Source directory exists."
