@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userSessionStore } from "@/stores/usersession";
 import jwtDecode from "jwt-decode";
+import UserService from "@/services/userService";
+
 
 const authConfig = {
   auth: {
@@ -107,11 +109,18 @@ export const useAuthStore = defineStore("auth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken
       console.log(this.accessToken)
-      let decodedBearer = jwtDecode(this.accessToken) as object
-      // this.currentUser.username = decodedBearer.displayName as string
-      // this.currentUser.email = decodedBearer.upn as string
-      console.log('decodedBearer' + decodedBearer)
-      console.log('currentUser' + this.currentUser)
-    },
+      localStorage.setItem("token", this.accessToken);
+
+      const user  = await UserService.getV1User();
+      console.log(user)
+
+      // const decodedBearer = jwtDecode(
+      //   this.$auth.$storage.getUniversal('_token.aad')
+      // )
+      this.currentUser.firstName = user.firstName as string
+      this.currentUser.lastName = user.lastName as string
+      this.currentUser.email = user.email as string
+      this.currentUser.displayName = user.displayName as string
+        },
   },
 });

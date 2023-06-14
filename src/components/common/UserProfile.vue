@@ -11,8 +11,25 @@ const props = defineProps({
   },
 });
 
+
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
+
+const initials = () => {
+  if (
+    authStore.currentUser &&
+    authStore.currentUser.firstName &&
+    authStore.currentUser.lastName
+  ) {
+    const firstLetterOfFirstName = authStore.currentUser.firstName.charAt(0);
+    const firstLetterOfLastName = authStore.currentUser.lastName.charAt(0);
+
+    return firstLetterOfFirstName + firstLetterOfLastName;
+  }
+
+  // Default value if any of the properties are null
+  return 'AB';
+}
 
 const isPopupVisible = ref(false);
 
@@ -32,10 +49,10 @@ async function logout() {
 
 <template lang="pug">
 .user-profile
-  a.avatar(@click="togglePopup()") {{ user.initials }}
+  span.avatar(@click="togglePopup()") {{ initials() }}
   .popup(v-if="isPopupVisible")
-    h4 Abraham Lincoln
-    p Purchase Manager, ABC Inc
+    h4 {{ authStore.currentUser.displayName || 'Hi User' }}
+    h6 {{ authStore.currentUser.email || 'User@gmail.com' }}
     footer
       sgs-button.sm(label="Logout" @click="logout()")
 
@@ -60,7 +77,7 @@ async function logout() {
     +fixed-ne
     top: 3.5rem
     right: 1.5rem
-    width: 20rem
+    width: 21rem
     height: 10rem
     background: white
     box-shadow: 0 5px 5px 3px rgba(0, 0, 0, 0.1)
