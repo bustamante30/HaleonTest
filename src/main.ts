@@ -30,6 +30,9 @@ import OverlayPanel from 'primevue/overlaypanel'
 import Panel from 'primevue/panel'
 import Tooltip from 'primevue/tooltip'
 import BadgeDirective from 'primevue/badgedirective';
+import Message from 'primevue/message'
+import Toast from 'primevue/toast';
+import ToastService from 'primevue/toastservice';
 
 const app = createApp(App)
 
@@ -58,5 +61,7 @@ app.component('PrimeMultiSelect', MultiSelect)
 app.component('PrimePanel', Panel)
 app.component('PrimeOverlayPanel', OverlayPanel)
 app.component('PrimeImage', Image)
-
+app.component('Message',Message)
+app.use(ToastService);
+app.component('Toast', Toast)
 app.mount('#app')

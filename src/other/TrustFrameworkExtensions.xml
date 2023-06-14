@@ -111,6 +111,43 @@
       </TechnicalProfiles>
     </ClaimsProvider>
     <ClaimsProvider>
+      <Domain>amazon.com</Domain>
+      <DisplayName>Amazon</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="Amazon-OAuth2">
+          <DisplayName>Amazon</DisplayName>
+          <Protocol Name="OAuth2" />
+          <Metadata>
+            <Item Key="ProviderName">amazon</Item>
+            <Item Key="authorization_endpoint">https://www.amazon.com/ap/oa</Item>
+            <Item Key="AccessTokenEndpoint">https://api.amazon.com/auth/o2/token</Item>
+            <Item Key="ClaimsEndpoint">https://api.amazon.com/user/profile</Item>
+            <Item Key="scope">profile</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="client_id">amzn1.application-oa2-client.a62d7e6bf1bc49c38e95e7b3b51bae7e</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_AmazonSecret" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="user_id" />
+            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="amazon.com" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource"
+              DefaultValue="socialIdpAuthentication" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
@@ -134,8 +171,9 @@
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp"
           ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="AzureADCommonExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="AmazonExchange" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange"
@@ -151,9 +189,10 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAuth2" />
             <ClaimsExchange Id="AzureADCommonExchange"
               TechnicalProfileReferenceId="AADCommon-OpenIdConnect" />
+            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAuth2" />
+            <ClaimsExchange Id="AmazonExchange" TechnicalProfileReferenceId="Amazon-OAuth2" />
             <ClaimsExchange Id="SignUpWithLogonEmailExchange"
               TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
           </ClaimsExchanges>
