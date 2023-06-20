@@ -591,7 +591,7 @@
           <Protocol Name="OpenIdConnect" />
           <Metadata>
             <Item Key="METADATA">
-            https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
+              https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
             <Item Key="client_id">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
             <Item Key="response_types">code</Item>
@@ -602,7 +602,7 @@
             <Item Key="DiscoverMetadataByTokenIssuer">true</Item>
             <!-- The key below allows you to specify each of the Azure AD tenants that can be used
             to sign in. Update the GUIDs below for each tenant. -->
-           <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1,https://login.microsoftonline.com/90487389-fd4d-4951-a72c-069d7b20dee4</Item>
+            <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1,https://login.microsoftonline.com/90487389-fd4d-4951-a72c-069d7b20dee4</Item>
             <!-- The commented key below specifies that users from any tenant can sign-in. Uncomment
             if you would like anyone with an Azure AD account to be able to sign in. -->
             <!-- <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/</Item> -->
@@ -638,7 +638,7 @@
           <DisplayName>Local Account SignIn</DisplayName>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
-            <Item Key="ProviderName">https://sts.windows.net/</Item>
+               <Item Key="ProviderName">https://sts.windows.net/</Item>
             <Item Key="METADATA">
               https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration</Item>
             <Item Key="authorization_endpoint">
@@ -1045,8 +1045,9 @@
           <Protocol Name="Proprietary"
             Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item>
+            <!-- <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item> -->
             <Item Key="setting.operatingMode">Email</Item>
+            <Item Key="setting.showSignupLink">false</Item>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
             <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
           </Metadata>
