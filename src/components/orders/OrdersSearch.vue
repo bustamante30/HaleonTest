@@ -37,7 +37,7 @@ function toggleFilters() {
 .orders-search
   .search
     .input
-      prime-auto-complete.search-input(placeholder="Search by Brand, Product, Printer ..." v-model="value" :suggestions="items" @complete="search")
+      prime-auto-complete.search-input(placeholder="Search by plate code, item code, UPC code..." v-model="value" :suggestions="items" @complete="search")
       span.material-icons.outline search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")

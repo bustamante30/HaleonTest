@@ -19,11 +19,15 @@ class ApiService {
     public async get<T>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
 
     const fullUrl = `${this.baseUrl}${url}`;
+    const authType = localStorage.getItem("AuthType");
+    console.log("AuthType:" +authType);
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'get',
       url: fullUrl,   
-      headers: {"Authorization" : `Bearer ${localStorage.getItem("token")}`}
+      headers: {"Authorization" : `Bearer ${localStorage.getItem("token")}`,
+      "Authorization-Scheme": authType
+    }
     };
       if (params) {
           requestConfig.params = params
