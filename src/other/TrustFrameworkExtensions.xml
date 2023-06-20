@@ -151,14 +151,14 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">ProxyIdentityExperienceFramework</Item>
-            <Item Key="IdTokenAudience">IdentityExperienceFramework</Item>
+            <Item Key="client_id">64b0a6a2-0866-4e69-8992-6dfe15f0fb3a</Item>
+            <Item Key="IdTokenAudience">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
           </Metadata>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="client_id"
-              DefaultValue="ProxyIdentityExperienceFramework" />
+              DefaultValue="64b0a6a2-0866-4e69-8992-6dfe15f0fb3a" />
             <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource"
-              DefaultValue="IdentityExperienceFramework" />
+              DefaultValue="d56363f1-4b89-4ab8-852e-d165e321b775" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
@@ -173,6 +173,7 @@
             <ClaimsProviderSelection TargetClaimsExchangeId="AzureADCommonExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="AmazonExchange" />
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange"
@@ -192,8 +193,7 @@
               TechnicalProfileReferenceId="AADCommon-OpenIdConnect" />
             <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAuth2" />
             <ClaimsExchange Id="AmazonExchange" TechnicalProfileReferenceId="Amazon-OAuth2" />
-            <ClaimsExchange Id="SignUpWithLogonEmailExchange"
-              TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <!-- For social IDP authentication, attempt to find the user account in the directory. -->
@@ -206,8 +206,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId"
-              TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <!-- Show self-asserted page only if the directory does not have the user account already
@@ -239,8 +238,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId"
-              TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no
@@ -256,8 +254,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserWrite"
-              TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+            <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <OrchestrationStep Order="7" Type="SendClaims"
