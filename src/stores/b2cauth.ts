@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import jwtDecode from "jwt-decode";
+import UserService from "@/services/userService";
 
 const authB2CConfig = {
   auth: {
@@ -109,6 +110,18 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       // this.currentUser.username = decodedBearer.displayName as string
       // this.currentUser.email = decodedBearer.upn as string
       console.log('b2c decodedBearer' + decodedBearer)
+      localStorage.setItem("token", this.accessToken);
+
+      const user  = await UserService.getV1User();
+      console.log(user)
+
+      // const decodedBearer = jwtDecode(
+      //   this.$auth.$storage.getUniversal('_token.aad')
+      // )
+      this.currentB2CUser.firstName = user.firstName as string
+      this.currentB2CUser.lastName = user.lastName as string
+      this.currentB2CUser.email = user.email as string
+      this.currentB2CUser.displayName = user.displayName as string
     },
   },
 });

@@ -16,6 +16,9 @@ const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
 const initials = () => {
+  const authType = localStorage.getItem("AuthType");
+  if (authType == "AzureAd")
+  {
   if (
     authStore.currentUser &&
     authStore.currentUser.firstName &&
@@ -26,7 +29,20 @@ const initials = () => {
 
     return firstLetterOfFirstName + firstLetterOfLastName;
   }
+}
+else if (authType == "AzureAdB2C")
+{
+  if (
+    authb2cStore.currentB2CUser &&
+    authb2cStore.currentB2CUser.firstName &&
+    authb2cStore.currentB2CUser.lastName
+  ) {
+    const firstLetterOfFirstName = authb2cStore.currentB2CUser.firstName.charAt(0);
+    const firstLetterOfLastName = authb2cStore.currentB2CUser.lastName.charAt(0);
 
+    return firstLetterOfFirstName + firstLetterOfLastName;
+  }
+}
   // Default value if any of the properties are null
   return 'AB';
 }
@@ -51,8 +67,8 @@ async function logout() {
 .user-profile
   span.avatar(@click="togglePopup()") {{ initials() }}
   .popup(v-if="isPopupVisible")
-    h4 {{ authStore.currentUser.displayName || 'Hi User' }}
-    h6 {{ authStore.currentUser.email || 'User@gmail.com' }}
+   h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}
+    h6 {{ authb2cStore.currentB2CUser.email ? authb2cStore.currentB2CUser.email : (authStore.currentUser.email ||'User@gmail.com') }}
     footer
       sgs-button.sm(label="Logout" @click="logout()")
 
