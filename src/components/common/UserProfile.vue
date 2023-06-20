@@ -16,11 +16,7 @@ const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
 const initials = () => {
-  debugger;
   const authType = localStorage.getItem("AuthType");
- 
-  console.log("displayname:"+ authStore.currentUser.displayName);
-  console.log("displaynameB2C:"+ authb2cStore.currentB2CUser.displayName);
   if (authType == "AzureAd")
   {
   if (

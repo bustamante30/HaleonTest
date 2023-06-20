@@ -20,7 +20,6 @@ class ApiService {
 
     const fullUrl = `${this.baseUrl}${url}`;
     const authType = localStorage.getItem("AuthType");
-    console.log("AuthType:" +authType);
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'get',
@@ -42,12 +41,15 @@ class ApiService {
     config?: AxiosRequestConfig
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
+    const authType = localStorage.getItem("AuthType");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'post',
       url: fullUrl,
         data: data,
-      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      "Authorization-Scheme": authType
+     }
     };
 
     return this.request<T>(requestConfig);
