@@ -32,7 +32,7 @@ export const useOrdersStore = defineStore('ordersStore', {
           this.orders = await ReorderService.getRecentReorders()
           for (let i = 0; i < this.orders.length; i++) {
               this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
-              this.orders[i].createdAt = DateTime.fromISO(this.orders[i].createdAt).toLocaleString(DateTime.DATETIME_MED)
+              this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
           }
         console.log(this.orders)
       //this.orders = ordersData;
@@ -45,8 +45,9 @@ export const useOrdersStore = defineStore('ordersStore', {
         this.filters = { ...this.filters, ...filters }
         this.orders = await ReorderService.getRecentReorders(filters.query)
         for (let i = 0; i < this.orders.length; i++) {
-            this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
-            this.orders[i].createdAt = DateTime.fromISO(this.orders[i].createdAt).toLocaleString(DateTime.DATETIME_MED)
+            if (this.orders[i].thumbNail!=null)
+                this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
+            this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }
         this.selectedOrder = this.orders[0]
         console.log(this.orders);

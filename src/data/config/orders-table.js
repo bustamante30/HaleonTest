@@ -21,7 +21,7 @@ export default {
       },
       {
         header: 'Order Date',
-        field: 'createdAt',
+        field: 'submittedDate',
         width: 15
       },
       {

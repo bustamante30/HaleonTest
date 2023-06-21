@@ -23,7 +23,11 @@ class ApiService {
       ...config,
       method: 'get',
       url: fullUrl,   
-      headers: {"Authorization" : `Bearer ${localStorage.getItem("token")}`}
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Authorization-Scheme": `AzureAd`
+        }
+      
     };
       if (params) {
           requestConfig.params = params
@@ -43,7 +47,10 @@ class ApiService {
       method: 'post',
       url: fullUrl,
         data: data,
-      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Authorization-Scheme": `AzureAd`
+        }
     };
 
     return this.request<T>(requestConfig);
