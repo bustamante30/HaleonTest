@@ -1,31 +1,35 @@
 <script setup>
-import { computed, ref } from 'vue'
-import AdvancedSearch from '@/components/orders/AdvancedSearch.vue'
+import { computed, ref } from "vue";
+import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
+
+console.log("Testing search dash................");
 
 const props = defineProps({
   config: {
     type: Object,
-    default: () => { sections: [] }
+    default: () => {
+      sections: [];
+    },
   },
   filters: {
     type: Object,
-    default: () => null
-  }
-})
+    default: () => null,
+  },
+});
 
-const emit = defineEmits(['search'])
+const emit = defineEmits(["search"]);
 
-const items = computed(() => [])
+const items = computed(() => []);
 
-const isFiltersVisible = ref(false)
+const isFiltersVisible = ref(false);
 
 function search(filters) {
-  isFiltersVisible.value = false
-  emit('search', filters)
+  isFiltersVisible.value = false;
+  emit("search", filters);
 }
 
 function toggleFilters() {
-  isFiltersVisible.value = !isFiltersVisible.value
+  isFiltersVisible.value = !isFiltersVisible.value;
 }
 </script>
 
@@ -33,7 +37,7 @@ function toggleFilters() {
 .orders-search
   .search
     .input
-      prime-auto-complete.search-input(placeholder="Search by Brand, Product, Printer ..." v-model="value" :suggestions="items" @complete="search")
+      prime-auto-complete.search-input(placeholder="Search by plate code, item code, UPC code..." v-model="value" :suggestions="items" @complete="search")
       span.material-icons.outline search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")

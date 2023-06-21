@@ -9,7 +9,7 @@ jobs:
     displayName: '${{ parameters.environment }}'
     environment: '${{ parameters.environment }}'
     pool:
-      vmImage: "ubuntu-20.04"
+      vmImage: 'ubuntu-latest'
     strategy:
       runOnce:
         deploy:
@@ -30,15 +30,6 @@ jobs:
                 destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
-
-            # - task: AzureStaticWebApp@0
-            #   inputs:
-            #     cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
-            #     app_location: '/'
-            #     output_location: 'wwwroot'
-            #     skip_app_build: true
-            #   env:
-            #     azure_static_web_apps_api_token: $(StaticWebAppToken)
 
             - task: AzureStaticWebApp@0
               enabled: true #requires linux agent, so new stage needed and artefact should be exported in this one

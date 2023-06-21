@@ -25,11 +25,10 @@
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="identityProvider" />
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
-          DefaultValue="{Policy:TenantObjectId}" />
-        <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken"
-          PartnerClaimType="idp_access_token" />
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken" PartnerClaimType="idp_access_token" />
         <OutputClaim ClaimTypeReferenceId="email"/>
+        <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="false" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

@@ -31,7 +31,6 @@ import Panel from 'primevue/panel'
 import Tooltip from 'primevue/tooltip'
 import BadgeDirective from 'primevue/badgedirective';
 import Message from 'primevue/message'
-import { ValidationProvider } from 'vee-validate';
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
 
