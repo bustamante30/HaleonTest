@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
-import jwtDecode from "jwt-decode";
 import UserService from "@/services/userService";
+import router from '@/router'
 
 const authB2CConfig = {
   auth: {
@@ -29,17 +29,25 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       // 1. try to obtain token use account detaials
       await this.getAccount();
       // 2. try to obtain token if the user had already logged in
-      let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
-      if (tokenResponse) {
-        console.log("Token" + tokenResponse);
-        this.account = tokenResponse.account;
-      } else {
-        this.account = this.msalB2cInstance.getAllAccounts()[0];
-      }
-      // if the the user is logged in
-      if (this.account && tokenResponse) {
-        this.updateUserStore(tokenResponse);
-      }
+      this.msalB2cInstance
+        .handleRedirectPromise()
+        .then((tokenResponse) => {
+          console.log("tokenResponse" + tokenResponse);
+          if (tokenResponse) {
+            console.log("Token" + tokenResponse);
+            this.account = tokenResponse.account;
+          } else {
+            this.account = this.msalB2cInstance.getAllAccounts()[0]
+          }
+          // if the the user is logged in
+          if (this.account && tokenResponse) {
+            this.updateUserStore(tokenResponse);
+          }
+        })
+        .catch((error) => {
+          console.log('login with redirect failed: ', error)
+          router.push('/')
+        });
     },
     async getAccount() {
       const accounts = this.msalB2cInstance.getAllAccounts();
@@ -51,26 +59,39 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     },
     async login() {
       try {
+        let response
         console.log("B2C login page");
-        let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
-        if (tokenResponse) {
-          this.account = tokenResponse.account;
-        } else {
-          this.account = this.msalB2cInstance.getAllAccounts()[0];
-        }
+        this.msalB2cInstance
+        .handleRedirectPromise()
+        .then((tokenResponse) => {
+          if (tokenResponse) {
+            response = tokenResponse
+            this.account = tokenResponse.account;
+          } else {
+            this.account = this.msalB2cInstance.getAllAccounts()[0]
+          }
+          // if the the user is logged in
+          if (this.account && tokenResponse) {
+            this.updateUserStore(tokenResponse);
+          }
+        })
+        .catch((error) => {
+          console.log('login with redirect failed: ', error)
+          router.push('/')
+        });
 
-        if (this.account && tokenResponse) {
+        if (this.account && response) {
           console.log(
             "[Auth Store] successgully obtained valid account and tokenResponse"
           );
-          await this.updateUserStore(tokenResponse);
+          await this.updateUserStore(response);
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");
           try {
-            tokenResponse = await this.msalB2cInstance.acquireTokenSilent({
+            response = await this.msalB2cInstance.acquireTokenSilent({
               scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
             });
-            await this.updateUserStore(tokenResponse);
+            await this.updateUserStore(response);
           } catch (err) {
             await this.msalB2cInstance.acquireTokenRedirect(requestScope);
           }
@@ -104,24 +125,13 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     async updateUserStore(tokenResponse: any) {
       this.currentB2CUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
-      this.accessToken = tokenResponse.accessToken
-      console.log(this.accessToken)
-      let decodedBearer = jwtDecode(this.accessToken) as object
-      // this.currentUser.username = decodedBearer.displayName as string
-      // this.currentUser.email = decodedBearer.upn as string
-      console.log('b2c decodedBearer' + decodedBearer)
+      this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
-
-      const user  = await UserService.getV1User();
-      console.log(user)
-
-      // const decodedBearer = jwtDecode(
-      //   this.$auth.$storage.getUniversal('_token.aad')
-      // )
-      this.currentB2CUser.firstName = user.firstName as string
-      this.currentB2CUser.lastName = user.lastName as string
-      this.currentB2CUser.email = user.email as string
-      this.currentB2CUser.displayName = user.displayName as string
+      const user = await UserService.getV1User();
+      this.currentB2CUser.firstName = user.firstName as string;
+      this.currentB2CUser.lastName = user.lastName as string;
+      this.currentB2CUser.email = user.email as string;
+      this.currentB2CUser.displayName = user.displayName as string;
     },
   },
 });
