@@ -590,8 +590,7 @@
           <Description>Login with your Microsoft account</Description>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
-            <Item Key="METADATA">
-              https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
+            <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
             <Item Key="client_id">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
             <Item Key="response_types">code</Item>
