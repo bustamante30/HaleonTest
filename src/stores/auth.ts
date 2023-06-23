@@ -1,13 +1,11 @@
 import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userSessionStore } from "@/stores/usersession";
-import jwtDecode from "jwt-decode";
 import UserService from "@/services/userService";
-
 
 const authConfig = {
   auth: {
-    clientId: import.meta.env.VITE_AAD_CLIEND_ID, 
+    clientId: import.meta.env.VITE_AAD_CLIEND_ID,
     authority: import.meta.env.VITE_AAD_AUTHORITY,
     responseMode: "query",
     redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,
@@ -33,7 +31,7 @@ export const useAuthStore = defineStore("auth", {
       // 2. try to obtain token if the user had already logged in
       let tokenResponse = await this.msalInstance.handleRedirectPromise();
       if (tokenResponse) {
-        console.log('Token' + tokenResponse)
+        console.log("Token" + tokenResponse);
         this.account = tokenResponse.account;
       } else {
         this.account = this.msalInstance.getAllAccounts()[0];
@@ -59,7 +57,7 @@ export const useAuthStore = defineStore("auth", {
           scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
           account: this.msalInstance.getAllAccounts()[0],
         };
-        console.log('accessTokenRequest'+ accessTokenRequest)
+        console.log("accessTokenRequest" + accessTokenRequest);
         if (tokenResponse) {
           this.account = tokenResponse.account;
         } else {
@@ -92,13 +90,14 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     async logout() {
+      this.currentUser.isLoggedIn = false;
+      localStorage.clear();
+      sessionStorage.clear();
       await this.msalInstance
         .logoutRedirect({ postLogoutRedirectUri: "/" })
         .then(() => {
           console.log("logout successful");
-          this.currentUser.isLoggedIn = false;
-          localStorage.clear()
-          sessionStorage.clear();
+
         })
         .catch((error) => {
           console.error(error);
@@ -106,21 +105,16 @@ export const useAuthStore = defineStore("auth", {
     },
     async updateUserStore(tokenResponse: any) {
       this.currentUser.isLoggedIn = true;
-      console.log("updating user Store with " + tokenResponse);
-      this.accessToken = tokenResponse.accessToken
-      console.log(this.accessToken)
+      this.accessToken = tokenResponse.accessToken;
+      console.log('accessToken'+ this.accessToken);
       localStorage.setItem("token", this.accessToken);
 
-      const user  = await UserService.getV1User();
-      console.log(user)
-
-      // const decodedBearer = jwtDecode(
-      //   this.$auth.$storage.getUniversal('_token.aad')
-      // )
-      this.currentUser.firstName = user.firstName as string
-      this.currentUser.lastName = user.lastName as string
-      this.currentUser.email = user.email as string
-      this.currentUser.displayName = user.displayName as string
-        },
+      const user = await UserService.getV1User();
+      console.log(user);
+      this.currentUser.firstName = user.firstName as string;
+      this.currentUser.lastName = user.lastName as string;
+      this.currentUser.email = user.email as string;
+      this.currentUser.displayName = user.displayName as string;
+    },
   },
 });

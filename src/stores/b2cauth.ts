@@ -1,8 +1,12 @@
 import { defineStore } from "pinia";
-import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
+import {
+  EventType,
+  PublicClientApplication,
+  type AccountInfo,
+} from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";
-import router from '@/router'
+import router from "@/router";
 
 const authB2CConfig = {
   auth: {
@@ -25,30 +29,6 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     account: null as AccountInfo | null,
   }),
   actions: {
-    async aquireToken() {
-      // 1. try to obtain token use account detaials
-      await this.getAccount();
-      // 2. try to obtain token if the user had already logged in
-      this.msalB2cInstance
-        .handleRedirectPromise()
-        .then((tokenResponse) => {
-          console.log("tokenResponse" + tokenResponse);
-          if (tokenResponse) {
-            console.log("Token" + tokenResponse);
-            this.account = tokenResponse.account;
-          } else {
-            this.account = this.msalB2cInstance.getAllAccounts()[0]
-          }
-          // if the the user is logged in
-          if (this.account && tokenResponse) {
-            this.updateUserStore(tokenResponse);
-          }
-        })
-        .catch((error) => {
-          console.log('login with redirect failed: ', error)
-          router.push('/')
-        });
-    },
     async getAccount() {
       const accounts = this.msalB2cInstance.getAllAccounts();
       if (accounts.length == 0) {
@@ -59,38 +39,56 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     },
     async login() {
       try {
-        let response
-        console.log("B2C login page");
-        this.msalB2cInstance
-        .handleRedirectPromise()
-        .then((tokenResponse) => {
-          if (tokenResponse) {
-            response = tokenResponse
-            this.account = tokenResponse.account;
-          } else {
-            this.account = this.msalB2cInstance.getAllAccounts()[0]
+        let response;
+        this.getAccount();
+        this.msalB2cInstance.addEventCallback((event) => {
+          // set active account after redirect
+          if (event.eventType === EventType.LOGIN_SUCCESS) {
+            // this.account = event?.payload?.account 
+            this.msalB2cInstance.setActiveAccount(this.account);
           }
-          // if the the user is logged in
-          if (this.account && tokenResponse) {
-            this.updateUserStore(tokenResponse);
-          }
-        })
-        .catch((error) => {
-          console.log('login with redirect failed: ', error)
-          router.push('/')
         });
+        this.msalB2cInstance
+          .handleRedirectPromise()
+          .then((tokenResponse) => {
+            const account = this.msalB2cInstance.getActiveAccount();
+            if (!account && tokenResponse) {
+              response = tokenResponse;
+              this.account = tokenResponse.account;
+            } else {
+              this.account = this.msalB2cInstance.getAllAccounts()[0];
+            }
+            // if the the user is logged in
+            if (this.account && tokenResponse) {
+              this.updateUserStore(tokenResponse);
+            }
+          })
+          .catch((error) => {
+            console.log("login with redirect failed: ", error);
+            this.currentB2CUser.isLoggedIn = false;
+            localStorage.clear();
+            sessionStorage.clear();
+            router.push("/");
+          });
 
         if (this.account && response) {
           console.log(
-            "[Auth Store] successgully obtained valid account and tokenResponse"
+            "[Auth Store] successfully obtained valid account and tokenResponse"
           );
           await this.updateUserStore(response);
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");
           try {
-            response = await this.msalB2cInstance.acquireTokenSilent({
-              scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
-            });
+            this.msalB2cInstance
+              .acquireTokenSilent({
+                scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
+              })
+              .then((tokenResponse) => {
+                response = tokenResponse;
+              })
+              .catch((e) => {
+                console.log("login error in acquire token silent: ", e);
+              });
             await this.updateUserStore(response);
           } catch (err) {
             await this.msalB2cInstance.acquireTokenRedirect(requestScope);
@@ -99,24 +97,33 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log(
             "[Auth Store]  No account or tokenResponse present. User must now login."
           );
-          // await this.msalB2cInstance.loginRedirect()
-          await this.msalB2cInstance.loginRedirect({
-            scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
-          });
+          const account = this.msalB2cInstance.getActiveAccount();
+          if (!account) {
+            this.msalB2cInstance
+              .loginRedirect({
+                scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
+              })
+              .then((tokenResponse) => {
+                console.log("Login redirect response" + tokenResponse);
+                response = tokenResponse;
+              })
+              .catch((e) => {
+                console.log("login error loginRedirect: ", e);
+              });
+          }
         }
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
       }
     },
-
-    async logout() {
-      await this.msalB2cInstance
+    logout() {
+      this.currentB2CUser.isLoggedIn = false;
+      localStorage.clear();
+      sessionStorage.clear();
+      this.msalB2cInstance
         .logoutRedirect({ postLogoutRedirectUri: "/" })
         .then(() => {
           console.log("logout successful");
-          this.currentB2CUser.isLoggedIn = false;
-          localStorage.clear();
-          sessionStorage.clear();
         })
         .catch((error) => {
           console.error(error);
