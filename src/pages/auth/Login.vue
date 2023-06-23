@@ -1,23 +1,32 @@
 <script setup="ts">
-import { onMounted, computed } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import router from '@/router'
+import { onMounted, reactive, watch } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import router from "@/router";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
+const userLoggedIn = reactive(() => authStore.currentUser.isLoggedIn);
 onMounted(async () => {
   if (authStore.currentUser.isLoggedIn == false) {
-    await authStore.login()
+    await authStore.login();
     if (authStore.currentUser.isLoggedIn) {
-      router.push({ name: 'dashboard' })
+      router.push({ name: "dashboard" });
     }
   } else {
-    router.push({ name: 'dashboard' })
+    router.push({ name: "dashboard" });
   }
-})
+});
+
+watch(userLoggedIn, (value) => {
+  if (authStore.currentUser.isLoggedIn) {
+    router.push({ name: "dashboard" });
+  }
+});
 </script>
 <template>
-  <div v-if="authStore.currentUser.isLoggedIn"><a>Please wait while we are loading profile information</a></div>
+  <div v-if="userLoggedIn">
+    <a>Please wait while we are loading profile information</a>
+  </div>
   <div v-else><a> Please wait you will be redirected to login page....</a></div>
 </template>
 <style scoped>

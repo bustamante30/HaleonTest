@@ -1,6 +1,5 @@
 <script setup>
-import { ref } from "vue";
-import router from "@/router";
+import { ref, reactive, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 
@@ -15,6 +14,8 @@ const props = defineProps({
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
+const isb2cUserLoggedIn = reactive(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isUserLoggedIn = reactive(() => authStore.currentB2CUser.isLoggedIn);
 const initials = () => {
   const authType = localStorage.getItem("AuthType");
   if (authType == "AzureAd")
@@ -54,13 +55,15 @@ function togglePopup() {
 }
 
 async function logout() {
-  if (authStore.currentUser.isLoggedIn) {
+  if (isUserLoggedIn) {
     await authStore.logout();
   }
-  if (authb2cStore.currentB2CUser.isLoggedIn) {
+  if (isb2cUserLoggedIn) {
     await authb2cStore.logout();
-  }
+  } 
 }
+
+watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
 </script>
 
 <template lang="pug">
