@@ -38,7 +38,7 @@ import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
 import type Dropdown from "primevue/dropdown";
 
-console.log("Testing search advance................");
+
 
 const props = defineProps({
   sections: {
@@ -112,10 +112,8 @@ function search() {
 
 function onSubmit() {
   //const onSubmit = handleSubmit((values) => {
-  console.log("submitValues", advancedFilters.value);
   const validationErrors = validateForm();
   if (validationErrors) {
-    console.log("Validation Error");
     toast.add({
       severity: "error",
       summary: "Validation Error",
