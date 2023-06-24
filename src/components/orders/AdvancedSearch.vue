@@ -68,19 +68,18 @@ form.advanced-search(@submit.prevent="() => {}")
   
   function search() {
     console.log(advancedFilters.value)
-    const validationErrors = validateForm();
-    if (validationErrors) {
-      console.log("Validation Error");
-      toast.add({
-        severity: "error",
-        summary: "Validation Error",
-        detail: validationErrors,
-        life: 3000,
-      });
+    // const validationErrors = validateForm();
+    // if (validationErrors) {
+    //   console.log("Validation Error");
+    //   toast.add({
+    //     severity: "error",
+    //     summary: "Validation Error",
+    //     detail: validationErrors,
+    //     life: 3000,
+    //   });
       return;
     //emit('search', advancedFilters.value)
   }
-}
 
   function validateForm() {
   if (!advancedFilters.value?.printerName) {
