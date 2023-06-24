@@ -43,8 +43,21 @@ form.advanced-search(@submit.prevent="() => {}")
   
   const emit = defineEmits(['search'])
   
-  const advancedFilters = ref()
+  interface AdvancedFilters {
+  itemCode: string | null;
+  orderDate: string | null;
+  printerName: string | null;
+  printerLocation: string | null;
+  packagingReference: string | null;
+  previousPONumber: string | null;
+  imageCarrierId: string | null;
+  imageCarrierCode: string | null;
+  imageCarrierCodeType: string | null;
+  // Add more properties as needed
+}
   
+  const advancedFilters = ref<AdvancedFilters>();
+
   const imageCarrierCodeTypes = ref([
     { label: 'UPC Code', value: 'UPC' },
     { label: 'QR Code', value: 'QR' },
