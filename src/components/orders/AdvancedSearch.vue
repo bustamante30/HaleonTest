@@ -1,5 +1,7 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="() => {}")
+    button.close-button(@click.prevent="closeForm")
+      i.pi.pi-times
     sgs-scrollpanel
       template(#header)
         header
@@ -63,6 +65,13 @@ form.advanced-search(@submit.prevent="() => {}")
   function search() {
     emit('search', advancedFilters.value)
   }
+  const closeForm = () => {
+  const form = document.querySelector(".advanced-search") as HTMLFormElement;
+  if (form) {
+    form.style.display = "none";
+  }
+};
+
   </script>
   
   <style lang="sass" scoped>
@@ -96,5 +105,14 @@ form.advanced-search(@submit.prevent="() => {}")
     .fields
       +flex
       gap: $s
+
+  .close-button
+    position: absolute
+    top: $s
+    right: $s
+    background: none
+    border: none
+    cursor: pointer
+    outline: none
   
   </style>
