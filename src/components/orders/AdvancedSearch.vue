@@ -24,11 +24,13 @@ form.advanced-search(@submit.prevent="() => {}")
           .actions
             sgs-button.default(label="Reset" @click.prevent="reset")
             sgs-button(label="Search" @click.prevent="search")
+            Toast(ref="toast")
 </template>
   
   <script lang="ts" setup>
   import { ref, computed, onBeforeMount } from 'vue'
   import router from '@/router'
+  import { useToast } from "primevue/usetoast";
   
   const props = defineProps({
     sections: {
@@ -42,21 +44,10 @@ form.advanced-search(@submit.prevent="() => {}")
   })
   
   const emit = defineEmits(['search'])
-  
-  interface AdvancedFilters {
-  itemCode: string | null;
-  orderDate: string | null;
-  printerName: string | null;
-  printerLocation: string | null;
-  packagingReference: string | null;
-  previousPONumber: string | null;
-  imageCarrierId: string | null;
-  imageCarrierCode: string | null;
-  imageCarrierCodeType: string | null;
-  // Add more properties as needed
-}
-  
-  const advancedFilters = ref<AdvancedFilters>();
+
+  const toast = useToast();
+
+  const advancedFilters = ref();
 
   const imageCarrierCodeTypes = ref([
     { label: 'UPC Code', value: 'UPC' },
@@ -76,14 +67,56 @@ form.advanced-search(@submit.prevent="() => {}")
   }
   
   function search() {
-    emit('search', advancedFilters.value)
+    console.log(advancedFilters.value)
+    const validationErrors = validateForm();
+    if (validationErrors) {
+      console.log("Validation Error");
+      toast.add({
+        severity: "error",
+        summary: "Validation Error",
+        detail: validationErrors,
+        life: 3000,
+      });
+      return;
+    //emit('search', advancedFilters.value)
   }
+}
+
+  function validateForm() {
+  if (!advancedFilters.value?.printerName) {
+    return "You must select a printer.";
+  }
+  if (advancedFilters.value?.printerLocation == null ||advancedFilters.value?.printerLocation == '' ) {
+    return "You must select a printer location.";
+  }
+
+  const errorMessage ="You must enter information into atleast 1 field. Printer Name and Location must have an entry";
+  const fields = Object.keys(advancedFilters.value);
+  const additionalFields = fields.filter(
+    (field) => field !== "printerName" && field !== "printerLocation"
+  );
+  for (const field of additionalFields) {
+    const value = (advancedFilters.value as any)[field];
+    if (
+      value != undefined &&
+      value != "" &&
+      value != null &&
+      value?.type != "SEL"
+    ) {
+      return null;
+    }
+  }
+
+  return errorMessage;
+}
+
   const closeForm = () => {
   const form = document.querySelector(".advanced-search") as HTMLFormElement;
   if (form) {
     form.style.display = "none";
   }
 };
+
 
   </script>
   
