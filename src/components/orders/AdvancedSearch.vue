@@ -1,18 +1,19 @@
 <template lang="pug">
-form.advanced-search(@submit.prevent="() => {}")
+form.advanced-search(@submit.prevent="onSubmit")
     button.close-button(@click.prevent="closeForm")
       i.pi.pi-times
     sgs-scrollpanel
       template(#header)
         header
           h3 Advanced Search
-          p.hint Enter at least 2 fields. Printer location is a mandatory
+          p.hint Enter at least 2 fields. Printer location is mandatory
+          .error-message(v-if="showError") {{ error }}
       .form-fields(v-if="advancedFilters")
         .field-group(v-for="section in sections")
           h4(v-if="section.label") {{ section.label }}
           .f(v-for="filter in section.filters")
             label(v-if="filter.label") {{ filter.label }}
-            prime-dropdown.sm(v-if="filter.type === 'printerLoc'"  v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
+            prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
             prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
             .fields(v-else-if="filter.type === 'imageCarrierCodeType'")
               prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name]" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
@@ -23,16 +24,13 @@ form.advanced-search(@submit.prevent="() => {}")
           .secondaryactions
           .actions
             sgs-button.default(label="Reset" @click.prevent="reset")
-            sgs-button(label="Search" @click.prevent="onSubmit")
-            //Toast(ref="toast")
+            sgs-button(label="Search" type="submit")
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, onBeforeMount } from "vue";
 import router from "@/router";
 import PrimeVue from "primevue/config";
-//import Dropdown from 'primevue/dropdown'
-import { useToast } from "primevue/usetoast";
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
@@ -51,8 +49,6 @@ const props = defineProps({
   },
 });
 
-const toast = useToast();
-
 interface AdvancedFilters {
   itemCode: string | null;
   orderDate: string | null;
@@ -70,8 +66,6 @@ const emit = defineEmits(["search"]);
 
 const advancedFilters = ref<AdvancedFilters>();
 
-//toRefs(ref(props.filters));
-
 const imageCarrierCodeTypes = ref([
   { label: "UPC Code", value: "UPC" },
   { label: "QR Code", value: "QR" },
@@ -82,14 +76,17 @@ const imageCarrierCodeTypes = ref([
 let imageCarrierCodeType = ref("UPC");
 
 const printerLocations = ref([
-  { label: "Albama", value: "AL" },
+  { label: "Alabama", value: "AL" },
   { label: "Arizona", value: "AZ" },
-  { label: "California", value: "CL" },
+  { label: "California", value: "CA" },
   { label: "Georgia", value: "GA" },
   { label: "Iowa", value: "IA" },
 ]);
 
 let printerLoc = ref("AL");
+
+const error = ref("");
+const showError = ref(false);
 
 const closeForm = () => {
   const form = document.querySelector(".advanced-search") as HTMLFormElement;
@@ -111,27 +108,18 @@ function search() {
 }
 
 function onSubmit() {
-  //const onSubmit = handleSubmit((values) => {
-  console.log("submitValues", advancedFilters.value);
+  console.log(advancedFilters.value)
   const validationErrors = validateForm();
   if (validationErrors) {
-    console.log("Validation Error");
-    toast.add({
-      severity: "error",
-      summary: "Validation Error",
-      detail: validationErrors,
-      life: 3000,
-    });
+    console.log(validationErrors)
+    error.value = validationErrors;
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000); // Adjust the time (in milliseconds) as needed
     return;
   }
-
-  // Proceed with form submission if all validations pass
-  toast.add({
-    severity: "success",
-    summary: "Form Submitted",
-    detail: "Searching Reorders",
-    life: 3000,
-  });
+  // Proceed with form submission or other actions
 }
 
 function validateForm() {
@@ -143,7 +131,7 @@ function validateForm() {
   }
 
   const errorMessage =
-    "You must enter information into atleast 1 field. Printer Name and Location must have an entry";
+    "You must enter information into at least 1 field. Printer Name and Location must have an entry";
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter(
     (field) => field !== "printerName" && field !== "printerLocation"
@@ -166,6 +154,7 @@ function validateForm() {
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
+
 .advanced-search
   +fixed-e
   +container
@@ -203,4 +192,33 @@ function validateForm() {
   border: none
   cursor: pointer
   outline: none
+
+.error-message
+  margin-top: $s
+  padding: $s
+  background-color: rgba(255, 0, 0, 0.2)
+  color: #800000
+  position: relative
+
+.error-message p 
+  margin: 0
+
+.error-message button.close-button 
+  position: absolute
+  top: 50%
+  right: $s
+  transform: translateY(-50%)
+  background: none
+  border: none
+  cursor: pointer
+  outline: none
+
+
+@keyframes fadeOut
+  0%
+    opacity: 1
+  90%
+    opacity: 1
+  100%
+    opacity: 0
 </style>
