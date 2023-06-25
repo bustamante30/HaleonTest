@@ -6,7 +6,7 @@ const httpService = new ApiService(baseUrl)
 
 class ReorderService {
 
-    public static getRecentReorders(query?: string) {
+    public static getRecentReorders(query?: string, advancedSearchParameters?: any) {
         let params = {}
         if (query=="") {
              params = {
@@ -22,6 +22,10 @@ class ReorderService {
                 "printerId": 1,
                 "searchText": query
             }
+        }
+        if (advancedSearchParameters) {
+            advancedSearchParameters.endDate = new Date()
+            params["advancedSearchParameters"] = advancedSearchParameters
         }
         return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
     }

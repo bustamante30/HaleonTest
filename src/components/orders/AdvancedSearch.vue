@@ -13,10 +13,7 @@ form.advanced-search(@submit.prevent="() => {}")
           .f(v-for="filter in section.filters")
             label(v-if="filter.label") {{ filter.label }}
             prime-dropdown.sm(v-if="filter.type === 'printerLoc'"  v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
-            prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-            .fields(v-else-if="filter.type === 'imageCarrierCodeType'")
-              prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name]" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
-              prime-inputtext.sm(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].code")
+            prime-calendar(v-else-if="filter.type === 'date'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" appendTo="body")
             prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
       template(#footer)
         footer
@@ -36,8 +33,8 @@ import { useToast } from "primevue/usetoast";
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
-import type Dropdown from "primevue/dropdown";
-
+import type Dropdown from "primevue/dropdown"; 
+import ReorderService from "@/services/ReorderService";
 console.log("Testing search advance................");
 
 const props = defineProps({
@@ -54,15 +51,14 @@ const props = defineProps({
 const toast = useToast();
 
 interface AdvancedFilters {
-  itemCode: string | null;
-  orderDate: string | null;
+  itemNumber: string | null;
+  startDate: string | null;
   printerName: string | null;
-  printerLocation: string | null;
+  printerSite: string | null;
   packagingReference: string | null;
-  previousPONumber: string | null;
-  imageCarrierId: string | null;
-  imageCarrierCode: string | null;
-  imageCarrierCodeType: string | null;
+  poNumber: string | null;
+  printerPlateCode: string | null; 
+  barcodeNumber: string | null;
   // Add more properties as needed
 }
 
@@ -79,10 +75,9 @@ const imageCarrierCodeTypes = ref([
   { label: "Data Matrix Code", value: "DATA_MATRIX" },
 ]);
 
-let imageCarrierCodeType = ref("UPC");
 
 const printerLocations = ref([
-  { label: "Albama", value: "AL" },
+    { label: "WINPAK HEAT SEAL CORPORATION - PEKIN, IL, (430) - C00006416 - [US$] - (SGS Toronto, CA)", value: "WINPAK HEAT SEAL CORPORATION - PEKIN, IL, (430) - C00006416 - [US$] - (SGS Toronto, CA)" },
   { label: "Arizona", value: "AZ" },
   { label: "California", value: "CL" },
   { label: "Georgia", value: "GA" },
@@ -106,8 +101,8 @@ function reset() {
   advancedFilters.value = { ...(props.filters as AdvancedFilters) };
 }
 
-function search() {
-  emit("search", advancedFilters.value);
+function search(advancedSearchParameters?:any) {
+    emit("search", advancedSearchParameters);
 }
 
 function onSubmit() {
@@ -123,8 +118,13 @@ function onSubmit() {
       life: 3000,
     });
     return;
-  }
-
+    }
+//    var advancedSearchParameters = { }
+//    if (advancedFilters.value?.previousPONumber && advancedFilters.value?.previousPONumber.length>0)
+//        advancedSearchParameters['poNumber'] = advancedFilters.value?.previousPONumber
+//}
+    search(advancedFilters.value)
+    //ReorderService.getRecentReorders("", advancedSearchParameters)
   // Proceed with form submission if all validations pass
   toast.add({
     severity: "success",
@@ -132,35 +132,15 @@ function onSubmit() {
     detail: "Searching Reorders",
     life: 3000,
   });
+  closeForm()
 }
 
 function validateForm() {
   if (!advancedFilters.value?.printerName) {
     return "You must select a printer.";
   }
-  if (advancedFilters.value?.printerLocation == null) {
-    return "You must select a printer location.";
-  }
-
-  const errorMessage =
-    "You must enter information into atleast 1 field. Printer Name and Location must have an entry";
-  const fields = Object.keys(advancedFilters.value);
-  const additionalFields = fields.filter(
-    (field) => field !== "printerName" && field !== "printerLocation"
-  );
-  for (const field of additionalFields) {
-    const value = (advancedFilters.value as any)[field];
-    if (
-      value != undefined &&
-      value != "" &&
-      value != null &&
-      value?.type != "SEL"
-    ) {
-      return null;
-    }
-  }
-
-  return errorMessage;
+  return null;
+  
 }
 </script>
 
