@@ -6,5 +6,4 @@
 /dist
 /node_modules
 /package-lock.json
-/src/pages/DashboardPage.vue
 /.gitignore
