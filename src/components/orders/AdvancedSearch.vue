@@ -24,7 +24,7 @@ form.advanced-search(@submit.prevent="() => {}")
           .actions
             sgs-button.default(label="Reset" @click.prevent="reset")
             sgs-button(label="Search" @click.prevent="onSubmit")
-            Toast(:ref="toast")
+            //Toast(ref="toast")
 </template>
 
 <script lang="ts" setup>
