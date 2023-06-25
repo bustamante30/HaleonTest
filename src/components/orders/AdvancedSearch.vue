@@ -24,7 +24,7 @@ form.advanced-search(@submit.prevent="() => {}")
           .actions
             sgs-button.default(label="Reset" @click.prevent="reset")
             sgs-button(label="Search" @click.prevent="search")
-            Toast(ref="toast")
+            //toast(ref="toast")
 </template>
   
   <script lang="ts" setup>
@@ -68,18 +68,19 @@ form.advanced-search(@submit.prevent="() => {}")
   
   function search() {
     console.log(advancedFilters.value)
-    // const validationErrors = validateForm();
-    // if (validationErrors) {
-    //   console.log("Validation Error");
-    //   toast.add({
-    //     severity: "error",
-    //     summary: "Validation Error",
-    //     detail: validationErrors,
-    //     life: 3000,
-    //   });
+    const validationErrors = validateForm();
+    if (validationErrors) {
+      console.log("Validation Error");
+      toast.add({
+        severity: "error",
+        summary: "Validation Error",
+        detail: validationErrors,
+        life: 3000,
+      });
       return;
     //emit('search', advancedFilters.value)
   }
+}
 
   function validateForm() {
   if (!advancedFilters.value?.printerName) {
