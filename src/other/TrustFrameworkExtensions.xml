@@ -130,7 +130,8 @@
             <Item Key="scope">profile</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
-            <Item Key="client_id">amzn1.application-oa2-client.941aa452b0d54f1c8023879419737dd1</Item>
+            <!-- <Item Key="client_id">amzn1.application-oa2-client.941aa452b0d54f1c8023879419737dd1</Item> -->
+            <Item Key="client_id">amzn1.application-oa2-client.a62d7e6bf1bc49c38e95e7b3b51bae7e</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_AmazonSecret" />
