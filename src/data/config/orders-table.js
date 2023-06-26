@@ -9,7 +9,7 @@ export default {
       {
         header: 'Brand Name',
         field: 'brandName',
-        width: 18
+        width: 15
       },
       {
         header: 'Product Description',
@@ -18,6 +18,7 @@ export default {
         path: '/dashboard/$1',
         pathParams: ['id'],
         freeze: 'left',
+        width: 18
       },
       {
         header: 'Order Date',
