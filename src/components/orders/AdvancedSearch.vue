@@ -14,10 +14,7 @@ form.advanced-search(@submit.prevent="onSubmit")
             .f(v-for="filter in section.filters")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
-              prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-              .fields(v-else-if="filter.type === 'imageCarrierCodeType'")
-                prime-dropdown.code(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name]" name="imageCarrierCodeType" :inputId="imageCarrierCodeType" :options="imageCarrierCodeTypes" appendTo="body" optionLabel="label" optionValue="value")
-                prime-inputtext.sm(v-if="advancedFilters[filter.name]" v-model="advancedFilters[filter.name].code")
+              prime-calendar(v-else-if="filter.type === 'date'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" appendTo="body")
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
@@ -35,7 +32,8 @@ form.advanced-search(@submit.prevent="onSubmit")
   import "primevue/resources/primevue.min.css";
   import "primeicons/primeicons.css";
   import type Dropdown from "primevue/dropdown";
-  
+  import ReorderService from "@/services/ReorderService";
+
   console.log("Testing search advance................");
   
   const props = defineProps({
@@ -50,15 +48,15 @@ form.advanced-search(@submit.prevent="onSubmit")
   });
   
   interface AdvancedFilters {
-    itemCode: string | null;
-    orderDate: string | null;
-    printerName: string | null;
-    printerLocation: string | null;
-    packagingReference: string | null;
-    previousPONumber: string | null;
-    imageCarrierId: string | null;
-    imageCarrierCode: string | null;
-    imageCarrierCodeType: string | null;
+  itemNumber: string | null;
+  startDate: string | null;
+  printerName: string | null;
+  printerSite: string | null;
+  packagingReference: string | null;
+  poNumber: string | null;
+  printerPlateCode: string | null; 
+  barcodeNumber: string | null;
+  sgsReferenceNumberList: string | null;
     // Add more properties as needed
   }
   
@@ -73,10 +71,9 @@ form.advanced-search(@submit.prevent="onSubmit")
     { label: "Data Matrix Code", value: "DATA_MATRIX" },
   ]);
   
-  let imageCarrierCodeType = ref("UPC");
   
   const printerLocations = ref([
-    { label: "Alabama", value: "AL" },
+    { label: "WINPAK HEAT SEAL CORPORATION - PEKIN, IL, (430) - C00006416 - [US$] - (SGS Toronto, CA)", value: "WINPAK HEAT SEAL CORPORATION - PEKIN, IL, (430) - C00006416 - [US$] - (SGS Toronto, CA)" },
     { label: "Arizona", value: "AZ" },
     { label: "California", value: "CA" },
     { label: "Georgia", value: "GA" },
@@ -101,11 +98,16 @@ form.advanced-search(@submit.prevent="onSubmit")
   
   function reset() {
     advancedFilters.value = { ...(props.filters as AdvancedFilters) };
+    
   }
   
-  function search() {
-    emit("search", advancedFilters.value);
-  }
+  // function search() {
+  //   emit("search", advancedFilters.value);
+  // }
+
+  function search(advancedSearchParameters?:any) {
+    emit("search", advancedSearchParameters);
+}
   
   function onSubmit() {
     console.log(advancedFilters.value)
@@ -119,7 +121,10 @@ form.advanced-search(@submit.prevent="onSubmit")
       }, 3000); // Adjust the time (in milliseconds) as needed
       return;
     }
+
     // Proceed with form submission or other actions
+    search(advancedFilters.value)
+    closeForm()
   }
   
   function validateForm() {

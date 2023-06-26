@@ -9,12 +9,13 @@ export type ReorderDto = {
     printerName?: string | null;
     printerLocationId?: number;
     printerLocationName?: string | null;
-    packStatus?: string | null;
+    packType?: string | null;
     createdAt?: Date | null;
     submittedDate?: Date | null;
     cancelledDate?: Date | null;
     createdBy?: number;
     statusId?: number;
+    orderStatus?: string | null;
     thumbNail?: string | null;
 };
 
