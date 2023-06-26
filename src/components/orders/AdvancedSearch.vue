@@ -98,6 +98,15 @@ form.advanced-search(@submit.prevent="onSubmit")
   
   function reset() {
     advancedFilters.value = { ...(props.filters as AdvancedFilters) };
+    advancedFilters.value.sgsReferenceNumberList= null;
+    advancedFilters.value.itemNumber= null;
+    advancedFilters.value.barcodeNumber= null;
+    advancedFilters.value.printerName= null;
+    advancedFilters.value.printerPlateCode= null;
+    advancedFilters.value.poNumber= null;
+    advancedFilters.value.printerSite= null;
+    advancedFilters.value.printerReference= null;
+    advancedFilters.value.startDate= null;
     
   }
   
