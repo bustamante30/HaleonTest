@@ -131,7 +131,7 @@ form.advanced-search(@submit.prevent="onSubmit")
     if (!advancedFilters.value?.printerName) {
       return "You must select a printer.";
     }
-    if (advancedFilters.value?.printerLocation == null) {
+    if (advancedFilters.value?.printerSite == null) {
       return "You must select a printer location.";
     }
   
@@ -139,7 +139,7 @@ form.advanced-search(@submit.prevent="onSubmit")
       "You must enter information into at least 1 field. Printer Name and Location must have an entry";
     const fields = Object.keys(advancedFilters.value);
     const additionalFields = fields.filter(
-      (field) => field !== "printerName" && field !== "printerLocation"
+      (field) => field !== "printerName" && field !== "printerSite"
     );
     for (const field of additionalFields) {
       const value = (advancedFilters.value as any)[field];
