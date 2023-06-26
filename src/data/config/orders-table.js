@@ -12,7 +12,7 @@ export default {
         width: 18
       },
       {
-        header: 'Project Description',
+        header: 'Product Description',
         field: 'description',
         type: 'link',
         path: '/dashboard/$1',
