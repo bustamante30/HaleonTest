@@ -28,7 +28,7 @@ function filterConfig(role) {
             disabled: role === 'user'
           },
           {
-            name: 'printerLocation',
+            name: 'printerSite',
             label: '*Shipping Location',
             short: 'Location',
             type: 'printerLoc',
