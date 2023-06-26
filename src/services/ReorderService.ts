@@ -6,7 +6,7 @@ const httpService = new ApiService(baseUrl)
 
 class ReorderService {
 
-    public static getRecentReorders(query?: string) {
+    public static getRecentReorders(query?: string, advancedSearchParameters?: any) {
         let params = {}
         if (query=="") {
              params = {
@@ -23,7 +23,38 @@ class ReorderService {
                 "searchText": query
             }
         }
-        return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
+        if (advancedSearchParameters) {
+            advancedSearchParameters.endDate = new Date()
+            params["advancedSearchParameters"] = advancedSearchParameters
+        }
+       // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
+
+       return httpService.post<any>('v1/Reorder/search', params).then((response) => {
+        const reorderedData: ReorderDto[] = response.data.map((item: any) => {
+          const reorderedItem: ReorderDto = {
+            id: item.id,
+            sgsId: item.sgsId,
+            brandName: item.brandName,
+            description: item.description,
+            weight: item.weight,
+            printerId: item.printerId,
+            printerName: item.printerName,
+            printerLocationId: item.printerLocationId,
+            printerLocationName: item.printerLocationName,
+            packStatus: item.orderStatus, // Renamed to packStatus to match DTO
+            createdAt: item.createdAt ? new Date(item.createdAt) : null,
+            submittedDate: item.submittedDate ? new Date(item.submittedDate) : null,
+            cancelledDate: item.cancelledDate ? new Date(item.cancelledDate) : null,
+            createdBy: item.createdBy,
+            statusId: item.statusId,
+            thumbNail: item.thumbNail,
+          };
+  
+          return reorderedItem;
+        });
+  
+        return reorderedData;
+      });
     }
 
 }

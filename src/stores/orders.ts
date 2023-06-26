@@ -41,9 +41,9 @@ export const useOrdersStore = defineStore('ordersStore', {
     async getOrderById(id: string) {
       this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
     },
-    async setFilters(filters: any) {
+      async setFilters(filters: any) {
         this.filters = { ...this.filters, ...filters }
-        this.orders = await ReorderService.getRecentReorders(filters.query)
+        this.orders = await ReorderService.getRecentReorders(filters.query, filters)
         for (let i = 0; i < this.orders.length; i++) {
             if (this.orders[i].thumbNail!=null)
                 this.orders[i].thumbNail = `data:image;base64,` + this.orders[i].thumbNail
@@ -55,13 +55,13 @@ export const useOrdersStore = defineStore('ordersStore', {
     resetFilters() {
       this.filters['itemCode'] = null
       this.filters['orderDate'] = null
-      this.filters['printerName'] = 'ABC Inc'
-      this.filters['printerLocation'] =  null
+      this.filters['printerName'] = '31138'
+      this.filters['printerSite'] =  null
       this.filters['packagingReference'] = null
-      this.filters['previousPONumber'] = null
-      this.filters['sGSReferenceNumber'] = null
+      this.filters['poNumber'] = null
+      this.filters['sgsReferenceNumberList'] = null
       this.filters['imageCarrierId'] = null
-      this.filters['imageCarrierCode'] = { type: 'SEL', code: null }
+      this.filters['imageCarrierCode'] = null
     },
     initAdvancedFilters() {
       this.options.locations = [
@@ -69,12 +69,7 @@ export const useOrdersStore = defineStore('ordersStore', {
         { label: 'Concord NH', value: 2 },
         { label: 'Neenah, WI', value: 3 }
       ]
-      this.options.imageCarrierCodeTypes = [
-        { label: 'UPC Code', value: 'UPC' },
-        { label: 'QR Code', value: 'QR' },
-        { label: 'EAN Code', value: 'EAN' },
-        { label: 'Data Matrix Code', value: 'DATA_MATRIX' },
-      ]
+     
       this.resetFilters()
     },
     async setFilter(field: any, value: any) {

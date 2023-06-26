@@ -42,6 +42,7 @@ onBeforeMount(() => {
 function search(filters) {
   ordersStore.setFilters(filters);
 }
+console.log("Testing Purpose Added - Dev");
 </script>
 
 <template lang="pug">

@@ -5,15 +5,15 @@ function filterConfig(role) {
         name: 'itemCode',
         filters: [
           {
-            name: 'itemCode',
+            name: 'itemNumber',
             label: 'Item Number',
             short: 'Item',
           },
           {
-            name: 'orderDate',
+            name: 'startDate',
             label: 'Order Date',
             short: 'Ordered',
-            type: 'daterange'
+            type: 'date'
           }
         ],
       },
@@ -28,7 +28,7 @@ function filterConfig(role) {
             disabled: role === 'user'
           },
           {
-            name: 'printerLocation',
+            name: 'printerSite',
             label: '*Shipping Location',
             short: 'Location',
             type: 'printerLoc',
@@ -40,11 +40,11 @@ function filterConfig(role) {
             short: 'Ref',
           },
           {
-            name: 'previousPONumber',
+            name: 'poNumber',
             label: 'Previous PO Number',
           },
           {
-            name: 'sGSReferenceNumber',
+              name: 'sgsReferenceNumberList',
             label: 'SGS Reference Number',
           },
         ]
@@ -54,16 +54,13 @@ function filterConfig(role) {
         label: 'Image Carrier',
         filters: [
           {
-            name: 'imageCarrierId',
+            name: 'printerPlateCode',
             label: 'Printer Plate Code',
             short: 'Carrier Id',
           },
           {
-            name: 'imageCarrierCode',
-            label: 'Image Carrier Code',
-            short: 'Carrier Code',
-            type: 'imageCarrierCodeType',
-            options: 'imageCarrierCodeTypes'
+            name: 'barcodeNumber',
+            label: 'Code',
           },
         ]
       }
