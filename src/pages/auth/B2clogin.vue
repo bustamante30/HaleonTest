@@ -1,11 +1,11 @@
 <script setup="ts">
-import { onMounted, watch, reactive } from "vue";
+import { onMounted, watch, computed } from "vue";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useRouter } from "vue-router";
 
 const authStore = useB2CAuthStore();
 const router = useRouter();
-const b2cUserLoggedIn = reactive(() => authStore.currentB2CUser.isLoggedIn);
+const b2cUserLoggedIn = computed(() => authStore.currentB2CUser.isLoggedIn);
 onMounted(async () => {
   if (authStore.currentB2CUser.isLoggedIn == false) {
     await authStore.login();
