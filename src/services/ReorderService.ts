@@ -1,7 +1,7 @@
 import type { ReorderDto } from '../models/ReorderDto';
 import ApiService  from './apiService';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
+const baseUrl =  import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReorderService {
@@ -41,10 +41,11 @@ class ReorderService {
             printerName: item.printerName,
             printerLocationId: item.printerLocationId,
             printerLocationName: item.printerLocationName,
-            packStatus: item.orderStatus, // Renamed to packStatus to match DTO
-            createdAt: item.createdAt ? new Date(item.createdAt) : null,
-            submittedDate: item.submittedDate ? new Date(item.submittedDate) : null,
-            cancelledDate: item.cancelledDate ? new Date(item.cancelledDate) : null,
+            packType: item.packType, // Renamed to packStatus to match DTO
+            createdAt: item.createdAt ? item.createdAt : null,
+            submittedDate: item.submittedDate ? item.submittedDate : null,
+            cancelledDate: item.cancelledDate ? item.cancelledDate : null,
+            orderStatus: item.orderStatus ? item.orderStatus: null,
             createdBy: item.createdBy,
             statusId: item.statusId,
             thumbNail: item.thumbNail,
