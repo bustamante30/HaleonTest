@@ -24,11 +24,14 @@ class ReorderService {
             }
         }
         if (advancedSearchParameters) {
-            advancedSearchParameters.endDate = new Date();
+            if (advancedSearchParameters.startDate != null) {
+                advancedSearchParameters.endDate = advancedSearchParameters.startDate[1]
+                advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
+            }
             (params as any)["advancedSearchParameters"] = advancedSearchParameters
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
-       console.log(params)
+        console.log("advancedSearchParameters"+params)
        return httpService.post<any>('v1/Reorder/search', params).then((response) => {
         const reorderedData: ReorderDto[] = response.data.map((item: any) => {
           const reorderedItem: ReorderDto = {

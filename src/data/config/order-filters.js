@@ -13,7 +13,7 @@ function filterConfig(role) {
             name: 'startDate',
             label: 'Order Date',
             short: 'Ordered',
-            type: 'date'
+            type: 'daterange'
           }
         ],
       },

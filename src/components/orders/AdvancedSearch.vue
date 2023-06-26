@@ -14,7 +14,7 @@ form.advanced-search(@submit.prevent="onSubmit")
             .f(v-for="filter in section.filters")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
-              prime-calendar(v-else-if="filter.type === 'date'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" appendTo="body")
+              prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
