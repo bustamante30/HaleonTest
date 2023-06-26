@@ -24,8 +24,8 @@ class ReorderService {
             }
         }
         if (advancedSearchParameters) {
-            advancedSearchParameters.endDate = new Date()
-            params["advancedSearchParameters"] = advancedSearchParameters
+            advancedSearchParameters.endDate = new Date();
+            (params as any)["advancedSearchParameters"] = advancedSearchParameters
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
 
