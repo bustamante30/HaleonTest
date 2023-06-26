@@ -23,19 +23,18 @@ function filterConfig(role) {
         filters: [
           {
             name: 'printerName',
-            label: '*Printer Name',
+            label: 'Printer Name',
             short: 'Printer',
-            disabled: role === 'user'
+            ///disabled: role === 'user'
           },
           {
             name: 'printerSite',
-            label: '*Shipping Location',
-            short: 'Location',
-            type: 'printerLoc',
-            options: 'locations',
+            label: 'Shipping Location',
+            short: 'Printer',
+            ///disabled: role === 'user'
           },
           {
-            name: 'packagingReference',
+            name: 'printerReference',
             label: 'Printer Reference Number',
             short: 'Ref',
           },

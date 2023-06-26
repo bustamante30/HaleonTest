@@ -52,7 +52,7 @@ form.advanced-search(@submit.prevent="onSubmit")
   startDate: string | null;
   printerName: string | null;
   printerSite: string | null;
-  packagingReference: string | null;
+  printerReference: string | null;
   poNumber: string | null;
   printerPlateCode: string | null; 
   barcodeNumber: string | null;
@@ -127,21 +127,13 @@ form.advanced-search(@submit.prevent="onSubmit")
     closeForm()
   }
   
-  function validateForm() {
-    if (!advancedFilters.value?.printerName) {
-      return "You must select a printer.";
-    }
-    if (advancedFilters.value?.printerSite == null) {
-      return "You must select a printer location.";
-    }
-  
+      function validateForm() {
+
     const errorMessage =
       "You must enter information into at least 1 field. Printer Name and Location must have an entry";
-    const fields = Object.keys(advancedFilters.value);
-    const additionalFields = fields.filter(
-      (field) => field !== "printerName" && field !== "printerSite"
-    );
-    for (const field of additionalFields) {
+          const fields = Object.keys((advancedFilters.value as any)) 
+    console.log(fields)
+    for (const field  of fields) {
       const value = (advancedFilters.value as any)[field];
       if (
         value != undefined &&

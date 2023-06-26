@@ -28,7 +28,7 @@ class ReorderService {
             (params as any)["advancedSearchParameters"] = advancedSearchParameters
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
-
+       console.log(params)
        return httpService.post<any>('v1/Reorder/search', params).then((response) => {
         const reorderedData: ReorderDto[] = response.data.map((item: any) => {
           const reorderedItem: ReorderDto = {
