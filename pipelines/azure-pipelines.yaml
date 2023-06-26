@@ -1,5 +1,5 @@
 trigger:
-- "feature-branch"
+- "master"
 
 name: "ImageCarrier-UI"
 

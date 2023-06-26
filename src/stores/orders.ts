@@ -42,7 +42,6 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
     },
       async setFilters(filters: any) {
-        debugger
         this.filters = { ...this.filters, ...filters }
         this.orders = await ReorderService.getRecentReorders(filters.query, filters)
         for (let i = 0; i < this.orders.length; i++) {
