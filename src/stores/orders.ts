@@ -33,7 +33,7 @@ export const useOrdersStore = defineStore('ordersStore', {
           for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNail) {
 
-                this.orders[i].thumbNail = './src/assets/images/no_thumbnail.png'
+                this.orders[i].thumbNail = '~/src/assets/images/no_thumbnail.png'
             }
             else if (this.orders[i].thumbNail){
               this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
@@ -52,7 +52,7 @@ export const useOrdersStore = defineStore('ordersStore', {
         this.orders = await ReorderService.getRecentReorders(filters.query, filters)
         for (let i = 0; i < this.orders.length; i++) {
           if (!this.orders[i].thumbNail) {
-              this.orders[i].thumbNail = './src/assets/images/no_thumbnail.png'
+              this.orders[i].thumbNail = '~/src/assets/images/no_thumbnail.png'
           }
           this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
       }
