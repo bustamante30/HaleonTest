@@ -35,6 +35,9 @@ export const useOrdersStore = defineStore('ordersStore', {
 
                 this.orders[i].thumbNail = './src/assets/images/no_thumbnail.png'
             }
+            else if (this.orders[i].thumbNail){
+              this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
+            }
             this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }
         console.log(this.orders)
