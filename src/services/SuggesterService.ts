@@ -1,5 +1,5 @@
 import { AiCustomerSearchDto } from '../models/AiCustomerSearchDto';
-import ApiService from '../services/ApiService';
+import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
