@@ -61,6 +61,7 @@ class ReorderService {
         return reorderedData;
        }).catch((error: any) => {
            console.log("error getting reorders: ", error);
+           return [];
        });
     }
 
