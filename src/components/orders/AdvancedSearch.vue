@@ -28,15 +28,11 @@ form.advanced-search(@submit.prevent="onSubmit")
 </template>
   
   <script lang="ts" setup>
-  import { ref, computed, onBeforeMount } from "vue";
-  import router from "@/router";
-  import PrimeVue from "primevue/config";
+  import { ref, onBeforeMount } from "vue";
   import "primevue/resources/themes/saga-blue/theme.css";
   import "primevue/resources/primevue.min.css";
   import "primeicons/primeicons.css";
-  import type Dropdown from "primevue/dropdown";
-  import ReorderService from "@/services/ReorderService";
-  import SuggesterService from "@/services/suggesterService";
+  import SuggesterService from "@/services/SuggesterService";
  
   const props = defineProps({
     sections: {
