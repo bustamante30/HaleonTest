@@ -32,7 +32,7 @@ class ReorderService {
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
         console.log("advancedSearchParameters"+params)
-       return httpService.post<any>('v1/Reorder/search', params).then((response) => {
+        return httpService.post<any>('v1/Reorder/search', params).then((response: any) => {
            const reorderedData: ReorderDto[] = response.data.map((item: any) => {
                const reorderedItem: ReorderDto = {
                    id: item.id,
