@@ -2,7 +2,6 @@ import ordersData from '@/data/mock/orders';
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
-import SuggesterService from '../services/suggesterService';
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({

@@ -6,7 +6,8 @@ form.advanced-search(@submit.prevent="onSubmit")
         template(#header)
           header
             h3 Advanced Search
-            p.hint Enter at least 2 fields. Printer location is mandatory
+            p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
+            p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
             .error-message(v-if="showError") {{ error }}
         .form-fields(v-if="advancedFilters")
           .field-group(v-for="section in sections")
@@ -15,8 +16,8 @@ form.advanced-search(@submit.prevent="onSubmit")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
               prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" @complete="searchPrinter" )
-              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" @complete="searchPrinterSites" )
+              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" @complete="searchPrinter" :disabled="user.isExternal == true" emptyMessage="No results found"  )
+              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" @complete="searchPrinterSites" emptyMessage="No results found" )
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
@@ -47,7 +48,9 @@ form.advanced-search(@submit.prevent="onSubmit")
       default: () => { },
     },
   });
-  
+
+      const user = { isExternal: false }
+
   interface AdvancedFilters {
   itemNumber: string | null;
   startDate: string | null;
