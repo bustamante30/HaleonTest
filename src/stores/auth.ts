@@ -110,11 +110,12 @@ export const useAuthStore = defineStore("auth", {
       localStorage.setItem("token", this.accessToken);
 
       const user = await UserService.getV1User();
-      console.log(user);
+  
       this.currentUser.firstName = user.firstName as string;
       this.currentUser.lastName = user.lastName as string;
       this.currentUser.email = user.email as string;
       this.currentUser.displayName = user.displayName as string;
+      this.currentUser.userType = user.userType as string;
     },
   },
 });
