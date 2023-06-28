@@ -28,7 +28,6 @@ export const useOrdersStore = defineStore('ordersStore', {
   },
   actions: {
       async getOrders() {
-
           this.orders = await ReorderService.getRecentReorders()
           for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNail) {
