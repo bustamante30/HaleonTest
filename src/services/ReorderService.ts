@@ -1,5 +1,5 @@
 import type { ReorderDto } from '../models/ReorderDto';
-import ApiService  from './apiService';
+import ApiService  from './ApiService';
 
 const baseUrl =  import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
@@ -56,12 +56,12 @@ class ReorderService {
                };
 
                return reorderedItem;
-           }).catch((error: any) => {
-               console.log("error getting reorders: ", error);
            });
   
         return reorderedData;
-      });
+       }).catch((error: any) => {
+           console.log("error getting reorders: ", error);
+       });
     }
 
 }
