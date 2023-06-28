@@ -15,6 +15,8 @@ form.advanced-search(@submit.prevent="onSubmit")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
               prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
+              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" @complete="searchPrinter" )
+              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" @complete="searchPrinterSites" )
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
@@ -33,9 +35,8 @@ form.advanced-search(@submit.prevent="onSubmit")
   import "primeicons/primeicons.css";
   import type Dropdown from "primevue/dropdown";
   import ReorderService from "@/services/ReorderService";
-
-  console.log("Testing search advance................");
-  
+  import SuggesterService from "@/services/suggesterService";
+ 
   const props = defineProps({
     sections: {
       type: Array,
@@ -43,7 +44,7 @@ form.advanced-search(@submit.prevent="onSubmit")
     },
     filters: {
       type: Object,
-      default: () => {},
+      default: () => { },
     },
   });
   
@@ -63,7 +64,8 @@ form.advanced-search(@submit.prevent="onSubmit")
   const emit = defineEmits(["search"]);
   
   const advancedFilters = ref<AdvancedFilters>();
-  
+  let printerResults: string[] | null | undefined;
+  let printerSiteResults: string[] | null | undefined;
   const imageCarrierCodeTypes = ref([
     { label: "UPC Code", value: "UPC" },
     { label: "QR Code", value: "QR" },
@@ -117,7 +119,16 @@ form.advanced-search(@submit.prevent="onSubmit")
   function search(advancedSearchParameters?:any) {
     emit("search", advancedSearchParameters);
 }
-  
+
+  async function searchPrinter(value?: any) {
+      if (value.query && value.query.length > 1)
+          printerResults = await SuggesterService.getPrinterList(value.query)
+  }
+    async function searchPrinterSites(value?: any) {console.log(value)
+        if (value.query && advancedFilters.value?.printerName)
+            printerSiteResults = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
+      }
+
   function onSubmit() {
     console.log(advancedFilters.value)
     const validationErrors = validateForm();

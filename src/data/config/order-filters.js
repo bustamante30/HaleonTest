@@ -25,12 +25,14 @@ function filterConfig(role) {
             name: 'printerName',
             label: 'Printer Name',
             short: 'Printer',
+            type: 'printerSuggester'
             ///disabled: role === 'user'
           },
           {
             name: 'printerSite',
             label: 'Shipping Location',
-            short: 'Printer',
+              short: 'Printer',
+              type: 'printerSiteSuggester'
             ///disabled: role === 'user'
           },
           {

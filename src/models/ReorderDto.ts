@@ -9,6 +9,7 @@ export type ReorderDto = {
     printerName?: string | null;
     printerLocationId?: number;
     printerLocationName?: string | null;
+    itemCode?: string | null;
     packType?: string | null;
     createdAt?: Date | null;
     submittedDate?: Date | null;

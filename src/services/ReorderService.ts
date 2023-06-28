@@ -51,7 +51,8 @@ class ReorderService {
             orderStatus: item.orderStatus ? item.orderStatus: null,
             createdBy: item.createdBy,
             statusId: item.statusId,
-            thumbNail: item.thumbNail,
+              thumbNail: item.thumbNail,
+            itemCode: item.itemCode
           };
   
           return reorderedItem;
