@@ -5,8 +5,12 @@ import AppLogo from "@/components/common/AppLogo.vue";
 <template lang="pug">
 .page.login
   app-logo.logo
-  .login.form
-    h3 Access Blocked. Sorry, you do not have permission to access this application.
+  main
+    h1 Access Denied
+    p
+      | Sorry you do not have necessary permission
+      br/
+      | to access this application
 </template>
 
 <style lang="sass" scoped>
@@ -17,25 +21,21 @@ import AppLogo from "@/components/common/AppLogo.vue";
   height: 100vh
   background: var(--app-header-bg-color)
   color: var(--app-header-text-color)
-  text-align: center
 
   .logo
     margin: $s4 auto $s
-  .form
-    color: var(--text-color)
+
+  main
     width: 30rem
-    min-height: 15rem
-    background: white
+    min-height: 0rem
     padding: $s3
-    margin: 0 auto
-    border-radius: 5px
-
-  h3
-    margin: 0 auto $s3
+    margin: $s3 auto
     text-align: center
-    color: red
-
-.footer
-  clear: both
-  padding: $s 0
+    h1
+      margin: 0 auto $s
+      background: darken($sgs-red, 20%)
+      color: $sgs-white
+      padding: $s50 $s
+    p
+      opacity: 0.9
 </style>
