@@ -1,24 +1,27 @@
 import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
-const baseUrl =  'http://localhost:5208/';
+const baseUrl =  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReorderService {
 
-    public static getRecentReorders(query?: string, advancedSearchParameters?: any) {
+    public static getRecentReorders(query?: string, sortBy?: string,
+        sortOrder?: string,
+        page?: number,
+        pageSize?: number, advancedSearchParameters?: any) {
         let params = {}
         if (query=="") {
              params = {
-                "pageNumber": 1,
-                "pageCount": 10,
+                "pageNumber": page,
+                "pageCount": pageSize,
                 "printerId": 1
             }
         }
        else {
             params = {
-                "pageNumber": 1,
-                "pageCount": 10,
+                "pageNumber": page,
+                "pageCount": pageSize,
                 "printerId": 1,
                 "searchText": query
             }

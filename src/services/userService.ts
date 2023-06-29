@@ -1,7 +1,7 @@
 import type { UserDto } from '../models/UserDto';
 import ApiService  from '../services/apiService';
 
-const baseUrl = 'http://localhost:5208/';
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class UserService {
