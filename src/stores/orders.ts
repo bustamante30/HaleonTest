@@ -2,9 +2,12 @@ import ordersData from '@/data/mock/orders';
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
+import * as pagination from 'primevue/paginator'
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
+    pageNumber: 0,
+    pageSize: 0,
     orders: [] as any[],
     filters: {} as any,
     selectedOrder: ordersData[0],
@@ -16,7 +19,8 @@ export const useOrdersStore = defineStore('ordersStore', {
       expectedDate: DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
       shippingAddrress: null
-    }
+    },
+    totalRecords: 0
   }),
   getters: {
     filteredOrders() {
@@ -27,8 +31,23 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-      async getOrders() {
-          this.orders = await ReorderService.getRecentReorders()
+      async getOrders( all: boolean = false,
+        pageState: pagination.PageState = {
+          first: 0,
+          page: 0,
+          rows: 10
+        }) {
+          const { first, rows } = pageState;
+    const page = first / rows + 1;
+    const pageSize = rows;
+        const { reorderedData, totalRecords }  = await ReorderService.getRecentReorders(undefined,
+          undefined,
+          undefined,
+          pageState.page + 1,
+          pageState.rows);
+      console.log("orderStore:"+ totalRecords);
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
           for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNail) {
                 this.orders[i].thumbNail =  new URL('@/assets/images/no_thumbnail.png', import.meta.url);
@@ -47,7 +66,13 @@ export const useOrdersStore = defineStore('ordersStore', {
     },
       async setFilters(filters: any) {
         this.filters = { ...this.filters, ...filters }
-        this.orders = await ReorderService.getRecentReorders(filters.query, filters)
+        const { reorderedData, totalRecords } = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
+          filters.sortOrder,
+          1, 
+          this.pageSize, filters);
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
+        console.log("orderStoreSetfilter:"+ totalRecords);
         for (let i = 0; i < this.orders.length; i++) {
           if (!this.orders[i].thumbNail) {
               this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);

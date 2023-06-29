@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onBeforeMount } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
@@ -10,6 +10,9 @@ import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
 import { useAuthStore } from "@/stores/auth";
+
+import Paginator from 'primevue/paginator';
+import * as pagination from 'primevue/paginator';
 
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
@@ -42,6 +45,11 @@ onBeforeMount(() => {
 function search(filters) {
   ordersStore.setFilters(filters);
 }
+
+const onPageChange = async (pageState: pagination.pageState) => {
+   ordersStore.getOrders(props.all === 'true', pageState);
+}
+
 </script>
 
 <template lang="pug">
@@ -57,6 +65,7 @@ function search(filters) {
             h1 Recent Orders
             orders-search(:config="userFilterConfig" :filters="filters" @search="search")
         orders-table(:config="config" :data="orders" :filters="filterTokens")
+        paginator(:rows="useOrdersStore.pageSize ?? 10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view
 </template>
 
