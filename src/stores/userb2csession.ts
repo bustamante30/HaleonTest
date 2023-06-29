@@ -10,6 +10,7 @@ export type UserState = {
   email: Ref<string>
   isLoggedIn: Ref<boolean>
   userType: Ref<string>
+  isValidDomain: Ref<boolean>
 }
 
 export const userB2CSessionStore = defineStore('userb2csession', () => {
@@ -21,7 +22,8 @@ export const userB2CSessionStore = defineStore('userb2csession', () => {
     firstName: ref(''),
     lastName: ref(''),
     displayName: ref(''),
-    userType: ref('')
+    userType: ref(''),
+    isValidDomain: ref(false),
   }
   return userB2CSession
 })

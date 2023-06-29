@@ -68,7 +68,12 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             this.currentB2CUser.isLoggedIn = false;
             localStorage.clear();
             sessionStorage.clear();
-            router.push("/");
+            if(error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
+              this.currentB2CUser.isValidDomain = false
+              router.push("/error");
+            } else {
+              router.push("/");
+            }
           });
 
         if (this.account && response) {
@@ -130,6 +135,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         });
     },
     async updateUserStore(tokenResponse: any) {
+      this.currentB2CUser.isValidDomain = true
       this.currentB2CUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
