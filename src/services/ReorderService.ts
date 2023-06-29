@@ -1,7 +1,7 @@
-import type { ReorderDto } from '../models/ReorderDto';
+import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
-const baseUrl =  import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
+const baseUrl =  'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReorderService {
@@ -31,40 +31,45 @@ class ReorderService {
             (params as any)["advancedSearchParameters"] = advancedSearchParameters
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
-        console.log("advancedSearchParameters"+params)
-        return httpService.post<any>('v1/Reorder/search', params).then((response: any) => {
-           const reorderedData: ReorderDto[] = response.data.map((item: any) => {
-               const reorderedItem: ReorderDto = {
-                   id: item.id,
-                   sgsId: item.sgsId,
-                   brandName: item.brandName,
-                   description: item.description,
-                   weight: item.weight,
-                   printerId: item.printerId,
-                   printerName: item.printerName,
-                   printerLocationId: item.printerLocationId,
-                   printerLocationName: item.printerLocationName,
-                   packType: item.packType, // Renamed to packStatus to match DTO
-                   createdAt: item.createdAt ? item.createdAt : null,
-                   submittedDate: item.submittedDate ? item.submittedDate : null,
-                   cancelledDate: item.cancelledDate ? item.cancelledDate : null,
-                   orderStatus: item.orderStatus ? item.orderStatus : null,
-                   createdBy: item.createdBy,
-                   statusId: item.statusId,
-                   thumbNail: item.thumbNail,
-                   itemCode: item.itemCode
-               };
-
-               return reorderedItem;
-           });
-  
-        return reorderedData;
-       }).catch((error: any) => {
-           console.log("error getting reorders: ", error);
-           return [];
+       return httpService
+       .post<SearchPagedResultDto>('v1/Reorder/search', params)
+       .then((response: SearchPagedResultDto) => {
+         const reorderedData: ReorderDto[] = response.data
+           ? response.data.map((item: ReorderDto) => ({
+               id: item.id,
+               sgsId: item.sgsId,
+               brandName: item.brandName,
+               description: item.description,
+               weight: item.weight,
+               printerId: item.printerId,
+               printerName: item.printerName,
+               printerLocationId: item.printerLocationId,
+               printerLocationName: item.printerLocationName,
+               packType: item.packType, // Renamed to packStatus to match DTO
+               createdAt: item.createdAt ? item.createdAt : null,
+               submittedDate: item.submittedDate ? item.submittedDate : null,
+               cancelledDate: item.cancelledDate ? item.cancelledDate : null,
+               orderStatus: item.orderStatus ? item.orderStatus : null,
+               createdBy: item.createdBy,
+               statusId: item.statusId,
+               thumbNail: item.thumbNail,
+               itemCode: item.itemCode,
+             }))
+           : [];
+ 
+           const totalRecords: number = response.totalRecords ?? 0;
+           console.log("TotalRecords:"+ totalRecords);
+           console.log("reorderedData:"+ reorderedData);
+           return {
+            reorderedData,
+            totalRecords,
+          };
+       })
+       .catch((error: any) => {
+         console.log('Error getting reorders:', error);
+         return [];
        });
-    }
-
-}
+   }
+ }
 
 export default ReorderService;
