@@ -57,7 +57,7 @@ const showEndDateCalendar = ref(false);
 const selectedStatusFilter = ref(null);	
 const filters = ref({
   brandName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    productDescription: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    description: { value: null, matchMode: FilterMatchMode.CONTAINS },
     orderDate: { value: null, matchMode: FilterMatchMode.BETWEEN },
     packType: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.IN },
@@ -70,7 +70,7 @@ const initFilters = () => {
 
 const mutationMap: { [key: string]: string } = {
   brandName: 'setBrandNameFilter',
-  productDescription: 'setProductDescriptionFilter',
+  description: 'setDescriptionFilter',
   orderDate: 'setOrderStartDateFilter',
   packType: 'setPackTypeFilter',
   status: 'setOrderStatusFilter',
@@ -82,7 +82,7 @@ const sortFields = ref<string[]>([]);
 const globalClearFilter = async () => {
   initFilters();
   filterStore.commit('setBrandNameFilter', null);
-  filterStore.commit('setProductDescriptionFilter', null);
+  filterStore.commit('setDescriptionFilter', null);
   filterStore.commit('setPackTypeFilter', null);
   filterStore.commit('setOrderStartDateFilter', null);
   filterStore.commit('setOrderEndDateFilter', null);
@@ -125,8 +125,9 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: Fi
   console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
+  console.log("mutation:" + mutation);
+  console.log("filterstorePackTypeDescription:" + filterStore.state.descriptionFilter);
   }
-  console.log("filtersoreStatus" + filterStore.state.orderStatusFilter)
   orderStore.setFilters(filters);
 
   // orderStore.getOrders();
@@ -147,12 +148,12 @@ const clearFilter = async (fieldName:string,filterModel:any) => {
 
 const sortColumn = async (event: any) => {
   const { sortField, sortOrder } = event;
-  const order = sortOrder === 1 ? 'ascending' : 'descending';
+  const order = sortOrder === 1 ? true : false;
 
   const sortFields = ref<string[]>([]);
-  ///sortField = sortField.replace('-', '');
-  const sortFieldPrefix = sortOrder === 1 ? '-' : '';
-  const sortedField = `${sortFieldPrefix}${sortField}`;
+  sortField.replace('-', '');
+  //const sortFieldPrefix = sortOrder === 1 ? '-' : '';
+  const sortedField =sortField.replace('-', '');
 
   // Clear the existing sort field
   sortFields.value = [];
@@ -160,7 +161,9 @@ const sortColumn = async (event: any) => {
   console.log("SortColumn:" + sortFields.value[0]);
   const sortFieldsString = sortFields.value[0]; // Get the first (and only) value
   filterStore.commit('setSortFields', sortFieldsString);
-
+  filterStore.commit('setSortOrder', order);
+  console.log("SortField:" + sortFieldsString);
+  console.log("SortOrder:" + order);
   orderStore.setFilters(filters);
 }
 
@@ -235,7 +238,7 @@ data-table.p-datatable-sm.orders-table(
     Column(
       field="description"
       header="Product Description"
-      filterField="productDescription"
+      filterField="description"
       freeze="left"
       :sortable="true"
       :headerStyle="stylify(config.cols[2].width)"
@@ -255,7 +258,7 @@ data-table.p-datatable-sm.orders-table(
         Button(
           type="button"
           icon="pi pi-times"
-          @click="clearFilter('productDescription', filterModel)"
+          @click="clearFilter('description', filterModel)"
           class="custom-button"
           severity="secondary"
         )
@@ -263,7 +266,7 @@ data-table.p-datatable-sm.orders-table(
         Button(
           type="button"
           icon="pi pi-check"
-          @click="customFilter('productDescription', filterModel)"
+          @click="customFilter('description', filterModel)"
           class="custom-button"
           severity="success"
         )

@@ -7,6 +7,7 @@ const filterStore = createStore({
     descriptionFilter: null,
     orderStatusFilter: null,
     sortFields: null,
+    sortOrder: null
   },
   mutations: {
     setBrandNameFilter(state, value) {
@@ -23,6 +24,9 @@ const filterStore = createStore({
     },
     setSortFields(state, value) {
       state.sortFields = value;
+    },
+    setSortOrder(state, value) {
+      state.sortOrder = value;
     },
   },
 });
