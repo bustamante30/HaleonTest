@@ -1393,6 +1393,5 @@
         <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
-
   </UserJourneys>
 </TrustFrameworkPolicy>

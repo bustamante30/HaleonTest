@@ -352,6 +352,9 @@
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>
+     <UserJourneyBehaviors>
+      <SingleSignOn Scope="Tenant" KeepAliveInDays="1" RefreshTokenLifeTimeInSeconds="3600" />
+    </UserJourneyBehaviors>
   </UserJourneys>
   <SubJourneys>
     <SubJourney Id="PasswordReset" Type="Call">
