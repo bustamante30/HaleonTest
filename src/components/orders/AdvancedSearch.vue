@@ -6,7 +6,8 @@ form.advanced-search(@submit.prevent="onSubmit")
         template(#header)
           header
             h3 Advanced Search
-            p.hint Enter at least 2 fields. Printer location is mandatory
+            p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
+            p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
             .error-message(v-if="showError") {{ error }}
         .form-fields(v-if="advancedFilters")
           .field-group(v-for="section in sections")
@@ -15,6 +16,8 @@ form.advanced-search(@submit.prevent="onSubmit")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
               prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
+              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" @complete="searchPrinter" :disabled="user.isExternal == true" emptyMessage="No results found"  )
+              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" @complete="searchPrinterSites" emptyMessage="No results found" )
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
@@ -25,17 +28,12 @@ form.advanced-search(@submit.prevent="onSubmit")
 </template>
   
   <script lang="ts" setup>
-  import { ref, computed, onBeforeMount } from "vue";
-  import router from "@/router";
-  import PrimeVue from "primevue/config";
+  import { ref, onBeforeMount } from "vue";
   import "primevue/resources/themes/saga-blue/theme.css";
   import "primevue/resources/primevue.min.css";
   import "primeicons/primeicons.css";
-  import type Dropdown from "primevue/dropdown";
-  import ReorderService from "@/services/ReorderService";
-
-  console.log("Testing search advance................");
-  
+  import SuggesterService from "@/services/SuggesterService";
+ 
   const props = defineProps({
     sections: {
       type: Array,
@@ -43,10 +41,12 @@ form.advanced-search(@submit.prevent="onSubmit")
     },
     filters: {
       type: Object,
-      default: () => {},
+      default: () => { },
     },
   });
-  
+
+      const user = { isExternal: false }
+
   interface AdvancedFilters {
   itemNumber: string | null;
   startDate: string | null;
@@ -63,7 +63,8 @@ form.advanced-search(@submit.prevent="onSubmit")
   const emit = defineEmits(["search"]);
   
   const advancedFilters = ref<AdvancedFilters>();
-  
+  let printerResults: string[] | null | undefined;
+  let printerSiteResults: string[] | null | undefined;
   const imageCarrierCodeTypes = ref([
     { label: "UPC Code", value: "UPC" },
     { label: "QR Code", value: "QR" },
@@ -98,6 +99,15 @@ form.advanced-search(@submit.prevent="onSubmit")
   
   function reset() {
     advancedFilters.value = { ...(props.filters as AdvancedFilters) };
+    advancedFilters.value.sgsReferenceNumberList= null;
+    advancedFilters.value.itemNumber= null;
+    advancedFilters.value.barcodeNumber= null;
+    advancedFilters.value.printerName= null;
+    advancedFilters.value.printerPlateCode= null;
+    advancedFilters.value.poNumber= null;
+    advancedFilters.value.printerSite= null;
+    advancedFilters.value.printerReference= null;
+    advancedFilters.value.startDate= null;
     
   }
   
@@ -108,7 +118,16 @@ form.advanced-search(@submit.prevent="onSubmit")
   function search(advancedSearchParameters?:any) {
     emit("search", advancedSearchParameters);
 }
-  
+
+  async function searchPrinter(value?: any) {
+      if (value.query && value.query.length > 1)
+          printerResults = await SuggesterService.getPrinterList(value.query)
+  }
+    async function searchPrinterSites(value?: any) {console.log(value)
+        if (value.query && advancedFilters.value?.printerName)
+            printerSiteResults = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
+      }
+
   function onSubmit() {
     console.log(advancedFilters.value)
     const validationErrors = validateForm();

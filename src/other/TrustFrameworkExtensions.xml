@@ -32,8 +32,7 @@
           <Description>Login with your microsoft account</Description>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
-            <Item Key="METADATA">
-              https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
+            <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
             <Item Key="client_id">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
             <Item Key="response_types">code</Item>
@@ -44,8 +43,7 @@
             <Item Key="DiscoverMetadataByTokenIssuer">true</Item>
             <!-- The key below allows you to specify each of the Azure AD tenants that can be used
             to sign in. Update the GUIDs below for each tenant. -->
-            <Item Key="ValidTokenIssuerPrefixes">
-              https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1,https://login.microsoftonline.com/90487389-fd4d-4951-a72c-069d7b20dee4</Item>
+            <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/90487389-fd4d-4951-a72c-069d7b20dee4/v2.0, https://login.microsoftonline.com/8714a216-0445-4269-b96b-7d84bddb6da1/v2.0 </Item>
             <!-- The commented key below specifies that users from any tenant can sign-in. Uncomment
             if you would like anyone with an Azure AD account to be able to sign in. -->
             <!-- <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/</Item> -->
@@ -59,11 +57,9 @@
             <OutputClaim ClaimTypeReferenceId="surName" PartnerClaimType="family_name" />
             <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource"
-              DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="identityProvider" PartnerClaimType="iss" />
-            <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken"
-              PartnerClaimType="{oauth2:access_token}" />
+            <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken" PartnerClaimType="{oauth2:access_token}" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
@@ -130,7 +126,8 @@
             <Item Key="scope">profile</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
-            <Item Key="client_id">amzn1.application-oa2-client.941aa452b0d54f1c8023879419737dd1</Item>
+            <!-- <Item Key="client_id">amzn1.application-oa2-client.941aa452b0d54f1c8023879419737dd1</Item> -->
+            <Item Key="client_id">amzn1.application-oa2-client.a62d7e6bf1bc49c38e95e7b3b51bae7e</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_AmazonSecret" />
@@ -177,6 +174,7 @@
           <DisplayName>Apple</DisplayName>
           <Protocol Name="OpenIdConnect" />
           <Metadata>
+            <Item Key="METADATA">https://appleid.apple.com/.well-known/openid-configuration</Item>
             <Item Key="ProviderName">apple</Item>
             <Item Key="authorization_endpoint">https://appleid.apple.com/auth/authorize</Item>
             <Item Key="AccessTokenEndpoint">https://appleid.apple.com/auth/token</Item>
@@ -187,7 +185,7 @@
             <Item Key="response_types">code</Item>
             <Item Key="external_user_identity_claim_id">sub</Item>
             <Item Key="response_mode">form_post</Item>
-            <Item Key="ReadBodyClaimsOnIdpRedirect">given_name family_name email</Item>
+            <Item Key="ReadBodyClaimsOnIdpRedirect">user.name.firstName user.name.lastName user.email</Item>
             <Item Key="client_id">com.sgscophoton.azure-ad-b2c-service</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
           </Metadata>
@@ -196,13 +194,13 @@
           </CryptographicKeys>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="sub" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider"
-              DefaultValue="https://appleid.apple.com" AlwaysUseDefaultValue="true" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource"
-              DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
-            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name" />
-            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name" />
-            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="https://appleid.apple.com" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="user.name.firstName" />
+            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="user.name.lastName" />
+            <OutputClaim ClaimTypeReferenceId="email" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken" PartnerClaimType="{oauth2:access_token}" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
@@ -222,8 +220,7 @@
           <Protocol Name="Proprietary"
             Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="true"
-              AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="true" AlwaysUseDefaultValue="true" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
