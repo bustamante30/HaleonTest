@@ -8,13 +8,14 @@ import router from '@/router'
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
 import FilterTokens from '@/components/ui/FilterTokens.vue'
+import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
 import InputText from "primevue/inputtext"
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
 import Button from 'primevue/button'
-import Dropdown from 'primevue/dropdown'
 import filterStore from  '@/stores/filterStore'
 import { useOrdersStore } from '@/stores/orders'
+import { orderStatusLabels } from '@/data/config/keylabelpairconfig'
 
 
 const props = defineProps({
@@ -40,14 +41,20 @@ function stylify(width) {
 
 // console.log("ColumnHeader:"+ config.cols);
 
+onMounted(async () => {	
+  for (const [, value] of  orderStatusLabels) {	
+    dropdownOptions.value.push(value.label);	
+  }	
+});
+
+
 const showTextbox = ref(false)
 const orderStore = useOrdersStore()
 const dropdownOptions = ref<string[]>([]);
 const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
 
-
-const selectedStatusFilter = ref(null);
+const selectedStatusFilter = ref(null);	
 const filters = ref({
   brandName: { value: null, matchMode: FilterMatchMode.CONTAINS },
     productDescription: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -101,14 +108,28 @@ function getFormattedValue(value: string | null, matchMode: FilterMatchMode): st
 }
 
 async function customFilter(field: string, filterModel: any, filterMatchMode: FilterMatchMode) {
-  //debugger;
+  debugger;
   const fieldName = field as keyof typeof filters.value;
+  if (fieldName === 'status') {
+    let statusFilter = filterModel.value
+    for (const [key, value] of orderStatusLabels) {
+      if (value.label === filterModel.value) {
+        console.log("StatusValue:"+ key);
+        filterStore.commit('setOrderStatusFilter', key);
+        break;
+      }
+    }
+  }
+  else if (mutationMap.hasOwnProperty(fieldName)) {
   filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode };
   console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
+  }
+  console.log("filtersoreStatus" + filterStore.state.orderStatusFilter)
   orderStore.setFilters(filters);
-  //await orderStore.getOrders();
+
+  // orderStore.getOrders();
 }
 
 const clearFilter = async (fieldName:string,filterModel:any) => {	
@@ -140,7 +161,7 @@ const sortColumn = async (event: any) => {
   const sortFieldsString = sortFields.value[0]; // Get the first (and only) value
   filterStore.commit('setSortFields', sortFieldsString);
 
-  orderStore.getOrders();
+  orderStore.setFilters(filters);
 }
 
 </script>
@@ -260,58 +281,6 @@ data-table.p-datatable-sm.orders-table(
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[3]" :data="data")
-      template(#filter="{ filterModel }")
-        .filter-wrapper
-          .input-container(:class="{'p-calendar-filter': showStartDateCalendar}")
-            InputText(
-              v-if="showTextbox"
-              v-model="filterModel.startDate"
-              id="start-date"
-              :placeholder="showStartDateCalendar ? 'yyyy-mm-dd' : 'Search by Order Date'"
-            )
-            Calendar(
-              v-model="filterModel.startDate"
-              :showIcon="true"
-              :showOnFocus="false"
-              :showOtherMonths="false"
-              :numberOfMonths="1"
-              display="inline"
-              :style="{ marginBottom: '10px' }"
-              class="calendar-icon my-custom-calendar"
-            )
-        .input-container(:class="{'p-calendar-filter': showEndDateCalendar}")
-            InputText(
-              v-if="showTextbox"
-              v-model="filterModel.endDate"
-              id="end-date"
-              :placeholder="showEndDateCalendar ? 'yyyy-mm-dd' : 'Search by Order Date'"
-            )
-            Calendar(
-              v-model="filterModel.endDate"
-              showIcon="true"
-              :showOnFocus="false"
-              :showOtherMonths="false"
-              :numberOfMonths="1"
-              class="calendar-icon my-custom-calendar"
-            )
-      template(#filterclear="{ filterModel }")
-        Button(
-          type="button"
-          icon="pi pi-times"
-          @click="clearFilter('orderDate', filterModel)"
-          severity="secondary"
-          class="custom-button"
-          style="margin-right: 5px"
-        )
-      template(#filterapply="{ filterModel, filterCallback }")
-        Button(
-          type="button"
-          icon="pi pi-check"
-          @click="customFilter('orderDate', filterModel)"
-          severity="success"
-          class="custom-button"
-          style="margin-left: 5px"
-        )
 
     //- Product Weight column
     Column(
@@ -406,7 +375,7 @@ data-table.p-datatable-sm.orders-table(
 
     //- Status column
     Column(
-      field="status"
+      field="orderStatus"
       v-model="selectedStatusFilter"
       header="Status"
       type= 'badge'
@@ -420,6 +389,30 @@ data-table.p-datatable-sm.orders-table(
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[10]" :data="data")
+      template(v-slot:filter="{ filterModel }")
+        Dropdown(
+          v-model="filterModel.value"
+          :options="dropdownOptions"
+          placeholder="Select One"
+          class="p-column-filter"
+          showClear
+        )
+      template(#filterclear="{ filterModel }")
+        Button(
+          type="button"
+          icon="pi pi-times"
+          @click="clearFilter('status', filterModel)"
+          class="custom-button"
+          severity="secondary"
+        )
+      template(#filterapply="{ filterModel, filterCallback }")
+        Button(
+          type="button"
+          icon="pi pi-check"
+          class="custom-button"
+          @click="customFilter('status', filterModel)"
+          severity="success"
+        )
 
 </template>
 
@@ -431,4 +424,19 @@ data-table.p-datatable-sm.orders-table(
 .global-custom-button
     width: 100px
     height: 30px
+
+.calendar-wrapper
+    position: relative
+    z-index: 1
+.calendar-icon .p-calendar-button 
+    width: 5px
+  
+.custom-button
+    width: 80px
+    height: 30px
+  
+.my-custom-calendar
+    width: 200px
+    height: 30px
+  
 </style>

@@ -5,8 +5,6 @@ const filterStore = createStore({
     brandNameFilter: null,
     packTypeFilter: null,
     descriptionFilter: null,
-    orderStartDateFilter: null,
-    orderEndDateFilter: null,
     orderStatusFilter: null,
     sortFields: null,
   },
@@ -19,12 +17,6 @@ const filterStore = createStore({
     },
     setDescriptionFilter(state, value) {
       state.descriptionFilter = value;
-    },
-    setOrderStartDateFilter(state, value) {
-      state.orderStartDateFilter = value;
-    },
-    setOrderEndDateFilter(state, value) {
-      state.orderEndDateFilter = value;
     },
     setOrderStatusFilter(state, value) {
       state.orderStatusFilter = value;
