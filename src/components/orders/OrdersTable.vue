@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch, reactive, onMounted, withDefaults, defineProps, nextTick, getCurrentInstance, defineEmits } from 'vue'
+import {ref, watch, reactive, onMounted, nextTick, getCurrentInstance } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -14,6 +14,7 @@ import { FilterMatchMode, FilterOperator } from 'primevue/api'
 import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
 import filterStore from  '@/stores/filterStore'
+import { useOrdersStore } from '@/stores/orders'
 
 
 const props = defineProps({
@@ -39,47 +40,50 @@ function stylify(width) {
 
 // console.log("ColumnHeader:"+ config.cols);
 
+const showTextbox = ref(false)
+const orderStore = useOrdersStore()
+const dropdownOptions = ref<string[]>([]);
+const showStartDateCalendar = ref(false);
+const showEndDateCalendar = ref(false);
+
 
 const selectedStatusFilter = ref(null);
 const filters = ref({
-  thumbNail: { value: null, matchMode: FilterMatchMode.CONTAINS },
   brandName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  productDescription: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  orderDate: { value: null, matchMode: FilterMatchMode.BETWEEN },
-  productWeight: { value: null, matchMode: FilterMatchMode.IN },
-  itemCode: { value: null, matchMode: FilterMatchMode.IN },
-  printerName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  printerLocation: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  packType: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  mySGS: { value: null, matchMode: FilterMatchMode.IN },
-  status: { value: null, matchMode: FilterMatchMode.IN }
-});
-
-function initFilters() {
-  filters.value = {
-    brandName: { value: null, matchMode: FilterMatchMode.CONTAINS },
     productDescription: { value: null, matchMode: FilterMatchMode.CONTAINS },
     orderDate: { value: null, matchMode: FilterMatchMode.BETWEEN },
     packType: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.IN },
-  };
+});
+
+
+const initFilters = () => {
+  filters.value = { ...filters.value };
 };
 
 const mutationMap: { [key: string]: string } = {
-  thumbNail: 'setThumbNailFilter',
   brandName: 'setBrandNameFilter',
   productDescription: 'setProductDescriptionFilter',
-  orderDate: 'setOrderDateFilter',
-  productWeight: 'setProductWeightFilter',
-  itemCode: 'setItemCodeFilter',
-  printerName: 'setPrinterNameFilter',
-  printerLocation: 'setPrinterLocationFilter',
+  orderDate: 'setOrderStartDateFilter',
   packType: 'setPackTypeFilter',
-  mySGS: 'setMySGSFilter',
-  status: 'setStatusFilter',
+  status: 'setOrderStatusFilter',
 };
 
 const showCalendar = ref(false);
+const sortFields = ref<string[]>([]);
+
+const globalClearFilter = async () => {
+  initFilters();
+  filterStore.commit('setBrandNameFilter', null);
+  filterStore.commit('setProductDescriptionFilter', null);
+  filterStore.commit('setPackTypeFilter', null);
+  filterStore.commit('setOrderStartDateFilter', null);
+  filterStore.commit('setOrderEndDateFilter', null);
+  filterStore.commit('setOrderStatusFilter', null);
+
+
+  const response = await orderStore.getOrders();
+};
 
 function filterValue(fieldName: string, matchMode: FilterMatchMode): string | null {
   const value = filters.value[fieldName]?.value;
@@ -97,36 +101,46 @@ function getFormattedValue(value: string | null, matchMode: FilterMatchMode): st
 }
 
 async function customFilter(field: string, filterModel: any, filterMatchMode: FilterMatchMode) {
+  //debugger;
   const fieldName = field as keyof typeof filters.value;
   filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode };
+  console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
-  //await projectViewStore.fetchProjects();
+  orderStore.setFilters(filters);
+  //await orderStore.getOrders();
 }
 
-async function clearFilter() {
-  initFilters();
-  for (const fieldName in filters.value) {
-    const mutation = mutationMap[fieldName];
-    filterStore.commit(mutation, null);
+const clearFilter = async (fieldName:string,filterModel:any) => {	
+  filterModel.value = null;
+  if (mutationMap.hasOwnProperty(fieldName)) {
+    const mutationName = mutationMap[fieldName];
+    filterStore.commit(mutationName, null);
   }
-  //await projectViewStore.fetchProjects();
-}
+   if (fieldName === 'orderDate') {
+      filterStore.commit('setOrderEndDateFilter', null);
 
-async function sortColumn(sortField: string, sortOrder: number) {
+  } 
+ orderStore.getOrders();
+};
+
+const sortColumn = async (event: any) => {
+  const { sortField, sortOrder } = event;
+  const order = sortOrder === 1 ? 'ascending' : 'descending';
+
   const sortFields = ref<string[]>([]);
-  sortField = sortField.replace('-', '');
+  ///sortField = sortField.replace('-', '');
   const sortFieldPrefix = sortOrder === 1 ? '-' : '';
   const sortedField = `${sortFieldPrefix}${sortField}`;
 
   // Clear the existing sort field
   sortFields.value = [];
   sortFields.value.push(sortedField);
-
+  console.log("SortColumn:" + sortFields.value[0]);
   const sortFieldsString = sortFields.value[0]; // Get the first (and only) value
   filterStore.commit('setSortFields', sortFieldsString);
 
-  //await projectViewStore.fetchProjects();
+  orderStore.getOrders();
 }
 
 </script>
@@ -141,7 +155,7 @@ data-table.p-datatable-sm.orders-table(
     class="small-icons"
     filterDisplay="menu"
     @sort="sortColumn"
-    :globalFilterFields="['brandName','productDescription', 'packType', 'orderDate']"
+    :globalFilterFields="['brandName','description', 'packType', 'orderDate']"
     class="frozen-columns"
   )
     template(#empty)
@@ -168,6 +182,7 @@ data-table.p-datatable-sm.orders-table(
       :sortable="true"
       :headerStyle="stylify(config.cols[1].width)"
       :bodyStyle="stylify(config.cols[1].width)"
+      :showFilterMatchModes="false"
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[1]" :data="data")
@@ -197,13 +212,14 @@ data-table.p-datatable-sm.orders-table(
     
     //- Product Description column with contains filter
     Column(
-      field="productDescription"
+      field="description"
       header="Product Description"
       filterField="productDescription"
       freeze="left"
       :sortable="true"
       :headerStyle="stylify(config.cols[2].width)"
       :bodyStyle="stylify(config.cols[2].width)"
+      :showFilterMatchModes="false"
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[2]" :data="data")
@@ -233,7 +249,7 @@ data-table.p-datatable-sm.orders-table(
     
     //- Order Date column with date range filter
     Column(
-      field="projectView.orderDate"
+      field="orderDate"
       sortField="OrderDate"
       header="Order Date"
       :sortable="true"
@@ -299,7 +315,7 @@ data-table.p-datatable-sm.orders-table(
 
     //- Product Weight column
     Column(
-      field="projectView.productWeight"
+      field="productWeight"
       header="Product Weight"
       :sortable="true"
       :headerStyle="stylify(config.cols[4].width)"
@@ -310,7 +326,7 @@ data-table.p-datatable-sm.orders-table(
     
     //- Item Code column
     Column(
-      field="projectView.itemCode"
+      field="itemCode"
       header="Item Code"
       :sortable="true"
       :headerStyle="stylify(config.cols[5].width)"
@@ -321,7 +337,7 @@ data-table.p-datatable-sm.orders-table(
     
     //- Printer Name column
     Column(
-      field="projectView.printerName"
+      field="printerName"
       header="Printer Name"
       :sortable="true"
       :headerStyle="stylify(config.cols[6].width)"
@@ -332,7 +348,7 @@ data-table.p-datatable-sm.orders-table(
     
     //- Printer Location column
     Column(
-      field="projectView.printerLocation"
+      field="printerLocation"
       header="Printer Location"
       :sortable="true"
       :headerStyle="stylify(config.cols[7].width)"
@@ -343,7 +359,7 @@ data-table.p-datatable-sm.orders-table(
     
     //- PackType column
     Column(
-      field="projectView.packType"
+      field="packType"
       header="PackType"
       filterField="packType"
       :sortable="true"
@@ -379,7 +395,7 @@ data-table.p-datatable-sm.orders-table(
 
     //- My SGS # column
     Column(
-      field="projectView.mySgsNumber"
+      field="mySgsNumber"
       header="My SGS #"
       :sortable="true"
       :headerStyle="stylify(config.cols[9].width)"
@@ -390,7 +406,7 @@ data-table.p-datatable-sm.orders-table(
 
     //- Status column
     Column(
-      field="projectView.status"
+      field="status"
       v-model="selectedStatusFilter"
       header="Status"
       type= 'badge'
