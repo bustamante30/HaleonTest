@@ -47,6 +47,8 @@ function updateCheckout() {
     template(#header)
       header
         h1.title Please confirm your order
+        a.close(@click="router.push('/dashboard')")
+            span.material-icons.outline close
     .card.context
       .thumbnail
         prime-image.image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
