@@ -16,7 +16,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       imageCarrierCodeTypes: [] as any[]
     },
     checkout: {
-      expectedDate: DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
+      expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
       shippingAddrress: null
     },
