@@ -2,7 +2,7 @@ import { Console } from 'console';
 import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
-const baseUrl =  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
+const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
 //import.meta.env.VITE_API_BASE_URL ??
 const httpService = new ApiService(baseUrl)
@@ -13,7 +13,6 @@ class ReorderService {
         sortOrder?: string,
         page?: number,
         pageSize?: number, advancedSearchParameters?: any, columnFilters? : any) {
-          debugger;
         let params = {}
         if (query=="") {
              params = {
@@ -79,9 +78,6 @@ class ReorderService {
            : [];
  
            const totalRecords: number = response.totalRecords ?? 0;
-           console.log("brandNameFilter:"+advancedSearchParameters);
-           console.log("TotalRecords:"+ totalRecords);
-           console.log("reorderedData:"+ reorderedData);
            return {
             reorderedData,
             totalRecords,

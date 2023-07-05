@@ -108,13 +108,11 @@ function getFormattedValue(value: string | null, matchMode: FilterMatchMode): st
 }
 
 async function customFilter(field: string, filterModel: any, filterMatchMode: FilterMatchMode) {
-  debugger;
   const fieldName = field as keyof typeof filters.value;
   if (fieldName === 'status') {
     let statusFilter = filterModel.value
     for (const [key, value] of orderStatusLabels) {
       if (value.label === filterModel.value) {
-        console.log("StatusValue:"+ key);
         filterStore.commit('setOrderStatusFilter', key);
         break;
       }
@@ -125,8 +123,6 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: Fi
   console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
-  console.log("mutation:" + mutation);
-  console.log("filterstorePackTypeDescription:" + filterStore.state.descriptionFilter);
   }
   orderStore.setFilters(filters);
 
@@ -139,10 +135,6 @@ const clearFilter = async (fieldName:string,filterModel:any) => {
     const mutationName = mutationMap[fieldName];
     filterStore.commit(mutationName, null);
   }
-   if (fieldName === 'orderDate') {
-      filterStore.commit('setOrderEndDateFilter', null);
-
-  } 
  orderStore.getOrders();
 };
 
@@ -158,12 +150,9 @@ const sortColumn = async (event: any) => {
   // Clear the existing sort field
   sortFields.value = [];
   sortFields.value.push(sortedField);
-  console.log("SortColumn:" + sortFields.value[0]);
   const sortFieldsString = sortFields.value[0]; // Get the first (and only) value
   filterStore.commit('setSortFields', sortFieldsString);
   filterStore.commit('setSortOrder', order);
-  console.log("SortField:" + sortFieldsString);
-  console.log("SortOrder:" + order);
   orderStore.setFilters(filters);
 }
 

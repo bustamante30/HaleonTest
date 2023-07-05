@@ -98,13 +98,11 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.filters['imageCarrierId'] = null
       this.filters['imageCarrierCode'] = null
       this.filters['imageCarrierCode'] = null
-      // filterStore.state.brandNameFilter =null
-      // filterStore.state.descriptionFilter =null
-      // filterStore.state.orderStartDateFilter =null
-      // filterStore.state.orderEndDateFilter =null
-      // filterStore.state.packTypeFilter =null
-      // filterStore.state.orderStatusFilter =null
-      // filterStore.state.sortFields =null
+      filterStore.state.brandNameFilter =null
+      filterStore.state.descriptionFilter =null
+      filterStore.state.packTypeFilter =null
+      filterStore.state.orderStatusFilter =null
+      filterStore.state.sortFields =null
     },
     initAdvancedFilters() {
       this.options.locations = [
