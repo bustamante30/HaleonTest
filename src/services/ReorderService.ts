@@ -1,4 +1,3 @@
-import { Console } from 'console';
 import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
