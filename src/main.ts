@@ -33,6 +33,7 @@ import BadgeDirective from 'primevue/badgedirective';
 import Message from 'primevue/message'
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
+import Paginator from 'primevue/paginator';
 
 const app = createApp(App)
 
@@ -62,6 +63,7 @@ app.component('PrimePanel', Panel)
 app.component('PrimeOverlayPanel', OverlayPanel)
 app.component('PrimeImage', Image)
 app.component('Message',Message)
+app.component('PrimePagination',Paginator)
 app.use(ToastService);
 app.component('Toast', Toast)
 app.mount('#app')

@@ -1,7 +1,9 @@
 import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
-const baseUrl =  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
+const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
+
+//import.meta.env.VITE_API_BASE_URL ??
 const httpService = new ApiService(baseUrl)
 
 class ReorderService {
@@ -9,13 +11,20 @@ class ReorderService {
     public static getRecentReorders(query?: string, sortBy?: string,
         sortOrder?: string,
         page?: number,
-        pageSize?: number, advancedSearchParameters?: any) {
+        pageSize?: number, advancedSearchParameters?: any, columnFilters? : any) {
         let params = {}
         if (query=="") {
              params = {
                 "pageNumber": page,
                 "pageCount": pageSize,
-                "printerId": 1
+                "printerId": 1,
+                "brandName": columnFilters!= null?columnFilters.state.brandNameFilter !=null?columnFilters.state.brandNameFilter: null:null,
+                "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
+                "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
+                "orderStatusId": columnFilters!= null?columnFilters.state.orderStatusFilter !=null?columnFilters.state.orderStatusFilter: null:null,
+                "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
+                "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
+                
             }
         }
        else {
@@ -23,15 +32,22 @@ class ReorderService {
                 "pageNumber": page,
                 "pageCount": pageSize,
                 "printerId": 1,
-                "searchText": query
+                "searchText": query,
+                "brandName": columnFilters!= null?columnFilters.state.brandNameFilter !=null?columnFilters.state.brandNameFilter: null:null,
+                "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
+                "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
+                "orderStatusId": columnFilters!= null?columnFilters.state.orderStatusFilter !=null?columnFilters.state.orderStatusFilter: null:null,
+                "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
+                "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
+                
             }
         }
+
         if (advancedSearchParameters) {
             if (advancedSearchParameters.startDate != null) {
                 advancedSearchParameters.endDate = advancedSearchParameters.startDate[1]
                 advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
             }
-            (params as any)["advancedSearchParameters"] = advancedSearchParameters
         }
        // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
        return httpService
@@ -61,8 +77,6 @@ class ReorderService {
            : [];
  
            const totalRecords: number = response.totalRecords ?? 0;
-           console.log("TotalRecords:"+ totalRecords);
-           console.log("reorderedData:"+ reorderedData);
            return {
             reorderedData,
             totalRecords,
