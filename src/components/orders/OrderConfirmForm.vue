@@ -32,19 +32,53 @@ function updateCheckout() {
 function minSelectableDate() {
   return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
 }
+
+const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
+
+const errorMessages = {
+  minLength: 'Please enter at least 3 characters in the Purchase Order field.',
+  maxLength: 'The Purchase Order field cannot exceed 30 characters.',
+  invalidCharacters: 'The Purchase Order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
+};
+
+function validatePurchaseOrder(): string {
+  const po = checkoutForm.value.purchaseOrder;
+  console.log("po", po);
+  
+  if (po === null) {
+    return "";
+  }
+
+  if (po.length < 3) {
+    return errorMessages.minLength;
+  }
+  
+  if (po.length > 30) {
+    return errorMessages.maxLength;
+  }
+  
+  for (let i = 0; i < po.length; i++) {
+    if (!validSpecialCharacters.includes(po[i]) && !/^[a-zA-Z0-9]$/.test(po[i])) {
+      return errorMessages.invalidCharacters;
+    }
+  }
+ return "";
+}
+
 </script>
 
 <template lang="pug">
 .order-conformation-form(v-if="checkoutForm")
   .details
     .f
-      label Expected Date
+      label Expected Date *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12")
+        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
     .f
       label Purchase Order #
       span.input
-        prime-inputtext(v-model="checkoutForm.purchaseOrder")
+        prime-inputtext(v-model="checkoutForm.purchaseOrder" :class="{'invalid': (checkoutForm.purchaseOrder)}")
+        span.warning-message(v-if="validatePurchaseOrder()") {{ validatePurchaseOrder() }}
   .notes
     .f
       label Notes
@@ -91,4 +125,8 @@ function minSelectableDate() {
         right: $s50
         margin: $s25 0
         color: rgba($sgs-gray, 0.4)
+
+      span.warning-message
+        color: rgba(255, 0, 0, 0.7)
+        font-weight: bold
 </style>
