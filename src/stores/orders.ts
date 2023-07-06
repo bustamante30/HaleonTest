@@ -2,9 +2,13 @@ import ordersData from '@/data/mock/orders';
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
+import * as pagination from 'primevue/paginator';
+import filterStore from  '@/stores/filterStore'
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
+    pageNumber: 0,
+    pageSize: 0,
     orders: [] as any[],
     filters: {} as any,
     selectedOrder: ordersData[0],
@@ -13,10 +17,11 @@ export const useOrdersStore = defineStore('ordersStore', {
       imageCarrierCodeTypes: [] as any[]
     },
     checkout: {
-      expectedDate: DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
+      expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
       shippingAddrress: null
-    }
+    },
+    totalRecords: 0
   }),
   getters: {
     filteredOrders() {
@@ -27,8 +32,23 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-      async getOrders() {
-          this.orders = await ReorderService.getRecentReorders()
+      async getOrders(
+        pageState: pagination.PageState = {
+          first: 0,
+          page: 0,
+          rows: 10
+        }) {
+          
+          console.log("WithoutFilterCall:");
+
+        const { reorderedData, totalRecords }  = await ReorderService.getRecentReorders(undefined,
+          undefined,
+          undefined,
+          pageState.page + 1,
+          pageState.rows);
+         
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
           for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNail) {
                 this.orders[i].thumbNail =  new URL('@/assets/images/no_thumbnail.png', import.meta.url);
@@ -39,7 +59,8 @@ export const useOrdersStore = defineStore('ordersStore', {
             this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }
         console.log(this.orders)
-      //this.orders = ordersData;
+      this.pageNumber =  pageState.page + 1;
+      this.pageSize =  pageState.rows;
       this.selectedOrder = this.orders[0]
     },
       async getOrderById(id: string) {
@@ -52,8 +73,17 @@ export const useOrdersStore = defineStore('ordersStore', {
       }
     },
       async setFilters(filters: any) {
+   
         this.filters = { ...this.filters, ...filters }
-        this.orders = await ReorderService.getRecentReorders(filters.query, filters)
+        //this.filters['brandName'] = filterStore.state.brandNameFilter;
+        console.log("ColumnFilter:"+  filterStore.state.brandNameFilter);
+        const { reorderedData, totalRecords } = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
+          filters.sortOrder,
+          this.pageNumber,
+          this.pageSize, filters, filterStore);
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
+        console.log("ColumnFilteredOrders:"+  this.orders.length);
         for (let i = 0; i < this.orders.length; i++) {
           if (!this.orders[i].thumbNail) {
               this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
@@ -73,6 +103,12 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.filters['sgsReferenceNumberList'] = null
       this.filters['imageCarrierId'] = null
       this.filters['imageCarrierCode'] = null
+      this.filters['imageCarrierCode'] = null
+      filterStore.state.brandNameFilter =null
+      filterStore.state.descriptionFilter =null
+      filterStore.state.packTypeFilter =null
+      filterStore.state.orderStatusFilter =null
+      filterStore.state.sortFields =null
     },
     initAdvancedFilters() {
       this.options.locations = [

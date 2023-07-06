@@ -14,5 +14,10 @@ export default [
     path: "/login",
     name: "login",
     component: () => import('@/pages/auth/Login.vue'),
+  },
+  {
+    path: "/error",
+    name: "loginerror",
+    component: () => import('@/pages/auth/LoginError.vue'),
   }
 ];
