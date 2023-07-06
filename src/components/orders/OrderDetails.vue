@@ -1,35 +1,29 @@
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount } from "vue";
+    import { ref, computed, reactive, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table'
 import router from '@/router'
 
-import { useColorsStore } from '@/stores/colors'
-
-const colorsStore = useColorsStore()
 
 const preview = ref()
 
-const colors = computed(() => colorsStore.colors)
+const ordersStore = useOrdersStore()
 
 const props = defineProps({
   selectedId: {
     type: String,
     default: () => "",
   },
- })
-
-onBeforeMount(() => {
-  console.log('order id' + props.selectedId)
-  ordersStore.getOrders()
-  colorsStore.getColors()
-  ordersStore.getOrderById(props.selectedId)
 })
+    const selectedOrder = computed(()=>ordersStore.selectedOrder)
 
+    const colors = computed(()=>ordersStore.selectedOrder.colors)
 
-const ordersStore = useOrdersStore()
-const selectedOrder = computed(() => ordersStore.selectedOrder)
+    onMounted(async() => {
+        await ordersStore.getOrderById(props.selectedId)
+    })
+
 
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
@@ -48,7 +42,7 @@ function viewPreview() {
       template(#header)
         header
           h1.title
-            span {{ selectedOrder.brandName }} / {{ selectedOrder.name }}
+            span {{ selectedOrder.brandName }} / {{ selectedOrder.description }}
           a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       .card.context
@@ -58,10 +52,10 @@ function viewPreview() {
             span.separator |
             span {{ selectedOrder.packType }}
             span.separator |
-            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocation }}
+            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocationName }}
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image.image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          prime-image.image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
           sgs-button.sm(label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors")

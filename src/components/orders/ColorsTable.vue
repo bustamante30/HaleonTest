@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue'
+    import { ref, onBeforeMount, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -28,7 +28,9 @@ const selected = ref()
 onBeforeMount(() => {
   if (props.isEditable) selected.value = [...props.data]
 })
-
+    onMounted(() => {
+        console.log(props.data)
+    })
 function stylify(width) {
   return width
     ? { width: `${width}rem`, flex: 'none' }

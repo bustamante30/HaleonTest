@@ -1,3 +1,4 @@
+import { ColourDto } from "./ColourDto";
 
 export type ReorderDto = {
     id?: number;
@@ -18,5 +19,8 @@ export type ReorderDto = {
     statusId?: number;
     orderStatus?: string | null;
     thumbNail?: string | null;
+    colors?: Array<ColourDto> | null;
 };
 
+
+export { ColourDto };
