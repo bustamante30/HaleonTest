@@ -22,7 +22,6 @@ const props = defineProps({
 
     onMounted(async() => {
         await ordersStore.getOrderById(props.selectedId)
-       //debugger
     })
 
 
