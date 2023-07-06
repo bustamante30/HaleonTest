@@ -65,6 +65,14 @@ class ReorderService {
        });
     }
 
+    public static getOrderDetails(sgsId: string) {
+        return httpService.get<any>('v1/Reorder/info?jobnumber=' + sgsId).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting reorders: ", error);
+            return null;
+        });
+    }
 }
 
 export default ReorderService;
