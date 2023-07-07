@@ -1,4 +1,4 @@
-import { ColourDto } from "./ColourDto";
+import { type ColourDto } from "./ColourDto";
 
 export type ReorderDto = {
     id?: number;
@@ -23,4 +23,4 @@ export type ReorderDto = {
 };
 
 
-export { ColourDto };
+export type { ColourDto };

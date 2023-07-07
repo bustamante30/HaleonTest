@@ -28,6 +28,11 @@ function resolvePath(config, data) {
   })
   return path
 }
+
+function update(value) {
+  const { data, config } = props
+  emit('update', { id: data.id, field: config.field, value: value })
+}
 </script>
 
 <template lang="pug">
@@ -42,7 +47,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
-    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :modelValue="get(data, config.field)" @click="($event) => emit('change', { field: config.field, event: $event })" @click.stop="() => {}" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :modelValue="get(data, config.field)" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else) {{ get(data, config.field) }}
 
 </template>

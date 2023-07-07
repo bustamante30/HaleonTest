@@ -1,30 +1,24 @@
 <script setup>
 import Image from 'primevue/image'
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useOrdersStore } from '@/stores/orders'
 import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
 import config from '@/data/config/color-table-order'
 import OrderConfirmForm from './OrderConfirmForm.vue'
 
-import { useColorsStore } from '@/stores/colors'
-
-const colorsStore = useColorsStore()
-const colors = computed(() => colorsStore.colors)
+const ordersStore = useOrdersStore()
 
 const props = defineProps({
   selectedId: { type: String, default: () => '', },
  })
 
-onBeforeMount(() => {
-  ordersStore.getOrders()
-  colorsStore.getColors()
-  ordersStore.getOrderById(props.selectedId)
+ onMounted(async() => {
+  await ordersStore.getOrderById(props.selectedId)
 })
 
-const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder)
-const checkout = computed(() => ordersStore.checkout)
+const colors = computed(() => ordersStore.selectedOrder.colors)
 
 let isFormVisible = ref(false)
 
@@ -51,14 +45,14 @@ function updateCheckout() {
             span.material-icons.outline close
     .card.context
       .thumbnail
-        prime-image.image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+        prime-image.image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
       .details
         .f
           label Client
           span {{ selectedOrder.brandName }}
         .f
           label Description
-          span {{ selectedOrder.name }}
+          span {{ selectedOrder.description }}
         .f
           label Item Code
           span {{ selectedOrder.itemCode }}
@@ -69,7 +63,7 @@ function updateCheckout() {
           label Printer
           span {{ selectedOrder.printerName }}
           span.separator /
-          span {{ selectedOrder.printerLocation }}
+          span {{ selectedOrder.printerLocationName }}
         .f
           label Shipping Adress
           span --
