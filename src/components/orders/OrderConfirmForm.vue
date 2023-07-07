@@ -47,24 +47,23 @@ const errorMessages = {
 
 function validatePurchaseOrder(): string {
   emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
-  const po = checkoutForm.value.purchaseOrder;
-  console.log("po", po);
-  console.log("usrttype",userType.value)
+  const purchaseorder = checkoutForm.value.purchaseOrder;
+
   
-  if (po === null) {
+  if (purchaseorder === null) {
     return "";
   }
 
-  if (po.length < 3) {
+  if (purchaseorder.length < 3) {
     return errorMessages.minLength;
   }
   
-  if (po.length > 30) {
+  if (purchaseorder.length > 30) {
     return errorMessages.maxLength;
   }
   
-  for (let i = 0; i < po.length; i++) {
-    if (!validSpecialCharacters.includes(po[i]) && !/^[a-zA-Z0-9]$/.test(po[i])) {
+  for (let i = 0; i < purchaseorder.length; i++) {
+    if (!validSpecialCharacters.includes(purchaseorder[i]) && !/^[a-zA-Z0-9]$/.test(purchaseorder[i])) {
       return errorMessages.invalidCharacters;
     }
   }
