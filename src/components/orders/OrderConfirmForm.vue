@@ -26,12 +26,16 @@ watch(props.checkout, () => {
 })
 
 function updateCheckout() {
-  emit('change', checkoutForm.value)
+  // console.log("date",checkoutForm.value.expectedDate)
+  // console.log("time",checkoutForm.value.expectedTime)
+  // console.log("purchase",checkoutForm.value.purchaseOrder)
+ // emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
 }
 
 function minSelectableDate() {
   return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
 }
+const userType = ref(localStorage.getItem('userType'));
 
 const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
 
@@ -42,8 +46,10 @@ const errorMessages = {
 };
 
 function validatePurchaseOrder(): string {
+  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
   const po = checkoutForm.value.purchaseOrder;
   console.log("po", po);
+  console.log("usrttype",userType.value)
   
   if (po === null) {
     return "";
@@ -68,12 +74,16 @@ function validatePurchaseOrder(): string {
 </script>
 
 <template lang="pug">
-.order-conformation-form(v-if="checkoutForm")
+.order-conformation-form(v-if="checkoutForm" @change="updateCheckout()")
   .details
     .f
       label Expected Date *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
+        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true" @input="updateCheckout")
+    .f
+      label Expected time *
+      span.input.calendar
+        prime-calendar(v-model="checkoutForm.expectedTime" timeOnly appendTo="body" hourFormat="24" @input="updateCheckout")
     .f
       label Purchase Order #
       span.input
@@ -81,10 +91,9 @@ function validatePurchaseOrder(): string {
         span.warning-message(v-if="validatePurchaseOrder()") {{ validatePurchaseOrder() }}
   .notes
     .f
-      label Notes
+      label(v-if="userType.value === 'External'") Notes
       span.input.notes
-        //- TODO Prepopulate
-        prime-textarea(v-model="checkoutForm.notes")
+          prime-textarea(v-model="checkoutForm.notes")
 
 </template>
 
@@ -129,4 +138,5 @@ function validatePurchaseOrder(): string {
       span.warning-message
         color: rgba(255, 0, 0, 0.7)
         font-weight: bold
+  
 </style>

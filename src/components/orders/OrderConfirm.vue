@@ -12,6 +12,7 @@ import { useColorsStore } from '@/stores/colors'
 const colorsStore = useColorsStore()
 const colors = computed(() => colorsStore.colors)
 
+
 const props = defineProps({
   selectedId: { type: String, default: () => '', },
  })
@@ -32,12 +33,37 @@ function confirm() {
   isFormVisible.value = true
 }
 
+const errorMessage = ref('');
+
 function placeOrder() {
-  router.push(`/dashboard/${props.selectedId}/success`)
+  var dateError;
+  var timeError;
+  if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
+    dateError = true;
+  } else {
+    dateError = false;
+  }
+
+  if (checkout.value.expectedTime === '' || checkout.value.expectedTime === null) {
+    timeError = true;
+  } else {
+    timeError = false;
+  }
+
+  if (!timeError && !dateError) {
+    checkout.value.expectedDate =  null
+    checkout.value.expectedTime = null
+    checkout.value.purchaseOrder = null
+    router.push(`/dashboard/${props.selectedId}/success`);
+  }
+  else{
+    errorMessage.value = "Date and time are mandatory fields";
+  
+  }
 }
 
-function updateCheckout() {
-  ordersStore.updateCheckout()
+function updateCheckout(values) {
+  ordersStore.updateCheckout(values)
 }
 </script>
 
@@ -85,13 +111,16 @@ function updateCheckout() {
           sgs-button(label="Confirm" @click="confirm()")
 
   prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
-    order-confirm-form(:checkout="checkout" @change="updateCheckout()")
+    order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
+    span.error-message(v-if="checkout.date === '' || checkout.time === '' || errorMessage !== ''") 
+        span(v-if="errorMessage !== ''") {{ errorMessage }}
     template(#footer)
       footer
         .secondary-actions &nbsp;
         .actions
           sgs-button.default.sm(label="Cancel" @click="isFormVisible = false")
-          sgs-button.alert.sm(label="Confirm" @click="placeOrder()")
+          sgs-button.alert.sm(label="Confirm" @click="placeOrder($event)")
+          
 
 </template>
 
@@ -144,4 +173,11 @@ function updateCheckout() {
       font-weight: 500
       width: 10rem
       display: inline-block
+
+.error-message
+  padding-left: 30px
+  color: red
+  font-weight: bolder
+  font-size: 14px
+
 </style>

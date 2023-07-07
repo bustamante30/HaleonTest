@@ -19,6 +19,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     checkout: {
       expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
+      expectedTime: null,
       shippingAddrress: null
     },
     totalRecords: 0
