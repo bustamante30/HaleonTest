@@ -26,10 +26,6 @@ watch(props.checkout, () => {
 })
 
 function updateCheckout() {
-  // console.log("date",checkoutForm.value.expectedDate)
-  // console.log("time",checkoutForm.value.expectedTime)
-  // console.log("purchase",checkoutForm.value.purchaseOrder)
- // emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
 }
 
 function minSelectableDate() {
