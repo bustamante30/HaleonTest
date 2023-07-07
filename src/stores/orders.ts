@@ -76,7 +76,10 @@ export const useOrdersStore = defineStore('ordersStore', {
 
         let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
         this.selectedOrder.colors = Array.from(details.colors)
-        this.selectedOrder.colors.map(x=>x['sets'] = 0)
+        this.selectedOrder.colors.map(x => {
+          (x as any)['sets'] = 0;
+        });
+        
         return this.selectedOrder
       }
     },
@@ -144,7 +147,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     updateColor({ id, field, value }: any): void {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex((color: any) => color.id == id);
-      this.selectedOrder.colors[colorIndex][field] = value;
+      (this.selectedOrder.colors[colorIndex] as any)[field] = value;
       console.log(id, field, value, colorIndex);
     },
   },

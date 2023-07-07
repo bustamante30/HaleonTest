@@ -46,8 +46,8 @@ function search(filters: any) {
   ordersStore.setFilters(filters);
 }
 
-const onPageChange = async (pageState: pagination.pageState) => {
-   ordersStore.getOrders(props.all === 'true', pageState);
+const onPageChange = async (pageState: pagination.PageState) => {
+   ordersStore.getOrders(pageState);
 }
 
 </script>

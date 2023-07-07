@@ -16,6 +16,7 @@ import Button from 'primevue/button'
 import filterStore from  '@/stores/filterStore'
 import { useOrdersStore } from '@/stores/orders'
 import { orderStatusLabels } from '@/data/config/keylabelpairconfig'
+import type { AnyNaptrRecord } from 'dns'
 
 
 const props = defineProps({
@@ -56,11 +57,11 @@ const showEndDateCalendar = ref(false);
 
 const selectedStatusFilter = ref(null);	
 const filters = ref({
-  brandName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    description: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    orderDate: { value: null, matchMode: FilterMatchMode.BETWEEN },
-    packType: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status: { value: null, matchMode: FilterMatchMode.IN },
+  brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
+    description: { value: "", matchMode: FilterMatchMode.CONTAINS },
+    orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
+    packType: { value: "", matchMode: FilterMatchMode.CONTAINS },
+    status: { value: "", matchMode: FilterMatchMode.IN },
 });
 
 
@@ -119,14 +120,12 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: st
     }
   }
   else if (mutationMap.hasOwnProperty(fieldName)) {
-  filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode };
+  filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
   console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
   }
   orderStore.setFilters(filters);
-
-  // orderStore.getOrders();
 }
 
 const clearFilter = async (fieldName:string,filterModel:any) => {	

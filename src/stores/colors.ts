@@ -1,7 +1,7 @@
-// import colorsData from "@/data/mock/colors";
 import type { ColourDto } from "@/models/ColourDto";
 import { defineStore } from "pinia";
 import { useOrdersStore } from "./orders";
+import { computed } from "vue";
 
 export const useColorsStore = defineStore("colorsStore", {
   state: () => ({
@@ -10,7 +10,8 @@ export const useColorsStore = defineStore("colorsStore", {
   actions: {
     async getColors() {
       const ordersStore = useOrdersStore()
-      this.colors = colorsData;
+      const colorsData = computed(() => ordersStore.selectedOrder.colors)
+      this.colors = colorsData.value;
     }
   },
 });
