@@ -33,31 +33,41 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-    async getOrders(
-      pageState: pagination.PageState = {
-        first: 0,
-        page: 0,
-        rows: 10
-      }) {
-      const { reorderedData, totalRecords } = await ReorderService.getRecentReorders(undefined,
-        undefined,
-        undefined,
-        pageState.page + 1,
-        pageState.rows);
+      async getOrders(
+        pageState: pagination.PageState = {
+          first: 0,
+          page: 0,
+          rows: 10
+        }) {
+          
+          console.log("WithoutFilterCall:");
 
-      this.orders = reorderedData;
-      this.totalRecords = totalRecords;
-      for (let i = 0; i < this.orders.length; i++) {
-        if (!this.orders[i].thumbNail) {
-          this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+          const result  = await ReorderService.getRecentReorders(undefined,
+          undefined,
+          undefined,
+          pageState.page + 1,
+          pageState.rows);
+         
+          if (Array.isArray(result)) {
+            this.orders = [];
+            this.totalRecords = 0;
+          } else {
+            const { reorderedData, totalRecords } = result;
+            this.orders = reorderedData;
+            this.totalRecords = totalRecords;
+          }
+          for (let i = 0; i < this.orders.length; i++) {
+            if (!this.orders[i].thumbNail) {
+                this.orders[i].thumbNail =  new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+            }
+            else if (this.orders[i].thumbNail){
+              this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
+            }
+            this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }
-        else if (this.orders[i].thumbNail) {
-          this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
-        }
-        this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
-      }
-      this.pageNumber = pageState.page + 1;
-      this.pageSize = pageState.rows;
+        console.log(this.orders)
+      this.pageNumber =  pageState.page + 1;
+      this.pageSize =  pageState.rows;
       this.selectedOrder = this.orders[0]
     },
     async getOrderById(id: string) {
@@ -70,21 +80,30 @@ export const useOrdersStore = defineStore('ordersStore', {
         return this.selectedOrder
       }
     },
-    async setFilters(filters: any) {
-      this.filters = { ...this.filters, ...filters }
-      console.log("ColumnFilter:" + filterStore.state.brandNameFilter);
-      const { reorderedData, totalRecords } = await ReorderService.getRecentReorders(filters.query, filters.sortBy,
-        filters.sortOrder,
-        this.pageNumber,
-        this.pageSize, filters, filterStore);
-      this.orders = reorderedData;
-      this.totalRecords = totalRecords;
-      console.log("ColumnFilteredOrders:" + this.orders.length);
-      for (let i = 0; i < this.orders.length; i++) {
-        if (!this.orders[i].thumbNail) {
-          this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
-        }
-        this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
+      async setFilters(filters: any) {
+   
+        this.filters = { ...this.filters, ...filters }
+        //this.filters['brandName'] = filterStore.state.brandNameFilter;
+        console.log("ColumnFilter:"+  filterStore.state.brandNameFilter);
+        const result = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
+          filters.sortOrder,
+          this.pageNumber,
+          this.pageSize, filters, filterStore);
+
+          if (Array.isArray(result)) {
+            this.orders = [];
+            this.totalRecords = 0;
+          } else {
+            const { reorderedData, totalRecords } = result;
+            this.orders = reorderedData;
+            this.totalRecords = totalRecords;
+          }
+
+        for (let i = 0; i < this.orders.length; i++) {
+          if (!this.orders[i].thumbNail) {
+              this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+          }
+          this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
       }
       this.selectedOrder = this.orders[0]
     },

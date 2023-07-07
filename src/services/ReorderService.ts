@@ -1,8 +1,13 @@
-import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
+import type { ReorderDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = 'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
+
+interface SearchPagedResultDto {
+    data: ReorderDto[];
+    totalRecords: number;
+  }  
 
 class ReorderService {
 
