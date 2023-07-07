@@ -41,14 +41,20 @@ export const useOrdersStore = defineStore('ordersStore', {
           
           console.log("WithoutFilterCall:");
 
-        const { reorderedData, totalRecords }  = await ReorderService.getRecentReorders(undefined,
+          const result  = await ReorderService.getRecentReorders(undefined,
           undefined,
           undefined,
           pageState.page + 1,
           pageState.rows);
          
-        this.orders = reorderedData;
-        this.totalRecords = totalRecords;
+          if (Array.isArray(result)) {
+            this.orders = [];
+            this.totalRecords = 0;
+          } else {
+            const { reorderedData, totalRecords } = result;
+            this.orders = reorderedData;
+            this.totalRecords = totalRecords;
+          }
           for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNail) {
                 this.orders[i].thumbNail =  new URL('@/assets/images/no_thumbnail.png', import.meta.url);
@@ -77,13 +83,20 @@ export const useOrdersStore = defineStore('ordersStore', {
         this.filters = { ...this.filters, ...filters }
         //this.filters['brandName'] = filterStore.state.brandNameFilter;
         console.log("ColumnFilter:"+  filterStore.state.brandNameFilter);
-        const { reorderedData, totalRecords } = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
+        const result = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
           filters.sortOrder,
           this.pageNumber,
           this.pageSize, filters, filterStore);
-        this.orders = reorderedData;
-        this.totalRecords = totalRecords;
-        console.log("ColumnFilteredOrders:"+  this.orders.length);
+
+          if (Array.isArray(result)) {
+            this.orders = [];
+            this.totalRecords = 0;
+          } else {
+            const { reorderedData, totalRecords } = result;
+            this.orders = reorderedData;
+            this.totalRecords = totalRecords;
+          }
+
         for (let i = 0; i < this.orders.length; i++) {
           if (!this.orders[i].thumbNail) {
               this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
