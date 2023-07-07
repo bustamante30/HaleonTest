@@ -1,3 +1,4 @@
+import { ColourDto } from "./ColourDto";
 
 export type SearchPagedResultDto= {
     pageNumber?: number;
@@ -26,5 +27,8 @@ export type ReorderDto = {
     statusId?: number;
     orderStatus?: string | null;
     thumbNail?: string | null;
+    colors?: Array<ColourDto> | null;
 };
 
+
+export { ColourDto };

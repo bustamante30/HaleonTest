@@ -17,7 +17,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       imageCarrierCodeTypes: [] as any[]
     },
     checkout: {
-      expectedDate: DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
+      expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
       shippingAddrress: null
     },
@@ -63,8 +63,14 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.pageSize =  pageState.rows;
       this.selectedOrder = this.orders[0]
     },
-    async getOrderById(id: string) {
-      this.selectedOrder = this.orders.find((order: any) => order.id === id) || ordersData[0] as any
+      async getOrderById(id: string) {
+        if (id!=null && id !=undefined) {
+            this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
+
+            let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
+            this.selectedOrder.colors = Array.from(details.colors)
+        return this.selectedOrder
+      }
     },
       async setFilters(filters: any) {
    

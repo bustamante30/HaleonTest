@@ -1,21 +1,28 @@
 export default {
-  cols: [
+    cols: [
     {
-      header: 'Colours',
-      field: 'colour',
+        header: 'Client Colour Ref',
+        field: 'clientPlateColourRef',
+        freeze: 'left',
+        width: 12
+    },
+    {
+      header: 'SGS Colour',
+      field: 'colourName',
       freeze: 'left',
       width: 12
     },
     {
       header: 'Image Carrier ID #',
-      field: 'imageId',
+      field: 'imageCarrierId',
       freeze: 'left',
     },
-    // {
-    //   header: 'Number of Sets (Qty)',
-    //   field: 'sets',
-    //   type: 'number',
-    //   width: 18
-    // },
+     {
+       header: 'Number of Sets (Qty)',
+       field: 'sets',
+       type: 'number',
+       freeze: 'center',
+       width: 8
+     },
   ]
 }

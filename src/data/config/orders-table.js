@@ -16,7 +16,7 @@ export default {
         field: 'description',
         type: 'link',
         path: '/dashboard/$1',
-        pathParams: ['id'],
+        pathParams: ['sgsId'],
         freeze: 'left',
         width: 18
       },

@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker'
-
 const brands = [
   { id: faker.datatype.uuid(), code: 'coca-cola', name: 'Coca-cola', logo: '/brands/coca-cola.png' },
   { id: faker.datatype.uuid(), code: 'nike', name: 'Nike', logo: '/brands/nike.png' },
@@ -12,7 +11,10 @@ const brands = [
 function generateOrder(i) {
   const refIdSuffix = faker.datatype.boolean()
     ? faker.helpers.arrayElement(['-1', '-2'])
-    : ''
+        : ''
+    const colour =
+    { clientPlateColourRef: 'CMYK100', colourName: 'Black', imageCarrierId: "992-1" }
+    const colours = Array.from([colour])
   return {
     id: faker.datatype.uuid(),
     preview: faker.datatype.boolean(),
@@ -27,6 +29,7 @@ function generateOrder(i) {
     printerLocation: faker.helpers.arrayElement(['Lancaster', 'Concord NH', 'Neenah, WI']),
     packType: faker.helpers.arrayElement(['Shink Sleeve', 'Carton', 'Front Label']),
     mySGSNumber: 'NA',
+    colors: colours
   }
 }
 

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { DateTime } from 'luxon';
 import { onBeforeMount, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -27,6 +28,10 @@ watch(props.checkout, () => {
 function updateCheckout() {
   emit('change', checkoutForm.value)
 }
+
+function minSelectableDate() {
+  return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
+}
 </script>
 
 <template lang="pug">
@@ -35,8 +40,7 @@ function updateCheckout() {
     .f
       label Expected Date
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" appendTo="body" showTime hourFormat="24")
-        span.material-icons calendar_month
+        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12")
     .f
       label Purchase Order #
       span.input
