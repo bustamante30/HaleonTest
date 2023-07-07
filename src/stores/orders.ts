@@ -122,7 +122,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.checkout = { ...checkout }
     },
     // Reorder flow
-    updateColor({ id, field, value }: ): void {
+    updateColor({ id, field, value }: any): void {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex((color: any) => color.id == id);
       this.selectedOrder.colors[colorIndex][field] = value;
