@@ -36,7 +36,7 @@ function viewPreview() {
 
 <template lang="pug">
 .page.details
-  sgs-mask(@click="router.push('/')")
+  sgs-mask(@click="router.push('/dashboard')")
   .container(v-if="selectedOrder")
     sgs-scrollpanel
       template(#header)
@@ -103,6 +103,7 @@ function viewPreview() {
   .container
     +fixed-e
     width: 80vw
+    min-width: 50rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container

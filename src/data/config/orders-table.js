@@ -63,10 +63,9 @@ export default {
   ],
   actions: (order) => {
     return [
-      // { icon: 'gps_fixed', label: 'Track Order', event: 'track' },
+      { icon: 'add', label: 'Add to Cart', event: 'add' },
       { icon: 'redo', label: 'Order Again', event: 'reorder' },
       { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
-      // { icon: 'edit', label: 'Update Order', event: 'edit' }
     ]
   }
 }
