@@ -1,9 +1,7 @@
 import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
-
-//import.meta.env.VITE_API_BASE_URL ??
+const baseUrl = 'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReorderService {
@@ -49,7 +47,6 @@ class ReorderService {
                 advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
             }
         }
-       // return httpService.post<ReorderDto[]>("v1/Reorder/search", params)
        return httpService
        .post<SearchPagedResultDto>('v1/Reorder/search', params)
        .then((response: SearchPagedResultDto) => {
