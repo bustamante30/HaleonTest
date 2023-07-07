@@ -33,7 +33,7 @@ const props = defineProps({
   }
 })
 
-function stylify(width) {
+function stylify(width: any) {
   return width
     ? { width: `${width}rem`, flex: 'none' }
     : { width: 'auto', flex: '1' }
@@ -92,22 +92,22 @@ const globalClearFilter = async () => {
   const response = await orderStore.getOrders();
 };
 
-function filterValue(fieldName: string, matchMode: FilterMatchMode): string | null {
-  const value = filters.value[fieldName]?.value;
+function filterValue(fieldName: string, matchMode: string): string | null {
+  const value = (filters.value as any)[fieldName]?.value;
   if (value !== null && value !== undefined && value !== '') {
     return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
   }
   return null;
 }
 
-function getFormattedValue(value: string | null, matchMode: FilterMatchMode): string | null {
+function getFormattedValue(value: string | null, matchMode: string): string | null {
   if (value !== null && value !== undefined && value !== '') {
     return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
   }
   return null;
 }
 
-async function customFilter(field: string, filterModel: any, filterMatchMode: FilterMatchMode) {
+async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
   const fieldName = field as keyof typeof filters.value;
   if (fieldName === 'status') {
     let statusFilter = filterModel.value

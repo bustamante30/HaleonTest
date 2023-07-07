@@ -29,7 +29,7 @@ const filters = computed(() => ordersStore.filters);
 const userFilterConfig = computed(() => filterConfig("user"));
 const filterTokens = computed(() => {
   return keys(filters.value).map((key) => {
-    let config = null;
+    let config: { name: string; label: string; short: string; type?: undefined; } | { name: string; label: string; short: string; type: string; } | { name: string; label: string; short?: undefined; type?: undefined; } | null | undefined = null;
     userFilterConfig.value.sections.forEach((section) => {
       config = config || section.filters.find((filter) => filter.name === key);
     });
@@ -42,7 +42,7 @@ onBeforeMount(() => {
   ordersStore.getOrders();
 });
 
-function search(filters) {
+function search(filters: any) {
   ordersStore.setFilters(filters);
 }
 

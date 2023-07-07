@@ -1,15 +1,11 @@
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
 
-import { useColorsStore } from '@/stores/colors'
-
-const colorsStore = useColorsStore()
-
-const colors = computed(() => colorsStore.colors)
+const ordersStore = useOrdersStore()
 
 const props = defineProps({
   selectedId: {
@@ -21,15 +17,12 @@ const props = defineProps({
 const isCartMessageVisible = ref(false)
 const cartCount = ref(0)
 
-onBeforeMount(() => {
-  ordersStore.getOrders()
-  colorsStore.getColors()
-  ordersStore.getOrderById(props.selectedId)
+const selectedOrder = computed(() => ordersStore.selectedOrder)
+const colors = computed(() => ordersStore.selectedOrder.colors)
+
+onMounted(async() => {
+  await ordersStore.getOrderById(props.selectedId)
 })
-
-
-const ordersStore = useOrdersStore();
-const selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
@@ -38,6 +31,10 @@ function buy() {
 function addToCart() {
   isCartMessageVisible.value = true
   cartCount.value = 1
+}
+
+function updateColor(color) {
+  ordersStore.updateColor(color)
 }
 </script>
 
@@ -50,20 +47,12 @@ function addToCart() {
         header
           h1.title
             span Re-Order:&nbsp;
-            span {{ selectedOrder.name }}
+            span {{ selectedOrder.brandName }}
           a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
-      //- .card.context
-        .details
-          h4
-            span Item Code: {{ selectedOrder.itemCode }}
-            span.separator |
-            span {{ selectedOrder.packType }}
-            span.separator |
-            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocation }}
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image(:src="selectedOrder.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          prime-image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
         .card.details
           .f
             label Item Code
@@ -73,7 +62,7 @@ function addToCart() {
             span {{ selectedOrder.brandName }}
           .f
             label Description
-            span {{ selectedOrder.name }}
+            span {{ selectedOrder.description }}
           .f
             label Pack Type
             span {{ selectedOrder.packType }}
@@ -84,9 +73,9 @@ function addToCart() {
             label Printer
             span {{ selectedOrder.printerName }}
             span.separator /
-            span {{ selectedOrder.printerLocation }}
+            span {{ selectedOrder.printerLocationName }}
       .card
-        colors-table(:config="config" :data="colors" isEditable="true")
+        colors-table(:config="config" :data="colors" :isEditable="true" @update="updateColor")
       template(#footer)
         footer
           .secondary-actions &nbsp;
@@ -141,6 +130,7 @@ function addToCart() {
   .container
     +fixed-e
     width: 60vw
+    min-width: 50rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container

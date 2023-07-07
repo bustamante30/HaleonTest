@@ -1,4 +1,4 @@
-import { ColourDto } from "./ColourDto";
+import { type ColourDto } from "./ColourDto";
 
 export type SearchPagedResultDto= {
     pageNumber?: number;
@@ -31,4 +31,4 @@ export type ReorderDto = {
 };
 
 
-export { ColourDto };
+export type { ColourDto };
