@@ -1,10 +1,15 @@
-import type { ReorderDto, SearchPagedResultDto } from '../models/ReorderDto';
+import type { ReorderDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
 //import.meta.env.VITE_API_BASE_URL ??
 const httpService = new ApiService(baseUrl)
+
+interface SearchPagedResultDto {
+    data: ReorderDto[];
+    totalRecords: number;
+  }  
 
 class ReorderService {
 
