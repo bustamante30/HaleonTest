@@ -404,7 +404,13 @@ data-table.p-datatable-sm.orders-table(
           @click="customFilter('status', filterModel)"
           severity="success"
         )
-
+        //- Action column
+    Column(
+      field="actions"
+      width="6rem"
+    )
+      template(#body="{ data }")
+        table-actions(:actions="config.actions(data)" :data="data")
 </template>
 
 <style lang="sass" scoped>
@@ -417,7 +423,7 @@ data-table.p-datatable-sm.orders-table(
     height: 30px
 
 .calendar-wrapper
-    position: relative
+    position: relatives
     z-index: 1
 .calendar-icon .p-calendar-button 
     width: 5px
