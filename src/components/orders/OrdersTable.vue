@@ -423,7 +423,7 @@ data-table.p-datatable-sm.orders-table(
     width: 5px
   
 .custom-button
-    width: 80px
+    width: 166px
     height: 30px
   
 .my-custom-calendar
