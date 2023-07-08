@@ -16,8 +16,8 @@ form.advanced-search(@submit.prevent="onSubmit")
               label(v-if="filter.label") {{ filter.label }}
               prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
               prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" @complete="searchPrinter" :disabled="user.isExternal == true" emptyMessage="No results found"  )
-              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" @complete="searchPrinterSites" emptyMessage="No results found" )
+              prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found"  )
+              prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" completeOnFocus=true appendTo="body" @complete="searchPrinterSites($event)" emptyMessage="No results found" )
               prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
         template(#footer)
           footer
@@ -28,7 +28,7 @@ form.advanced-search(@submit.prevent="onSubmit")
 </template>
   
   <script lang="ts" setup>
-  import { ref, onBeforeMount } from "vue";
+  import { type Ref, ref, onBeforeMount, reactive } from "vue";
   import "primevue/resources/themes/saga-blue/theme.css";
   import "primevue/resources/primevue.min.css";
   import "primeicons/primeicons.css";
@@ -42,7 +42,7 @@ form.advanced-search(@submit.prevent="onSubmit")
     filters: {
       type: Object,
       default: () => { },
-    },
+      }
   });
 
       const user = { isExternal: false }
@@ -63,8 +63,8 @@ form.advanced-search(@submit.prevent="onSubmit")
   const emit = defineEmits(["search"]);
   
   const advancedFilters = ref<AdvancedFilters>();
-  let printerResults: string[] | null | undefined;
-  let printerSiteResults: string[] | null | undefined;
+      const printerResults: Ref<string[]> = ref([])
+      const printerSiteResults: Ref<string[]> = ref([])
   const imageCarrierCodeTypes = ref([
     { label: "UPC Code", value: "UPC" },
     { label: "QR Code", value: "QR" },
@@ -107,8 +107,9 @@ form.advanced-search(@submit.prevent="onSubmit")
     advancedFilters.value.poNumber= null;
     advancedFilters.value.printerSite= null;
     advancedFilters.value.printerReference= null;
-    advancedFilters.value.startDate= null;
-    
+      advancedFilters.value.startDate = null;
+      emit("search")
+    closeForm()
   }
   
   // function search() {
@@ -119,13 +120,14 @@ form.advanced-search(@submit.prevent="onSubmit")
     emit("search", advancedSearchParameters);
 }
 
-  async function searchPrinter(value?: any) {
-      if (value.query && value.query.length > 1)
-          printerResults = await SuggesterService.getPrinterList(value.query)
+   async function searchPrinter(value?: any) {
+       if (value.query && value.query.length > 1) {
+           printerResults.value = await SuggesterService.getPrinterList(value.query)
+       }
   }
-    async function searchPrinterSites(value?: any) {console.log(value)
+   async   function searchPrinterSites(value?: any) {console.log(value)
         if (value.query && advancedFilters.value?.printerName)
-            printerSiteResults = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
+            printerSiteResults.value = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
       }
 
   function onSubmit() {

@@ -4,18 +4,19 @@ export default {
         header: 'Client Colour Ref',
         field: 'clientPlateColourRef',
         freeze: 'left',
-        width: 12
+        width: 8
     },
     {
       header: 'SGS Colour',
       field: 'colourName',
       freeze: 'left',
-      width: 12
+      width: 8
     },
     {
       header: 'Image Carrier ID #',
       field: 'imageCarrierId',
       freeze: 'left',
+      width: 10
     },
      {
        header: 'Number of Sets (Qty)',
