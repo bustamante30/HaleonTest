@@ -3,6 +3,8 @@ import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
+//import.meta.env.VITE_API_BASE_URL ??
+
 const httpService = new ApiService(baseUrl)
 
 interface SearchPagedResultDto {
@@ -46,12 +48,17 @@ class ReorderService {
                 
             }
         }
+
         if (advancedSearchParameters) {
             if (advancedSearchParameters.startDate != null) {
+               
                 advancedSearchParameters.endDate = advancedSearchParameters.startDate[1]
                 advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
             }
+            if (advancedSearchParameters.printerName)
+            {
             (params as any)["advancedSearchParameters"] = advancedSearchParameters
+            }
         }
        return httpService
        .post<SearchPagedResultDto>('v1/Reorder/search', params)
