@@ -63,7 +63,9 @@ function validatePurchaseOrder(): string {
   }
  return "";
 }
-
+function showNotes(): boolean {
+  return userType.value === 'External';
+}
 
 </script>
 
@@ -83,9 +85,9 @@ function validatePurchaseOrder(): string {
       span.input
         prime-inputtext(v-model="checkoutForm.purchaseOrder" :class="{'invalid': (checkoutForm.purchaseOrder)}")
         span.warning-message(v-if="validatePurchaseOrder()") {{ validatePurchaseOrder() }}
-  .notes
+  .notes(v-if="showNotes()")
     .f
-      label(v-if="userType.value === 'External'") Notes
+      label Notes
       span.input.notes
           prime-textarea(v-model="checkoutForm.notes")
 
