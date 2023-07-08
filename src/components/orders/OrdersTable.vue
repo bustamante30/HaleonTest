@@ -40,7 +40,6 @@ function stylify(width: any) {
     : { width: 'auto', flex: '1' }
 }
 
-// console.log("ColumnHeader:"+ config.cols);
 
 onMounted(async () => {	
   for (const [, value] of  orderStatusLabels) {	
@@ -121,7 +120,6 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: st
   }
   else if (mutationMap.hasOwnProperty(fieldName)) {
   filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
-  console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
   }

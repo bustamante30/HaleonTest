@@ -38,23 +38,27 @@ function stylify(width) {
 
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
-    console.log(`selected colors ${colors && colors.length}`, colors.length, prevColors.length)
     const prevColorIds = prevColors.map(c => c.mcgColourId)
     const colorIds = colors.map(c => c.mcgColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      const { id } = color
-      if (!prevColorIds.includes(color.mcgColourId)) {
-        updateColor({ id, field: 'sets', value: 1 })
-      }
+      const { id } = color.mcgColourId
+      if (!prevColorIds.includes(id)) {
+        updateColor({ id: color.mcgColourId, field: 'sets', value: 1 })
+      } 
     })
     // If color removed sets = 0
     prevColors.forEach((color) => {
-      const { id } = color
-      if (!colorIds.includes(color.mcgColourId)) {
-        updateColor({ id, field: 'sets', value: 0 })
+      const { id } = color.mcgColourId
+      if (!colorIds.includes(id)) {
+        updateColor({ id:color.mcgColourId, field: 'sets', value: 0 })
       }
     })
+  } else if(colors){
+    colors.forEach((color) => {
+        updateColor({ id:color.mcgColourId, field: 'sets', value: 1 })
+    })
+
   }
 })
 
@@ -65,7 +69,7 @@ function updateColor({ id, field, value }) {
 </script>
 
 <template lang="pug">
-data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="id")
+data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="mcgColourId")
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
     template(#body="{ data }")
