@@ -8,6 +8,7 @@ import config from '@/data/config/color-table-order'
 import OrderConfirmForm from './OrderConfirmForm.vue'
 
 const ordersStore = useOrdersStore()
+const checkout = computed(() => ordersStore.checkout)
 
 
 const props = defineProps({
@@ -106,7 +107,7 @@ function updateCheckout(values) {
 
   prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
     order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
-    span.error-message(v-if="checkout.date === '' || checkout.time === '' || errorMessage !== ''") 
+    span.error-message(v-if="errorMessage !== ''") 
         span(v-if="errorMessage !== ''") {{ errorMessage }}
     template(#footer)
       footer
