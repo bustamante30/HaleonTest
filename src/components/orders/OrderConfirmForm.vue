@@ -26,6 +26,7 @@ watch(props.checkout, () => {
 })
 
 function updateCheckout() {
+  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
 }
 
 function minSelectableDate() {
@@ -42,10 +43,7 @@ const errorMessages = {
 };
 
 function validatePurchaseOrder(): string {
-  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
-  const purchaseorder = checkoutForm.value.purchaseOrder;
-
-  
+  const purchaseorder = checkoutForm.value.purchaseOrder;  
   if (purchaseorder === null) {
     return "";
   }
@@ -66,6 +64,7 @@ function validatePurchaseOrder(): string {
  return "";
 }
 
+
 </script>
 
 <template lang="pug">
@@ -74,11 +73,11 @@ function validatePurchaseOrder(): string {
     .f
       label Expected Date *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true" @input="updateCheckout")
+        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
     .f
       label Expected time *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedTime" timeOnly appendTo="body" hourFormat="24" @input="updateCheckout")
+        prime-calendar(v-model="checkoutForm.expectedTime" timeOnly appendTo="body" hourFormat="24")
     .f
       label Purchase Order #
       span.input
