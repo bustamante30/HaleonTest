@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
 import * as pagination from 'primevue/paginator';
 import filterStore from '@/stores/filterStore'
+import router from '@/router'
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
@@ -139,6 +140,16 @@ export const useOrdersStore = defineStore('ordersStore', {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex((color: any) => color.mcgColourId == id);
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
+    },
+    // Order Table Actions
+    addToCart(order: any) {
+      console.log('addToCart', order)
+    },
+    reorder(order: any) {
+      router.push(`/dashboard/${order.sgsId}`)
+    },
+    cancelOrder(order: any) {
+      console.log('cancelOrder', order)
     },
   },
 });

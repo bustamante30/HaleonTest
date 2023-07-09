@@ -16,14 +16,15 @@ const props = defineProps({
 
 const menu = ref()
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select','action'])
 
 const items = computed(() => {
+
   return props.actions.map(action => {
     return {
       label: action.label,
       icon: action.icon,
-      command: () => { emit('action', { event: action.event, data }) }
+      command: () => { emit('action', { event: action.event, data: props.data }) }
     }
   })
 })

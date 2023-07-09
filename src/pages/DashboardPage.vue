@@ -55,6 +55,17 @@ const onPageChange = async (pageState: pagination.PageState) => {
    ordersStore.getOrders(pageState);
 }
 
+
+function addToCart(order: any) {
+  ordersStore.addToCart(order)
+}
+function reorder(order: any) {
+  ordersStore.reorder(order)
+}
+function cancelOrder(order: any) {
+  ordersStore.cancelOrder(order)
+}
+
 </script>
 
 <template lang="pug">
@@ -69,7 +80,7 @@ const onPageChange = async (pageState: pagination.PageState) => {
           header
             h1 Recent Orders
             orders-search(:config="userFilterConfig" :filters="filters" @search="search")
-        orders-table(:config="config" :data="orders" :filters="filterTokens")
+        orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
         paginator(:rows="useOrdersStore.pageSize ?? 10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view
 </template>
