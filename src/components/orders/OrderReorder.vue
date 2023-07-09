@@ -21,7 +21,6 @@ const selectedOrder = computed(() => ordersStore.selectedOrder)
 const colors = computed(() => ordersStore.selectedOrder.colors)
 
 onMounted(async() => {
-  await ordersStore.getOrderById(props.selectedId)
 })
 
 function buy() {

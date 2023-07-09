@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -27,7 +27,13 @@ const emit = defineEmits(['update'])
 
 const selected = ref()
 
-onBeforeMount(() => {
+onMounted(() => {
+  if(props.data.length > 0){
+    const setsHavingValue= props.data.filter(x=>x.sets > 0)
+    if(setsHavingValue.length > 0) {
+      selected.value = [...setsHavingValue]
+    }
+  }
 })
 
 function stylify(width) {
@@ -36,29 +42,36 @@ function stylify(width) {
     : { width: 'auto', flex: '1' }
 }
 
+function checkAllValuesZero(arr, property) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i][property] !== 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
     const prevColorIds = prevColors.map(c => c.mcgColourId)
     const colorIds = colors.map(c => c.mcgColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      const { id } = color.mcgColourId
-      if (!prevColorIds.includes(id)) {
+      if (!prevColorIds.includes(color.mcgColourId)) {
         updateColor({ id: color.mcgColourId, field: 'sets', value: 1 })
       } 
     })
     // If color removed sets = 0
     prevColors.forEach((color) => {
-      const { id } = color.mcgColourId
-      if (!colorIds.includes(id)) {
+      if (!colorIds.includes(color.mcgColourId)) {
         updateColor({ id:color.mcgColourId, field: 'sets', value: 0 })
       }
     })
-  } else if(colors){
+  } else if(checkAllValuesZero(colors,'sets')) {
     colors.forEach((color) => {
         updateColor({ id:color.mcgColourId, field: 'sets', value: 1 })
     })
-
   }
 })
 

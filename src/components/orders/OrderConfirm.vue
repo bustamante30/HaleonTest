@@ -13,8 +13,7 @@ const props = defineProps({
   selectedId: { type: String, default: () => '', },
  })
 
- onMounted(async() => {
-  await ordersStore.getOrderById(props.selectedId)
+onMounted(async() => {
 })
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
