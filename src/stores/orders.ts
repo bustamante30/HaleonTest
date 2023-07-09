@@ -19,6 +19,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     checkout: {
       expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
       purchaseOrder: null,
+      expectedTime: null,
       shippingAddrress: null
     },
     totalRecords: 0
@@ -52,15 +53,9 @@ export const useOrdersStore = defineStore('ordersStore', {
             this.orders = reorderedData;
             this.totalRecords = totalRecords;
           }
-          for (let i = 0; i < this.orders.length; i++) {
-            if (!this.orders[i].thumbNail) {
-                this.orders[i].thumbNail =  new URL('@/assets/images/no_thumbnail.png', import.meta.url);
-            }
-            else if (this.orders[i].thumbNail){
-              this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
-            }
-            this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
-        }
+          this.decorateOrders()
+          
+        console.log(this.orders)
       this.pageNumber =  pageState.page + 1;
       this.pageSize =  pageState.rows;
       this.selectedOrder = this.orders[0]
@@ -92,12 +87,7 @@ export const useOrdersStore = defineStore('ordersStore', {
             this.totalRecords = totalRecords;
           }
 
-        for (let i = 0; i < this.orders.length; i++) {
-          if (!this.orders[i].thumbNail) {
-              this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
-          }
-          this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
-      }
+          this.decorateOrders()
       this.selectedOrder = this.orders[0]
     },
     resetFilters() {
@@ -116,6 +106,17 @@ export const useOrdersStore = defineStore('ordersStore', {
       filterStore.state.packTypeFilter = null
       filterStore.state.orderStatusFilter = null
       filterStore.state.sortFields = null
+      },
+    decorateOrders() {
+        for (let i = 0; i < this.orders.length; i++) {
+            if (!this.orders[i].thumbNail) {
+                this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+            }
+            else if (this.orders[i].thumbNail) {
+                this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
+            }
+            this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
+        }  
     },
     initAdvancedFilters() {
       this.options.locations = [

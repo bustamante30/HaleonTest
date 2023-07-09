@@ -34,6 +34,7 @@ import Message from 'primevue/message'
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
 import Paginator from 'primevue/paginator';
+import Textarea from 'primevue/textarea'
 
 const app = createApp(App)
 
@@ -64,6 +65,7 @@ app.component('PrimeOverlayPanel', OverlayPanel)
 app.component('PrimeImage', Image)
 app.component('Message',Message)
 app.component('PrimePagination',Paginator)
+app.component('PrimeTextarea', Textarea)
 app.use(ToastService);
 app.component('Toast', Toast)
 app.mount('#app')

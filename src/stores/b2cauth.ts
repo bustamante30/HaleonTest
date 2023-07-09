@@ -147,6 +147,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.currentB2CUser.email = user.email as string;
       this.currentB2CUser.displayName = user.displayName as string;
       this.currentB2CUser.userType =user.userType as string;
+      localStorage.setItem("userType",this.currentB2CUser.userType);
     },
   },
 });

@@ -49,8 +49,13 @@ class ReorderService {
 
         if (advancedSearchParameters) {
             if (advancedSearchParameters.startDate != null) {
+               
                 advancedSearchParameters.endDate = advancedSearchParameters.startDate[1]
                 advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
+            }
+            if (advancedSearchParameters.printerName)
+            {
+            (params as any)["advancedSearchParameters"] = advancedSearchParameters
             }
         }
        return httpService

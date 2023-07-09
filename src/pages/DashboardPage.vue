@@ -42,8 +42,13 @@ onBeforeMount(() => {
   ordersStore.getOrders();
 });
 
-function search(filters: any) {
-  ordersStore.setFilters(filters);
+    function search(filters: any) {
+        if (filters)
+            ordersStore.setFilters(filters);
+        else { 
+        ordersStore.initAdvancedFilters();
+        ordersStore.getOrders();
+    }
 }
 
 const onPageChange = async (pageState: pagination.PageState) => {
