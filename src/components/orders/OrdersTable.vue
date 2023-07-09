@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch, reactive, onMounted, nextTick, getCurrentInstance } from 'vue'
+import {ref, watch, reactive, onMounted, nextTick, getCurrentInstance, computed } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -16,7 +16,6 @@ import Button from 'primevue/button'
 import filterStore from  '@/stores/filterStore'
 import { useOrdersStore } from '@/stores/orders'
 import { orderStatusLabels } from '@/data/config/keylabelpairconfig'
-import type { AnyNaptrRecord } from 'dns'
 
 
 const props = defineProps({
@@ -34,20 +33,29 @@ const props = defineProps({
   }
 })
 
+let selected = ref()
+
+const emit = defineEmits(['deleteFilter', 'add', 'reorder', 'cancel'])
+
+
 function stylify(width: any) {
   return width
     ? { width: `${width}rem`, flex: 'none' }
     : { width: 'auto', flex: '1' }
 }
 
-// console.log("ColumnHeader:"+ config.cols);
 
 onMounted(async () => {	
+  
   for (const [, value] of  orderStatusLabels) {	
     dropdownOptions.value.push(value.label);	
   }	
 });
 
+watch(selected, (value) => {
+  selected = value
+  console.log('select', selected)
+})
 
 const showTextbox = ref(false)
 const orderStore = useOrdersStore()
@@ -121,7 +129,6 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: st
   }
   else if (mutationMap.hasOwnProperty(fieldName)) {
   filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
-  console.log("customFilter:" + filters.value[fieldName].value);
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
   }
@@ -153,6 +160,10 @@ const sortColumn = async (event: any) => {
   filterStore.commit('setSortFields', sortFieldsString);
   filterStore.commit('setSortOrder', order);
   orderStore.setFilters(filters);
+}
+
+function handleAction(action: any) {
+  emit(action.event, action.data)
 }
 
 </script>
@@ -410,7 +421,7 @@ data-table.p-datatable-sm.orders-table(
       width="6rem"
     )
       template(#body="{ data }")
-        table-actions(:actions="config.actions(data)" :data="data")
+        table-actions(:actions="config.actions(data)" :data="data" @action="handleAction" )
 </template>
 
 <style lang="sass" scoped>

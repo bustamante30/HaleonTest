@@ -31,7 +31,6 @@ export const useAuthStore = defineStore("auth", {
       // 2. try to obtain token if the user had already logged in
       let tokenResponse = await this.msalInstance.handleRedirectPromise();
       if (tokenResponse) {
-        console.log("Token" + tokenResponse);
         this.account = tokenResponse.account;
       } else {
         this.account = this.msalInstance.getAllAccounts()[0];
@@ -105,12 +104,10 @@ export const useAuthStore = defineStore("auth", {
     },
     async updateUserStore(tokenResponse: any) {
       this.currentUser.isLoggedIn = true;
+      console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
-      console.log('accessToken'+ this.accessToken);
       localStorage.setItem("token", this.accessToken);
-
       const user = await UserService.getV1User();
-  
       this.currentUser.firstName = user.firstName as string;
       this.currentUser.lastName = user.lastName as string;
       this.currentUser.email = user.email as string;

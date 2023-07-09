@@ -1,10 +1,10 @@
 import ordersData from '@/data/mock/orders';
-import colorsData from "@/data/mock/colors";
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
 import * as pagination from 'primevue/paginator';
 import filterStore from '@/stores/filterStore'
+import router from '@/router'
 
 export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
@@ -40,9 +40,6 @@ export const useOrdersStore = defineStore('ordersStore', {
           page: 0,
           rows: 10
         }) {
-          
-          console.log("WithoutFilterCall:");
-
           const result  = await ReorderService.getRecentReorders(undefined,
           undefined,
           undefined,
@@ -67,21 +64,16 @@ export const useOrdersStore = defineStore('ordersStore', {
     async getOrderById(id: string) {
       if (id != null && id != undefined) {
         this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
-
         let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
         this.selectedOrder.colors = Array.from(details.colors)
         this.selectedOrder.colors.map(x => {
-          (x as any)['sets'] = 0;
-        });
-        
+        if(!(x as any)['sets'])(x as any)['sets'] = 0})
         return this.selectedOrder
       }
     },
       async setFilters(filters: any) {
    
         this.filters = { ...this.filters, ...filters }
-        //this.filters['brandName'] = filterStore.state.brandNameFilter;
-        console.log("ColumnFilter:"+  filterStore.state.brandNameFilter);
         const result = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
           filters.sortOrder,
           this.pageNumber,
@@ -143,12 +135,21 @@ export const useOrdersStore = defineStore('ordersStore', {
     updateCheckout(checkout: any) {
       this.checkout = { ...checkout }
     },
-    // Reorder flow
+    // color update flow
     updateColor({ id, field, value }: any): void {
       const colors = this.selectedOrder["colors"];
-      const colorIndex = colors.findIndex((color: any) => color.id == id);
+      const colorIndex = colors.findIndex((color: any) => color.mcgColourId == id);
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
-      console.log(id, field, value, colorIndex);
+    },
+    // Order Table Actions
+    addToCart(order: any) {
+      console.log('addToCart', order)
+    },
+    reorder(order: any) {
+      router.push(`/dashboard/${order.sgsId}`)
+    },
+    cancelOrder(order: any) {
+      console.log('cancelOrder', order)
     },
   },
 });
