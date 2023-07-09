@@ -64,6 +64,7 @@ function validatePurchaseOrder(): string {
  return "";
 }
 function showNotes(): boolean {
+
   return userType.value === 'External';
 }
 
@@ -89,7 +90,8 @@ function showNotes(): boolean {
     .f
       label Notes
       span.input.notes
-          prime-textarea(v-model="checkoutForm.notes")
+        //- TODO Prepopulate
+        prime-textarea(v-model="checkoutForm.notes")
 
 </template>
 
