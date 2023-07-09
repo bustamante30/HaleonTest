@@ -67,7 +67,7 @@ function updateColor(color) {
             span {{ selectedOrder.packType }}
           .f
             label Product Weight
-            span {{ selectedOrder.weight }}
+            span {{ selectedOrder.weight ?  selectedOrder.weight:'NA'}}
           .f
             label Printer
             span {{ selectedOrder.printerName }}

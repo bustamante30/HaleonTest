@@ -9,6 +9,7 @@ import OrderConfirmForm from './OrderConfirmForm.vue'
 
 const ordersStore = useOrdersStore()
 const checkout = computed(() => ordersStore.checkout)
+const shipToAddress = null
 
 
 const props = defineProps({
@@ -16,6 +17,7 @@ const props = defineProps({
  })
 
 onMounted(async() => {
+  
 })
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
@@ -92,7 +94,7 @@ function updateCheckout(values) {
           span {{ selectedOrder.printerLocationName }}
         .f
           label Shipping Adress
-          span --
+          prime-dropdown.sm.shipToAddress(v-model="selectedOrder.customerDetails[0].shipToAddress" name="shipToAddress" :options="selectedOrder.customerDetails" appendTo="body" optionLabel="shipToAddress" optionValue="shipToAddress")
     .card.colors
       h3 Plates
       .details
@@ -174,4 +176,6 @@ function updateCheckout(values) {
   font-weight: bolder
   font-size: 14px
 
+.shipToAddress
+  width:65%
 </style>

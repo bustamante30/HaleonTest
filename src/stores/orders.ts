@@ -67,7 +67,8 @@ export const useOrdersStore = defineStore('ordersStore', {
         let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
         this.selectedOrder.colors = Array.from(details.colors)
         this.selectedOrder.colors.map(x => {
-        if(!(x as any)['sets'])(x as any)['sets'] = 0})
+        if(!(x as any)['sets'])(x as any)['sets'] = 0});
+        (this.selectedOrder as any)['customerDetails'] =  details.customerDetails
         return this.selectedOrder
       }
     },
