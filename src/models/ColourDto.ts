@@ -5,4 +5,5 @@ export type ColourDto =
         imageCarrierId: string | null,
         sets: number,
         newQuantity?: number | 0,
+        selected: boolean
     };

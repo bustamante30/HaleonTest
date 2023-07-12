@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -7,6 +7,7 @@ import router from '@/router'
 
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
+import { useOrdersStore } from '@/stores/orders'
 
 const props = defineProps({
   data: {
@@ -23,18 +24,13 @@ const props = defineProps({
   }
 })
 
+const ordersStore = useOrdersStore();
+
+
 const emit = defineEmits(['update'])
 
-const selected = ref()
+const selected = ref([])
 
-onMounted(() => {
-  if(props.data.length > 0){
-    const setsHavingValue= props.data.filter(x=>x.sets > 0)
-    if(setsHavingValue.length > 0) {
-      selected.value = [...setsHavingValue]
-    }
-  }
-})
 
 function stylify(width) {
   return width
@@ -51,28 +47,23 @@ function checkAllValuesZero(arr, property) {
   return true;
 }
 
-
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
-    const prevColorIds = prevColors.map(c => c.mcgColourId)
+    const prevColorIds = prevColors && prevColors.map(c => c.mcgColourId)
     const colorIds = colors.map(c => c.mcgColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      if (!prevColorIds.includes(color.mcgColourId)) {
-        updateColor({ id: color.mcgColourId, field: 'sets', value: 1 })
-      } 
-    })
-    // If color removed sets = 0
-    prevColors.forEach((color) => {
-      if (!colorIds.includes(color.mcgColourId)) {
-        updateColor({ id:color.mcgColourId, field: 'sets', value: 0 })
+      if (prevColorIds && !prevColorIds.includes(color.mcgColourId)) {
+        updateColor({ id: color.mcgColourId, field: 'sets', value: 1})
       }
     })
-  } else if(checkAllValuesZero(colors,'sets')) {
-    colors.forEach((color) => {
-        updateColor({ id:color.mcgColourId, field: 'sets', value: 1 })
+    // If color removed sets = 0
+    prevColors && prevColors.forEach((color) => {
+      if (!colorIds.includes(color.mcgColourId)) {
+        updateColor({ id: color.mcgColourId, field: 'sets', value: 0 })
+      }
     })
-  }
+  } 
 })
 
 function updateColor({ id, field, value }) {
