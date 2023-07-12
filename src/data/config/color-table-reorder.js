@@ -18,7 +18,7 @@ export default {
     freeze: 'left',
   },
    {
-     header: 'Number of Sets (Qty)',
+     header: 'Sets (Qty)',
      field: 'sets',
      type: 'number',
      freeze: 'center',

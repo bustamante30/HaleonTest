@@ -23,7 +23,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       expectedTime: null,
       shippingAddrress: null
     },
-    totalRecords: 0
+    totalRecords: 0,
   }),
   getters: {
     filteredOrders() {
@@ -66,8 +66,7 @@ export const useOrdersStore = defineStore('ordersStore', {
         this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
         let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
         this.selectedOrder.colors = Array.from(details.colors)
-        this.selectedOrder.colors.map(x => {
-        if(!(x as any)['sets'])(x as any)['sets'] = 0});
+        this.selectedOrder.colors.map(x => {if(!(x as any)['sets'])(x as any)['sets'] = 0});
         (this.selectedOrder as any)['customerDetails'] =  details.customerDetails
         return this.selectedOrder
       }

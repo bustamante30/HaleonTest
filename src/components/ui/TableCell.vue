@@ -1,6 +1,7 @@
 <script setup>
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
+import {computed } from 'vue'
 
 const props = defineProps({
   config: {
@@ -14,6 +15,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update'])
+
+const value = computed(() => get(props.data, props.config.field))
 
 function formatDate(date) {
   return DateTime.fromJSDate(date).toFormat('dd LLL, yyyy h:mm a')
@@ -47,7 +50,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
-    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :modelValue="get(data, config.field)" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :disabled="parseInt(value)===0" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else) {{ get(data, config.field) }}
 
 </template>

@@ -54,7 +54,6 @@ onMounted(async () => {
 
 watch(selected, (value) => {
   selected = value
-  console.log('select', selected)
 })
 
 const showTextbox = ref(false)
