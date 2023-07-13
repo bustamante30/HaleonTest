@@ -1,0 +1,46 @@
+.p-checkbox.sm
+  width: 20px
+  height: 20px
+  .p-checkbox-box
+    width: 20px
+    height: 20px
+    border-radius: 3px
+
+.p-checkbox
+  &:not(.p-checkbox-disabled) .p-checkbox-box.p-focus
+    box-shadow: 0 0 0 0.1rem mix(white, $sgs-blue, 60%)
+  &:not(.p-checkbox-disabled) .p-checkbox-box:hover
+    border-color: $sgs-blue
+  &:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover
+    border-color: $sgs-blue
+    background: $sgs-blue
+
+.p-checkbox.square
+  background: #fff
+  border-radius: 3px
+  border: 2px solid #ced4da
+  &:hover
+    border-color: $sgs-blue
+  .p-checkbox-box
+    border-color: #fff
+    border-radius: 2px
+    width: 12px
+    height: 12px
+    margin: auto
+    &.p-focus
+      border-color: #fff
+      outline: none
+      box-shadow: none
+    .p-checkbox-icon
+      display: none
+  &:not(.p-checkbox-disabled)
+    .p-checkbox-box:hover
+      // border-color: transparent
+      border-color: #ced4da
+    .p-checkbox-box
+      &.p-highlight
+        background: $sgs-blue
+        border-color: $sgs-blue
+      .p-checkbox-icon
+        display: none
+        background: $sgs-blue

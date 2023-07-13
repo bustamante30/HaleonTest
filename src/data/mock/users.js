@@ -1,0 +1,27 @@
+import { faker } from '@faker-js/faker'
+
+function genUser(i, printerName, locations, isAdmin) {
+  const firstName = faker.name.firstName()
+  const lastName = faker.name.lastName()
+  return {
+    id: faker.datatype.uuid(),
+    firstName,
+    lastName,
+    location: faker.helpers.arrayElement(locations),
+    isAdmin,
+    email: (`${firstName}.${lastName}@${printerName || ''}.com`)
+      .replace(/and/ig, '')
+      .replace(/[,\s'-]/ig, '')
+      .toLowerCase()
+  }
+}
+
+function genUsers(count, printerName, locations, isAdmin) {
+  const users = []
+  for (let i = 0; i < count; i++) {
+    users.push(genUser(i, printerName, locations, isAdmin))
+  }
+  return users
+}
+
+export { genUsers }

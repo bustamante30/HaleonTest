@@ -24,6 +24,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       shippingAddrress: null
     },
     totalRecords: 0,
+    searchHistory: [] as any[],
   }),
   getters: {
     filteredOrders() {
@@ -150,6 +151,9 @@ export const useOrdersStore = defineStore('ordersStore', {
     },
     cancelOrder(order: any) {
       console.log('cancelOrder', order)
+    },
+    getSearchHistory(history: any) {
+      this.searchHistory = [...history];
     },
   },
 });

@@ -13,6 +13,7 @@ import router from './router'
 import Button from '@/components/ui/Button.vue'
 import Mask from '@/components/ui/Mask.vue'
 import ScrollPanel from '@/components/ui/ScrollPanel.vue'
+import Panel from '@/components/ui/Panel.vue'
 
 // Prime Components
 import AutoComplete from 'primevue/autocomplete'
@@ -27,7 +28,6 @@ import Listbox from 'primevue/listbox'
 import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
 import OverlayPanel from 'primevue/overlaypanel'
-import Panel from 'primevue/panel'
 import Tooltip from 'primevue/tooltip'
 import BadgeDirective from 'primevue/badgedirective';
 import Message from 'primevue/message'
@@ -41,11 +41,13 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(PrimeVue)
 app.use(router)
+app.use(ToastService)
 
 // UI Components - No Business Logic
 app.component('SgsButton', Button)
 app.component('SgsMask', Mask)
 app.component('SgsScrollpanel', ScrollPanel)
+app.component('SgsPanel', Panel)
 
 // Prime Components & Directives
 app.directive('tooltip', Tooltip)
@@ -66,6 +68,5 @@ app.component('PrimeImage', Image)
 app.component('Message',Message)
 app.component('PrimePagination',Paginator)
 app.component('PrimeTextarea', Textarea)
-app.use(ToastService);
 app.component('Toast', Toast)
 app.mount('#app')

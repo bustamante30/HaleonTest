@@ -10,7 +10,8 @@ header.app-header
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
     router-link(to="/dashboard") Dashboard
-    router-link(to="/dashboard") Manage Users
+    router-link(to="/dashboard/users") Manage Users
+    router-link(to="/dashboard/users?role=super") Manage Users (As Super)
     router-link(to="/dashboard") Help
   span.separator
   .tools
@@ -28,7 +29,7 @@ header.app-header
 
 .app-header
   background: var(--app-header-bg-color)
-  color: var(--app-header-text-color)
+  color: var(--app-header-text-color) !important
   padding: $s
   +flex-fill
   .logo
@@ -37,9 +38,16 @@ header.app-header
     line-height: 1
     margin: 0 0 $s25
     flex: 1
+
+  nav
+    +flex
+    gap: $s150
   a
     color: inherit
     font-weight: 700
+    opacity: 0.8
+    &:hover
+      opacity: 1
 
   .tools, .nav
     +flex($h: right)
