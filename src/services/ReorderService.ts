@@ -78,7 +78,6 @@ class ReorderService {
             Colors: [],
             PrinterContacts: []
         }
-        debugger
         reorderInfo.colors.forEach((color: any) => {
             newReorder.Colors.push({
                 clientPlateColourRef: color.clientPlateColourRef,
