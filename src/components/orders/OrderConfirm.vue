@@ -10,8 +10,6 @@ import ReorderService from "@/services/ReorderService";
 
 const ordersStore = useOrdersStore()
 const checkout = computed(() => ordersStore.checkout)
-const shipToAddress = null
-
 
 const props = defineProps({
   selectedId: { type: String, default: () => '', },
@@ -22,7 +20,7 @@ onMounted(async() => {
 })
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.selectedOrder.colors)
+const colors = computed(() => ordersStore.selectedOrder.colors.filter(color=>color.sets))
 
 let isFormVisible = ref(false)
 
@@ -96,9 +94,13 @@ function updateCheckout(values) {
           span {{ selectedOrder.printerName }}
           span.separator /
           span {{ selectedOrder.printerLocationName }}
-        .f
+        .f.shipping
           label Shipping Adress
-          prime-dropdown.sm.shipToAddress(v-model="selectedOrder.customerDetails[0].shipToAddress" name="shipToAddress" :options="selectedOrder.customerDetails" appendTo="body" optionLabel="shipToAddress" optionValue="shipToAddress")
+          div(v-if="selectedOrder && selectedOrder.customerDetails && selectedOrder.customerDetails.length===1")
+           span {{ selectedOrder.customerDetails[0]?.shipToAddress }}
+          div(v-if="selectedOrder && selectedOrder.customerDetails && selectedOrder.customerDetails.length>1")
+           prime-dropdown.sm.address(v-model="selectedOrder.customerDetails[0].shipToAddress" name="shipToAddress" :options="selectedOrder.customerDetails" appendTo="body" 
+          optionLabel="shipToAddress" optionValue="shipToAddress")
     .card.colors
       h3 Plates
       .details
@@ -180,6 +182,9 @@ function updateCheckout(values) {
   font-weight: bolder
   font-size: 14px
 
-.shipToAddress
+.address
   width:65%
+
+.shipping
+ +flex 
 </style>

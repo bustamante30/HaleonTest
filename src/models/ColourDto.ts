@@ -4,5 +4,5 @@ export type ColourDto =
         colourName: string | null,
         imageCarrierId: string | null,
         sets: number,
-        newQuantity?: number | 0,
+        newQuantity?: number | 0
     };

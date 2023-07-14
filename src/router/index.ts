@@ -1,6 +1,6 @@
 import DashboardPage from "@/pages/DashboardPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import authRoutes from './auth'
+import authRoutes from "./auth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,6 +35,23 @@ const router = createRouter({
           path: ":id/success",
           name: "order-success",
           component: () => import("@/pages/orders/SuccessPage.vue"),
+        },
+      ],
+    },
+    {
+      path: "/users",
+      name: "users",
+      component: () => import("@/pages/users/index.vue"),
+      children: [
+        {
+          path: ":id",
+          name: "user-edit",
+          component: () => import("@/pages/users/UserEditPage.vue"),
+        },
+        {
+          path: "new",
+          name: "user-create",
+          component: () => import("@/pages/users/UserCreatePage.vue"),
         },
       ],
     },

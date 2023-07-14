@@ -19,7 +19,7 @@ export default {
       width: 10
     },
      {
-       header: 'Number of Sets (Qty)',
+       header: 'Sets (Qty)',
        field: 'sets',
        type: 'number',
        freeze: 'center',

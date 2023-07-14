@@ -1,0 +1,20 @@
+.p-paginator
+  padding: $s
+  .p-paginator-first,
+  .p-paginator-prev,
+  .p-paginator-next,
+  .p-paginator-last
+    height: 2rem
+    min-width: 2rem
+  .p-paginator-pages
+    .p-paginator-page
+      height: 2rem
+      min-width: 2rem
+      &:hover
+        background-color: rgba($sgs-blue, 0.1) !important
+      &.p-highlight
+        background: rgba($sgs-blue, 0.1)
+        border-color: rgba($sgs-blue, 0.1)
+        color: rgba($sgs-blue, 1)
+      &.p-link:focus
+        box-shadow: 0 0 0 0.2rem rgba($sgs-blue, 0.3)

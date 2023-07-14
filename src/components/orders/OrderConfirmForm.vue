@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { DateTime } from 'luxon';
-import { onBeforeMount, ref, watch } from 'vue';
+import { onBeforeMount,computed,ref, watch } from 'vue';
 
 const props = defineProps({
   checkout: {
@@ -37,9 +37,9 @@ const userType = ref(localStorage.getItem('userType'));
 const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
 
 const errorMessages = {
-  minLength: 'Please enter at least 3 characters in the Purchase Order field.',
-  maxLength: 'The Purchase Order field cannot exceed 30 characters.',
-  invalidCharacters: 'The Purchase Order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
+  minLength: 'Please enter at least 3 characters in the purchase order field.',
+  maxLength: 'The Purchase order field cannot exceed 30 characters.',
+  invalidCharacters: 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
 };
 
 function validatePurchaseOrder(): string {
@@ -68,6 +68,10 @@ function showNotes(): boolean {
   return userType.value === 'External';
 }
 
+const isExpectedTimeDisabled = computed(() => {
+  return !checkoutForm.value.expectedDate;
+});
+
 </script>
 
 <template lang="pug">
@@ -80,7 +84,7 @@ function showNotes(): boolean {
     .f
       label Expected time *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedTime" timeOnly appendTo="body" hourFormat="24")
+        prime-calendar(v-model="checkoutForm.expectedTime" :disabled="isExpectedTimeDisabled" timeOnly appendTo="body" hourFormat="24")
     .f
       label Purchase Order #
       span.input
@@ -134,7 +138,8 @@ function showNotes(): boolean {
         color: rgba($sgs-gray, 0.4)
 
       span.warning-message
-        color: rgba(255, 0, 0, 0.7)
-        font-weight: bold
+        color: red
+        font-weight: bolder
+        font-size: 14px
   
 </style>

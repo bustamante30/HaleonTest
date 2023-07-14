@@ -1,0 +1,29 @@
+.p-radiobutton.sm
+  width: 20px
+  height: 20px
+  .p-radiobutton-box
+    width: 20px
+    height: 20px
+
+.p-radiobutton
+  &:not(.p-radiobutton-disabled) .p-radiobutton-box.p-highlight
+    border-color: $sgs-blue
+  &:not(.p-radiobutton-disabled) .p-radiobutton-box.p-focus
+    box-shadow: 0 0 0 0.1rem mix(white, $sgs-blue, 60%)
+  &:not(.p-radiobutton-disabled) .p-radiobutton-box:hover
+    border-color: $sgs-blue
+  &:not(.p-radiobutton-disabled) .p-radiobutton-box.p-highlight:hover
+    border-color: $sgs-blue
+    background: $sgs-blue
+
+.p-radiobutton.square
+  .p-radiobutton-box
+    border-radius: 3px
+    .p-radiobutton-icon
+      border-radius: 2px
+  &:not(.p-radiobutton-disabled)
+    .p-radiobutton-box.p-highlight
+      background: #fff
+      border-color: $sgs-blue
+      .p-radiobutton-icon
+        background: $sgs-blue

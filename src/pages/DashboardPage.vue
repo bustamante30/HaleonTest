@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, provide } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -11,11 +11,13 @@ import { filterConfig } from "@/data/config/order-filters";
 import { useOrdersStore } from "@/stores/orders";
 import { useAuthStore } from "@/stores/auth";
 
-import Paginator from 'primevue/paginator';
-import * as pagination from 'primevue/paginator';
+import Paginator from "primevue/paginator";
+import * as pagination from "primevue/paginator";
+import { useSendToPmStore } from "@/stores/send-to-pm";
 
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
+const sendToPmStore = useSendToPmStore();
 
 const username = computed(
   () =>
@@ -25,47 +27,68 @@ const username = computed(
 );
 
 const orders = computed(() => ordersStore.orders);
+const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
 const userFilterConfig = computed(() => filterConfig("user"));
 const filterTokens = computed(() => {
   return keys(filters.value).map((key) => {
-    let config: { name: string; label: string; short: string; type?: undefined; } | { name: string; label: string; short: string; type: string; } | { name: string; label: string; short?: undefined; type?: undefined; } | null | undefined = null;
+    let config:
+      | { name: string; label: string; short: string; type?: undefined }
+      | { name: string; label: string; short: string; type: string }
+      | { name: string; label: string; short?: undefined; type?: undefined }
+      | null
+      | undefined = null;
     userFilterConfig.value.sections.forEach((section) => {
       config = config || section.filters.find((filter) => filter.name === key);
     });
     return { ...(config || {}), key, value: filters.value[key] };
   });
 });
+const searchHistory = computed(() => ordersStore.searchHistory);
+
+const pmOrder = computed(() => sendToPmStore.newOrder);
+const savingPmOrder = computed(() => sendToPmStore.loading);
+
+provide("options", options);
 
 onBeforeMount(() => {
   ordersStore.initAdvancedFilters();
   ordersStore.getOrders();
 });
 
-    function search(filters: any) {
-        if (filters)
-            ordersStore.setFilters(filters);
-        else { 
-        ordersStore.initAdvancedFilters();
-        ordersStore.getOrders();
-    }
+function search(filters: any) {
+  if (filters) ordersStore.setFilters(filters);
+  else {
+    ordersStore.initAdvancedFilters();
+    ordersStore.getOrders();
+  }
+}
+
+function getSearchHistory() {
+  ordersStore.getSearchHistory(history)
 }
 
 const onPageChange = async (pageState: pagination.PageState) => {
-   ordersStore.getOrders(pageState);
+  ordersStore.getOrders(pageState);
+};
+
+function createPmOrder() {
+  sendToPmStore.initNewOrder()
 }
 
+function sendToPm(form: any) {
+  sendToPmStore.sendToPm(form)
+}
 
 function addToCart(order: any) {
-  ordersStore.addToCart(order)
+  ordersStore.addToCart(order);
 }
 function reorder(order: any) {
-  ordersStore.reorder(order)
+  ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
-  ordersStore.cancelOrder(order)
+  ordersStore.cancelOrder(order);
 }
-
 </script>
 
 <template lang="pug">
@@ -80,6 +103,7 @@ function cancelOrder(order: any) {
           header
             h1 Recent Orders
             orders-search(:config="userFilterConfig" :filters="filters" @search="search")
+            send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
         orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
         paginator(:rows="useOrdersStore.pageSize ?? 10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view
