@@ -5,6 +5,12 @@ export default {
         field: 'clientPlateColourRef',
         freeze: 'left',
         width: 8
+        },
+    {
+        header: 'Sequence Number',
+        field: 'colourOrder',
+        freeze: 'left',
+        width: 8
     },
     {
       header: 'SGS Colour',
@@ -13,7 +19,7 @@ export default {
       width: 8
     },
     {
-      header: 'Image Carrier ID #',
+        header: 'Printer Plate Code',
       field: 'imageCarrierId',
       freeze: 'left',
       width: 10

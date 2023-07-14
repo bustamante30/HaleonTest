@@ -78,11 +78,11 @@ const isExpectedTimeDisabled = computed(() => {
 .order-conformation-form(v-if="checkoutForm" @change="updateCheckout()")
   .details
     .f
-      label Expected Date *
+      label Delivery Date *
       span.input.calendar
         prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
     .f
-      label Expected time *
+      label Delivery time *
       span.input.calendar
         prime-calendar(v-model="checkoutForm.expectedTime" :disabled="isExpectedTimeDisabled" timeOnly appendTo="body" hourFormat="24")
     .f
