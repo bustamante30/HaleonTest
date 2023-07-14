@@ -14,6 +14,7 @@ import { useAuthStore } from "@/stores/auth";
 import Paginator from "primevue/paginator";
 import * as pagination from "primevue/paginator";
 import { useSendToPmStore } from "@/stores/send-to-pm";
+import SendPm from '@/components/orders/SendToPm.vue'
 
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();

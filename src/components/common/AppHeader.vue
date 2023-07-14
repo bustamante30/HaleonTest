@@ -10,8 +10,8 @@ header.app-header
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
     router-link(to="/dashboard") Dashboard
-    router-link(to="/dashboard/users") Manage Users
-    router-link(to="/dashboard/users?role=super") Manage Users (As Super)
+    router-link(to="/users") Manage Users
+    router-link(to="/users?role=super") Manage Users (As Super)
     router-link(to="/dashboard") Help
   span.separator
   .tools
