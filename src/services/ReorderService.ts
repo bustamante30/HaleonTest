@@ -8,7 +8,7 @@ const httpService = new ApiService(baseUrl)
 interface SearchPagedResultDto {
     data: ReorderDto[];
     totalRecords: number;
-  }  
+} 
 
 interface SubmitReorderResponse {
     success: boolean;
