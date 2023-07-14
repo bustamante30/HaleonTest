@@ -6,6 +6,7 @@ import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
 import config from '@/data/config/color-table-order'
 import OrderConfirmForm from './OrderConfirmForm.vue'
+import ReorderService from "@/services/ReorderService";
 
 const ordersStore = useOrdersStore()
 const checkout = computed(() => ordersStore.checkout)
@@ -29,7 +30,9 @@ function confirm() {
 
 const errorMessage = ref('');
 
-function placeOrder() {
+ async   function placeOrder() {
+        console.log(checkout);
+        console.log(ordersStore.selectedOrder)
   var dateError;
   var timeError;
   if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
@@ -43,7 +46,8 @@ function placeOrder() {
   } else {
     timeError = false;
   }
-
+     let result = await ReorderService.submitReorder(ordersStore.selectedOrder)
+  console.log(result)
   if (!timeError && !dateError) {
     checkout.value.expectedDate =  null
     checkout.value.expectedTime = null
