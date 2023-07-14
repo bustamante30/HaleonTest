@@ -8,10 +8,64 @@ const httpService = new ApiService(baseUrl)
 interface SearchPagedResultDto {
     data: ReorderDto[];
     totalRecords: number;
-  }  
+} 
 
+interface SubmitReorderResponse {
+    success: boolean;
+    id: number;
+}
+interface SubmitReorderRequest {
+    OriginalOrderId: string;
+    BrandName: string;
+    Description: string;
+    Weight: string;
+    PrinterName: string;
+    PrinterLocationName: string;
+    ShippingAddress: string;
+    PackType: string;
+    ExpectedDate: Date;
+    PO: string;
+    CreatedBy: number;
+    ThumbNailPath: string;
+    Colors: Color[];
+}
+interface Color {
+    clientPlateColourRef: string;
+    colourName: string;
+    custCarrierIdNo: string;
+    custImageIdNo: string;
+    imageCarrierId: string;
+    mcgColourId: number
+    sets: number;
+}
 class ReorderService {
 
+    public static submitReorder(reorderInfo: any) {
+        let newReorder: SubmitReorderRequest = {
+            OriginalOrderId: reorderInfo.sgsId,
+            BrandName: reorderInfo.brandName,
+            Description: reorderInfo.description,
+            CreatedBy: 1,
+            ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
+            PackType: reorderInfo.packType,
+            PO: reorderInfo.PO,
+            PrinterLocationName: reorderInfo.printerLocationName,
+            PrinterName: reorderInfo.printerName,
+            ShippingAddress: reorderInfo.shippingAddress,
+            ThumbNailPath: reorderInfo.thumbNail,
+            Weight: reorderInfo.weight,
+            Colors:[]
+        }
+        return httpService
+            .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
+            .then((response: SubmitReorderResponse) => {
+                return response.success;                    
+            })
+            .catch((error: any) => {
+                console.log('Error submitting reorder:', error);
+                return false;
+            });
+    }
     public static getRecentReorders(query?: string, sortBy?: string,
         sortOrder?: string,
         page?: number,
