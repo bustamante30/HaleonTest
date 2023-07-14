@@ -66,6 +66,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       if (id != null && id != undefined) {
         this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
         let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
+        this.selectedOrder.description = details.jobDescription
         this.selectedOrder.colors = Array.from(details.colors)
         this.selectedOrder.colors.map(x => {if(!(x as any)['sets'])(x as any)['sets'] = 0});
         (this.selectedOrder as any)['customerDetails'] =  details.customerDetails

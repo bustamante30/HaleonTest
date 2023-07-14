@@ -28,7 +28,8 @@ function generateOrder(i) {
     printerName: faker.helpers.arrayElement(['Winpak Pekin', 'ABC Inc', 'QR Express Print']),
     printerLocation: faker.helpers.arrayElement(['Lancaster', 'Concord NH', 'Neenah, WI']),
     packType: faker.helpers.arrayElement(['Shink Sleeve', 'Carton', 'Front Label']),
-    mySGSNumber: 'NA',
+      mySGSNumber: 'NA',
+    description: '',
     colors: colours
   }
 }
