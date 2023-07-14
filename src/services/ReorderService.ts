@@ -12,53 +12,106 @@ interface SearchPagedResultDto {
 
 interface SubmitReorderResponse {
     success: boolean;
-    id: number;
+    result: SubmitReorder;
 }
-interface SubmitReorderRequest {
+interface SubmitReorder {
+    Id?: number;
     OriginalOrderId: string;
     BrandName: string;
     Description: string;
     Weight: string;
     PrinterName: string;
     PrinterLocationName: string;
-    ShippingAddress: string;
     PackType: string;
+    StatusId: number;
     ExpectedDate: Date;
+    Notes: string;
     PO: string;
-    CreatedBy: number;
+    CreatedBy?:number;
+    PlateRelief: string;
     ThumbNailPath: string;
+    Variety: string;
     Colors: Color[];
+    PrinterContacts: CustomerContact[];
 }
 interface Color {
-    clientPlateColourRef: string;
+    mcgColourId: number;
     colourName: string;
+    sequenceNumber: number;
+    clientPlateColourRef: string;
     custCarrierIdNo: string;
     custImageIdNo: string;
     imageCarrierId: string;
-    mcgColourId: number
     sets: number;
+    plateTypeId: number;
+    plateTypeDescription: string;
+    plateThicknessId: number;
+    plateThicknessDescription: string;
+}
+interface CustomerContact {
+    alias: string;
+    customerContactId: string;
+    customerId: string;
+    customerName: string;
+    shippingAddress: string;
+    siteName: string;
+    isActive: boolean;
 }
 class ReorderService {
 
     public static submitReorder(reorderInfo: any) {
-        let newReorder: SubmitReorderRequest = {
+        let newReorder: SubmitReorder = {
             OriginalOrderId: reorderInfo.sgsId,
             BrandName: reorderInfo.brandName,
             Description: reorderInfo.description,
-            CreatedBy: 1,
-            ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
-            PackType: reorderInfo.packType,
-            PO: reorderInfo.PO,
-            PrinterLocationName: reorderInfo.printerLocationName,
-            PrinterName: reorderInfo.printerName,
-            ShippingAddress: reorderInfo.shippingAddress,
-            ThumbNailPath: reorderInfo.thumbNail,
             Weight: reorderInfo.weight,
-            Colors:[]
+            PrinterName: reorderInfo.printerName,
+            PrinterLocationName: reorderInfo.printerLocationName,
+            PackType: reorderInfo.packType,
+            StatusId: 2,
+            ThumbNailPath: reorderInfo.thumbNail,
+            Variety: reorderInfo.variety,
+            PO: reorderInfo.PO,
+            ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
+            Notes: reorderInfo.Notes,
+            PlateRelief: reorderInfo.PlateRelief,
+            Colors: [],
+            PrinterContacts: []
         }
+        debugger
+        reorderInfo.colors.forEach((color: any) => {
+            newReorder.Colors.push({
+                clientPlateColourRef: color.clientPlateColourRef,
+                colourName: color.colourName,
+                custCarrierIdNo: color.custCarrierIdNo,
+                custImageIdNo: color.custImageIdNo,
+                imageCarrierId: color.imageCarrierId,
+                mcgColourId: color.mcgColourId,
+                plateThicknessDescription: color.plateThicknessDescription,
+                plateThicknessId: color.plateThicknessId,
+                plateTypeDescription: color.plateTypeDescription,
+                plateTypeId: color.plateTypeId,
+                sequenceNumber: color.colourOrder,
+                sets: color.sets
+            })
+        })
+        reorderInfo.customerDetails.forEach((contact: any) => {
+            newReorder.PrinterContacts.push(
+                {
+                    alias: contact.alias,
+                    customerContactId: contact.customerContactId,
+                    customerId: contact.customerId,
+                    customerName: contact.customerName,
+                    siteName: contact.siteName,
+                    shippingAddress: contact.shippingAddress,
+                    isActive: contact.isActive
+                })
+        })
+        reorderInfo.colo
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
+                console.log(response.result);
                 return response.success;                    
             })
             .catch((error: any) => {
