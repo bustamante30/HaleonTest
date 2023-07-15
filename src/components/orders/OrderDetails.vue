@@ -4,7 +4,7 @@ import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table'
 import router from '@/router'
-
+import OrderShirttail from './OrderShirttail.vue'
 
 const preview = ref()
 
@@ -59,6 +59,8 @@ function viewPreview() {
           sgs-button.sm(label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors")
+      .card
+        order-shirttail(:data="selectedOrder.details")
       .card
         iframe#preview.pdf(ref="preview" src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
       template(#footer)
