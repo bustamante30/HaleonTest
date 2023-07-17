@@ -26,7 +26,7 @@ const username = computed(
       authStore.currentUser.lastName || "Doe"
     }`
 );
-
+const dateFilter = computed(() => getDateFilter());
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
@@ -54,9 +54,38 @@ provide("options", options);
 
 onBeforeMount(() => {
   ordersStore.initAdvancedFilters();
-  ordersStore.getOrders();
+  changeDateFilter(dateFilter.value[0])
 });
 
+function getDateFilter() {
+    let filter = [
+        { label: "last 3 months", value: 0 },
+        { label: "last 6 months", value: 1 }
+    ];
+    for (let i = new Date().getFullYear(); i > 2019; i--) {
+        filter.push({ label: i.toString(), value: i })
+    }
+    return filter
+}
+function changeDateFilter(dtFilter: any) {
+    let startDate = new Date();
+    debugger
+    switch (dtFilter.value) {
+        case 0:
+            startDate.setMonth(new Date().getMonth() - 3)
+            filters.value.startDate = [startDate, new Date()]
+            break;
+        case 1:
+            startDate.setMonth(new Date().getMonth() - 6)
+            filters.value.startDate = [startDate, new Date()]
+            break;
+        default:
+            startDate = new Date(dtFilter.value,1,1)
+            filters.value.startDate = [startDate, new Date()]
+            break;
+    }
+    ordersStore.setFilters(filters.value)
+}
 function search(filters: any) {
   if (filters) ordersStore.setFilters(filters);
   else {
@@ -102,7 +131,9 @@ function cancelOrder(order: any) {
       sgs-scrollpanel
         template(#header)
           header
-            h1 Recent Orders
+            h1 Recent Orders 
+            prime-dropdown.sm.rangeFilter(v-model="dateFilter" name="datefilter" :options="dateFilter" appendTo="body"
+                optionLabel="label" optionValue="value" @change="changeDateFilter")
             orders-search(:config="userFilterConfig" :filters="filters" @search="search")
             send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
         orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
@@ -122,4 +153,6 @@ function cancelOrder(order: any) {
       +flex-fill
       h1
         flex: 1
+.rangeFilter
+  width:150px   
 </style>
