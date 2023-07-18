@@ -18,15 +18,13 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
       this.searchFieldReference = searchField as SearchFieldDto[];
     },
     async setSearchHistory(advanceSearchParameters: any) {
-      console.log('searchFieldReference', this.searchFieldReference)
       let searchRequest: SearchHistoryDto[] = [];
       if (this.searchFieldReference.length > 0) {
         this.searchFieldReference.forEach((field) => {
           if (Array.isArray(advanceSearchParameters[(field as any).fieldName]) && advanceSearchParameters[(field as any).fieldName]!==null) {
-            const joinedDate = advanceSearchParameters[(field as any).fieldName].join(',')
             searchRequest.push({
               SearchFieldId: (field as any).id,
-              Value: joinedDate
+              Value: advanceSearchParameters[(field as any).fieldName].join(',')
             })
           } else {
             searchRequest.push({
@@ -35,7 +33,6 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
             })
           }
         })
-        console.log('searchRequest', searchRequest)
         const result = await SearchHistoryService.setSearchHistory(searchRequest);
         console.log(result);
       }
