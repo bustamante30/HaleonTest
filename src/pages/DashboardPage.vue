@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, provide } from "vue";
+import { computed, onBeforeMount, provide,ref } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -26,7 +26,8 @@ const username = computed(
       authStore.currentUser.lastName || "Doe"
     }`
 );
-
+    const dateFilter = computed(() => getDateFilter());
+    const selectedDate = ref(()=>dateFilter.value[0])
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
@@ -53,10 +54,28 @@ const savingPmOrder = computed(() => sendToPmStore.loading);
 provide("options", options);
 
 onBeforeMount(() => {
-  ordersStore.initAdvancedFilters();
-  ordersStore.getOrders();
+    ordersStore.initAdvancedFilters();
+    changeDateFilter(dateFilter.value[0])
 });
 
+function getDateFilter() {
+    let threeMonthsDate = new Date();
+    threeMonthsDate.setMonth(new Date().getMonth() - 3)
+    let filter = []
+    filter.push({ label: "last 3 months", value: [threeMonthsDate, new Date()] });
+    let sixMonthsFilter = new Date();
+    sixMonthsFilter.setMonth(new Date().getMonth() - 6)
+    filter.push({ label: "last 6 months", value: [sixMonthsFilter, new Date()] });
+    for (let i = new Date().getFullYear(); i > 2019; i--) {
+        filter.push({ label: i.toString(), value: [new Date(i, 0, 1), new Date(i+1, 0, 1)] })
+    }
+    return filter
+}
+function changeDateFilter(dtFilter: any) {
+    selectedDate.value = dtFilter.value
+    filters.value.startDate = dtFilter.value
+    ordersStore.setFilters(filters.value)
+}
 function search(filters: any) {
   if (filters) ordersStore.setFilters(filters);
   else {
@@ -70,7 +89,7 @@ function getSearchHistory() {
 }
 
 const onPageChange = async (pageState: pagination.PageState) => {
-  ordersStore.getOrders(pageState);
+  ordersStore.getOrders();
 };
 
 function createPmOrder() {
@@ -102,11 +121,15 @@ function cancelOrder(order: any) {
       sgs-scrollpanel
         template(#header)
           header
-            h1 Recent Orders
-            orders-search(:config="userFilterConfig" :filters="filters" @search="search")
-            send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
+            div.leftHeader
+                h1 Recent Orders 
+                prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
+                    optionLabel="label" optionValue="value" @change="changeDateFilter")
+            div.rightHeader
+                orders-search(:config="userFilterConfig" :filters="filters" @search="search")
+                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
         orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
-        paginator(:rows="useOrdersStore.pageSize ?? 10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
+        paginator(:rows="10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view
 </template>
 
@@ -121,5 +144,15 @@ function cancelOrder(order: any) {
     header
       +flex-fill
       h1
-        flex: 1
+        flex: none
+.rangeFilter
+  left:40px   
+.leftHeader
+    display: flex
+    align-content: flex-start
+    align-items: center
+.rightHeader
+    display: flex
+    align-content: flex-end
+    align-items: center
 </style>

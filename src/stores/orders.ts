@@ -10,6 +10,11 @@ export const useOrdersStore = defineStore('ordersStore', {
   state: () => ({
     pageNumber: 0,
     pageSize: 0,
+    pageState: {
+        first: 1,
+        page: 1,
+        rows: 10
+    },
     orders: [] as any[],
     filters: {} as any,
     selectedOrder: ordersData[0],
@@ -35,17 +40,12 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-      async getOrders(
-        pageState: pagination.PageState = {
-          first: 0,
-          page: 0,
-          rows: 10
-        }) {
+      async getOrders() {
           const result  = await ReorderService.getRecentReorders(undefined,
           undefined,
           undefined,
-          pageState.page + 1,
-          pageState.rows);
+          this.pageState.page,
+          this.pageState.rows);
          
           if (Array.isArray(result)) {
             this.orders = [];
@@ -58,8 +58,8 @@ export const useOrdersStore = defineStore('ordersStore', {
           this.decorateOrders()
           
         console.log(this.orders)
-      this.pageNumber =  pageState.page + 1;
-      this.pageSize =  pageState.rows;
+      this.pageNumber =  this.pageState.page ;
+      this.pageSize = this.pageState.rows;
       this.selectedOrder = this.orders[0]
     },
     async getOrderById(id: string) {
@@ -78,9 +78,10 @@ export const useOrdersStore = defineStore('ordersStore', {
         this.filters = { ...this.filters, ...filters }
         const result = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
           filters.sortOrder,
-          this.pageNumber,
-          this.pageSize, filters, filterStore);
-
+          this.pageState.page,
+          this.pageState.rows, filters, filterStore);
+          this.pageNumber = this.pageState.page;
+          this.pageSize = this.pageState.rows;
           if (Array.isArray(result)) {
             this.orders = [];
             this.totalRecords = 0;
