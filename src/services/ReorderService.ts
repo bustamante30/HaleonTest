@@ -157,9 +157,11 @@ class ReorderService {
 
         if (advancedSearchParameters) {
             if (advancedSearchParameters.startDate != null) {
-               
-                advancedSearchParameters.endDate = advancedSearchParameters.startDate[1]
-                advancedSearchParameters.startDate = advancedSearchParameters.startDate[0]
+                debugger
+                let dateRange = Object.assign < Array<Date>, Array<Date>>([], advancedSearchParameters.startDate);
+                advancedSearchParameters.startDate = dateRange[0];
+                advancedSearchParameters.endDate = dateRange[1];
+                (params as any)["advancedSearchParameters"] = advancedSearchParameters
             }
             if (advancedSearchParameters.printerName)
             {
