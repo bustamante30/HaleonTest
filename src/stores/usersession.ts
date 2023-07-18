@@ -10,6 +10,7 @@ export type UserState = {
   email: Ref<string>
   isLoggedIn: Ref<boolean>
   userType: Ref<string>
+  userId: Ref<number>
 }
 
 export const userSessionStore = defineStore('usersession', () => {
@@ -21,7 +22,8 @@ export const userSessionStore = defineStore('usersession', () => {
     firstName: ref(''),
     lastName: ref(''),
     displayName: ref(''),
-    userType: ref('')
+    userType: ref(''),
+    userId: ref(0)
   }
   return userSession
 })

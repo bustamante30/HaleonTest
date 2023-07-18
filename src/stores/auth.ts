@@ -113,6 +113,7 @@ export const useAuthStore = defineStore("auth", {
       this.currentUser.email = user.email as string;
       this.currentUser.displayName = user.displayName as string;
       this.currentUser.userType = user.userType as string;
+      this.currentUser.userId = user.id as number
       localStorage.setItem("userType",this.currentUser.userType);
     },
   },
