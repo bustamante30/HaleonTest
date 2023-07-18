@@ -24,7 +24,7 @@ export default {
       freeze: 'left',
     },
     {
-      header: 'Sets (Qty)',
+      header: 'Quantity',
       field: 'sets',
       type: 'edit-sets',
       freeze: 'center',
