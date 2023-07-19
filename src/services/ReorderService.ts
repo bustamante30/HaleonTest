@@ -20,6 +20,7 @@ interface SubmitReorder {
     BrandName: string;
     Description: string;
     Weight: string;
+    ItemCode: string;
     PrinterName: string;
     PrinterId: number;
     PrinterLocationName: string;
@@ -48,6 +49,7 @@ interface Color {
     plateTypeDescription: string;
     plateThicknessId: number;
     plateThicknessDescription: string;
+    isActive: boolean;
 }
 interface CustomerContact {
     alias: string;
@@ -66,6 +68,7 @@ class ReorderService {
             BrandName: reorderInfo.brandName,
             Description: reorderInfo.description,
             Weight: reorderInfo.weight,
+            ItemCode: reorderInfo.itemCode,
             PrinterId: 1,
             PrinterName: reorderInfo.printerName,
             PrinterLocationName: reorderInfo.printerLocationName,
@@ -81,6 +84,7 @@ class ReorderService {
             PrinterContacts: []
         }
         reorderInfo.colors.forEach((color: any) => {
+            let isActiveColor: boolean = color.sets > 0 ? true : false
             newReorder.Colors.push({
                 clientPlateColourRef: color.clientPlateColourRef,
                 colourName: color.colourName,
@@ -93,7 +97,8 @@ class ReorderService {
                 plateTypeDescription: color.plateTypeDescription,
                 plateTypeId: color.plateTypeId,
                 sequenceNumber: color.colourOrder,
-                sets: color.sets
+                sets: color.sets,
+                isActive: isActiveColor
             })
         })
         reorderInfo.customerDetails.forEach((contact: any) => {
@@ -108,10 +113,12 @@ class ReorderService {
                     isActive: contact.isActive
                 })
         })
-        reorderInfo.colo
+        console.log('Order to submit:')
+        console.log(newReorder)
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
+                console.log('submitted Order:')
                 console.log(response.result);
                 return response.success;                    
             })
