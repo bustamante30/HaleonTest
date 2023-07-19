@@ -61,7 +61,10 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.pageNumber =  this.pageState.page ;
       this.pageSize = this.pageState.rows;
       this.selectedOrder = this.orders[0]
-    },
+      },
+      async getCartCount() {
+          return await ReorderService.getCartCount()
+      },
     async getOrderById(id: string) {
       if (id != null && id != undefined) {
         this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)

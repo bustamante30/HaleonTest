@@ -1,6 +1,11 @@
 <script setup>
-import AppLogo from './AppLogo.vue'
-import UserProfile from './UserProfile.vue'
+    import { useOrdersStore } from "@/stores/orders";
+    import { ref, onMounted } from "vue";
+    const ordersStore = useOrdersStore()
+    const cartCount = ref("") 
+    onMounted(async () => {
+        cartCount.value = await ordersStore.getCartCount()
+    })
 </script>
 
 <template lang="pug">
@@ -19,7 +24,7 @@ header.app-header
     //-   span.material-icons.outline groups
     //- router-link(to="/" v-tooltip.bottom="{ value: 'Saved Orders' }")
     //-   span.material-icons.outline bookmark
-    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="4")
+    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="cartCount")
       span.material-icons.outline shopping_cart
     user-profile
 </template>
