@@ -2,9 +2,11 @@ trigger:
   branches:
     include:
     - "master"
+    # exclude:
+    # - "master"
   tags:
     include:
-    - 'release-imageCarrier-ui-*'
+    - 'release-imageCarrier-ui-v*'
 
 pr:
   branches: 
@@ -20,8 +22,9 @@ variables:
   BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
 
 stages:
-  - stage: Build
-    displayName: 'Build'
+- ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+  - stage: Build_Dev
+    displayName: 'Build Dev'
     variables:
       - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-static-variable-group'
@@ -32,10 +35,11 @@ stages:
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(BuildNumber)'
 
+- ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Deploy_Dev
     displayName: 'Deploy to Dev'
-    condition: succeeded('Build')
-    dependsOn: Build
+    condition: succeeded('Build_Dev')
+    dependsOn: Build_Dev
     variables:
       - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-static-variable-group'
@@ -43,6 +47,41 @@ stages:
       - template: deploymentTemplate.yaml
         parameters:
           environment: 'dev'
+          ArtifactName:  '$(ArtifactName)'
+          AzureSubscription:  '$(AzureSubscription)'
+          BuildNumber:  '$(BuildNumber)'
+
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+  - stage: Build_QA
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    dependsOn:
+    - Build_Dev
+    - Deploy_Dev
+    variables:
+      - group: 'qa-azure-imgcarrier-variable-group'
+      - group: 'qa-azure-imgcarrier-ui-static-variable-group'
+    jobs:
+    - template: buildTemplate.yaml
+      parameters:          
+        environment: 'qa'
+        ArtifactName:  '$(ArtifactName)'
+        BuildNumber:  '$(BuildNumber)'
+
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+  - stage: Deploy_QA
+    displayName: 'Deploy to QA'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    dependsOn:
+    - Build_Dev
+    - Deploy_Dev
+    - Build_QA
+    variables:
+      - group: 'qa-azure-imgcarrier-variable-group'
+      - group: 'qa-azure-imgcarrier-ui-static-variable-group'
+    jobs:
+      - template: deploymentTemplate.yaml
+        parameters:
+          environment: 'qa'
           ArtifactName:  '$(ArtifactName)'
           AzureSubscription:  '$(AzureSubscription)'
           BuildNumber:  '$(BuildNumber)'
