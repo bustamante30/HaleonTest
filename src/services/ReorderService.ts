@@ -220,6 +220,15 @@ class ReorderService {
             return null;
         });
     }
+
+    public static getCartCount() {
+        return httpService.get<any>('v1/Reorder/getCartCount').then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting cart count: ", error);
+            return 0;
+        });
+    }
 }
 
 export default ReorderService;
