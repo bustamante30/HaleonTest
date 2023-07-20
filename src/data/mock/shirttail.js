@@ -52,7 +52,19 @@ function generateCustomers() {
   })
 }
 
+function generateBarcode(index) {
+  return {
+    number: faker.datatype.number({ min: 100000000000, max: 999999999999 }),
+    type: 'UPC-A',
+    magPercent: faker.datatype.number({ min: 10, max: 99 }) + '%',
+    bwr: '0.0025',
+    nbw: '0.011"',
+  }
+}
 
+function generateBarcodes(count) {
+  return new Array(count).fill(null).map(i => generateBarcode(i))
+}
 
 const customers = generateCustomers()
 const customer = faker.helpers.arrayElement(customers)
@@ -82,12 +94,7 @@ const shirttail = {
   colour: {
     count: faker.datatype.number({ min: 5, max: 12 }),
   },
-  barcode: {
-    number: faker.datatype.number({ min: 100000000000, max: 999999999999 }),
-    magPercent: faker.datatype.number({ min: 10, max: 99 }) + '%',
-    bwr: '0.0025',
-    nbw: '0.011"',
-  }
+  barcodes: generateBarcodes(6)
 }
 
 export { shirttail }
