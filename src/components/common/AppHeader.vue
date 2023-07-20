@@ -1,4 +1,6 @@
 <script setup>
+    import AppLogo from './AppLogo.vue'
+    import UserProfile from './UserProfile.vue'
     import { useOrdersStore } from "@/stores/orders";
     import { ref, onMounted } from "vue";
     const ordersStore = useOrdersStore()
