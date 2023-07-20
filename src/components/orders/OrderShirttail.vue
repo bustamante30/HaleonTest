@@ -4,6 +4,8 @@ import { get } from 'lodash'
 import { useOrdersStore } from "@/stores/orders";
 import { ref, computed, reactive, onMounted } from "vue";
 import Dialog from 'primevue/dialog';
+import OrderBarcodes from './OrderBarcodes.vue';
+
 
 const props = defineProps({
   data: {
@@ -36,22 +38,20 @@ function getFieldData(fieldName: string): any {
       }
     }
   }
-  if (fieldName === "barcodes") {
-    if (Array.isArray(fieldValue)) {
-     
-      return fieldValue.map((barcodeObj: { barcodeNumber: string; barcodeTypeDesc: string }) => {
-        return `${barcodeObj.barcodeNumber} - ${barcodeObj.barcodeTypeDesc}`;
-      })}}
+  
   return get(selectedOrder.value, fieldName);
 }
+
+
 
 </script>
 
 <template lang="pug">
 .order-shirttail
-  sgs-panel(header="Product Details")
-    .fields(v-if="config && config.fields")
-      .f(v-for="field in config.fields")
+  sgs-panel(v-for="(section, i) in config.sections" :header="section.label")
+    order-barcodes(v-if="section && section.type === 'barcodes'" :config="section.tableConfig" :data="getFieldData('barcodes')")
+    .fields(v-if="section && section.fields")
+      .f(v-for="field in section.fields")
         label {{ field.label }}
         span.value {{ getFieldData(field.name) }}
     

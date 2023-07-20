@@ -1,4 +1,7 @@
 const config = {
+  sections: [
+{
+  label: 'Product Details',
   fields: [
     { label: 'Print Process', name: 'printProcess' },
     { label: 'Cust.1-Up Die', name: 'cust1UpDie' },
@@ -11,8 +14,18 @@ const config = {
     { label: 'Number Across Cylinder', name: 'numberAcrossCylinder' },
     { label: 'Dispro %', name: 'dispro' },
     { label: 'Substrate', name: 'substrate' },
-    { label: 'Barcode', name: 'barcodes' },
   ]
-}
+},
+{
+  label: 'Barcodes',
+  type: 'barcodes',
+  tableConfig: {
+    cols: [
+      { name: 'barcodeNumber', label: 'Barcode Number', width: 12 },
+      { name: 'barcodeTypeDesc', label: 'Barcode Type', width: 5 },
+    ]
+  },
+}]}
+
 
 export { config }

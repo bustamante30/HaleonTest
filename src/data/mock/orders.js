@@ -15,7 +15,7 @@ function generateOrder(i) {
     const colour =
     { clientPlateColourRef: 'CMYK100', colourName: 'Black', imageCarrierId: "992-1" }
     const barcode =
-    { barcodeNumber: 12234, barcodeTypeDesc: 'UPC-A'}
+    { barcodeNumber: "12234", barcodeTypeDesc: 'UPC-A'}
     const colours = Array.from([colour])
     const barcodes = Array.from([barcode])
   return {
