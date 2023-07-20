@@ -71,11 +71,16 @@ export const useUsersStore = defineStore('users', {
       console.log("getPrinterById");
       const printerName = authStore.currentUser.printerName || authb2cStore.currentB2CUser.printerName;
     
-      console.log("printername:"+ printerName);
+      console.log("printername:"+ authStore.currentUser.printerName );
+      console.log("B2Cprintername:"+ authb2cStore.currentB2CUser.printerName );
       if (printerName) {
-        const locationResult = await fetchLocations(printerName);
 
-        this.options.locations = locationResult;
+        const locationResult = await fetchLocations(printerName);
+        // Ensure the locations are in the required format with 'label' and 'value' properties
+        this.options.locations = locationResult.map((location: string, index: number) => ({
+          label: location,
+          value: index + 1, // You can use a unique identifier here if available from the API.
+        }));
 
         console.log("locations:"+ this.options.locations);
       } 
@@ -110,6 +115,7 @@ export const useUsersStore = defineStore('users', {
       this.selected = { ...printer }
     },
     createUser() {
+      debugger;
       if (this.selected) {
         this.user = this.user || {
           firstName: null,
@@ -134,6 +140,7 @@ export const useUsersStore = defineStore('users', {
       // router.push(`/users/${user.id}`)
     },
     saveUser() {
+      debugger;
       console.log('Save user', this.user)
       this.user = null
       router.push('/users')

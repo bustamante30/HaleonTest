@@ -22,7 +22,7 @@ export const userSessionStore = defineStore('usersession', () => {
     lastName: ref(''),
     displayName: ref(''),
     userType: ref(''),
-    printerId:ref(''),
+    printerId:ref(new Number()),
     printerName: ref('')
   }
   return userSession
