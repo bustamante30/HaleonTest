@@ -4,6 +4,30 @@ import { faker } from '@faker-js/faker'
 import { defineStore } from 'pinia'
 import { chunk } from 'lodash'
 import router from '@/router'
+import SuggesterService from "@/services/SuggesterService";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+
+
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
+
+
+// const locations = [
+//   { label: 'TestLancaster', value: 1 },
+//   { label: 'Concord NH', value: 2 },
+//   { label: 'Neenah, WI', value: 3 }
+// ];
+
+export async function fetchLocations(printerName: string) {
+  try {
+    const locationResult = await SuggesterService.getPrinterSiteList(printerName, "");
+    return locationResult;
+  } catch (error) {
+    console.error("Error fetching locations:", error);
+    return [];
+  }
+}
 
 export const useUsersStore = defineStore('users', {
   state: () => ({
@@ -19,11 +43,7 @@ export const useUsersStore = defineStore('users', {
       printer: false
     },
     options: {
-      locations: [
-        { label: 'Lancaster', value: 1 },
-        { label: 'Concord NH', value: 2 },
-        { label: 'Neenah, WI', value: 3 }
-      ]
+      locations: [] as any[],
     },
     user: null as any
   }),
@@ -34,6 +54,7 @@ export const useUsersStore = defineStore('users', {
         const all = genPrinters(total)
         this.all = chunk(all, 20)
       }
+      console.log("getPrinters");
       this.printers = {
         page,
         perPage,
@@ -44,15 +65,34 @@ export const useUsersStore = defineStore('users', {
       if (this.selected) this.getPrinterById(this.selected?.id)
     },
     async getPrinterById(id: string) {
+      debugger;
       const printer = this.printers.data.find((p: any) => p.id === id)
       // const locations = genLocations(printer.summary.locations)
-      const locations = genLocations()
+      console.log("getPrinterById");
+      const printerName = authStore.currentUser.printerName || authb2cStore.currentB2CUser.printerName;
+    
+      console.log("printername:"+ printerName);
+      if (printerName) {
+        const locationResult = await fetchLocations(printerName);
+
+        this.options.locations = locationResult;
+
+        console.log("locations:"+ this.options.locations);
+      } 
+      // else {
+      //   // If `printerName` is not available, use the default locations
+      //   this.options.locations = locations;
+      // }
+
+      const locationsResp = this.options.locations;
+
+      //const locations = genLocations()
       const printerDetails = {
         ...printer,
-        locations,
+        locationsResp,
         users: [
-          ...genUsers(printer.summary.admins, printer.name, locations, true),
-          ...genUsers(printer.summary.users, printer.name, locations),
+          ...genUsers(printer.summary.admins, printer.name, locationsResp, true),
+          ...genUsers(printer.summary.users, printer.name, locationsResp),
         ],
         internalUsers: [
           ...genUsers(printer.summary.internalUsers, 'sgsco'),
@@ -78,6 +118,7 @@ export const useUsersStore = defineStore('users', {
           isAdmin: false
         }
       }
+      console.log("createUser");
       router.push('/users/new')
     },
     getUser(id: string) {
@@ -99,3 +140,6 @@ export const useUsersStore = defineStore('users', {
     }
   },
 });
+
+
+ 

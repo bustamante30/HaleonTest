@@ -140,14 +140,17 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
-      const user = await UserService.getV1User();
-
+      const user = await UserService.getUserClaimInfo();
+      console.log("userb2cclaims:" + user);
+      if(user !== null)
+      {
       this.currentB2CUser.firstName = user.firstName as string;
       this.currentB2CUser.lastName = user.lastName as string;
       this.currentB2CUser.email = user.email as string;
       this.currentB2CUser.displayName = user.displayName as string;
       this.currentB2CUser.userType =user.userType as string;
       localStorage.setItem("userType",this.currentB2CUser.userType);
+      }
     },
   },
 });

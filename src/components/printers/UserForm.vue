@@ -1,6 +1,9 @@
-<script setup>
-import { ref } from 'vue'
-import router from '@/router'
+<script lang="ts" setup>
+import { type Ref, ref, inject, onBeforeMount, reactive } from 'vue';
+import SuggesterService from "@/services/SuggesterService";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import router from '@/router';
 
 const props = defineProps({
   user: {
@@ -13,13 +16,26 @@ const props = defineProps({
   },
 })
 
+
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
+
+const printerLocResults: Ref<string[]> = ref([]);
+
+// onBeforeMount(async () => {
+//   const locations = await searchPrinterSites();
+//   options.locations = locations;
+// });
+
 const emit = defineEmits(['save'])
 
 const userForm = ref({ ...props.user })
 
 const options = inject('options') || { locations: [] }
 
+
 function save() {
+  //todo Add user api call
   emit('save')
 }
 </script>
