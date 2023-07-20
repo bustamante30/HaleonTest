@@ -1,9 +1,8 @@
 trigger:
   branches:
     include:
-    - 'release-imageCarrier-ui-v*'
-    exclude:
     - 'master'
+    - 'release-imageCarrier-ui-v*'
   tags:
     include:
     - 'release-imageCarrier-ui-v*'
@@ -11,9 +10,8 @@ trigger:
 pr:
   branches: 
     include:
-      - 'release-imageCarrier-ui-v*'
-    exclude:
       - 'master'
+      - 'release-imageCarrier-ui-v*'
 
 name: "ImageCarrier-UI"
 
