@@ -1,6 +1,6 @@
 export type UserPrinterLocationDto = {
-    PrinterLocationId?: number;
-    PrinterId?: number | null;
-    LocationName?: string | null;
-    PrinterName?: string | null;
+    printerLocationId?: number;
+    printerId?: number | null;
+    locationName?: string | null;
+    printerName?: string | null;
 };

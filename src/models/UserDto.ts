@@ -8,7 +8,9 @@ export type UserDto = {
     lastName?: string | null;
     displayName?: string | null;
     email?: string | null;
-    userType: string | null;
+    userType?: string | null;
+    printerId?: number| null;
+    isAdmin?: boolean | null;
     userRoles?: Array<UserRoleDto> | null;
-    userPrinterLocation?: Array<UserPrinterLocationDto> | null;
+    PrinterLoc?: Array<UserPrinterLocationDto> | null;
 };

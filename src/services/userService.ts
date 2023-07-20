@@ -1,4 +1,5 @@
 import type { UserClaimDto } from '../models/UserClaimDto';
+import type { UserDto } from '../models/UserDto';
 import ApiService  from '../services/apiService';
 
 const baseUrl = 'https://localhost:7026/';
@@ -19,6 +20,19 @@ class UserService {
             return null;
         });
     }
+
+     public static saveUser(user: UserDto) {
+        debugger;
+        console.log("StoreuserReq:" + user);
+    return httpService.post<UserDto>('v1/user', user)
+      .then((response: UserDto) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log('Error saving user:', error);
+        return null;
+      });
+  }
 
 }
 

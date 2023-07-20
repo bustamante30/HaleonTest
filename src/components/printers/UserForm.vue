@@ -17,15 +17,8 @@ const props = defineProps({
 })
 
 
-const authStore = useAuthStore();
-const authb2cStore = useB2CAuthStore();
 
 const printerLocResults: Ref<string[]> = ref([]);
-
-// onBeforeMount(async () => {
-//   const locations = await searchPrinterSites();
-//   options.locations = locations;
-// });
 
 const emit = defineEmits(['save'])
 
@@ -35,8 +28,8 @@ const options = inject('options') || { locations: [] }
 
 
 function save() {
-  //todo Add user api call
-  emit('save')
+  console.log("userform:"+ userForm);
+  emit('save', userForm)
 }
 </script>
 
@@ -72,7 +65,7 @@ function save() {
         footer
           .secondary-actions &nbsp;
           .actions
-            sgs-button(label="Save" @click="save()")
+            sgs-button(label="Save" @click="save")
 </template>
 
 <style lang="sass" scoped>

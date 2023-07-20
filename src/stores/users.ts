@@ -5,8 +5,10 @@ import { defineStore } from 'pinia'
 import { chunk } from 'lodash'
 import router from '@/router'
 import SuggesterService from "@/services/SuggesterService";
+import type { UserDto } from '../models/UserDto';
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import UserService from "@/services/userService";
 
 
 const authStore = useAuthStore();
@@ -77,13 +79,13 @@ export const useUsersStore = defineStore('users', {
 
         const locationResult = await fetchLocations(printerName);
         // Ensure the locations are in the required format with 'label' and 'value' properties
-        this.options.locations = locationResult.map((location: string, index: number) => ({
+        this.options.locations = locationResult.map((location: string, index: string) => ({
           label: location,
-          value: index + 1, // You can use a unique identifier here if available from the API.
+          value: location, // You can use a unique identifier here if available from the API.
         }));
 
         console.log("locations:"+ this.options.locations);
-      } 
+      }
       // else {
       //   // If `printerName` is not available, use the default locations
       //   this.options.locations = locations;
@@ -139,11 +141,45 @@ export const useUsersStore = defineStore('users', {
       }
       // router.push(`/users/${user.id}`)
     },
-    saveUser() {
+    saveUser(userreq : any) {
       debugger;
-      console.log('Save user', this.user)
-      this.user = null
-      router.push('/users')
+      console.log('Save user', userreq)
+
+     let printerIdValue: number | null = null;
+
+  if (authStore.currentUser?.printerId !== undefined && authStore.currentUser?.printerId !== null) {
+    printerIdValue = Number(authStore.currentUser.printerId);
+  } else if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+    printerIdValue = Number(authb2cStore.currentB2CUser.printerId);
+  }
+        const userDto: UserDto = {
+          firstName: userreq.value.firstName,
+          lastName: userreq.value.lastName,
+          displayName: `${userreq.value.firstName} ${userreq.value.lastName}`,
+          email: userreq.value.email,
+          printerId: printerIdValue, // Replace with the appropriate printerId value
+          userRoles: null, // Replace with the appropriate user roles if needed
+          isAdmin: userreq.value.isAdmin,
+          PrinterLoc: [
+            {
+              locationName: userreq.value.location, // Replace with the appropriate location value
+            },
+          ],
+        };
+    console.log("StoreuserReq:" + userDto);
+      UserService.saveUser(userDto)
+      .then((response: any) => {
+        console.log('User saved:', response);
+        // If you need to update the state after saving the user, do it here
+        // For example, you can reset the user object to null after successful save:
+
+        this.user = null;
+        router.push('/users'); // Navigate to the users page after saving
+      })
+      .catch((error) => {
+        console.error('Error saving user:', error);
+        // Handle error scenario
+      });
     }
   },
 });

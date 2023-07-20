@@ -20,8 +20,8 @@ onBeforeMount(() => {
   usersStore.getUser(id as string)
 })
 
-function saveUser() {
-  usersStore.saveUser()
+function saveUser(value: any) {
+  usersStore.saveUser(value)
 }
 
 </script>
