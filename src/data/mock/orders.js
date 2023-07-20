@@ -14,7 +14,10 @@ function generateOrder(i) {
         : ''
     const colour =
     { clientPlateColourRef: 'CMYK100', colourName: 'Black', imageCarrierId: "992-1" }
+    const barcode =
+    { barcodeNumber: 12234, barcodeTypeDesc: 'UPC-A'}
     const colours = Array.from([colour])
+    const barcodes = Array.from([barcode])
   return {
     id: faker.datatype.uuid(),
     preview: faker.datatype.boolean(),
@@ -28,9 +31,20 @@ function generateOrder(i) {
     printerName: faker.helpers.arrayElement(['Winpak Pekin', 'ABC Inc', 'QR Express Print']),
     printerLocation: faker.helpers.arrayElement(['Lancaster', 'Concord NH', 'Neenah, WI']),
     packType: faker.helpers.arrayElement(['Shink Sleeve', 'Carton', 'Front Label']),
-      mySGSNumber: 'NA',
+    mySGSNumber: 'NA',
     description: '',
-    colors: colours
+    colors: colours,
+    barcodes: barcodes,
+    printProcess:"",
+    substrate:"",
+    surfaceReverseSprint:"",
+    plateThickness:"",
+    plateRelief:"",
+    numberAroundCylinder: 0,
+    numberAcrossCylinder:0,
+    dispro: 0,
+    cust1UpDie:"",
+    plateType:""
   }
 }
 

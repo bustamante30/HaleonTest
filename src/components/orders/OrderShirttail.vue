@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { config } from '@/data/config/shirttail'
 import { get } from 'lodash'
+import { useOrdersStore } from "@/stores/orders";
+import { ref, computed, reactive, onMounted } from "vue";
+import Dialog from 'primevue/dialog';
 
 const props = defineProps({
   data: {
@@ -8,6 +11,39 @@ const props = defineProps({
     default: () => {}
   },
 })
+
+
+const ordersStore = useOrdersStore()
+const selectedOrder = computed(()=>ordersStore.selectedOrder)
+const colors = computed(()=>ordersStore.selectedOrder.colors)
+
+function getFieldData(fieldName: string): any {
+  console.log("selected orders",selectedOrder.value)
+  const fieldValue = get(selectedOrder.value, fieldName);
+  if (fieldValue === null || fieldValue === "") {
+    return "N/A";
+  }
+  if (fieldName === "surfaceReverseSprint") {
+    if (typeof fieldValue === "number") {
+      if (fieldValue === 1) {
+        return "Reverse";
+      } else if (fieldValue === 0) {
+        return "Surface";
+      } else if (fieldValue === 2) {
+        return "Both";
+      }else if (fieldValue === -1) {
+        return "N/A";
+      }
+    }
+  }
+  if (fieldName === "barcodes") {
+    if (Array.isArray(fieldValue)) {
+     
+      return fieldValue.map((barcodeObj: { barcodeNumber: string; barcodeTypeDesc: string }) => {
+        return `${barcodeObj.barcodeNumber} - ${barcodeObj.barcodeTypeDesc}`;
+      })}}
+  return get(selectedOrder.value, fieldName);
+}
 
 </script>
 
@@ -17,13 +53,14 @@ const props = defineProps({
     .fields(v-if="config && config.fields")
       .f(v-for="field in config.fields")
         label {{ field.label }}
-        span.value {{ get(data, field.name) }}
+        span.value {{ getFieldData(field.name) }}
+    
 </template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 .order-shirttail
-  pading: $s
+  padding: $s
   .fields
     display: grid
     grid-template-columns: repeat(4, 1fr)
