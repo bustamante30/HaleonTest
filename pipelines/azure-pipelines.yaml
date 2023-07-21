@@ -27,7 +27,6 @@ stages:
   - stage: Build_Dev
     displayName: 'Build Dev'
     variables:
-      - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-static-variable-group'
     jobs:
     - template: buildTemplate.yaml
@@ -41,7 +40,6 @@ stages:
     condition: succeeded('Build_Dev')
     dependsOn: Build_Dev
     variables:
-      - group: 'dev-azure-imgcarrier-variable-group'
       - group: 'dev-azure-imgcarrier-ui-static-variable-group'
     jobs:
       - template: deploymentTemplate.yaml
@@ -57,7 +55,6 @@ stages:
     - Build_Dev
     - Deploy_Dev
     variables:
-      - group: 'qa-azure-imgcarrier-variable-group'
       - group: 'qa-azure-imgcarrier-ui-static-variable-group'
     jobs:
     - template: buildTemplate.yaml
@@ -74,7 +71,6 @@ stages:
     - Deploy_Dev
     - Build_QA
     variables:
-      - group: 'qa-azure-imgcarrier-variable-group'
       - group: 'qa-azure-imgcarrier-ui-static-variable-group'
     jobs:
       - template: deploymentTemplate.yaml
