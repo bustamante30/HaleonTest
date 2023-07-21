@@ -1,5 +1,5 @@
 export type UserClaimDto = {
-    UserId?: number;
+    userId?: number;
     uniqueIdentifier?: string | null;
     firstName?: string | null;
     lastName?: string | null;
