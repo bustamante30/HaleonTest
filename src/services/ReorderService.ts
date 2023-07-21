@@ -62,7 +62,7 @@ interface CustomerContact {
 }
 class ReorderService {
 
-    public static submitReorder(reorderInfo: any, statusId = 2) {
+    public static submitReorder(reorderInfo: any, statusId: number) {
         let newReorder: SubmitReorder = {
             OriginalOrderId: reorderInfo.sgsId,
             BrandName: reorderInfo.brandName,

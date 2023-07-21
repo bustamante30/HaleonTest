@@ -62,8 +62,6 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.selectedOrder = this.orders[0]
       },
       async getCartCount() {
-          //await this.getCart()
-          //console.log(this.cartOrders)
           this.cartCount = await ReorderService.getCartCount()
           console.log(this.cartCount)
       },

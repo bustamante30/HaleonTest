@@ -4,9 +4,7 @@ import ColorsTable from '@/components/orders/ColorsTable.vue'
 import config from '@/data/config/color-table-edit'
 import { useColorsStore } from '@/stores/colors'
 import router from '@/router'
-    import { useOrdersStore } from "@/stores/orders";
-    import { toRefs } from "@vue/reactivity";
-import orders from '../../data/mock/orders'
+import { useOrdersStore } from "@/stores/orders";
 defineProps({
   order: {
     type: Object,

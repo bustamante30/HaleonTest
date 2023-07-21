@@ -43,9 +43,7 @@ function buy() {
 async function addToCart() {
     if (await ReorderService.submitReorder(ordersStore.selectedOrder, 1)) {
         isCartMessageVisible.value = true
-        console.log(ordersStore.cartCount)
         ordersStore.cartCount = ordersStore.cartCount + 1;
-        console.log(ordersStore.cartCount)
     }
     else {
         alert(" Error adding order to cart")
