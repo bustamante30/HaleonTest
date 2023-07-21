@@ -18,10 +18,12 @@ name: "ImageCarrier-UI"
 variables:
   AzureSubscription: 'photon-dev-ai-cr'
   ArtifactName: 'ImageCarrierUI'
-  BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
+  DEV_BuildNumber: 'imagecarrier-ui-dev-$(Build.BuildId).zip'
+  QA_BuildNumber: 'imagecarrier-ui-qa-$(Build.BuildId).zip'
+  STAGE_BuildNumber: 'imagecarrier-ui-stage-$(Build.BuildId).zip'
+  PROD_BuildNumber: 'imagecarrier-ui-prod-$(Build.BuildId).zip'
 
 stages:
-# - ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Build_Dev
     displayName: 'Build Dev'
     variables:
@@ -32,9 +34,8 @@ stages:
       parameters:          
         environment: 'dev'
         ArtifactName:  '$(ArtifactName)'
-        BuildNumber:  '$(BuildNumber)'
+        BuildNumber:  '$(DEV_BuildNumber)'
 
-# - ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Deploy_Dev
     displayName: 'Deploy to Dev'
     condition: succeeded('Build_Dev')
@@ -48,9 +49,8 @@ stages:
           environment: 'dev'
           ArtifactName:  '$(ArtifactName)'
           AzureSubscription:  '$(AzureSubscription)'
-          BuildNumber:  '$(BuildNumber)'
+          BuildNumber:  '$(DEV_BuildNumber)'
 
-# - ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Build_QA
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
@@ -64,9 +64,8 @@ stages:
       parameters:          
         environment: 'qa'
         ArtifactName:  '$(ArtifactName)'
-        BuildNumber:  '$(BuildNumber)'
+        BuildNumber:  '$(QA_BuildNumber)'
 
-# - ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Deploy_QA
     displayName: 'Deploy to QA'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
@@ -83,4 +82,4 @@ stages:
           environment: 'qa'
           ArtifactName:  '$(ArtifactName)'
           AzureSubscription:  '$(AzureSubscription)'
-          BuildNumber:  '$(BuildNumber)'
+          BuildNumber:  '$(QA_BuildNumber)'

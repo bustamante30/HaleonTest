@@ -88,7 +88,7 @@ jobs:
         displayName: "Zip ImageCarrier-UI app"
 
       - task: PublishBuildArtifacts@1
-        condition: or( eq(variables.HOSTAPPBUILT, 'true'), eq(variables.IMGCARRIERAPPBUILT, 'true'))
+        condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
         inputs:
           PathtoPublish: $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/
           artifactName: '${{ parameters.ArtifactName }}'
