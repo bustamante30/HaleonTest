@@ -2,7 +2,7 @@
 import { faker } from '@faker-js/faker'
 import ColorsTableEdit from './ColorsTableEdit.vue'
 import { inject, ref, computed, watch } from 'vue'
-
+import SendToPMService from "@/services/SendToPmService";
 const props = defineProps({
   order: {
     type: Object,
@@ -28,9 +28,28 @@ function init() {
   emit('create')
 }
 
-function submit() {
-  emit('submit', sendForm)
+async function submit() {
+ 
+  try {
+    const response = await SendToPMService.submitExitOrder(sendForm.value);
+    if (response) {
+      console.log('Exit Order submitted successfully');
+    } else {
+      console.log('Error submitting Exit order');
+    }
+  } catch (error) {
+    console.error('An error occurred during Exit submission:', error);
+  }
+
+  emit('submit', sendForm);
 }
+
+const imageCarrierCodeTypestypes = ref([
+    { label: "UPC Code", value: "UPC" },
+    { label: "QR Code", value: "QR" },
+    { label: "EAN Code", value: "EAN" },
+    { label: "Data Matrix Code", value: "DATA_MATRIX" },
+  ]);
 </script>
 
 <template lang="pug">
@@ -76,7 +95,7 @@ function submit() {
             .f
               label(for="code") Code #
               .field-group
-                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="options.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
+                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="imageCarrierCodeTypestypes" optionLabel="label" optionValue="value")
                 prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
             .f
               label(for="job_number") SGS Job #
