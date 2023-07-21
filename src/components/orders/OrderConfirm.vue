@@ -46,7 +46,7 @@ const errorMessage = ref('');
   } else {
     timeError = false;
   }
-     let result = await ReorderService.submitReorder(ordersStore.selectedOrder)
+     let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
   console.log(result)
   if (!timeError && !dateError) {
     checkout.value.expectedDate =  null

@@ -4,6 +4,7 @@ import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
+import ReorderService from "../../services/ReorderService";
 
 const ordersStore = useOrdersStore()
 
@@ -15,7 +16,7 @@ const props = defineProps({
 })
 
 const isCartMessageVisible = ref(false)
-const cartCount = ref(0)
+const cartCount = computed(()=>ordersStore.cartCount)
 let disableReorder = ref(false)
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
@@ -39,11 +40,16 @@ function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
-function addToCart() {
-  isCartMessageVisible.value = true
-  cartCount.value = 1
+async function addToCart() {
+    if (await ReorderService.submitReorder(ordersStore.selectedOrder, 1)) {
+        isCartMessageVisible.value = true
+        ordersStore.cartCount = ordersStore.cartCount + 1;
+    }
+    else {
+        alert(" Error adding order to cart")
+    }
+    
 }
-
 function updateColor(color) {
   ordersStore.updateColor(color)
 }
@@ -97,14 +103,17 @@ function updateColor(color) {
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
             sgs-button(label="Re-Order Now" @click="router.push(`/dashboard/${selectedId}/confirm`)" :disabled="disableReorder")
 
-  prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" @close="")
+  prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" :closable='false')
     .cart-message
       .icon
         span.material-icons.outline check_circle
       .details
         p Order added to cart successfully
-        p
-          router-link(to="/cart") View Cart
+        div.cartDialog
+            p
+              router-link(to="/cart") View Cart
+            p
+                  router-link(to="/dashboard") Close
 </template>
 
 <style lang="sass">
@@ -125,6 +134,9 @@ function updateColor(color) {
 
 .p-image-mask
   z-index: $z-image-mask !important
+.cartDialog
+    display: flex
+    justify-content: space-between
 </style>
 
 <style lang="sass" scoped>
