@@ -1,17 +1,37 @@
+# trigger:
+#   branches:
+#     include:
+#     - 'master'
+#     - 'release-imageCarrier-ui-v*'
+#   tags:
+#     include:
+#     - 'release-imageCarrier-ui-v*'
+
+# pr:
+#   branches: 
+#     include:
+#       - 'master'
+#       - 'release-imageCarrier-ui-v*'
+
 trigger:
   branches:
-    include:
-    - 'master'
-    - 'release-imageCarrier-ui-v*'
+    exclude:
+      - '*'
   tags:
     include:
     - 'release-imageCarrier-ui-v*'
+    # exclude:
+    # - v2.0
 
 pr:
-  branches: 
+  branches:
     include:
-      - 'master'
-      - 'release-imageCarrier-ui-v*'
+      - 'refs/tags/release-imageCarrier-ui-v*'
+    exclude:
+      # - 'refs/tags/v2.0'
+      - '*'
+
+
 
 name: "ImageCarrier-UI"
 
