@@ -21,7 +21,7 @@ variables:
   BuildNumber: 'imagecarrier-ui-$(Build.BuildId).zip'
 
 stages:
-- ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+# - ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Build_Dev
     displayName: 'Build Dev'
     variables:
@@ -34,7 +34,7 @@ stages:
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(BuildNumber)'
 
-- ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+# - ${{ if ne(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Deploy_Dev
     displayName: 'Deploy to Dev'
     condition: succeeded('Build_Dev')
@@ -50,7 +50,7 @@ stages:
           AzureSubscription:  '$(AzureSubscription)'
           BuildNumber:  '$(BuildNumber)'
 
-- ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+# - ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Build_QA
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
@@ -66,7 +66,7 @@ stages:
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(BuildNumber)'
 
-- ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
+# - ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/release-imageCarrier-ui-v') }}:
   - stage: Deploy_QA
     displayName: 'Deploy to QA'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
