@@ -74,26 +74,31 @@ export const useOrdersStore = defineStore('ordersStore', {
           console.log('order to be discarded'+id)
           return await ReorderService.discardOrder(id)
       },
-    async getOrderById(id: string) {
-      if (id != null && id != undefined) {
-        this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
-        let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
-        this.selectedOrder.description = details.jobDescription
-        this.selectedOrder.colors = Array.from(details.colors)
-        this.selectedOrder.colors.map(x => {if(!(x as any)['sets'])(x as any)['sets'] = 0});
-        (this.selectedOrder as any)['customerDetails'] =  details.customerDetails
-        this.selectedOrder.barcodes = details.barcode
-        this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
-        this.selectedOrder.printProcess = details.techSpec.printProcessDescription
-        this.selectedOrder.substrate = details.techSpec.substrate
-        this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint
-        this.selectedOrder.plateRelief = details.techSpec.plateRelief
-        this.selectedOrder.plateThickness = details.techSpec.thicknessDesc
-        this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder
-        this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder
-        this.selectedOrder.dispro = details.techSpec.dispro
-        this.selectedOrder.plateType = details.techSpec.plateType
+    async getOrderById(id: any) {
+        if (id != null && id != undefined) {
+            if (!isNaN(parseFloat(id)) && isFinite(id)) {
+                this.selectedOrder = this.cartOrders.find((order: any) => order.id === id)
+            }
+            else {
+                this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
 
+                let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
+                this.selectedOrder.description = details.jobDescription
+                this.selectedOrder.colors = Array.from(details.colors)
+                this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0 });
+                (this.selectedOrder as any)['customerDetails'] = details.customerDetails
+                this.selectedOrder.barcodes = details.barcode
+                this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
+                this.selectedOrder.printProcess = details.techSpec.printProcessDescription
+                this.selectedOrder.substrate = details.techSpec.substrate
+                this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint
+                this.selectedOrder.plateRelief = details.techSpec.plateRelief
+                this.selectedOrder.plateThickness = details.techSpec.thicknessDesc
+                this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder
+                this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder
+                this.selectedOrder.dispro = details.techSpec.dispro
+                this.selectedOrder.plateType = details.techSpec.plateType
+            }
         return this.selectedOrder
       }
     },

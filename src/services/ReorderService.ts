@@ -61,7 +61,23 @@ interface CustomerContact {
     isActive: boolean;
 }
 class ReorderService {
-
+    public static updateDraft(reorder: any) {
+        reorder.colors.forEach((color: any) => {
+            color.isActive = color.sets > 0 ? true : false
+        })
+        console.log(reorder)
+        return httpService
+            .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
+            .then((response: SubmitReorderResponse) => {
+                console.log('updated Order:')
+                console.log(response.result);
+                return response.success;
+            })
+            .catch((error: any) => {
+                console.log('Error submitting reorder:', error);
+                return false;
+            });
+    }
     public static submitReorder(reorderInfo: any, statusId: number) {
         let newReorder: SubmitReorder = {
             OriginalOrderId: reorderInfo.sgsId,
