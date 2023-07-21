@@ -96,11 +96,16 @@ export async function  searchLocation(printerIdValue : number, userIdValue : num
     const locationResponse = await UserService.searchLocation(searchRequest);
 
     if (locationResponse) {
-     return locationResponse;
+      
+      return locationResponse.data.map((location) => ({
+        id: location.locationId,
+        name: location.locationName,
+      }));
+     
 
     } else {
       // Handle error scenario if needed
-      console.error('Error searching Location:', locationResponse);
+      return null;
     }
   } catch (error) {
     // Handle error scenario if needed
@@ -223,10 +228,10 @@ export const useUsersStore = defineStore('users', {
         this.locationSearchResp = await searchLocation(prtId,userId, '');
        }
      // this.searchUsers(2);
-      const locations = genLocations()
+      const locations = this.locationSearchResp;
       const printerDetails = {
         ...printer,
-        ...IterateLocation(this.locationSearchResp.data,this.locationSearchResp.totalRecords),
+        locations,
         users: [
           //printer.name
         ...IterateUser(this.userSearchExtResp.data,this.userSearchExtResp.totalRecords)
