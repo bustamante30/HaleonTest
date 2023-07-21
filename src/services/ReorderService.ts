@@ -62,7 +62,7 @@ interface CustomerContact {
 }
 class ReorderService {
 
-    public static submitReorder(reorderInfo: any) {
+    public static submitReorder(reorderInfo: any, statusId = 2) {
         let newReorder: SubmitReorder = {
             OriginalOrderId: reorderInfo.sgsId,
             BrandName: reorderInfo.brandName,
@@ -73,7 +73,7 @@ class ReorderService {
             PrinterName: reorderInfo.printerName,
             PrinterLocationName: reorderInfo.printerLocationName,
             PackType: reorderInfo.packType,
-            StatusId: 2,
+            StatusId: statusId,
             ThumbNailPath: reorderInfo.thumbNail,
             Variety: reorderInfo.variety,
             PO: reorderInfo.PO,
@@ -227,6 +227,22 @@ class ReorderService {
         }).catch((error: any) => {
             console.log("error getting cart count: ", error);
             return 0;
+        });
+    }
+    public static getCart() {
+        return httpService.get<any>('v1/Reorder/getUserCart').then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting cart: ", error);
+            return 0;
+        });
+    }
+    public static discardOrder(id: string) {
+        return httpService.post<any>('v1/Reorder/discardOrder/'+id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error discarding order: ", error);
+            return false
         });
     }
 }

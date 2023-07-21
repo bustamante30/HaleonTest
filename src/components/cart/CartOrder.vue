@@ -4,7 +4,9 @@ import ColorsTable from '@/components/orders/ColorsTable.vue'
 import config from '@/data/config/color-table-edit'
 import { useColorsStore } from '@/stores/colors'
 import router from '@/router'
-
+    import { useOrdersStore } from "@/stores/orders";
+    import { toRefs } from "@vue/reactivity";
+import orders from '../../data/mock/orders'
 defineProps({
   order: {
     type: Object,
@@ -13,8 +15,9 @@ defineProps({
 })
 
 const colorsStore = useColorsStore()
-const colors = computed(() => colorsStore.colors)
+const colors = computed(() => order.colors)
 const isSpecsVisible = ref(false)
+    const ordersStore = useOrdersStore()
 
 function toggleColors() {
   isSpecsVisible.value = !isSpecsVisible.value
@@ -22,19 +25,38 @@ function toggleColors() {
 
 function goto(path) {
   router.push(path)
-}
+    }
+    function getShippingAddress(order) {
+        if (!order.printerContacts) {
+            return "No printer site provided"
+        }
+        return order.printerContacts[0].shippingAddress ? order.printerContacts[0].shippingAddress:""
+    }
+    async function discardOrder(order) {
+        
+        let result = await ordersStore.discardOrder(order.id)
+        if (!result) {
+            alert('Error discarding order')
+        }
+        else {
+            const index = ordersStore.cartOrders.indexOf(order, 0);
+            if (index > -1) {
+                ordersStore.cartOrders.splice(index, 1);
+                ordersStore.cartCount = ordersStore.cartCount - 1
+            }
+        }
+    }
 </script>
-
 <template lang="pug">
 .cart-order
   h2
     span {{ order.brandName }}
     span.separator |
-    span {{ order.name }}
+    span {{ order.description }}
   .summary
     //- | {{ order }}
     .thumbnail
-      prime-image.image(:src="order.image" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+      prime-image.image(:src="order.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
     .details
       .f
         label Item Code
@@ -49,17 +71,17 @@ function goto(path) {
         label Printer
         span {{ order.printerName }}
         span.separator /
-        span {{ order.printerLocation }}
+        span {{ order.printerLocationName }}
       .f
         label Shipping Address
-        span --
+        span  {{getShippingAddress(order)}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
-        colors-table.p-datatable-sm(:config="config" :data="colors" :isEditable="true")
+        colors-table.p-datatable-sm(:config="config" :data="order.colors" :isEditable="true")
       footer
         .secondary-actions
         .actions
-          sgs-button.sm.alert.secondary(icon="delete")
+          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
           sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
           sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)")
 </template>

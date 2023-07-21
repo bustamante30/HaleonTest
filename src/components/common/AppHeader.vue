@@ -1,10 +1,10 @@
 <script setup>
     import { useOrdersStore } from "@/stores/orders";
-    import { ref, onMounted } from "vue";
+    import {  onMounted, computed  } from "vue";
     const ordersStore = useOrdersStore()
-    const cartCount = ref("") 
+    const cartCount = computed(()=>ordersStore.cartCount) 
     onMounted(async () => {
-        cartCount.value = await ordersStore.getCartCount()
+       await ordersStore.getCartCount()
     })
 </script>
 

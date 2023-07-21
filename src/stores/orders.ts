@@ -16,6 +16,8 @@ export const useOrdersStore = defineStore('ordersStore', {
         rows: 10
     },
     orders: [] as any[],
+    cartOrders: [] as any[],
+    cartCount: '',
     filters: {} as any,
     selectedOrder: ordersData[0],
     options: {
@@ -34,9 +36,6 @@ export const useOrdersStore = defineStore('ordersStore', {
   getters: {
     filteredOrders() {
 
-    },
-    cart(state) {
-      return state.orders.filter((order, i) => i <= 2)
     }
   },
   actions: {
@@ -63,7 +62,19 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.selectedOrder = this.orders[0]
       },
       async getCartCount() {
-          return await ReorderService.getCartCount()
+          //await this.getCart()
+          //console.log(this.cartOrders)
+          this.cartCount = await ReorderService.getCartCount()
+          console.log(this.cartCount)
+      },
+      async getCart() {
+          this.cartOrders = await ReorderService.getCart()
+          this.decorateCartOrders()
+          console.log(this.cartOrders)
+      },
+      async discardOrder(id: string) {
+          console.log('order to be discarded'+id)
+          return await ReorderService.discardOrder(id)
       },
     async getOrderById(id: string) {
       if (id != null && id != undefined) {
@@ -136,7 +147,17 @@ export const useOrdersStore = defineStore('ordersStore', {
             }
             this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }  
-    },
+      },
+      decorateCartOrders() {
+          for (let i = 0; i < this.cartOrders.length; i++) {
+              if (!this.cartOrders[i].thumbNailPath) {
+                  this.cartOrders[i].thumbNailPath = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+              }
+              else if (this.cartOrders[i].thumbNailPath) {
+                  this.cartOrders[i].thumbNailPath = decodeURIComponent(this.cartOrders[i].thumbNailPath);
+              }
+          }
+      },
     initAdvancedFilters() {
       this.options.locations = [
         { label: 'Lancaster', value: 1 },

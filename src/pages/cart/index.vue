@@ -24,13 +24,11 @@ import { useOrdersStore } from '@/stores/orders'
 import { useColorsStore } from '@/stores/colors'
 import router from '@/router'
 
-const colorsStore = useColorsStore()
 const ordersStore = useOrdersStore()
-const cart = computed(() => ordersStore.cart)
+const cart = computed(() => ordersStore.cartOrders)
 
 onBeforeMount(() => {
-  colorsStore.getColors()
-  ordersStore.getOrders()
+  ordersStore.getCart()
 })
 </script>
 
