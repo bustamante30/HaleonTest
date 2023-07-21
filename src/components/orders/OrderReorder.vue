@@ -40,18 +40,17 @@ function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
-    async function addToCart() {
-        //if (await ReorderService.submitReorder(ordersStore.selectedOrder, 1)) {
+async function addToCart() {
+    if (await ReorderService.submitReorder(ordersStore.selectedOrder, 1)) {
         isCartMessageVisible.value = true
-            console.log(ordersStore.cartCount)
+        console.log(ordersStore.cartCount)
         ordersStore.cartCount = ordersStore.cartCount + 1;
         console.log(ordersStore.cartCount)
-        /*
     }
-        else {
-            alert(" Error adding order to cart")
-        }
-        */
+    else {
+        alert(" Error adding order to cart")
+    }
+    
 }
 function updateColor(color) {
   ordersStore.updateColor(color)
