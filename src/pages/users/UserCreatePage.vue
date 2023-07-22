@@ -19,8 +19,6 @@ onMounted(() => {
 })
 
 function saveUser(userRequest: any) {
-  debugger;
-  console.log("userRequest:" + userRequest)
   usersStore.saveUser(userRequest)
   usersStore.getPrinters(0)
 }

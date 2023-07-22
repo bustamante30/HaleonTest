@@ -6,7 +6,8 @@ import type { SearchResponeDto} from  '../models/SearchResponeDto';
 import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
 
-const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
+const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ?? 'https://localhost:7026/';
+//import.meta.env.VITE_USER_API_BASE_URL ??
 
 const httpService = new ApiService(baseUrl)
 
@@ -23,7 +24,6 @@ class UserService {
     }
 
      public static saveUser(user: UserDto) {
-        debugger;
         console.log("StoreuserReq:" + user);
     return httpService.post<UserDto>('v1/user', user)
       .then((response: UserDto) => {
@@ -47,7 +47,6 @@ class UserService {
   }
 
   public static searchLocation(searchRequest: SearchRequestDto) {
-    debugger;
     console.log("locationSearch:" + searchRequest);
     return httpService.post<SearchResponeDto>('v1/printer/locationsearch', searchRequest)
       .then((response: SearchResponeDto) => {
@@ -80,7 +79,7 @@ class UserService {
     });
 }
 
-public static addPrinter(printerData: PrinterDto) {
+public static SavePrinter(printerData: PrinterDto) {
   return httpService
     .post<PrinterDto>('v1/printer', printerData)
     .then((response: PrinterDto) => {

@@ -32,12 +32,14 @@ const usersStore = useUsersStore()
 const emit = defineEmits(['createUser', 'editUser'])
 
 const tab = ref('users')
+const parentTab = ref('MSUser')
 const query = ref()
 
 console.log("Printer:" + props.printer);
 
-function selectTab(tabName: string) {
+function selectTab(tabName: string, parentTabName: string) {
   tab.value = tabName
+  parentTab.value = parentTabName
 }
 
 function create(path: string) {
@@ -45,13 +47,19 @@ function create(path: string) {
 }
 
 function edit(user: any) {
+  debugger;
   emit('editUser', user)
 }
 
 function search(query : any) {
-  debugger;
   console.log(query)
-   usersStore.getPrinterById("",query.query)
+  if(parentTab.value != 'MSUser')
+  {
+    parentTab.value = 'MUser'
+  }
+  console.log(query)
+  usersStore.getPrinterById("",query.query)
+ 
 }
 
 function resend() {
@@ -65,13 +73,13 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
     header
       h2 {{ role && role === 'super' ? printer.name : 'Manage Users' }}
       nav.tabs
-        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users')")
-          span Users [{{ printer.summary.users }}]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
-          span Internal Users [{{ printer.summary.internalUsers }}]
-        a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations')")
-          span Locations [{{ printer.summary.locations }} ]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings')")
+        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users','MSUser')")
+          span.f(v-if=printer && printer.summary && printer.summary.users) Users [{{ printer.summary.users }}]
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal', 'MSUser')")
+          span(v-if=printer && printer.summary) Internal Users [{{ printer.summary.internalUsers }}]
+        a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations', 'MSUser')")
+          span(v-if=printer && printer.summary) Locations [{{ printer.summary.locations }} ]
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings','MSUser')")
           span Settings
   .toolbar(v-if="['users', 'internal'].includes(tab)")
     .actions
@@ -81,7 +89,7 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
           span.material-icons.outline search
       sgs-button.sm(label="Add User" icon="add" @click="create")
   .content
-    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @edit="edit" @resend="resend" :className="[ user ? 'lay-low' : '']")
+    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @resend="resend" :className="[ user ? 'lay-low' : '']")
     user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
     location-table(v-else-if="tab === 'locations'" :data="printer.locations" :config="locationConfig")
     printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
