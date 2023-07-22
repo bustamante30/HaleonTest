@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import router from '@/router'
 import { providers } from '@/data/config/identitiy-providers'
+import { useUsersStore } from '@/stores/users'
 
 const emit = defineEmits(['save', 'close'])
+const usersStore = useUsersStore()
 
 const printerForm = ref({
   name: null,
@@ -14,7 +16,10 @@ const printerForm = ref({
 })
 
 function save() {
-  emit('save', printerForm.value)
+  debugger;
+  console.log('AddPrinterRequest:'+ printerForm.value.name);
+  usersStore.savePrinter(printerForm);
+  //emit('save', printerForm.value)
 }
 </script>
 

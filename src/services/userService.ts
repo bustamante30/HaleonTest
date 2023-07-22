@@ -3,6 +3,7 @@ import type { UserDto } from '../models/UserDto';
 import type { SearchRequestDto } from '../models/SearchRequestDto';
 import type { UserSearchResponseDto } from '../models/UserSearchResponseDto';
 import type { SearchResponeDto} from  '../models/SearchResponeDto';
+import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
 
 const baseUrl = 'https://localhost:7026/';
@@ -11,10 +12,6 @@ const httpService = new ApiService(baseUrl)
 
 
 class UserService {
-
-    // public static getV1User() {
-    //     return httpService.get<UserDto>("v1/user")
-    // }
 
     public static getUserClaimInfo() {
         return httpService.get<UserClaimDto>('v1/user/RetrieveUserBasicinfo').then((response: UserClaimDto) => {
@@ -80,6 +77,18 @@ class UserService {
     }).catch((error: any) => {
         console.log("error getting User Details: ", error);
         return null;
+    });
+}
+
+public static addPrinter(printerData: PrinterDto) {
+  return httpService
+    .post<PrinterDto>('v1/printer', printerData)
+    .then((response: PrinterDto) => {
+      return response;
+    })
+    .catch((error: any) => {
+      console.log('Error adding printer:', error);
+      return null;
     });
 }
 

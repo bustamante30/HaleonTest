@@ -13,6 +13,7 @@ import type { SearchRequestDto } from  '../models/SearchRequestDto';
 import type { UserSearchResponseDto } from  '../models/UserSearchResponseDto';
 import type { SearchResponeDto } from  '../models/SearchResponeDto';
 import type { LocationSearchResponseDto } from  '../models/LocationSearchResponseDto';
+import type { PrinterDto } from '../models/PrinterDto';
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -34,19 +35,19 @@ export async function fetchLocations(printerName: string) {
   }
 }
 
-export async function  searchUsers(printerId: number, userIdValue: number, userType: string) {
+export async function  searchUsers(printerId: number, userIdValue: number, userType: string, searchValue: string) {
   try {
     // Create a SearchRequestDto object with the printerName and other parameters
 
     const searchRequest: SearchRequestDto = {
-      searchText: "",
+      searchText: searchValue,
       pageNumber: 1,
       pageCount: 30,
       orderBy: "ModifiedOn",
       orderByAsc: true,
       isActive: true,
       printerId: printerId,
-      userId: userIdValue,
+      userId: 0,
       userTypeKey: userType,
     };
 
@@ -88,7 +89,7 @@ export async function  searchLocation(printerIdValue : number, userIdValue : num
       orderByAsc: true,
       isActive: true,
       printerId: printerIdValue,
-      userId: userIdValue,
+      userId: 0,
       userTypeKey: userType,
     };
 
@@ -122,6 +123,53 @@ function IterateLocation(LocationList: [], count: number) {
 }
 
 
+export async function  searchPrinter(printerId: number, userIdValue: number, userType: string) {
+  try {
+    // Create a SearchRequestDto object with the printerName and other parameters
+debugger;
+    const searchRequest: SearchRequestDto = {
+      searchText: "",
+      pageNumber: 1,
+      pageCount: 30,
+      orderBy: "PrinterId",
+      orderByAsc: true,
+      isActive: true,
+      printerId: printerId,
+      userId: 0,
+      userTypeKey: userType,
+    };
+
+    console.log("userSearchReq:" + searchRequest);
+    const printerResponse = await UserService.searchPrinter(searchRequest);
+
+
+    if (printerResponse && printerResponse.data) {
+      // Map the API response data to the desired format
+      const printers = printerResponse.data.map((printer) => ({
+        id: printer.printerId,
+        name: printer.printerName,
+        //onboardedAt: faker.date.recent(),
+        summary: {
+          locations: printer.locationCount,
+          admins: printer.externalUserCount + printer.internalUserCount,
+          users: printer.externalUserCount,
+          internalUsers: printer.internalUserCount,
+          identityProvider: faker.helpers.arrayElement(['google', 'microsoft']),
+        },
+      }));
+
+      // Return the mapped printers array
+      return printers;
+    } else {
+      console.error('Error searching printers:', printerResponse);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error searching printers:', error);
+    return [];
+  }
+}
+
 export const useUsersStore = defineStore('users', {
   state: () => ({
     all: [] as any[], // Mock all printers in db
@@ -147,7 +195,8 @@ export const useUsersStore = defineStore('users', {
     async getPrinters(page: number, perPage: number = 20) {
       const total = 301
       if (!this.all.length) {
-        const all = genPrinters(total)
+        // const all = genPrinters(total)
+        const all = await searchPrinter(0,0,'')
         this.all = chunk(all, 20)
       }
       console.log("getPrinters");
@@ -160,14 +209,23 @@ export const useUsersStore = defineStore('users', {
       this.selected = this.printers.data[0]
       if (this.selected) this.getPrinterById(this.selected?.id)
     },
-    async getPrinterById(id: string) {
+    async getPrinterById(id: string, searchValue?: string| "") {
       debugger;
       const printer = this.printers.data.find((p: any) => p.id === id)
 
       let prtId: number = 0;
       let userId: number = 0;
       let userType: string ='';
+      let searchKey: string ='';
 
+      if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+        userType =authStore.currentUser.userType;
+      } else if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+        userType =authb2cStore.currentB2CUser.userType;
+      }
+
+      if( userType == "EXT")
+      {
       if (authStore.currentUser?.printerId !== undefined && authStore.currentUser?.printerId !== null) {
         prtId = Number(authStore.currentUser.printerId);
       } else if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
@@ -179,13 +237,19 @@ export const useUsersStore = defineStore('users', {
       } else if (authb2cStore.currentB2CUser?.userId !== undefined && authb2cStore.currentB2CUser?.userId !== null) {
         userId = Number(authb2cStore.currentB2CUser.userId);
       }
+    }
 
-      if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-        userType =authStore.currentUser.userType;
-      } else if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-        userType =authb2cStore.currentB2CUser.userType;
+    if( userType == "INT")
+    {
+      if(id != undefined || id !="") 
+      {
+        prtId = Number(id);
       }
-
+    }
+      
+      if (searchValue !== undefined && searchValue !== null) {
+        searchKey = searchValue;
+      }
 
       // const locations = genLocations(printer.summary.locations)
       console.log("getPrinterById");
@@ -208,24 +272,21 @@ export const useUsersStore = defineStore('users', {
       //   this.options.locations = locations;
       // }
       //const locationsResp = this.options.locations;
-       if(userType === 'EXT')
+       if(userType === 'INT')
        {
-       this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT');
+        userId =0
        }
-       else
-       {
-        this.userSearchExtResp = await searchUsers(prtId, userId, '');
-       }
-
-       this.userSearchIntResp = await searchUsers(prtId, userId, 'INT');
+       this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchKey);
+       this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchKey);
        
+       console.log("PrinterId:"+ prtId);
        if(userType === 'EXT')
        {
-       this.locationSearchResp = await searchLocation(prtId,userId, userType);
+       this.locationSearchResp = await searchLocation(prtId,userId, '');
        }
        else
        {
-        this.locationSearchResp = await searchLocation(prtId,userId, '');
+        this.locationSearchResp = await searchLocation(prtId,0, '');
        }
      // this.searchUsers(2);
       const locations = this.locationSearchResp;
@@ -321,7 +382,37 @@ export const useUsersStore = defineStore('users', {
         console.error('Error saving user:', error);
         // Handle error scenario
       });
-    }
+    },
+    savePrinter(printerreq : any) {
+      debugger;
+      console.log('Save provider', printerreq)
+
+        const printerDto: PrinterDto = {
+          printerName: printerreq.value.name,
+          userData: {
+          firstName: "",
+          lastName: "",
+          displayName: printerreq.value.admin,
+          email: printerreq.value.email
+          },
+          userIdentityProv: [
+            {
+              identityProviderId: 1,
+            },
+          ]
+        };
+    console.log("Add Printer Req:" + printerDto);
+     UserService.addPrinter(printerDto)
+      .then((response: any) => {
+        console.log('Printer saved:', response);
+        this.printers = null;
+        router.push('/users');
+      })
+      .catch((error) => {
+        console.error('Error saving printer:', error);
+        // Handle error scenario
+      });
+    },
   },
 });
 

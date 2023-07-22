@@ -7,6 +7,7 @@ import { config as locationConfig } from '@/data/config/location-table'
 import UserTable from './UserTable.vue'
 import LocationTable from './LocationTable.vue'
 import PrinterProviders from './PrinterProvider.vue'
+import { useUsersStore } from '@/stores/users'
 
 const props = defineProps({
   printer: {
@@ -26,11 +27,14 @@ const props = defineProps({
     default: () => []
   }
 })
+const usersStore = useUsersStore()
 
 const emit = defineEmits(['createUser', 'editUser'])
 
 const tab = ref('users')
 const query = ref()
+
+console.log("Printer:" + props.printer);
 
 function selectTab(tabName: string) {
   tab.value = tabName
@@ -45,7 +49,9 @@ function edit(user: any) {
 }
 
 function search(query : any) {
+  debugger;
   console.log(query)
+   usersStore.getPrinterById("",query.query)
 }
 
 function resend() {
@@ -60,7 +66,7 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
       h2 {{ role && role === 'super' ? printer.name : 'Manage Users' }}
       nav.tabs
         a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users')")
-          span Users [{{ printer.summary.admins + printer.summary.users }}]
+          span Users [{{ printer.summary.users }}]
         a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
           span Internal Users [{{ printer.summary.internalUsers }}]
         a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations')")
