@@ -42,7 +42,7 @@ function toggleFilters() {
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
-    sgs-mask(@click="toggleFilters")
+    //- sgs-mask(@click="toggleFilters")
     advanced-search(:sections="config.sections" :filters="filters" @search="search")
 </template>
 
