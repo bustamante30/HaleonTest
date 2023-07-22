@@ -1,4 +1,4 @@
 export type SearchFieldDto = {
-    Id?: number;
+    SearchFieldId?: number;
     FieldName?: string | null
 };
