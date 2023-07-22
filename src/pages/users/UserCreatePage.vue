@@ -7,6 +7,8 @@ import UserForm from '@/components/printers/UserForm.vue'
 const route = useRoute()
 const usersStore = useUsersStore()
 
+
+
 const id = route.params.id
 
 const printer = computed(() => usersStore.selected)
@@ -16,8 +18,9 @@ onMounted(() => {
   usersStore.createUser()
 })
 
-function saveUser() {
-  usersStore.saveUser()
+function saveUser(userRequest: any) {
+  usersStore.saveUser(userRequest)
+  usersStore.getPrinters(0)
 }
 
 </script>

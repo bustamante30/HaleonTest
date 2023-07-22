@@ -56,6 +56,7 @@ export const useAuthStore = defineStore("auth", {
           scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
           account: this.msalInstance.getAllAccounts()[0],
         };
+        console.log("accessTokenRequest" + accessTokenRequest);
         if (tokenResponse) {
           this.account = tokenResponse.account;
         } else {
@@ -102,17 +103,25 @@ export const useAuthStore = defineStore("auth", {
         });
     },
     async updateUserStore(tokenResponse: any) {
+      debugger;
       this.currentUser.isLoggedIn = true;
+      console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
-      const user = await UserService.getV1User();
+      const user = await UserService.getUserClaimInfo();
+      if(user !== null)
+      {
+      console.log("userclaimsPrinterId:" + user.printerId);
       this.currentUser.firstName = user.firstName as string;
       this.currentUser.lastName = user.lastName as string;
       this.currentUser.email = user.email as string;
       this.currentUser.displayName = user.displayName as string;
       this.currentUser.userType = user.userType as string;
-      this.currentUser.userId = user.id as number
+      this.currentUser.printerId = user.printerId as number;
+      this.currentUser.printerName = user.printerName as string;
+      this.currentUser.userId = user.userId as number;
       localStorage.setItem("userType",this.currentUser.userType);
+      }
     },
   },
 });

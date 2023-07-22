@@ -1,15 +1,19 @@
 <script lang="ts" setup>
-import { onBeforeMount, computed, ref, watch, provide } from 'vue'
+import { onBeforeMount, computed, ref, watch, provide, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import PrinterList from '@/components/printers/PrinterList.vue'
 import PrinterDetails from '@/components/printers/PrinterDetails.vue'
 
 import { useUsersStore } from '@/stores/users'
+import { useAuthStore } from "@/stores/auth"
+import { useB2CAuthStore } from "@/stores/b2cauth"
 
 const route = useRoute()
 let role = ref(route.query?.role)
 
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
 const usersStore = useUsersStore()
 const printers = computed(() => usersStore.printers as any)
 const selected = computed(() => usersStore.selected)
@@ -18,8 +22,9 @@ const options = computed(() => usersStore.options)
 
 provide('options', options)
 
-onBeforeMount(() => {
+onMounted(() => {
   usersStore.getPrinters(0)
+  usersStore.getPrinterById('')
 })
 
 watch(() => route.query, (query) => {

@@ -22,10 +22,17 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['editUser'])
+
 function stylify(width) {
   return width
     ? { width: `${width}rem`, flex: 'none' }
     : { width: 'auto', flex: '1' }
+}
+
+function handleAction(action) {
+  debugger;
+  emit(action.event, action.data)
 }
 
 </script>
@@ -37,7 +44,7 @@ data-table.p-datatable-sm.user-table(:value="data" scrollable scrollHeight="flex
       table-cell(:config="col" :data="data" )
   column(v-if="config.actions" :headerStyle="stylify(4)" :bodyStyle="stylify(4)" :frozen="true" alignFrozen="right")
     template(#body="{ data }")
-      table-actions(:actions="config.actions(data)" :data="data")
+      table-actions(:actions="config.actions(data)" :data="data" @actions = handleAction)
 </template>
 
 <style lang="sass" scoped>

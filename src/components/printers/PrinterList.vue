@@ -56,7 +56,7 @@ function search(query) {
     .printer(v-for="(printer, i) in printers.data" :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")
       span {{ printer.name }}
       span.summary
-        small.users {{ printer.summary.admins + printer.summary.users }} Users
+        small.users {{ printer.summary.admins }} Users
         small.locations {{ printer.summary.locations }} Locations
         small.identity-provider {{ printer.summary.identityProvider }}
     template(#footer)

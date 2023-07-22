@@ -1,6 +1,9 @@
-<script setup>
-import { ref } from 'vue'
-import router from '@/router'
+<script lang="ts" setup>
+import { type Ref, ref, inject, onBeforeMount, reactive } from 'vue';
+import SuggesterService from "@/services/SuggesterService";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import router from '@/router';
 
 const props = defineProps({
   user: {
@@ -13,14 +16,20 @@ const props = defineProps({
   },
 })
 
+
+
+const printerLocResults: Ref<string[]> = ref([]);
+
 const emit = defineEmits(['save'])
 
 const userForm = ref({ ...props.user })
 
 const options = inject('options') || { locations: [] }
 
+
 function save() {
-  emit('save')
+  console.log("userform:"+ userForm);
+  emit('save', userForm)
 }
 </script>
 
@@ -56,7 +65,7 @@ function save() {
         footer
           .secondary-actions &nbsp;
           .actions
-            sgs-button(label="Save" @click="save()")
+            sgs-button(label="Save" @click="save")
 </template>
 
 <style lang="sass" scoped>
