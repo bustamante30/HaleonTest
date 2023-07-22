@@ -30,9 +30,8 @@ function confirm() {
 
 const errorMessage = ref('');
 
- async   function placeOrder() {
-        console.log(checkout);
-        console.log(ordersStore.selectedOrder)
+ async function placeOrder() {
+ 
   var dateError;
   var timeError;
   if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
@@ -57,6 +56,7 @@ const errorMessage = ref('');
      }
      else {
          result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+         ordersStore.setOrderInStore(result)
      }
   console.log(result)
   if (!timeError && !dateError) {

@@ -2,7 +2,6 @@ import ordersData from '@/data/mock/orders';
 import { DateTime } from 'luxon';
 import { defineStore } from 'pinia';
 import ReorderService from "@/services/ReorderService";
-import * as pagination from 'primevue/paginator';
 import filterStore from '@/stores/filterStore'
 import router from '@/router'
 
@@ -25,10 +24,10 @@ export const useOrdersStore = defineStore('ordersStore', {
       imageCarrierCodeTypes: [] as any[]
     },
     checkout: {
-      expectedDate: null,// DateTime.now().plus({ hour: 2 }).startOf('hour').toJSDate(),
+      expectedDate: null,
       purchaseOrder: null,
       expectedTime: null,
-      shippingAddrress: null
+      notes: null
     },
     totalRecords: 0,
     searchHistory: [] as any[],
@@ -74,7 +73,11 @@ export const useOrdersStore = defineStore('ordersStore', {
           console.log('order to be discarded'+id)
           return await ReorderService.discardOrder(id)
       },
-    async getOrderById(id: any) {
+      async setOrderInStore(result: any) {
+        let details = JSON.parse(JSON.stringify(result))
+        this.selectedOrder = details
+      },
+      async getOrderById(id: any) {
         if (id != null && id != undefined) {
             if (!isNaN(parseFloat(id)) && isFinite(id)) {
                 this.selectedOrder = this.cartOrders.find((order: any) => order.id === id)
@@ -175,7 +178,10 @@ export const useOrdersStore = defineStore('ordersStore', {
 
     },
     updateCheckout(checkout: any) {
-      this.checkout = { ...checkout }
+      this.checkout = { ...checkout };
+      (this.selectedOrder as any).PO = this.checkout.purchaseOrder;
+      (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
+      (this.selectedOrder as any).Notes =this.checkout.notes;
     },
     // color update flow
     updateColor({ id, field, value }: any): void {
