@@ -31,7 +31,12 @@ const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function back() {
-  router.push('/dashboard')
+    const index = ordersStore.cartOrders.indexOf(selectedOrder, 0);
+    if (index > -1) {
+        ordersStore.cartOrders.splice(index, 1);
+        ordersStore.cartCount = ordersStore.cartCount - 1
+    }
+    router.push('/dashboard')
 }
 </script>
 

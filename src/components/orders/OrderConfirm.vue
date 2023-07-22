@@ -45,8 +45,19 @@ const errorMessage = ref('');
     timeError = true;
   } else {
     timeError = false;
-  }
-     let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+     }
+     let result = ''
+     if (ordersStore.selectedOrder.id > 0) {
+         ordersStore.selectedOrder.statusId = 2
+         result = await ReorderService.updateDraft(ordersStore.selectedOrder)
+         if (!result) {
+             alert('Error updating draft')
+         }
+
+     }
+     else {
+         result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+     }
   console.log(result)
   if (!timeError && !dateError) {
     checkout.value.expectedDate =  null
