@@ -6,7 +6,7 @@ import type { SearchResponeDto} from  '../models/SearchResponeDto';
 import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
 
-const baseUrl = 'https://localhost:7026/';
+const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
 
 const httpService = new ApiService(baseUrl)
 
