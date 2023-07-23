@@ -32,7 +32,7 @@ const config = {
     // },
     {
       header: 'Location',
-      field: 'location.name',
+      field: 'locationName',
       type: 'dropdown',
       options: { key: 'locations' },
       width: 10

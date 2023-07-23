@@ -26,7 +26,10 @@ watch(props.checkout, () => {
 })
 
 function updateCheckout() {
-  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:checkoutForm.value.expectedDate,expectedTime: checkoutForm.value.expectedTime })
+  let expectedDateTime: Date = checkoutForm.value.expectedDate;
+  expectedDateTime.setHours(checkoutForm.value.expectedTime.getHours());
+  expectedDateTime.setMinutes(checkoutForm.value.expectedTime.getMinutes())
+  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:expectedDateTime, notes: checkoutForm.value.notes })
 }
 
 function minSelectableDate() {

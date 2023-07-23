@@ -1,4 +1,6 @@
-
+import { type UserRoleDto } from "./UserRoleDto";
+import { type UserPrinterLocationDto } from "./UserPrinterLocationDto";
+ 
 export type UserDto = {
     id?: number;
     uniqueIdentifier?: string | null;
@@ -6,5 +8,9 @@ export type UserDto = {
     lastName?: string | null;
     displayName?: string | null;
     email?: string | null;
-    userType: string | null;
+    userType?: string | null;
+    printerId?: number| null;
+    isAdmin?: boolean | null;
+    roles?: Array<UserRoleDto> | null;
+    printerLoc?: Array<UserPrinterLocationDto> | null;
 };

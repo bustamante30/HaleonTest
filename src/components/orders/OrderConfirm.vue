@@ -30,9 +30,8 @@ function confirm() {
 
 const errorMessage = ref('');
 
- async   function placeOrder() {
-        console.log(checkout);
-        console.log(ordersStore.selectedOrder)
+ async function placeOrder() {
+ 
   var dateError;
   var timeError;
   if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
@@ -45,8 +44,20 @@ const errorMessage = ref('');
     timeError = true;
   } else {
     timeError = false;
-  }
-     let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+     }
+     let result = ''
+     if (ordersStore.selectedOrder.id > 0) {
+         ordersStore.selectedOrder.statusId = 2
+         result = await ReorderService.updateDraft(ordersStore.selectedOrder)
+         if (!result) {
+             alert('Error updating draft')
+         }
+
+     }
+     else {
+         result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+         ordersStore.setOrderInStore(result)
+     }
   console.log(result)
   if (!timeError && !dateError) {
     checkout.value.expectedDate =  null

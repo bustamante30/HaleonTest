@@ -107,13 +107,21 @@ export const useAuthStore = defineStore("auth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
-      const user = await UserService.getV1User();
+      const user = await UserService.getUserClaimInfo();
+      if(user !== null)
+      {
+      console.log("userclaimsPrinterId:" + user.printerId);
       this.currentUser.firstName = user.firstName as string;
       this.currentUser.lastName = user.lastName as string;
       this.currentUser.email = user.email as string;
       this.currentUser.displayName = user.displayName as string;
       this.currentUser.userType = user.userType as string;
+      this.currentUser.printerId = user.printerId as number;
+      this.currentUser.printerName = user.printerName as string;
+      this.currentUser.userId = user.userId as number;
+      this.currentUser.roleKey = user.roleKey as string;
       localStorage.setItem("userType",this.currentUser.userType);
+      }
     },
   },
 });

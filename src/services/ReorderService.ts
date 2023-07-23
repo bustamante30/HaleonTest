@@ -128,14 +128,10 @@ class ReorderService {
                     isActive: contact.isActive
                 })
         })
-        console.log('Order to submit:')
-        console.log(newReorder)
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
-                console.log('submitted Order:')
-                console.log(response.result);
-                return response.success;                    
+                return response.result;                    
             })
             .catch((error: any) => {
                 console.log('Error submitting reorder:', error);

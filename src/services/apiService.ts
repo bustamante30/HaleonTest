@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 class ApiService {
   private baseUrl: string;
@@ -31,7 +31,6 @@ class ApiService {
       if (params) {
           requestConfig.params = params
         }
-        console.log(requestConfig.headers?.Authorization);
     return this.request<T>(requestConfig);
   }
 

@@ -17,11 +17,13 @@ const userName = computed(() => {
 })
 
 onBeforeMount(() => {
+ console.log("EditPage:" + id);
   usersStore.getUser(id as string)
 })
 
-function saveUser() {
-  usersStore.saveUser()
+function saveUser(value: any) {
+  usersStore.saveUser(value)
+  usersStore.getPrinters(0)
 }
 
 </script>

@@ -2,10 +2,15 @@
 import { ref } from 'vue'
 import router from '@/router'
 import { providers } from '@/data/config/identitiy-providers'
+import { useUsersStore } from '@/stores/users'
+import SuggesterService from "@/services/SuggesterService";
 
 const emit = defineEmits(['save', 'close'])
+const usersStore = useUsersStore()
+const printerResults = ref([])
 
 const printerForm = ref({
+  id: null,
   name: null,
   provider: null,
   tenantId: null,
@@ -13,8 +18,16 @@ const printerForm = ref({
   email: null,
 })
 
+async function searchPrinter(value) {
+       if (value.query && value.query.length > 1) {
+           printerResults.value = await SuggesterService.getPrinterList(value.query)
+       }
+  }
+
 function save() {
-  emit('save', printerForm.value)
+  usersStore.savePrinter(printerForm);
+  usersStore.getPrinterById(printerForm.id)
+  //emit('save', printerForm.value)
 }
 </script>
 
@@ -33,13 +46,13 @@ function save() {
         .card.details
           .f
             label Printer Name
-            prime-auto-complete(v-model="printerForm.name")
+            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found")
           .f
             label Identify Provider
             prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value")
-          .f(v-if="printerForm.provider !== 'photon'")
-            label Tenant ID
-            prime-inputtext(v-model="printerForm.tenantId")
+          //- .f(v-if="printerForm.provider !== 'photon'")
+          //-   label Tenant ID
+          //-   prime-inputtext(v-model="printerForm.tenantId")
           h5 Admin
           .f
             label Name
