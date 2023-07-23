@@ -35,7 +35,7 @@ header.app-header
   .nav
     router-link(to="/dashboard") Dashboard
     //- Use a ternary operator to conditionally set the link's text
-    router-link(:to= "(userType === 'INT' && userRole ==='PrinterAdmin') ? '/users' : '/users?role=super'") {{ (userType === 'INT' && userRole ==='PrinterAdmin') ? 'Manager Users' : 'Manage Users (As Super)' }}
+    router-link(:to= "(userType === 'INT' && userRole ==='PMSuperAdminUser') ? '/users?role=super' : '/users'") {{ (userType === 'INT' && userRole ==='PMSuperAdminUser') ?  'Manage Users (As Super)' : 'Manager Users' }}
     //- router-link(to="/users") Manage Users
     //- router-link(to="/users?role=super") Manage Users (As Super)
     router-link(to="/dashboard") Help
