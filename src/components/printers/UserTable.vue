@@ -31,7 +31,6 @@ function stylify(width) {
 }
 
 function handleAction(action) {
-  debugger
   emit('editUser',{event: action.event, data: action.data})
 }
 
