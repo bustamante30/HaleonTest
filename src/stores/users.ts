@@ -150,7 +150,7 @@ export async function  searchPrinter(printerId: number, userIdValue: number, use
         //onboardedAt: faker.date.recent(),
         summary: {
           locations: printer.locationCount,
-          admins: printer.externalUserCount + printer.internalUserCount,
+          admins: printer.totalUserCount,
           users: printer.externalUserCount,
           internalUsers: printer.internalUserCount,
           identityProvider: faker.helpers.arrayElement(['google', 'microsoft']),
@@ -188,7 +188,9 @@ export const useUsersStore = defineStore('users', {
     user: null as any,
     userSearchExtResp: null as any,
     userSearchIntResp: null as any,
-    locationSearchResp: null as any
+    locationSearchResp: null as any,
+    userTypeValue: null as any,
+    userRoleValue: null as any,
   }),
   actions: {
     async getPrinters(page: number, perPage: number = 20) {
@@ -241,14 +243,14 @@ export const useUsersStore = defineStore('users', {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
         userType =authStore.currentUser.userType;
       } 
-     }
+      }
       
      if(authb2cStore.currentB2CUser.email != '')
       {
       if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
         userType =authb2cStore.currentB2CUser.userType;
       }
-    }
+      }
 
       if(userType === 'INT' && id === '')
       {
@@ -370,24 +372,61 @@ export const useUsersStore = defineStore('users', {
       router.push('/users/new')
     },
    async getUser(id: string) {
+   // this.user = null;
       console.log("Getid:"+ id);
       //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
       console.log("Getusers:"+ userEditResp);
-      const user = userEditResp?.find((u: any) => u.id === id)
-      if (user) this.editUser(user)
+      //const user = userEditResp?.find((u: any) => u.id === id)
+
+    if(userEditResp != null)
+    {
+       this.user ={
+        id: userEditResp.id,
+        firstName: userEditResp.firstName,
+        lastName: userEditResp.lastName,
+        email: userEditResp.email,
+       location : userEditResp.printerLoc?.[0]?.locationName || "N/A",
+       isadmin: userEditResp.roles?.[0]?.isAdmin || false
+      };
+    
+
+      //const user = userEditResp;
+      if (this.user) {
+        this.editUser(this.user);
+       
+      } 
+    }
+    else {
+      console.log("User not found");
+    }
     },
     editUser(user: any) {
       console.log("EditUser:" +user);
       if (this.selected && user) {
         this.user = { ...user}
       }
-    router.push(`/users/${user.id}`)
+    //router.push(`/users/${user.id}`)
     },
     saveUser(userreq : any) {
       console.log('Save user', userreq)
 
      let printerIdValue: number | null = null;
+     let userType: string ='';
+
+     if(authStore.currentUser.email != '')
+     {
+     if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+       userType =authStore.currentUser.userType;
+     } 
+     }
+     
+    if(authb2cStore.currentB2CUser.email != '')
+     {
+     if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+       userType =authb2cStore.currentB2CUser.userType;
+     }
+     }
 
   if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
     printerIdValue = Number(authb2cStore.currentB2CUser.printerId);
@@ -403,20 +442,25 @@ export const useUsersStore = defineStore('users', {
           displayName: `${userreq.value.firstName} ${userreq.value.lastName}`,
           email: userreq.value.email,
           printerId: printerIdValue,
-          userRoles: null, 
+          roles: null, 
           isAdmin: userreq.value.isAdmin,
-          PrinterLoc: [
+          printerLoc: [
             {
               locationName: userreq.value.location,
             },
           ],
         };
-    console.log("StoreuserReq:" + userDto);
      UserService.saveUser(userDto)
       .then((response: any) => {
-        console.log('User saved:', response);
         this.user = null;
-        router.push('/users'); // Navigate to the users page after saving
+        if(userType ==='EXT')
+        {
+        router.push('/users'); 
+        }
+        else if (userType === 'INT')
+        {
+          router.push('/users?role=super');
+        }
       })
       .catch((error) => {
         console.error('Error saving user:', error);
@@ -444,8 +488,8 @@ export const useUsersStore = defineStore('users', {
      UserService.SavePrinter(printerDto)
       .then((response: any) => {
         console.log('Printer saved:', response);
-        this.printers = null;
-        router.push('/users');
+        this.printers.id = response;
+        router.push('/users?role=super');
       })
       .catch((error) => {
         console.error('Error saving printer:', error);

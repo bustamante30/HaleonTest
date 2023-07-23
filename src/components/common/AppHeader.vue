@@ -1,13 +1,44 @@
 <script setup>
-    import AppLogo from './AppLogo.vue'
-    import UserProfile from './UserProfile.vue'
-    import { useOrdersStore } from "@/stores/orders";
-    import {  onMounted, computed  } from "vue";
-    const ordersStore = useOrdersStore()
-    const cartCount = computed(()=>ordersStore.cartCount) 
-    onMounted(async () => {
+import AppLogo from './AppLogo.vue'
+import UserProfile from './UserProfile.vue'
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useOrdersStore } from "@/stores/orders";
+import {  onBeforeMount,onMounted, computed  } from "vue";
+
+const ordersStore = useOrdersStore()
+const cartCount = computed(()=>ordersStore.cartCount) 
+onMounted(async () => {
        await ordersStore.getCartCount()
-    })
+      
+});
+
+
+onBeforeMount(async () => {
+  const authStore = useAuthStore();
+  const authb2cStore = useB2CAuthStore();
+  let userType = '';
+  let userRole = '';
+
+  if (authStore.currentUser.email !== '') {
+    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+      userType = authStore.currentUser.userType;
+      userRole = authStore.currentUser.roleKey;
+    }
+  }
+
+  if (authb2cStore.currentB2CUser.email !== '') {
+    if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+      userType = authb2cStore.currentB2CUser.userType;
+      userRole = authb2cStore.currentB2CUser.roleKey;
+    }
+  }
+});
+
+
+    
+
+
 </script>
 
 <template lang="pug">
@@ -17,8 +48,10 @@ header.app-header
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
     router-link(to="/dashboard") Dashboard
-    router-link(to="/users") Manage Users
-    router-link(to="/users?role=super") Manage Users (As Super)
+    //- Use a ternary operator to conditionally set the link's text
+    router-link(:to= "(userType === 'EXT' && userRole ==='PrinterAdmin') ?  '/users' : '/users?role=super'") {{ (userType === 'EXT' && userRole ==='PrinterAdmin') ?  'Manager Users' : 'Manage Users (As Super)' }}
+    //- router-link(to="/users") Manage Users
+    //- router-link(to="/users?role=super") Manage Users (As Super)
     router-link(to="/dashboard") Help
   span.separator
   .tools

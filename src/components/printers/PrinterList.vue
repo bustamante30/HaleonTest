@@ -41,6 +41,8 @@ function getPrinters(event) {
 function search(query) {
   console.log(query)
 }
+
+
 </script>
 
 <template lang="pug">

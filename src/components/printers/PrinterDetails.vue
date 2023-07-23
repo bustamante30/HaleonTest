@@ -8,6 +8,7 @@ import UserTable from './UserTable.vue'
 import LocationTable from './LocationTable.vue'
 import PrinterProviders from './PrinterProvider.vue'
 import { useUsersStore } from '@/stores/users'
+import router from '@/router'
 
 const props = defineProps({
   printer: {
@@ -47,8 +48,8 @@ function create(path: string) {
 }
 
 function edit(user: any) {
-  debugger;
-  emit('editUser', user)
+  //emit('editUser', user)
+  router.push(`/users/${user.data.id}?role=super`)
 }
 
 function search(query : any) {
@@ -58,7 +59,7 @@ function search(query : any) {
     parentTab.value = 'MUser'
   }
   console.log(query)
-  usersStore.getPrinterById("",query.query)
+  usersStore.getPrinterById("",query.query,parentTab.value)
  
 }
 

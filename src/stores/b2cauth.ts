@@ -152,6 +152,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.currentB2CUser.printerId = user.printerId as number;
       this.currentB2CUser.printerName = user.printerName as string;
       this.currentB2CUser.userId = user.userId as number;
+      this.currentB2CUser.roleKey = user.roleKey as string;
       localStorage.setItem("userType",this.currentB2CUser.userType);
       }
     },

@@ -7,6 +7,6 @@ export type UserClaimDto = {
     email?: string | null;
     userType: string | null;
     printerId: number  | null;
-    roleKey: number  | null;
+    roleKey?: string  | null;
     printerName: string  | null;
 };

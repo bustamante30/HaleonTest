@@ -71,7 +71,7 @@ class UserService {
   }
 
   public static getUserDetails(userId: string) {
-    return httpService.get<any>('v1/user/Retrieve?userId=' + userId).then((response: any) => {
+    return httpService.get<UserDto>('v1/user/Retrieve?userId=' + userId).then((response: UserDto) => {
         return response
     }).catch((error: any) => {
         console.log("error getting User Details: ", error);

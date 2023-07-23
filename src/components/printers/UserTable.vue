@@ -31,8 +31,7 @@ function stylify(width) {
 }
 
 function handleAction(action) {
-  debugger;
-  emit(action.event, action.data)
+  emit('editUser',{event: action.event, data: action.data})
 }
 
 </script>
@@ -44,7 +43,7 @@ data-table.p-datatable-sm.user-table(:value="data" scrollable scrollHeight="flex
       table-cell(:config="col" :data="data" )
   column(v-if="config.actions" :headerStyle="stylify(4)" :bodyStyle="stylify(4)" :frozen="true" alignFrozen="right")
     template(#body="{ data }")
-      table-actions(:actions="config.actions(data)" :data="data" @actions = handleAction)
+      table-actions(:actions="config.actions(data)" :data="data" @action="handleAction")
 </template>
 
 <style lang="sass" scoped>
