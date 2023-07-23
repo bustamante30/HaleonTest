@@ -59,7 +59,7 @@ header.app-header
     //-   span.material-icons.outline groups
     //- router-link(to="/" v-tooltip.bottom="{ value: 'Saved Orders' }")
     //-   span.material-icons.outline bookmark
-    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="4")
+    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="cartCount")
       span.material-icons.outline shopping_cart
     user-profile
 </template>
