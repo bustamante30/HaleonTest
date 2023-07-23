@@ -103,7 +103,6 @@ export const useAuthStore = defineStore("auth", {
         });
     },
     async updateUserStore(tokenResponse: any) {
-      debugger;
       this.currentUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
@@ -120,7 +119,7 @@ export const useAuthStore = defineStore("auth", {
       this.currentUser.printerId = user.printerId as number;
       this.currentUser.printerName = user.printerName as string;
       this.currentUser.userId = user.userId as number;
-      localStorage.setItem("userType",this.currentUser.userType);
+      this.currentUser.roleKey = user.roleKey as string;
       }
     },
   },

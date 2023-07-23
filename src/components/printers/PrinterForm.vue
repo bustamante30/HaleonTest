@@ -7,9 +7,10 @@ import SuggesterService from "@/services/SuggesterService";
 
 const emit = defineEmits(['save', 'close'])
 const usersStore = useUsersStore()
-
+const printerResults = ref([])
 
 const printerForm = ref({
+  id: null,
   name: null,
   provider: null,
   tenantId: null,
@@ -24,8 +25,9 @@ async function searchPrinter(value) {
   }
 
 function save() {
+  debugger;
   usersStore.savePrinter(printerForm);
-  usersStore.getPrinters(0);
+  usersStore.getPrinterById(printerForm.id)
   //emit('save', printerForm.value)
 }
 </script>
@@ -45,7 +47,7 @@ function save() {
         .card.details
           .f
             label Printer Name
-            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found")
+            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found")
           .f
             label Identify Provider
             prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value")

@@ -3,7 +3,6 @@ import { ref, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUsersStore } from '@/stores/users'
 import UserForm from '@/components/printers/UserForm.vue'
-import { Console } from 'console';
 
 const route = useRoute()
 const usersStore = useUsersStore()
@@ -18,8 +17,8 @@ const userName = computed(() => {
 })
 
 onBeforeMount(() => {
+  debugger;
  console.log("EditPage:" + id);
-  
   usersStore.getUser(id as string)
 })
 

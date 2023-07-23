@@ -4,6 +4,7 @@ import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
+import { useUsersStore } from '@/stores/users'
 
 const props = defineProps({
   user: {
@@ -16,7 +17,7 @@ const props = defineProps({
   },
 })
 
-
+const usersStore = useUsersStore()
 
 const printerLocResults: Ref<string[]> = ref([]);
 
@@ -26,6 +27,34 @@ const userForm = ref({ ...props.user })
 
 const options = inject('options') || { locations: [] }
 
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
+      let userType ='';
+      let userRole ='';
+      debugger;
+      if(authStore.currentUser.email != '')
+      {
+      if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+        userType =authStore.currentUser.userType;
+      } 
+      }
+      
+     if(authb2cStore.currentB2CUser.email != '')
+      {
+      if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+        userType =authb2cStore.currentB2CUser.userType;
+      }
+      }
+
+function handleClose() {
+  debugger;
+  if (userType === 'INT') {
+    router.push('/users?role=super');
+    usersStore.getPrinters(0)
+  } else if (userType === 'EXT') {
+    router.push('/users');
+  }
+}
 
 function save() {
   console.log("userform:"+ userForm);
@@ -41,7 +70,7 @@ function save() {
       template(#header)
         header
           h1.title(v-if="title") {{ title }}
-          a.close(@click="router.push('/users')")
+          a.close(@click="handleClose")
             span.material-icons.outline close
 
       .card.summary
