@@ -173,10 +173,15 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.checkout = { ...checkout }
     },
     // color update flow
-    updateColor({ id, field, value }: any): void {
+    async updateColor({ id, field, value }: any) {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex((color: any) => color.mcgColourId == id);
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
+        if (!isNaN(parseFloat(this.selectedOrder.id)) && isFinite((this.selectedOrder.id as any)) && parseFloat(this.selectedOrder.id)>0) {
+          if (!await ReorderService.updateDraft(this.selectedOrder)) {
+            alert('error updating draft')
+          }
+      }
     },
     // Order Table Actions
     addToCart(order: any) {
