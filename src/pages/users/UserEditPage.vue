@@ -17,7 +17,6 @@ const userName = computed(() => {
 })
 
 onBeforeMount(() => {
-  debugger;
  console.log("EditPage:" + id);
   usersStore.getUser(id as string)
 })

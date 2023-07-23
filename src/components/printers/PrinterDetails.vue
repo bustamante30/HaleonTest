@@ -48,7 +48,6 @@ function create(path: string) {
 }
 
 function edit(user: any) {
-  debugger;
   //emit('editUser', user)
   router.push(`/users/${user.data.id}?role=super`)
 }

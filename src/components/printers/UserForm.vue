@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type Ref, ref, inject, onBeforeMount, reactive } from 'vue';
+import { type Ref, ref, inject, computed, onBeforeMount, reactive } from 'vue';
 import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -23,7 +23,9 @@ const printerLocResults: Ref<string[]> = ref([]);
 
 const emit = defineEmits(['save'])
 
-const userForm = ref({ ...props.user })
+//const userForm = ref({ ...props.user })
+
+const userForm = computed(()=>usersStore.user)
 
 const options = inject('options') || { locations: [] }
 
@@ -31,7 +33,6 @@ const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
       let userType ='';
       let userRole ='';
-      debugger;
       if(authStore.currentUser.email != '')
       {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
@@ -47,7 +48,6 @@ const authb2cStore = useB2CAuthStore();
       }
 
 function handleClose() {
-  debugger;
   if (userType === 'INT') {
     router.push('/users?role=super');
     usersStore.getPrinters(0)

@@ -120,6 +120,7 @@ export const useAuthStore = defineStore("auth", {
       this.currentUser.printerName = user.printerName as string;
       this.currentUser.userId = user.userId as number;
       this.currentUser.roleKey = user.roleKey as string;
+      localStorage.setItem("userType",this.currentUser.userType);
       }
     },
   },

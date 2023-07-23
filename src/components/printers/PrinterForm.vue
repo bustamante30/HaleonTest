@@ -25,7 +25,6 @@ async function searchPrinter(value) {
   }
 
 function save() {
-  debugger;
   usersStore.savePrinter(printerForm);
   usersStore.getPrinterById(printerForm.id)
   //emit('save', printerForm.value)

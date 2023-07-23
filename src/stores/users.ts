@@ -372,19 +372,34 @@ export const useUsersStore = defineStore('users', {
       router.push('/users/new')
     },
    async getUser(id: string) {
-    debugger;
+   // this.user = null;
       console.log("Getid:"+ id);
       //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
       console.log("Getusers:"+ userEditResp);
       //const user = userEditResp?.find((u: any) => u.id === id)
-      const user = userEditResp;
-      if (user) {
-        this.editUser(user);
-        console.log("User data set:", this.user);
-      } else {
-        console.log("User not found");
-      }
+
+    if(userEditResp != null)
+    {
+       this.user ={
+        id: userEditResp.id,
+        firstName: userEditResp.firstName,
+        lastName: userEditResp.lastName,
+        email: userEditResp.email,
+       location : userEditResp.printerLoc?.[0]?.locationName || "N/A",
+       isadmin: userEditResp.roles?.[0]?.isAdmin || false
+      };
+    
+
+      //const user = userEditResp;
+      if (this.user) {
+        this.editUser(this.user);
+       
+      } 
+    }
+    else {
+      console.log("User not found");
+    }
     },
     editUser(user: any) {
       console.log("EditUser:" +user);
@@ -394,7 +409,6 @@ export const useUsersStore = defineStore('users', {
     //router.push(`/users/${user.id}`)
     },
     saveUser(userreq : any) {
-      debugger;
       console.log('Save user', userreq)
 
      let printerIdValue: number | null = null;
@@ -428,9 +442,9 @@ export const useUsersStore = defineStore('users', {
           displayName: `${userreq.value.firstName} ${userreq.value.lastName}`,
           email: userreq.value.email,
           printerId: printerIdValue,
-          userRoles: null, 
+          roles: null, 
           isAdmin: userreq.value.isAdmin,
-          PrinterLoc: [
+          printerLoc: [
             {
               locationName: userreq.value.location,
             },

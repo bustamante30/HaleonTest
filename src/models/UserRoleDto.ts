@@ -4,4 +4,5 @@ export type UserRoleDto = {
     firstName?: string | null;
     Role?: string | null;
     RoleKey?: string | null;
+    isAdmin?: boolean | null;
 };
