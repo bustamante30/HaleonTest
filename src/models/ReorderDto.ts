@@ -26,7 +26,7 @@ export type ReorderDto = {
     createdBy?: number;
     statusId?: number;
     orderStatus?: string | null;
-    thumbNail?: string | null;
+    thumbNailPath: string | null;
     colors?: Array<ColourDto> | null;
 };
 

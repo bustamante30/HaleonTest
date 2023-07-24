@@ -16,7 +16,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     },
     orders: [] as any[],
     cartOrders: [] as any[],
-    cartCount: '',
+    cartCount: 0,
     filters: {} as any,
     selectedOrder: ordersData[0],
     options: {
@@ -85,23 +85,23 @@ export const useOrdersStore = defineStore('ordersStore', {
         else {
           this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
 
-          let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
-          this.selectedOrder.description = details.jobDescription
-          this.selectedOrder.colors = Array.from(details.colors)
-          this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0 });
-          (this.selectedOrder as any)['customerDetails'] = details.customerDetails
-          this.selectedOrder.barcodes = details.barcode
-          this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
-          this.selectedOrder.printProcess = details.techSpec.printProcessDescription
-          this.selectedOrder.substrate = details.techSpec.substrate
-          this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint
-          this.selectedOrder.plateRelief = details.techSpec.plateRelief
-          this.selectedOrder.plateThickness = details.techSpec.thicknessDesc
-          this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder
-          this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder
-          this.selectedOrder.dispro = details.techSpec.dispro
-          this.selectedOrder.plateType = details.techSpec.plateType
-        }
+                let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
+                this.selectedOrder.description = details.jobDescription
+                this.selectedOrder.colors = Array.from(details.colors)
+                this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0 });
+                (this.selectedOrder as any)['customerContacts'] = details.customerContacts
+                this.selectedOrder.barcodes = details.barcode
+                this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
+                this.selectedOrder.printProcess = details.techSpec.printProcessDescription
+                this.selectedOrder.substrate = details.techSpec.substrate
+                this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint
+                this.selectedOrder.plateRelief = details.techSpec.plateRelief
+                this.selectedOrder.plateThickness = details.techSpec.thicknessDesc
+                this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder
+                this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder
+                this.selectedOrder.dispro = details.techSpec.dispro
+                this.selectedOrder.plateType = details.techSpec.plateType
+            }
         return this.selectedOrder
       }
     },
@@ -147,26 +147,26 @@ export const useOrdersStore = defineStore('ordersStore', {
       filterStore.state.sortFields = null
     },
     decorateOrders() {
-      for (let i = 0; i < this.orders.length; i++) {
-        if (!this.orders[i].thumbNail) {
-          this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
-        }
-        else if (this.orders[i].thumbNail) {
-          this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
-        }
-        this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
-      }
-    },
-    decorateCartOrders() {
-      for (let i = 0; i < this.cartOrders.length; i++) {
-        if (!this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
-        }
-        else if (this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = decodeURIComponent(this.cartOrders[i].thumbNailPath);
-        }
-      }
-    },
+        for (let i = 0; i < this.orders.length; i++) {
+            if (!this.orders[i].thumbNailPath) {
+                this.orders[i].thumbNailPath = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+            }
+            else if (this.orders[i].thumbNailPath) {
+                this.orders[i].thumbNailPath = decodeURIComponent(this.orders[i].thumbNailPath);
+            }
+            this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
+        }  
+      },
+      decorateCartOrders() {
+          for (let i = 0; i < this.cartOrders.length; i++) {
+              if (!this.cartOrders[i].thumbNailPath) {
+                  this.cartOrders[i].thumbNailPath = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+              }
+              else if (this.cartOrders[i].thumbNailPath) {
+                  this.cartOrders[i].thumbNailPath = decodeURIComponent(this.cartOrders[i].thumbNailPath);
+              }
+          }
+      },
     initAdvancedFilters() {
       this.options.locations = [
         { label: 'Lancaster', value: 1 },
@@ -187,10 +187,15 @@ export const useOrdersStore = defineStore('ordersStore', {
       (this.selectedOrder as any).Notes = this.checkout.notes;
     },
     // color update flow
-    updateColor({ id, field, value }: any): void {
+    async updateColor({ id, field, value }: any) {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex((color: any) => color.mcgColourId == id);
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
+        if (!isNaN(parseFloat(this.selectedOrder.id)) && isFinite((this.selectedOrder.id as any)) && parseFloat(this.selectedOrder.id)>0) {
+          if (!await ReorderService.updateDraft(this.selectedOrder)) {
+            alert('error updating draft')
+          }
+      }
     },
     // Order Table Actions
     addToCart(order: any) {

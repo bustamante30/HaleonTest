@@ -25,22 +25,28 @@ function goto(path) {
   router.push(path)
     }
     function getShippingAddress(order) {
-        if (!order.printerContacts) {
+        if (!order.customerContacts) {
             return "No printer site provided"
         }
-        return order.printerContacts[0].shippingAddress ? order.printerContacts[0].shippingAddress:""
+        return order.customerContacts[0].shippingAddress ? order.customerContacts[0].shippingAddress: ""
     }
     async function discardOrder(order) {
-        
-        let result = await ordersStore.discardOrder(order.id)
-        if (!result) {
-            alert('Error discarding order')
-        }
-        else {
-            const index = ordersStore.cartOrders.indexOf(order, 0);
-            if (index > -1) {
-                ordersStore.cartOrders.splice(index, 1);
-                ordersStore.cartCount = ordersStore.cartCount - 1
+        if(confirm('Are you sure you want to discard this draft?')){
+            let result = await ordersStore.discardOrder(order.id)
+            if (!result) {
+                alert('Error discarding order')
+            }
+            else {
+                const index = ordersStore.cartOrders.indexOf(order, 0);
+                if (index > -1) {
+                    ordersStore.cartOrders.splice(index, 1);
+                    ordersStore.cartCount = ordersStore.cartCount - 1
+                    if(ordersStore.cartCount === 0){
+                        const form = document.querySelector(".page.cart")
+                        form.style.display = "none"
+                    }
+                }
+                alert('Draft discarded successfully')
             }
         }
     }

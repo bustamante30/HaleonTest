@@ -1,6 +1,6 @@
 <script setup>
 import Image from 'primevue/image'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useOrdersStore } from '@/stores/orders'
 import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
@@ -13,16 +13,15 @@ const checkout = computed(() => ordersStore.checkout)
 
 const props = defineProps({
   selectedId: { type: String, default: () => '', },
- })
-
-onMounted(async() => {
-  
 })
-
-const selectedOrder = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.selectedOrder.colors.filter(color=>color.sets))
+    const selection = computed(() => ordersStore.selectedOrder)
+const colors = computed(() => ordersStore.selectedOrder.colors.filter(color => color.sets))
 
 let isFormVisible = ref(false)
+
+onMounted(async() => {
+})
+
 
 function confirm() {
   isFormVisible.value = true
@@ -52,7 +51,9 @@ const errorMessage = ref('');
          if (!result) {
              alert('Error updating draft')
          }
-
+         else {
+             ordersStore.cartCount = ordersStore.cartCount - 1
+         }
      }
      else {
          result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
@@ -73,6 +74,17 @@ const errorMessage = ref('');
 
 function updateCheckout(values) {
   ordersStore.updateCheckout(values)
+    }
+function getShippingAddress() {
+        
+    if (!ordersStore.selectedOrder.customerContacts) {
+        return "No printer site provided"
+    }
+    ordersStore.selectedOrder.customerContacts[0].isActive = true
+    return ordersStore.selectedOrder.customerContacts[0].shippingAddress ? ordersStore.selectedOrder.customerContacts[0].shippingAddress : ""
+}
+function checkCustomerDetails() {
+        return ordersStore.selectedOrder.customerContacts && ordersStore.selectedOrder.customerContacts.length === 1
 }
 </script>
 
@@ -86,32 +98,32 @@ function updateCheckout(values) {
             span.material-icons.outline close
     .card.context
       .thumbnail
-        prime-image.image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+        prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
       .details
         .f
           label Client
-          span {{ selectedOrder.brandName }}
+          span {{ selection.brandName }}
         .f
           label Description
-          span {{ selectedOrder.description }}
+          span {{ selection.description }}
         .f
           label Item Code
-          span {{ selectedOrder.itemCode }}
+          span {{ selection.itemCode }}
         .f
           label Pack Type
-          span {{ selectedOrder.packType }}
+          span {{ selection.packType }}
         .f
           label Printer
-          span {{ selectedOrder.printerName }}
+          span {{ selection.printerName }}
           span.separator /
-          span {{ selectedOrder.printerLocationName }}
+          span {{ selection.printerLocationName }}
         .f.shipping
           label Shipping Adress
-          div(v-if="selectedOrder && selectedOrder.customerDetails && selectedOrder.customerDetails.length===1")
-           span {{ selectedOrder.customerDetails[0]?.shipToAddress }}
-          div(v-if="selectedOrder && selectedOrder.customerDetails && selectedOrder.customerDetails.length>1")
-           prime-dropdown.sm.address(v-model="selectedOrder.customerDetails[0].shipToAddress" name="shipToAddress" :options="selectedOrder.customerDetails" appendTo="body" 
-          optionLabel="shipToAddress" optionValue="shipToAddress")
+          div(v-if="checkCustomerDetails()")
+           span {{ getShippingAddress() }}
+          div(v-if="selection.customerContacts && selection.customerContacts.length>1")
+           prime-dropdown.sm.address(v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" appendTo="body" 
+          optionLabel="shippingAddress" optionValue="shippingAddress")
     .card.colors
       h3 Plates
       .details

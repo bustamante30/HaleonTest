@@ -2,7 +2,7 @@ export default {
     cols: [
       {
         header: 'Thumbnail',
-        field: 'thumbNail',
+        field: 'thumbNailPath',
         type: 'image',
         width: 12
       },

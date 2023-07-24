@@ -34,7 +34,7 @@ interface SubmitReorder {
     ThumbNailPath: string;
     Variety: string;
     Colors: Color[];
-    PrinterContacts: CustomerContact[];
+    CustomerContacts: CustomerContact[];
 }
 interface Color {
     mcgColourId: number;
@@ -65,7 +65,6 @@ class ReorderService {
         reorder.colors.forEach((color: any) => {
             color.isActive = color.sets > 0 ? true : false
         })
-        console.log(reorder)
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
             .then((response: SubmitReorderResponse) => {
@@ -90,14 +89,14 @@ class ReorderService {
             PrinterLocationName: reorderInfo.printerLocationName,
             PackType: reorderInfo.packType,
             StatusId: statusId,
-            ThumbNailPath: reorderInfo.thumbNail,
+            ThumbNailPath: reorderInfo.thumbNailPath,
             Variety: reorderInfo.variety,
             PO: reorderInfo.PO,
             ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
             Notes: reorderInfo.Notes,
             PlateRelief: reorderInfo.PlateRelief,
             Colors: [],
-            PrinterContacts: []
+            CustomerContacts: []
         }
         reorderInfo.colors.forEach((color: any) => {
             let isActiveColor: boolean = color.sets > 0 ? true : false
@@ -117,15 +116,15 @@ class ReorderService {
                 isActive: isActiveColor
             })
         })
-        reorderInfo.customerDetails.forEach((contact: any) => {
-            newReorder.PrinterContacts.push(
+        reorderInfo.customerContacts.forEach((contact: any) => {
+            newReorder.CustomerContacts.push(
                 {
                     alias: contact.alias,
                     customerContactId: contact.customerContactId,
                     customerId: contact.customerId,
                     customerName: contact.customerName,
                     siteName: contact.siteName,
-                    shippingAddress: contact.shippingAddress,
+                    shippingAddress: contact.shippingAddress ? contact.shippingAddress : "",
                     isActive: contact.isActive
                 })
         })
@@ -207,7 +206,7 @@ class ReorderService {
                orderStatus: item.orderStatus ? item.orderStatus : null,
                createdBy: item.createdBy,
                statusId: item.statusId,
-               thumbNail: item.thumbNail,
+               thumbNailPath: item.thumbNailPath,
                itemCode: item.itemCode,
              }))
            : [];
@@ -226,6 +225,7 @@ class ReorderService {
 
     public static getOrderDetails(sgsId: string) {
         return httpService.get<any>('v1/Reorder/info?jobnumber=' + sgsId).then((response: any) => {
+            console.log(response)
             return response
         }).catch((error: any) => {
             console.log("error getting reorders: ", error);
