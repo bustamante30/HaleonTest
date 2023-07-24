@@ -414,21 +414,22 @@ export const useUsersStore = defineStore('users', {
      let printerIdValue: number | null = null;
      let userType: string ='';
 
-     if(authStore.currentUser.email != '')
+     if(authStore.currentUser.email != "")
      {
-     if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+     if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null && authStore.currentUser?.userType != "") {
        userType =authStore.currentUser.userType;
      } 
      }
      
-    if(authb2cStore.currentB2CUser.email != '')
+    if(authb2cStore.currentB2CUser.email != "")
      {
-     if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+     if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null && authb2cStore.currentB2CUser?.userType != "") {
        userType =authb2cStore.currentB2CUser.userType;
      }
      }
 
-  if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+  if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null && typeof authb2cStore.currentB2CUser.printerId === 'number' && authb2cStore.currentB2CUser.printerId > 0) 
+  {
     printerIdValue = Number(authb2cStore.currentB2CUser.printerId);
   }
   else
@@ -437,6 +438,7 @@ export const useUsersStore = defineStore('users', {
   }
 
         const userDto: UserDto = {
+          id: userreq.value.id,
           firstName: userreq.value.firstName,
           lastName: userreq.value.lastName,
           displayName: `${userreq.value.firstName} ${userreq.value.lastName}`,
