@@ -10,9 +10,9 @@ export const useOrdersStore = defineStore('ordersStore', {
     pageNumber: 0,
     pageSize: 0,
     pageState: {
-        first: 1,
-        page: 1,
-        rows: 10
+      first: 1,
+      page: 1,
+      rows: 10
     },
     orders: [] as any[],
     cartOrders: [] as any[],
@@ -38,52 +38,52 @@ export const useOrdersStore = defineStore('ordersStore', {
     }
   },
   actions: {
-      async getOrders() {
-          const result  = await ReorderService.getRecentReorders(undefined,
-          undefined,
-          undefined,
-          this.pageState.page,
-          this.pageState.rows);
-         
-          if (Array.isArray(result)) {
-            this.orders = [];
-            this.totalRecords = 0;
-          } else {
-            const { reorderedData, totalRecords } = result;
-            this.orders = reorderedData;
-            this.totalRecords = totalRecords;
-          }
-          this.decorateOrders()
-          
-        console.log(this.orders)
-      this.pageNumber =  this.pageState.page ;
+    async getOrders() {
+      const result = await ReorderService.getRecentReorders(undefined,
+        undefined,
+        undefined,
+        this.pageState.page,
+        this.pageState.rows);
+
+      if (Array.isArray(result)) {
+        this.orders = [];
+        this.totalRecords = 0;
+      } else {
+        const { reorderedData, totalRecords } = result;
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
+      }
+      this.decorateOrders()
+
+      console.log(this.orders)
+      this.pageNumber = this.pageState.page;
       this.pageSize = this.pageState.rows;
       this.selectedOrder = this.orders[0]
-      },
-      async getCartCount() {
-          this.cartCount = await ReorderService.getCartCount()
-          console.log(this.cartCount)
-      },
-      async getCart() {
-          this.cartOrders = await ReorderService.getCart()
-          this.decorateCartOrders()
-          console.log(this.cartOrders)
-      },
-      async discardOrder(id: string) {
-          console.log('order to be discarded'+id)
-          return await ReorderService.discardOrder(id)
-      },
-      async setOrderInStore(result: any) {
-        let details = JSON.parse(JSON.stringify(result))
-        this.selectedOrder = details
-      },
-      async getOrderById(id: any) {
-        if (id != null && id != undefined) {
-            if (!isNaN(parseFloat(id)) && isFinite(id)) {
-                this.selectedOrder = this.cartOrders.find((order: any) => order.id === id)
-            }
-            else {
-                this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
+    },
+    async getCartCount() {
+      this.cartCount = await ReorderService.getCartCount()
+      console.log(this.cartCount)
+    },
+    async getCart() {
+      this.cartOrders = await ReorderService.getCart()
+      this.decorateCartOrders()
+      console.log(this.cartOrders)
+    },
+    async discardOrder(id: string) {
+      console.log('order to be discarded' + id)
+      return await ReorderService.discardOrder(id)
+    },
+    async setOrderInStore(result: any) {
+      let details = JSON.parse(JSON.stringify(result))
+      this.selectedOrder = details
+    },
+    async getOrderById(id: any) {
+      if (id != null && id != undefined) {
+        if (!isNaN(parseFloat(id)) && isFinite(id)) {
+          this.selectedOrder = this.cartOrders.find((order: any) => order.id === id)
+        }
+        else {
+          this.selectedOrder = this.orders.find((order: any) => order.sgsId === id)
 
                 let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
                 this.selectedOrder.description = details.jobDescription
@@ -105,44 +105,47 @@ export const useOrdersStore = defineStore('ordersStore', {
         return this.selectedOrder
       }
     },
-      async setFilters(filters: any) {
-   
-        this.filters = { ...this.filters, ...filters }
-        const result = await ReorderService.getRecentReorders(filters.query,  filters.sortBy,
-          filters.sortOrder,
-          this.pageState.page,
-          this.pageState.rows, filters, filterStore);
-          this.pageNumber = this.pageState.page;
-          this.pageSize = this.pageState.rows;
-          if (Array.isArray(result)) {
-            this.orders = [];
-            this.totalRecords = 0;
-          } else {
-            const { reorderedData, totalRecords } = result;
-            this.orders = reorderedData;
-            this.totalRecords = totalRecords;
-          }
+    async setFilters(filters: any) {
 
-          this.decorateOrders()
+      this.filters = { ...this.filters, ...filters }
+      const result = await ReorderService.getRecentReorders(filters.query, filters.sortBy,
+        filters.sortOrder,
+        this.pageState.page,
+        this.pageState.rows, filters, filterStore);
+      this.pageNumber = this.pageState.page;
+      this.pageSize = this.pageState.rows;
+      if (Array.isArray(result)) {
+        this.orders = [];
+        this.totalRecords = 0;
+      } else {
+        const { reorderedData, totalRecords } = result;
+        this.orders = reorderedData;
+        this.totalRecords = totalRecords;
+      }
+
+      this.decorateOrders()
       this.selectedOrder = this.orders[0]
     },
     resetFilters() {
-      this.filters['itemCode'] = null
-      this.filters['orderDate'] = null
+      this.filters['itemNumber'] = null
+      this.filters['orderDate'] = []
       this.filters['printerName'] = null
       this.filters['printerSite'] = null
       this.filters['printerReference'] = null
       this.filters['poNumber'] = null
+      this.filters['barcodeNumber'] = null
       this.filters['sgsReferenceNumberList'] = null
       this.filters['imageCarrierId'] = null
       this.filters['imageCarrierCode'] = null
       this.filters['imageCarrierCode'] = null
+      this.filters['printerPlateCode'] = null
+      this.filters['startDate'] = []
       filterStore.state.brandNameFilter = null
       filterStore.state.descriptionFilter = null
       filterStore.state.packTypeFilter = null
       filterStore.state.orderStatusFilter = null
       filterStore.state.sortFields = null
-      },
+    },
     decorateOrders() {
         for (let i = 0; i < this.orders.length; i++) {
             if (!this.orders[i].thumbNailPath) {
@@ -181,7 +184,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.checkout = { ...checkout };
       (this.selectedOrder as any).PO = this.checkout.purchaseOrder;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
-      (this.selectedOrder as any).Notes =this.checkout.notes;
+      (this.selectedOrder as any).Notes = this.checkout.notes;
     },
     // color update flow
     async updateColor({ id, field, value }: any) {

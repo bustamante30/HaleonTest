@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 
@@ -14,8 +14,8 @@ const props = defineProps({
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
-const isb2cUserLoggedIn = reactive(() => authb2cStore.currentB2CUser.isLoggedIn);
-const isUserLoggedIn = reactive(() => authStore.currentB2CUser.isLoggedIn);
+const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const initials = () => {
   const authType = localStorage.getItem("AuthType");
   if (authType == "AzureAd")

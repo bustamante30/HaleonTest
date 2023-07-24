@@ -14,7 +14,7 @@ onMounted(async () => {
 });
 
 
-onBeforeMount(async () => {
+
   const authStore = useAuthStore();
   const authb2cStore = useB2CAuthStore();
   let userType = '';
@@ -33,11 +33,6 @@ onBeforeMount(async () => {
       userRole = authb2cStore.currentB2CUser.roleKey;
     }
   }
-});
-
-
-    
-
 
 </script>
 
@@ -49,9 +44,9 @@ header.app-header
   .nav
     router-link(to="/dashboard") Dashboard
     //- Use a ternary operator to conditionally set the link's text
-    router-link(:to= "(userType === 'EXT' && userRole ==='PrinterAdmin') ?  '/users' : '/users?role=super'") {{ (userType === 'EXT' && userRole ==='PrinterAdmin') ?  'Manager Users' : 'Manage Users (As Super)' }}
-    //- router-link(to="/users") Manage Users
-    //- router-link(to="/users?role=super") Manage Users (As Super)
+    //- router-link(:to= "(userType === 'EXT' && userRole ==='PrinterAdmin') ?  '/users' : '/users?role=super'") {{ (userType === 'EXT' && userRole ==='PrinterAdmin') ?  'Manager Users' : 'Manage Users (As Super)' }}
+    router-link(to="/users") Manage Users
+    router-link(to="/users?role=super") Manage Users (As Super)
     router-link(to="/dashboard") Help
   span.separator
   .tools
