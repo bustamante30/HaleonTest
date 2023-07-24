@@ -55,7 +55,7 @@ function viewPreview() {
             span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocationName }}
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image.image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
           sgs-button.sm(label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors")

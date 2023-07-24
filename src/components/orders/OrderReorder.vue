@@ -69,7 +69,7 @@ function updateColor(color) {
             span.material-icons.outline close
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image(:src="selectedOrder.thumbNail" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          prime-image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
         .card.details
           .f
             label Item Code

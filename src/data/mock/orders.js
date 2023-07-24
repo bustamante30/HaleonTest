@@ -25,7 +25,7 @@ function generateOrder(i) {
     orderDate: faker.date.recent(),
     brandName: faker.helpers.arrayElement(brands.map(b => b.name)),
     name: faker.helpers.arrayElement(['Kraft Singles Cheese', 'Mac and Cheese Thick', 'Singles Cold Box', 'Sun Dried Tomato Vinaigette', 'Maggi']),
-    image: faker.helpers.arrayElement(['https://primefaces.org/cdn/primevue/images/galleria/galleria10.jpg','https://primefaces.org/cdn/primevue/images/galleria/galleria9.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria8.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria7.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria6.jpg']),
+    thumbNailPath: faker.helpers.arrayElement(['https://primefaces.org/cdn/primevue/images/galleria/galleria10.jpg','https://primefaces.org/cdn/primevue/images/galleria/galleria9.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria8.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria7.jpg', 'https://primefaces.org/cdn/primevue/images/galleria/galleria6.jpg']),
     weight: faker.datatype.number({ min: 100, max: 999 }) + ' g',
     itemCode: faker.datatype.number({ min: 10000, max: 999999 }) + refIdSuffix,
     printerName: faker.helpers.arrayElement(['Winpak Pekin', 'ABC Inc', 'QR Express Print']),
@@ -44,7 +44,8 @@ function generateOrder(i) {
     numberAcrossCylinder:0,
     dispro: 0,
     cust1UpDie:"",
-    plateType:""
+    plateType: "",
+      customerContacts: faker.helpers.arrayElement([{ shippingAddres: 'test address' }, { shippingAddres: 'test address2' }])
   }
 }
 

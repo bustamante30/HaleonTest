@@ -187,7 +187,7 @@ data-table.p-datatable-sm.orders-table(
 
     //- ThumbNail column
     Column(
-      field="thumbNail"
+      field="thumbNailPath"
       header="ThumbNail"
       freeze="left"
       class="frozen-column"

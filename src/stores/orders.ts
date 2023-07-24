@@ -16,7 +16,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     },
     orders: [] as any[],
     cartOrders: [] as any[],
-    cartCount: '',
+    cartCount: 0,
     filters: {} as any,
     selectedOrder: ordersData[0],
     options: {
@@ -89,7 +89,7 @@ export const useOrdersStore = defineStore('ordersStore', {
                 this.selectedOrder.description = details.jobDescription
                 this.selectedOrder.colors = Array.from(details.colors)
                 this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0 });
-                (this.selectedOrder as any)['customerDetails'] = details.customerDetails
+                (this.selectedOrder as any)['customerContacts'] = details.customerContacts
                 this.selectedOrder.barcodes = details.barcode
                 this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
                 this.selectedOrder.printProcess = details.techSpec.printProcessDescription
@@ -145,11 +145,11 @@ export const useOrdersStore = defineStore('ordersStore', {
       },
     decorateOrders() {
         for (let i = 0; i < this.orders.length; i++) {
-            if (!this.orders[i].thumbNail) {
-                this.orders[i].thumbNail = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
+            if (!this.orders[i].thumbNailPath) {
+                this.orders[i].thumbNailPath = new URL('@/assets/images/no_thumbnail.png', import.meta.url);
             }
-            else if (this.orders[i].thumbNail) {
-                this.orders[i].thumbNail = decodeURIComponent(this.orders[i].thumbNail);
+            else if (this.orders[i].thumbNailPath) {
+                this.orders[i].thumbNailPath = decodeURIComponent(this.orders[i].thumbNailPath);
             }
             this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
         }  

@@ -52,9 +52,9 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
         span {{ selectedOrder.originalOrderId }}
-      .f(v-if="selectedOrder.printerContacts && selectedOrder.printerContacts.length>0")
+      .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Work Requested By
-        span {{ selectedOrder.printerContacts[0].customerName }}
+        span {{ selectedOrder.customerContacts[0].customerName }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
@@ -79,9 +79,9 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.printerLocationName")
         label Printer Location Name
         span {{ selectedOrder.printerLocationName }}
-      .f(v-if="selectedOrder.customerDetails && selectedOrder.customerDetails.length>0")
+      .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
-        span {{ selectedOrder.customerDetails[0].shipToAddress}}
+        span {{ selectedOrder.customerContacts[0].shippingAddress}}
     .card(v-if="selectedOrder.colors && selectedOrder.colors.length>0")
       h3 Image Carrier Specs
       colors-table.p-datatable-sm(:config="config" :data="selectedOrder.colors.filter(x => x.sets)")
