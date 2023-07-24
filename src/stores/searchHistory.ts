@@ -27,12 +27,14 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
       let searchRequest: SearchHistoryDto[] = [];
       if (this.searchFieldReference.length > 0) {
         this.searchFieldReference.forEach((field) => {
-          if (advanceSearchParameters[(field as any).fieldName] !== null) {
+          if (advanceSearchParameters[(field as any).fieldName]) {
             if (Array.isArray(advanceSearchParameters[(field as any).fieldName])) {
-              searchRequest.push({
-                SearchFieldId: (field as any).id,
-                Value: advanceSearchParameters[(field as any).fieldName].join(',')
-              })
+              if (advanceSearchParameters[(field as any).fieldName].join(',')) {
+                searchRequest.push({
+                  SearchFieldId: (field as any).id,
+                  Value: advanceSearchParameters[(field as any).fieldName].join(',')
+                })
+              }
             } else {
               searchRequest.push({
                 SearchFieldId: (field as any).id,
@@ -42,7 +44,6 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
           }
         })
         const result = await SearchHistoryService.setSearchHistory(searchRequest);
-        console.log(result);
       }
     }
   },

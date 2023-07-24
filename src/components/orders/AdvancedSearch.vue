@@ -33,18 +33,15 @@ form.advanced-search(@submit.prevent="onSubmit")
 </template>
   
 <script lang="ts" setup>
-import { type Ref, ref, onBeforeMount, computed, onMounted, watch } from "vue";
+import { type Ref, ref, onBeforeMount, computed, watch } from "vue";
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
 import SuggesterService from "@/services/SuggesterService";
-import type { SearchFieldDto } from "@/models/SearchFieldDto";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
-import { useAuthStore } from "@/stores/auth";
-import { useB2CAuthStore } from "@/stores/b2cauth";
 import dayjs from 'dayjs';
-import { DateTime } from 'luxon'
 import { keysIn } from 'lodash'
+import { useOrdersStore } from "@/stores/orders";
 
 const props = defineProps({
   sections: {
@@ -59,26 +56,25 @@ const props = defineProps({
 
 const user = { isExternal: false }
 const searchhistoryStore = useSearchhistoryStore()
-const authStore = useAuthStore();
-const authb2cStore = useB2CAuthStore();
-let formattedDates: { id: any; date: string; }[] = []
+const ordersStore = useOrdersStore()
+let formattedDates: Ref<{ id: any; date: string; }[]>  = ref([])
 
-interface AdvancedFilters {
-  itemNumber: string | null;
-  startDate: string | null;
-  printerName: string | null;
-  printerSite: string | null;
-  printerReference: string | null;
-  poNumber: string | null;
-  printerPlateCode: string | null;
-  barcodeNumber: string | null;
-  sgsReferenceNumberList: string | null;
-  // Add more properties as needed
-}
+// interface AdvancedFilters {
+//   itemNumber: string | null;
+//   startDate: [];
+//   printerName: string | null;
+//   printerSite: string | null;
+//   printerReference: string | null;
+//   poNumber: string | null;
+//   printerPlateCode: string | null;
+//   barcodeNumber: string | null;
+//   sgsReferenceNumberList: string | null;
+//   // Add more properties as needed
+// }
 
-const emit = defineEmits(["search"]);
+const emit = defineEmits(["reset", "search"]);
 
-const advancedFilters = ref<AdvancedFilters>();
+// const advancedFilters = ref<AdvancedFilters>();
 const printerResults: Ref<string[]> = ref([])
 const printerSiteResults: Ref<string[]> = ref([])
 const imageCarrierCodeTypes = ref([
@@ -101,7 +97,7 @@ let printerLoc = ref("AL");
 
 const error = ref("");
 const showError = ref(false);
-let searchField: SearchFieldDto;
+let advancedFilters = computed(() => ordersStore.filters)
 const searchDate = computed(() => searchhistoryStore.searchDate)
 const searchFieldReference = computed(() => (searchhistoryStore.searchFieldReference))
 
@@ -112,30 +108,23 @@ const closeForm = () => {
   }
 };
 
-onBeforeMount(() => {
-  searchhistoryStore.getSearchDate()
-  advancedFilters.value = { ...(props.filters as AdvancedFilters) };
-  formatDate()
-});
-
-watch(searchDate, async () => {
-  if (searchhistoryStore.searchDate) {
-    searchhistoryStore.getSearchField()
-    await formatDate()
-  }
+onBeforeMount(async () => {
+  (advancedFilters as any).value = { ...(props.filters) };
+  ordersStore.resetFilters()
+  await searchhistoryStore.getSearchDate().then(()=>{formatDate()});
+  
+  await searchhistoryStore.getSearchField();
 });
 
 async function formatDate() {
-  formattedDates = []
   if (searchDate.value && searchDate.value.length > 0) {
     searchDate.value.forEach((data) => {
-      formattedDates.push({ id: (data as any).userId, date: dayjs((data as any).TimeStamp).format('dddd, MMMM D, YYYY') });
+     return formattedDates.value.push({ id: (data as any).userId, date: dayjs((data as any).TimeStamp).format('dddd, MMMM D, YYYY') });
     })
   }
 }
 
 async function handleDateClick(dateRefId: number): Promise<void> {
-  clear()
   await searchhistoryStore.getSearchField()
   await searchhistoryStore.getSearchHistory(dateRefId)
   const columnNames = keysIn(advancedFilters.value as object)
@@ -159,43 +148,13 @@ async function handleDateClick(dateRefId: number): Promise<void> {
   }
 }
 
+
 function reset() {
-  advancedFilters.value = { ...(props.filters as AdvancedFilters) };
-  advancedFilters.value.sgsReferenceNumberList = null;
-  advancedFilters.value.itemNumber = null;
-  advancedFilters.value.barcodeNumber = null;
-  advancedFilters.value.printerName = null;
-  advancedFilters.value.printerPlateCode = null;
-  advancedFilters.value.poNumber = null;
-  advancedFilters.value.printerSite = null;
-  advancedFilters.value.printerReference = null;
-  advancedFilters.value.startDate = null;
-  emit("search")
-  closeForm()
+  ordersStore.resetFilters()
 }
 
-
-function clear() {
-  advancedFilters.value = { ...(props.filters as AdvancedFilters) };
-  advancedFilters.value.sgsReferenceNumberList = null;
-  advancedFilters.value.itemNumber = null;
-  advancedFilters.value.barcodeNumber = null;
-  advancedFilters.value.printerName = null;
-  advancedFilters.value.printerPlateCode = null;
-  advancedFilters.value.poNumber = null;
-  advancedFilters.value.printerSite = null;
-  advancedFilters.value.printerReference = null;
-  advancedFilters.value.startDate = null;
-}
-
-// function search() {
-//   emit("search", advancedFilters.value);
-// }
-
-function search(advancedSearchParameters?: any) {
-  searchhistoryStore.setSearchHistory(advancedSearchParameters).then((res) => {
-    console.log(res)
-  })
+async function search(advancedSearchParameters?: any) {
+  await searchhistoryStore.setSearchHistory(advancedSearchParameters)
   emit("search", advancedSearchParameters);
 }
 
