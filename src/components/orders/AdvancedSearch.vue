@@ -117,7 +117,6 @@ onBeforeMount(async () => {
 });
 
 async function formatDate() {
-  debugger
   if (searchDate.value && searchDate.value.length > 0) {
     searchDate.value.forEach((data) => {
      return formattedDates.value.push({ id: (data as any).userId, date: dayjs((data as any).TimeStamp).format('dddd, MMMM D, YYYY') });
