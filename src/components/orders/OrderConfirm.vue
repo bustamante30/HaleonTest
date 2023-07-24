@@ -75,17 +75,17 @@ const errorMessage = ref('');
 function updateCheckout(values) {
   ordersStore.updateCheckout(values)
     }
-    function getShippingAddress() {
-        debugger
+function getShippingAddress() {
+        
     if (!ordersStore.selectedOrder.customerContacts) {
         return "No printer site provided"
     }
     ordersStore.selectedOrder.customerContacts[0].isActive = true
     return ordersStore.selectedOrder.customerContacts[0].shippingAddress ? ordersStore.selectedOrder.customerContacts[0].shippingAddress : ""
-    }
-    function checkCustomerDetails() {
+}
+function checkCustomerDetails() {
         return ordersStore.selectedOrder.customerContacts && ordersStore.selectedOrder.customerContacts.length === 1
-    }
+}
 </script>
 
 <template lang="pug">

@@ -37,11 +37,14 @@ function goto(path) {
                 alert('Error discarding order')
             }
             else {
-                debugger
                 const index = ordersStore.cartOrders.indexOf(order, 0);
                 if (index > -1) {
                     ordersStore.cartOrders.splice(index, 1);
                     ordersStore.cartCount = ordersStore.cartCount - 1
+                    if(ordersStore.cartCount === 0){
+                        const form = document.querySelector(".page.cart")
+                        form.style.display = "none"
+                    }
                 }
                 alert('Draft discarded successfully')
             }
