@@ -36,7 +36,6 @@ const tab = ref('users')
 const parentTab = ref('MSUser')
 const query = ref()
 
-console.log("Printer:" + props.printer);
 
 function selectTab(tabName: string, parentTabName: string) {
   tab.value = tabName
@@ -48,17 +47,15 @@ function create(path: string) {
 }
 
 function edit(user: any) {
-  //emit('editUser', user)
-  router.push(`/users/${user.data.id}?role=super`)
+  emit('editUser', user)
+  // router.push(`/users/${user.data.id}?role=super`)
 }
 
 function search(query : any) {
-  console.log(query)
   if(parentTab.value != 'MSUser')
   {
     parentTab.value = 'MUser'
   }
-  console.log(query)
   usersStore.getPrinterById("",query.query,parentTab.value)
  
 }

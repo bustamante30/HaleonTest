@@ -1,5 +1,5 @@
-<script lang="ts" setup>
-import { type Ref, ref, inject, computed, onBeforeMount, reactive } from 'vue';
+<script setup>
+import { ref, inject, computed, onBeforeMount, reactive } from 'vue';
 import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -19,13 +19,12 @@ const props = defineProps({
 
 const usersStore = useUsersStore()
 
-const printerLocResults: Ref<string[]> = ref([]);
 
 const emit = defineEmits(['save'])
 
-//const userForm = ref({ ...props.user })
+const userForm = ref({ ...props.user })
 
-const userForm = computed(()=>usersStore.user)
+//const userForm = computed(()=>usersStore.user)
 
 const options = inject('options') || { locations: [] }
 
@@ -49,15 +48,15 @@ const authb2cStore = useB2CAuthStore();
 
 function handleClose() {
   if (userType === 'INT') {
+    console.log("user data:" + usersStore.user.value);
     router.push('/users?role=super');
-    usersStore.getPrinters(0)
   } else if (userType === 'EXT') {
+    //usersStore.user.id = null;
     router.push('/users');
   }
 }
 
 function save() {
-  console.log("userform:"+ userForm);
   emit('save', userForm)
 }
 </script>

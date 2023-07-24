@@ -4,6 +4,8 @@ import { ref, onBeforeMount } from 'vue'
 import PrinterForm from './PrinterForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useUsersStore } from '@/stores/users';
+import router from '@/router';
 
 const props = defineProps({
   printers  : {
@@ -27,27 +29,11 @@ const props = defineProps({
   }
 })
 
+const usersStore = useUsersStore()
 const emit = defineEmits(['select', 'fetch'])
 
-const isPrinterFormVisible = ref(false)
+let isPrinterFormVisible = ref(false)
 const query = ref()
-
-const authStore = useAuthStore();
-  const authb2cStore = useB2CAuthStore();
-  let userType = '';
-
-  if (authStore.currentUser.email !== '') {
-    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-      userType = authStore.currentUser.userType;
-    }
-  }
-
-  if (authb2cStore.currentB2CUser.email !== '') {
-    if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-      userType = authb2cStore.currentB2CUser.userType;
-    }
-  }
-
 
 function selectPrinter(printer) {
   emit('select', printer)
@@ -55,16 +41,19 @@ function selectPrinter(printer) {
 
 function getPrinters(event) {
   emit('fetch', event)
-  if (userType === 'INT') {
-    router.push('/users?role=super');
-  } else if (userType === 'EXT') {
-    router.push('/users');
-  }
-  usersStore.getPrinters(0)
+
 }
 
 function search(query) {
   console.log(query)
+}
+
+
+async function saveprinter(printerFormRequest) {
+  await  usersStore.savePrinter(printerFormRequest);
+  await usersStore.getPrinters(0)
+  isPrinterFormVisible.value = false;
+  router.push('/users?role=super');
 }
 
 
@@ -94,7 +83,7 @@ function search(query) {
         @update:first="getPrinters"
         template="PrevPageLink CurrentPageReport NextPageLink")
 
-  printer-form(v-if="isPrinterFormVisible" @save="isPrinterFormVisible = false"  @close="isPrinterFormVisible = false")
+  printer-form(v-if="isPrinterFormVisible" @save="saveprinter"  @close="isPrinterFormVisible = false")
 </template>
 
 <style lang="sass" scoped>

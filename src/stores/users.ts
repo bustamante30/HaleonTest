@@ -84,7 +84,7 @@ export async function  searchLocation(printerIdValue : number, userIdValue : num
     const searchRequest: SearchRequestDto = {
       searchText: "",
       pageNumber: 1,
-      pageCount: 30,
+      pageCount: 300,
       orderBy: "PrinterId",
       orderByAsc: true,
       isActive: true,
@@ -193,13 +193,13 @@ export const useUsersStore = defineStore('users', {
     userRoleValue: null as any,
   }),
   actions: {
-    async getPrinters(page: number, perPage: number = 20) {
+    async getPrinters(page: number, perPage: number = 500) {
       const total = 301
       let printerId: string ='';
-      if (!this.all.length) {
+      if (!this.all.length || page === 0) {
         // const all = genPrinters(total)
         const all = await searchPrinter(0,0,'')
-        this.all = chunk(all, 20)
+        this.all = chunk(all, 500)
       }
       this.printers = {
         page,
@@ -360,6 +360,7 @@ export const useUsersStore = defineStore('users', {
       this.selected = { ...printer }
     },
     createUser() {
+      this.user= null;
       if (this.selected) {
         this.user = this.user || {
           firstName: null,
@@ -387,7 +388,7 @@ export const useUsersStore = defineStore('users', {
         lastName: userEditResp.lastName,
         email: userEditResp.email,
        location : userEditResp.printerLoc?.[0]?.locationName || "N/A",
-       isadmin: userEditResp.roles?.[0]?.isAdmin || false
+       isAdmin: userEditResp.roles?.[0]?.isAdmin || false
       };
     
 
@@ -406,11 +407,11 @@ export const useUsersStore = defineStore('users', {
       if (this.selected && user) {
         this.user = { ...user}
       }
-    //router.push(`/users/${user.id}`)
+    router.push(`/users/${this.user.id}`)
     },
-    saveUser(userreq : any) {
+    async saveUser(userreq : any) {
       console.log('Save user', userreq)
-
+      this.user = null;
      let printerIdValue: number | null = null;
      let userType: string ='';
 
@@ -452,7 +453,7 @@ export const useUsersStore = defineStore('users', {
             },
           ],
         };
-     UserService.saveUser(userDto)
+     await UserService.saveUser(userDto)
       .then((response: any) => {
         this.user = null;
         if(userType ==='EXT')
@@ -468,15 +469,17 @@ export const useUsersStore = defineStore('users', {
         console.error('Error saving user:', error);
         // Handle error scenario
       });
+
+ 
     },
-    savePrinter(printerreq : any) {
+   async savePrinter(printerreq : any) {
       console.log('Save provider', printerreq)
 
         const printerDto: PrinterDto = {
           printerName: printerreq.value.name,
           userData: {
-          firstName: "",
-          lastName: "",
+          firstName: printerreq.value.admin,
+          lastName: printerreq.value.admin,
           displayName: printerreq.value.admin,
           email: printerreq.value.email
           },
@@ -487,7 +490,7 @@ export const useUsersStore = defineStore('users', {
           ]
         };
     console.log("Add Printer Req:" + printerDto);
-     UserService.SavePrinter(printerDto)
+    await UserService.SavePrinter(printerDto)
       .then((response: any) => {
         console.log('Printer saved:', response);
         this.printers.id = response;
