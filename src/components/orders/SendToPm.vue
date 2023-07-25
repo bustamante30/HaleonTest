@@ -103,8 +103,9 @@ async function convertAndSendFile(file: any) {
   const zipBinary = await zip.generateAsync({ type: 'blob' });
   // Convert the binary data (Blob) to Base64
   const zipBase64 = await blobToBase64(zipBinary);
-  const fileNameWithoutExtension= await removeFileExtension(file.name)
-  const fileName= fileNameWithoutExtension+'.zip'
+  // const fileNameWithoutExtension= await removeFileExtension(file.name)
+  //const fileName= fileNameWithoutExtension+'.zip'
+  const fileName = file.name
   const id = await getUserId()
  
   const uploadInfo: UploadFileDto = {
@@ -165,9 +166,10 @@ const removeItemByProperty = (propName: any, propValue: any) => {
 
 async function onDeleteClick(name: string) {
   const fullname = name
-  const fileNameWithoutExe = await removeFileExtension(name)
+  //const fileNameWithoutExe = await removeFileExtension(name)
   const uploadInfo: DeleteFileDto = {
-    FileName: fileNameWithoutExe + ".zip",
+   // FileName: fileNameWithoutExe + ".zip",
+    FileName:name,
     UserId: await getUserId() as any
   }
   const deleteResponse = await SendToPMService.deleteFilesToBlobStorage(uploadInfo)
