@@ -17,24 +17,13 @@ const props = defineProps({
 
 const isCartMessageVisible = ref(false)
 const cartCount = computed(()=>ordersStore.cartCount)
-let disableReorder = ref(false)
+const colors = computed(() => ordersStore.selectedOrder.colors);
+const disableReorder = computed(()=>{
+  const totalSets = (colors.value && colors.value.filter(x => x.sets))
+  return (!totalSets.length)
+})
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.selectedOrder.colors);
-
-onBeforeMount(async () => {
-  if (colors.value && colors.value.filter(x => x.sets)) {
-    disableReorder.value = true;
-  }
-});
-
-watch(colors, (value) => {
-  if(value && value.filter(x=>x.sets> 0).length>0){
-    disableReorder.value = false
-  } else {
-    disableReorder.value = true
-  }
-},{deep: true, immediate: true});
 
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)

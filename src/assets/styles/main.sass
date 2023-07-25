@@ -67,3 +67,17 @@ footer:not(.panel-footer)
   .actions
     +flex($h: right)
     gap: $s50
+
+  
+.search
+  +flex
+  flex: 1
+  .input
+    flex: 1
+    position: relative
+    span.material-icons
+      +absolute-w
+      +flex(center, center)
+      left: $s50
+      font-size: 1.25rem
+      opacity: 0.5

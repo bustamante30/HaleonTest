@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
@@ -47,13 +47,18 @@ function checkAllValuesZero(arr, property) {
   return true;
 }
 
+onMounted(()=>{
+  const colorData = (props.data && props.data.filter(x=>x.sets>0))
+  selected.value = [...colorData]
+})
+
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
     const prevColorIds = prevColors && prevColors.map(c => c.mcgColourId)
     const colorIds = colors.map(c => c.mcgColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      if (prevColorIds && !prevColorIds.includes(color.mcgColourId)) {
+      if (prevColorIds && !prevColorIds.includes(color.mcgColourId) && color.sets<1) {
         updateColor({ id: color.mcgColourId, field: 'sets', value: 1})
       }
     })
