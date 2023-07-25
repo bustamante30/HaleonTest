@@ -16,7 +16,7 @@ onBeforeMount(() => {
 
 
 const ordersStore = useOrdersStore();
-const selectedOrder = computed(() => ordersStore.selectedOrder);
+let selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function back() {
     const index = ordersStore.cartOrders.indexOf(selectedOrder, 0);
