@@ -14,8 +14,9 @@ const checkout = computed(() => ordersStore.checkout)
 const props = defineProps({
   selectedId: { type: String, default: () => '', },
 })
-    const selection = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.selectedOrder.colors.filter(color => color.sets))
+
+let selectedOrder = computed(() => ordersStore.selectedOrder)
+const colors = computed(() => ordersStore.selectedOrder.colors.filter(color=>color.sets))
 
 let isFormVisible = ref(false)
 

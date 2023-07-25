@@ -10,7 +10,7 @@ import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
 import { useAuthStore } from "@/stores/auth";
-
+import { useB2CAuthStore } from "@/stores/b2cauth";
 import Paginator from "primevue/paginator";
 import * as pagination from "primevue/paginator";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -19,6 +19,21 @@ import SendPm from '@/components/orders/SendToPm.vue'
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
+const authb2cStore = useB2CAuthStore();
+
+const userType = computed(() => {
+  const currentUser = authStore.currentUser;
+  if (currentUser.email !== '' && currentUser.userType != null) {
+    return currentUser.userType;
+  }
+
+  const currentB2CUser = authb2cStore.currentB2CUser;
+  if (currentB2CUser.email !== '' && currentB2CUser.userType != null) {
+    return currentB2CUser.userType;
+  }
+});
+
+
 
 const username = computed(
   () =>
@@ -26,6 +41,7 @@ const username = computed(
       authStore.currentUser.lastName || "Doe"
     }`
 );
+
     const dateFilter = computed(() => getDateFilter());
     const selectedDate = ref(()=>dateFilter.value[0])
 const orders = computed(() => ordersStore.orders);
@@ -94,6 +110,7 @@ const onPageChange = async (pageState: pagination.PageState) => {
 
 function createPmOrder() {
   sendToPmStore.initNewOrder()
+  sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName)
 }
 
 function sendToPm(form: any) {
@@ -127,7 +144,8 @@ function cancelOrder(order: any) {
                     optionLabel="label" optionValue="value" @change="changeDateFilter")
             div.rightHeader
                 orders-search(:config="userFilterConfig" :filters="filters" @search="search")
-                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
+                template(v-if="userType === 'EXT'")
+                  send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
         orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
         paginator(:rows="10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view

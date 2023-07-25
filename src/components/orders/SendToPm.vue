@@ -1,16 +1,17 @@
 <script lang="ts" setup>
 import { faker } from '@faker-js/faker'
 import ColorsTableEdit from './ColorsTableEdit.vue'
-import { inject, ref, computed, watch, reactive } from 'vue'
-import SendToPMService from "@/services/SendToPmService";
 // import JSZip from 'jszip';
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import { useUploadFilesStore } from '@/stores/upload-files';
-import { useAuthStore } from '@/stores/auth';
-import { useB2CAuthStore } from '@/stores/b2cauth';
 import { useToast } from 'primevue/usetoast';
 import { useNotificationsStore } from '@/stores/notifications';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
+import { inject, ref, computed, watch,onBeforeMount, reactive } from 'vue'
+import SendToPMService from "@/services/SendToPmService";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useSendToPmStore } from "@/stores/send-to-pm";
 const props = defineProps({
   order: {
     type: Object,
@@ -21,15 +22,22 @@ const props = defineProps({
     default: false
   }
 })
+const authb2cStore = useB2CAuthStore();
+const sendToPmstore= useSendToPmStore()
+const printerName = computed(() => {
+  const user = authb2cStore.currentB2CUser;
+  return user?.printerName || ''; 
+});
+
 
 const emit = defineEmits(['create', 'submit'])
 
 const entering = ref()
-const options = inject('options')
-const sendForm = ref(props.order)
-const isFormVisible = computed(() => !!props.order)
 const authStore = useAuthStore();
-const authb2cStore = useB2CAuthStore();
+const options = inject('options') || { locations: [] }
+const sendForm = ref(props.order)
+//const isFormVisible = computed(() => !!props.order)
+let isFormVisible = ref(false)
 
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
@@ -41,24 +49,24 @@ const notificationsStore = useNotificationsStore()
 
 watch(() => [props.order], (order) => {
   sendForm.value = { ...order }
+  if (order)
+    isFormVisible.value = true
+  else
+    isFormVisible.value = false
 })
 
 function init() {
   emit('create')
 }
 
-async function submit() {
-  try {
-    const response = await SendToPMService.submitExitOrder(sendForm.value);
-    if (response) {
-      console.log('Exit Order submitted successfully');
-    } else {
-      console.log('Error submitting Exit order');
-    }
-  } catch (error) {
-    console.error('An error occurred during Exit submission:', error);
-  }
+function updateColors(colors:any){
+  sendToPmstore.updateColors(colors)
+  
+}
 
+async function submit() {
+  
+  await sendToPmstore.submitorder(sendForm.value)
   emit('submit', sendForm);
 }
 
@@ -205,10 +213,10 @@ const imageCarrierCodeTypestypes = ref([
           .field-group
             .f
               label(for="name") Printer
-              strong ABC INC
+              strong {{printerName.value}}
             .f
               label(for="location") Location
-              prime-dropdown(:options="options.locations" v-model="sendForm.location")
+              prime-dropdown(:options="sendToPmstore.options.locations" v-model="sendForm.location")
               //- strong {{ faker.address.city() }}
         .divider
         h4 Items Details
@@ -242,7 +250,7 @@ const imageCarrierCodeTypestypes = ref([
               prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
         .fields
         .divider
-        colors-table-edit
+        colors-table-edit(@update="updateColors")
         .divider
         .fields
           .f
@@ -261,6 +269,7 @@ const imageCarrierCodeTypestypes = ref([
     template(#footer)
       .actions
         sgs-button(label="Send" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
+        //sgs-button(label="Close" @click="isFormVisible = false")
 </template>
 
 <style lang="sass" scoped>

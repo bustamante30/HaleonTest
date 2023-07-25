@@ -43,6 +43,7 @@ interface files{
 class SendToPMService {
 
     public static submitExitOrder(exitOrderInfo: any) {
+        let newColorsArray: Color[] = [];
 
         console.log("service",exitOrderInfo)
         let newExitOrder: SendToPM = {
@@ -57,16 +58,16 @@ class SendToPMService {
             comments: exitOrderInfo.comments,
             files:exitOrderInfo.files,
             code:exitOrderInfo.carrierCode.code,
-            colors: [],
+            colors: exitOrderInfo.colors,
         }
         if (exitOrderInfo.colors && Array.isArray(exitOrderInfo.colors)) {
             exitOrderInfo.colors.forEach((color: any) => {
                 if (typeof color === 'object' && color !== null) {
                     // Make sure the required properties are present
-                    if (typeof color.colourName === 'string' && typeof color.sets === 'number') {
-                        newExitOrder.colors.push({
-                            colourName: color.colourName,
-                            sets: color.sets,
+                    if (typeof color.name === 'string' && typeof color.quantity === 'number') {
+                        newColorsArray.push({
+                            colourName: color.name,
+                            sets: color.quantity,
                         });
                     } else {
                         console.log('Invalid color object:', color);
@@ -79,7 +80,7 @@ class SendToPMService {
             console.log('Invalid colors array:', exitOrderInfo.colors);
         }
        
-        console.log(newExitOrder)
+        newExitOrder.colors = newColorsArray
         return httpService
             .post<boolean>('v1/pmexit/addexitorders', newExitOrder)
             .then((response: boolean) => {
