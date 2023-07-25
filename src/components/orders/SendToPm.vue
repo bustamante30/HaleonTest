@@ -213,7 +213,7 @@ const imageCarrierCodeTypestypes = ref([
           .field-group
             .f
               label(for="name") Printer
-              strong {{printerName.value}}
+              strong {{printerName}}
             .f
               label(for="location") Location
               prime-dropdown(:options="sendToPmstore.options.locations" v-model="sendForm.location")
