@@ -1,6 +1,6 @@
 <script setup>
 import Image from 'primevue/image'
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, onBeforeMount } from 'vue'
 import { useOrdersStore } from '@/stores/orders'
 import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
@@ -20,7 +20,9 @@ const colors = computed(() => ordersStore.selectedOrder.colors.filter(color => c
 
 let isFormVisible = ref(false)
 
-onMounted(async() => {
+    onBeforeMount(async () => {
+        if (ordersStore.selectedOrder.id !== props.selectedId && ordersStore.selectedOrder.sgsId !== props.selectedId)
+            await ordersStore.getOrderById(props.selectedId)
 })
 
 
