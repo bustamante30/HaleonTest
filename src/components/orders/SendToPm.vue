@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 import ColorsTableEdit from './ColorsTableEdit.vue'
 import { inject, ref, computed, watch, reactive } from 'vue'
 import SendToPMService from "@/services/SendToPmService";
-import JSZip from 'jszip';
+// import JSZip from 'jszip';
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import { useUploadFilesStore } from '@/stores/upload-files';
 import { useAuthStore } from '@/stores/auth';
