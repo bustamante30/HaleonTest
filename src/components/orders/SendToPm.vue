@@ -47,7 +47,7 @@ let uploadFiles = []
 const toast = useToast()
 const notificationsStore = useNotificationsStore()
 
-watch(() => [props.order], (order) => {
+watch(() => props.order, (order) => {
   sendForm.value = { ...order }
   if (order)
     isFormVisible.value = true
@@ -239,7 +239,7 @@ const imageCarrierCodeTypestypes = ref([
             .f
               label(for="plate_id") Plate ID
               prime-inputtext#plate_id(v-model="sendForm.plateId" name="plate_id")
-            .f(v-if="sendForm.carrierCode && sendForm.carrierCode.type && sendForm.carrierCode.code")
+            .f
               label(for="code") Code #
               .field-group
                 prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="imageCarrierCodeTypestypes" optionLabel="label" optionValue="value")
