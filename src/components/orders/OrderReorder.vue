@@ -30,14 +30,8 @@ function buy() {
 }
 
 async function addToCart() {
-    if (await ReorderService.submitReorder(ordersStore.selectedOrder, 1)) {
+    if (await ordersStore.addToCart(ordersStore.selectedOrder))
         isCartMessageVisible.value = true
-        ordersStore.cartCount = ordersStore.cartCount + 1;
-    }
-    else {
-        alert(" Error adding order to cart")
-    }
-    
 }
 function updateColor(color) {
   ordersStore.updateColor(color)

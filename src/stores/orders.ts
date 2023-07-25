@@ -198,8 +198,15 @@ export const useOrdersStore = defineStore('ordersStore', {
       }
     },
     // Order Table Actions
-    addToCart(order: any) {
-      console.log('addToCart', order)
+    async addToCart(order: any) {
+        if (await ReorderService.submitReorder(order, 1)) {
+            this.cartCount = this.cartCount + 1;
+            return true
+        }
+        else {
+            alert(" Error adding order to cart")
+            return false
+        }
     },
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`)
