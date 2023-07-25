@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { faker } from '@faker-js/faker'
 import ColorsTableEdit from './ColorsTableEdit.vue'
-// import JSZip from 'jszip';
+import JSZip from 'jszip';
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import { useUploadFilesStore } from '@/stores/upload-files';
 import { useToast } from 'primevue/usetoast';
@@ -217,7 +217,6 @@ const imageCarrierCodeTypestypes = ref([
             .f
               label(for="location") Location
               prime-dropdown(:options="sendToPmstore.options.locations" v-model="sendForm.location")
-              //- strong {{ faker.address.city() }}
         .divider
         h4 Items Details
         .fields
