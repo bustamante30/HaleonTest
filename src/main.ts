@@ -1,20 +1,16 @@
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import { createApp } from 'vue'
-
 import 'primevue/resources/primevue.min.css'
 import 'primevue/resources/themes/lara-light-blue/theme.css'
 import 'primeicons/primeicons.css'
 import './assets/styles/main.sass'
-
 import App from './App.vue'
 import router from './router'
-
 import Button from '@/components/ui/Button.vue'
 import Mask from '@/components/ui/Mask.vue'
 import ScrollPanel from '@/components/ui/ScrollPanel.vue'
 import Panel from '@/components/ui/Panel.vue'
-
 // Prime Components
 import AutoComplete from 'primevue/autocomplete'
 import Calendar from 'primevue/calendar'
@@ -31,10 +27,10 @@ import OverlayPanel from 'primevue/overlaypanel'
 import Tooltip from 'primevue/tooltip'
 import BadgeDirective from 'primevue/badgedirective';
 import Message from 'primevue/message'
-import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
 import Paginator from 'primevue/paginator';
 import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
 
 const app = createApp(App)
 
@@ -68,5 +64,5 @@ app.component('PrimeImage', Image)
 app.component('Message',Message)
 app.component('PrimePagination',Paginator)
 app.component('PrimeTextarea', Textarea)
-app.component('Toast', Toast)
+app.component('PrimeToast', Toast)
 app.mount('#app')

@@ -54,6 +54,26 @@ class ApiService {
     return this.request<T>(requestConfig);
   }
 
+  public async delete<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    const fullUrl = `${this.baseUrl}${url}`;
+    const authType = localStorage.getItem("AuthType");
+    const requestConfig: AxiosRequestConfig = {
+      ...config,
+      method: 'delete',
+      url: fullUrl,
+        data: data,
+      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      "Authorization-Scheme": authType
+     }
+    };
+
+    return this.request<T>(requestConfig);
+  }
+
 }
 
 export default ApiService;

@@ -1,4 +1,5 @@
-import type { ReorderDto } from '../models/ReorderDto';
+import type { UploadFileDto } from '@/models/UploadFileDto';
+import type { DeleteFileDto } from '@/models/DeleteFileDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
@@ -91,8 +92,41 @@ class SendToPMService {
                 return false;
             });
     }
-    
-   
+
+    public static uploadFilesToBlobStorage(uploadInfo: any) {
+        let uploadRequest: UploadFileDto = {
+            FileName: uploadInfo.FileName,
+            Data: uploadInfo.Data,
+            UserId: uploadInfo.UserId
+        }
+        return httpService
+            .post<boolean>('v1/upload', uploadRequest)
+            .then((response: boolean) => {
+                console.log('Upload Successfully')
+                return response;
+            })
+            .catch((error: any) => {
+                console.log('Error submitting files:', error);
+                return false;
+            });
+    }
+
+    public static deleteFilesToBlobStorage(deleteInfo: any) {
+        let deleteRequest: DeleteFileDto = {
+            FileName: deleteInfo.FileName,
+            UserId: deleteInfo.UserId
+        }
+        return httpService
+            .delete<boolean>('v1/delete', deleteRequest)
+            .then((response: boolean) => {
+                console.log('Deleted Successfully')
+                return response;
+            })
+            .catch((error: any) => {
+                console.log('Error submitting files:', error);
+                return false;
+            });
+    }
 }
 
 export default SendToPMService;
