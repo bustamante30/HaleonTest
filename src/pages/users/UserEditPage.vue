@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import { ref, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUsersStore } from '@/stores/users'
@@ -19,8 +19,7 @@ const userName = computed(() => {
 })
 
 onBeforeMount(() => {
- console.log("EditPage:" + id);
-  usersStore.getUser(id as string)
+  usersStore.getUser(id)
 })
 
 const authStore = useAuthStore();
@@ -44,7 +43,7 @@ const authStore = useAuthStore();
 
 
 
-function saveUser(value: any) {
+function saveUser(value) {
   usersStore.saveUser(value)
   usersStore.getPrinters(0)
 }

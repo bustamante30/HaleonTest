@@ -5,6 +5,9 @@ import { providers } from '@/data/config/identitiy-providers'
 import { useUsersStore } from '@/stores/users'
 import SuggesterService from "@/services/SuggesterService";
 
+
+const toast = ref(null); // Ref to control the toast visibility
+
 const emit = defineEmits(['save', 'close'])
 const usersStore = useUsersStore()
 const printerResults = ref([])
@@ -25,10 +28,11 @@ async function searchPrinter(value) {
   }
 
 function save() {
-  usersStore.savePrinter(printerForm);
-  usersStore.getPrinterById(printerForm.id)
-  //emit('save', printerForm.value)
+ //emitting to printerlist form
+  emit('save', printerForm)
 }
+
+
 </script>
 
 <template lang="pug">

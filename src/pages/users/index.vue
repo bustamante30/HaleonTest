@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import { onBeforeMount, computed, ref, watch, provide, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
@@ -15,7 +15,7 @@ let role = ref(route.query?.role)
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const usersStore = useUsersStore()
-const printers = computed(() => usersStore.printers as any)
+const printers = computed(() => usersStore.printers)
 const selected = computed(() => usersStore.selected)
 const user = computed(() => usersStore.user)
 const options = computed(() => usersStore.options)
@@ -32,23 +32,23 @@ watch(() => route.query, (query) => {
   role.value = query?.role
 })
 
-function selectPrinter(printer: any) {
+function selectPrinter(printer) {
   usersStore.getPrinterById(printer)
 }
 
-function getPrinters(event: any) {
+async function getPrinters(event) {
   const page = event ? event / 20 : 0
   console.log(event, page)
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
-  usersStore.getPrinters(page)
+  await usersStore.getPrinters(page)
 }
 
 function createUser() {
   usersStore.createUser()
 }
 
-function editUser(user: any) {
-  usersStore.editUser(user)
+function editUser(user) {
+  usersStore.getUser(user.data.id)
 }
 </script>
 
