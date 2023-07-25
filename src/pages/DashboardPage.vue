@@ -100,8 +100,11 @@ function sendToPm(form: any) {
   sendToPmStore.sendToPm(form)
 }
 
-function addToCart(order: any) {
-  ordersStore.addToCart(order);
+async function addToCart(order: any) {
+  let orderToAdd = await ordersStore.getOrderById(order.sgsId)
+    if (await ordersStore.addToCart(orderToAdd)) {
+        alert('Order added to the cart successfully')
+    }
 }
 function reorder(order: any) {
   ordersStore.reorder(order);
