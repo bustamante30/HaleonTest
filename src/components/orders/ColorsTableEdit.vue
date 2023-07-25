@@ -1,23 +1,40 @@
 <script lang="ts" setup>
 import { faker } from '@faker-js/faker'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount,watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 
 const colours = ref([] as any[])
 
+const emit = defineEmits(["update"])
+
+// watch(
+//   colours,(col)=>
+//   {
+//     console.log(col)
+//     emit("update",col)
+    
+// }
+//   )
+
 onBeforeMount(() => {
   addColour()
 })
 
+
 function addColour() {
   const newColour: any = { id: faker.datatype.uuid(), name: null, quantity: 0 }
   colours.value.push(newColour)
+  emit("update",colours.value)
 }
+
+
+
 
 function removeColour(colour : any = { id: faker.datatype.uuid(), name: null, quantity: 0 }) {
   const newColours = colours.value.filter(c => c.id !== colour.id)
   colours.value = newColours
+  emit("update",colours.value)
 }
 
 function stylify(width: number) {
@@ -38,10 +55,10 @@ function stylify(width: number) {
           sgs-button.sm.secondary(@click="addColour" icon="add" label="Add Colour")
     column(header="Colour Name")
       template(#body="{ data }")
-        prime-inputtext.sm(v-model="data.name")
+        prime-inputtext.sm(v-model="data.name" @change="emit('update',colours)")
     column(header="Quantity" :headerStyle="stylify(5)" :bodyStyle="stylify(5)")
       template(#body="{ data }")
-        prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="0" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+        prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="0" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" @change="emit('update',colours)")
     column(:headerStyle="stylify(2)" :bodyStyle="stylify(2)")
       template(#body="{ data }")
         .actions

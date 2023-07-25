@@ -1,16 +1,23 @@
 
 import { defineStore } from 'pinia'
 import { useNotificationsStore } from './notifications'
+import SuggesterService from "@/services/SuggesterService";
+import SendToPMService from "@/services/SendToPmService";
 
 function timeout(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+
 export const useSendToPmStore = defineStore('sendToPmStore', {
   state: () => ({
     showForm: false,
     newOrder: null as any,
-    loading: false
+    loading: false,
+    options: {
+      locations: [] as any[],
+    }
+
   }),
   getters: {
   },
@@ -29,7 +36,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         },
         jobNumber: null,
         comments: null,
-        location: null
+        location: null,
+        colors:[] as any[]
       }
     },
     async sendToPm(form : any) {
@@ -39,6 +47,19 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       notificationsStore.addNotification(`Order Sent`, 'Your order is successfully sent to a project manager', { severity: 'success' })
       this.newOrder = null
       this.loading = false
+    },
+    async getPrinterLocations(printerName: string){
+     this.options.locations= await SuggesterService.getPrinterSiteList(printerName, "");
+    },
+    async submitorder(order:any){
+      order.colors = this.newOrder.colors;
+      await SendToPMService.submitExitOrder(order)
+
+      this.newOrder = null
+    },
+    async updateColors(colors:any[]){
+      this.newOrder.colors = [...colors]
+
     }
   }
 })
