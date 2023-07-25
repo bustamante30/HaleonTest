@@ -49,7 +49,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       this.loading = false
     },
     async getPrinterLocations(printerName: string){
-     this.options.locations= await SuggesterService.getPrinterSiteList("SAMAFRAVA, S.A.", "");
+     this.options.locations= await SuggesterService.getPrinterSiteList(printerName, "");
     },
     async submitorder(order:any){
       order.colors = this.newOrder.colors;
