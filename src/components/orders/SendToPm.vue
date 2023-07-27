@@ -7,7 +7,7 @@ import { useUploadFilesStore } from '@/stores/upload-files';
 import { useToast } from 'primevue/usetoast';
 import { useNotificationsStore } from '@/stores/notifications';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
-import { inject, ref, computed, watch,onBeforeMount, reactive } from 'vue'
+import { inject, ref, computed, watch, onBeforeMount, reactive } from 'vue'
 import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -22,30 +22,26 @@ const props = defineProps({
     default: false
   }
 })
+const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const sendToPmstore= useSendToPmStore()
+const sendToPmstore = useSendToPmStore();
+const notificationsStore = useNotificationsStore()
 const printerName = computed(() => {
   const user = authb2cStore.currentB2CUser;
-  return user?.printerName || ''; 
+  return user?.printerName || '';
 });
 
 
 const emit = defineEmits(['create', 'submit'])
-
 const entering = ref()
-const authStore = useAuthStore();
 const options = inject('options') || { locations: [] }
 const sendForm = ref(props.order)
-//const isFormVisible = computed(() => !!props.order)
 let isFormVisible = ref(false)
-
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const uploadStore = useUploadFilesStore()
-const uploadedFiles = computed(() => uploadStore.uploadedFiles)
-let uploadFiles = []
+const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
 const toast = useToast()
-const notificationsStore = useNotificationsStore()
+
 
 watch(() => props.order, (order) => {
   sendForm.value = { ...order }
@@ -59,18 +55,17 @@ function init() {
   emit('create')
 }
 
-function updateColors(colors:any){
+function updateColors(colors: any) {
   sendToPmstore.updateColors(colors)
-  
+
 }
 
 async function submit() {
-  
   await sendToPmstore.submitorder(sendForm.value)
   emit('submit', sendForm);
 }
 
-async function blobToBase64(blob:any) {
+async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -85,49 +80,14 @@ async function blobToBase64(blob:any) {
 async function getUserId() {
   let userId = '6';
   if (isUserLoggedIn.value) {
-    userId= (await authStore.currentUser.userId as any);
+    userId = (await authStore.currentUser.userId as any);
   }
   if (isb2cUserLoggedIn.value) {
-    userId =  ( await authb2cStore.currentB2CUser.userId as any);
-  } 
+    userId = (await authb2cStore.currentB2CUser.userId as any);
+  }
   return userId
 }
 
-async function removeFileExtension(fileName:any) {
-  // Find the last index of the dot (.)
-  const lastIndex = fileName.lastIndexOf('.');
-  // If the dot is found and it is not the first or last character in the filename
-  if (lastIndex !== -1 && lastIndex !== 0 && lastIndex !== fileName.length - 1) {
-    return fileName.substring(0, lastIndex);
-  }
-  
-  return fileName;
-}
-
-async function convertAndSendFile(file: any) {
-  const zip = new JSZip();
-  zip.file(file.name, file); // Add the file to the Zip
-  // Generate the binary data of the Zip file
-  const zipBinary = await zip.generateAsync({ type: 'blob' });
-  // Convert the binary data (Blob) to Base64
-  const zipBase64 = await blobToBase64(zipBinary);
-  // const fileNameWithoutExtension= await removeFileExtension(file.name)
-  //const fileName= fileNameWithoutExtension+'.zip'
-  const fileName = file.name
-  const id = await getUserId()
- 
-  const uploadInfo: UploadFileDto = {
-    FileName: fileName,
-    UserId: id as any,
-    Data: zipBase64 as string
-  }
-  const uploadResponse = await SendToPMService.uploadFilesToBlobStorage(uploadInfo)
-  if(uploadResponse)
-    notificationsStore.addNotification(`Uploaded Successfully`, `Your file ${fileName} was successfully uploaded`, { severity: 'success', position: 'top-right' })
-  else
-    notificationsStore.addNotification(`Upload failed`, `Your file ${fileName} was not uploaded`, { severity: 'error', position: 'top-right' })
-  console.log('uploadResponse', uploadResponse) 
-}
 function onDragOver(event: any) {
   event.preventDefault();
 }
@@ -142,33 +102,69 @@ function handleInput(e: any) {
 }
 
 function isValidFileType(file: any) {
-  return file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.bat') || file.name.toLowerCase().endsWith('.com') || 
-        file.name.toLowerCase().endsWith('.cmd') || file.name.toLowerCase().endsWith('.inf') || file.name.toLowerCase().endsWith('.ipa') || 
-        file.name.toLowerCase().endsWith('.osx') || file.name.toLowerCase().endsWith('.pif') || file.name.toLowerCase().endsWith('.run') || 
-        file.name.toLowerCase().endsWith('.wsh')
-}
-async function onDrop(event: any) {
-  uploadFiles = event.dataTransfer.files;
-  event.preventDefault();
-  const validFiles = []
-  for (let i = 0; i < uploadFiles.length; i++) {
-    const file = uploadFiles[i];
-    if(isValidFileType(file)) {
-        notificationsStore.addNotification(`Invalid file type`, file.name, { severity: 'error', position: 'top-right' })
-    } else {
-      await convertAndSendFile(file)
-      validFiles.push(file)
-      console.log('Accepted file:', file.name);
-    }
-  }
-  if(validFiles.length>0)
-    uploadStore.uploadData(validFiles as [])
+  return file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.bat') || file.name.toLowerCase().endsWith('.com') ||
+    file.name.toLowerCase().endsWith('.cmd') || file.name.toLowerCase().endsWith('.inf') || file.name.toLowerCase().endsWith('.ipa') ||
+    file.name.toLowerCase().endsWith('.osx') || file.name.toLowerCase().endsWith('.pif') || file.name.toLowerCase().endsWith('.run') ||
+    file.name.toLowerCase().endsWith('.wsh')
 }
 
+async function onDrop(event: any) {
+  event.preventDefault();
+  const uploadFiles = Array.from(event.dataTransfer.files);
+  const validFiles: any[] = [];
+  const uploadPromises = uploadFiles.map(async (file: any) => {
+    if (isValidFileType(file)) {
+      notificationsStore.addNotification(
+        `Invalid file type`,
+        `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
+        { severity: 'error', position: 'top-right' }
+      );
+      return null;
+    } else {
+      const response = await convertAndSendFile(file);
+      if (response) {
+        validFiles.push(file.name);
+        return response;
+      } else {
+        notificationsStore.addNotification(
+          `Upload failed`,
+          `Your file was not uploaded. Please try again.`,
+          { severity: 'error', position: 'top-right' }
+        );
+        return null;
+      }
+    }
+  });
+  const results = await Promise.all(uploadPromises);
+  const successfulUploads = results.filter((response) => response !== null);
+  if (successfulUploads.length > 0) {
+    if(validFiles.length>0)
+    await sendToPmstore.uploadData(validFiles as []);
+    notificationsStore.addNotification(
+      `Uploaded successfully`,
+      `Your files were successfully uploaded`,
+      { severity: 'success', position: 'top-right' }
+    );
+  }
+}
+
+
+async function convertAndSendFile(file: any) {
+  const binaryToBase64 = await blobToBase64(file);
+  const fileName = file.name
+  const id = await getUserId()
+
+  const uploadInfo: UploadFileDto = {
+    FileName: fileName,
+    UserId: id as any,
+    Data: binaryToBase64 as string
+  }
+  return await SendToPMService.uploadFilesToBlobStorage(uploadInfo)
+}
 const removeItemByProperty = (propName: any, propValue: any) => {
-  const index = (uploadedFiles as any).value.findIndex((uploadedFile: any) => uploadedFile[propName] === propValue);
+  const index = (sendForm.value.uploadedFiles as any).value.findIndex((uploadedFile: any) => uploadedFile[propName] === propValue);
   if (index !== -1) {
-    (uploadedFiles as any).value.splice(index, 1);
+    (sendForm.value.uploadedFiles as any).value.splice(index, 1);
   }
 };
 
@@ -176,13 +172,13 @@ async function onDeleteClick(name: string) {
   const fullname = name
   //const fileNameWithoutExe = await removeFileExtension(name)
   const uploadInfo: DeleteFileDto = {
-   // FileName: fileNameWithoutExe + ".zip",
-    FileName:name,
+    // FileName: fileNameWithoutExe + ".zip",
+    FileName: name,
     UserId: await getUserId() as any
   }
   const deleteResponse = await SendToPMService.deleteFilesToBlobStorage(uploadInfo)
-  if(deleteResponse) {
-    removeItemByProperty('name',fullname)
+  if (deleteResponse) {
+    removeItemByProperty('name', fullname)
     notificationsStore.addNotification(`Deleted Successfully`, `Your file ${fullname} was successfully deleted`, { severity: 'success', position: 'top-right' })
   }
   else {
@@ -259,12 +255,12 @@ const imageCarrierCodeTypestypes = ref([
         label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
           input(type="file" multiple @input="handleInput($event)")
           span Drag &amp; Drop files here ...
-        .upload(v-if="uploadedFiles && uploadedFiles.length > 0")
+        .upload(v-if="sendUpload && sendUpload.length > 0")
           h4 Uploaded Files:
           ul.files 
-            li(v-for="file in uploadedFiles" :key="file.name") 
-              .name {{ file.name }}
-              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file.name)")
+            li(v-for="name in sendUpload" :key="name") 
+              .name {{ name }}
+              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(name)")
     template(#footer)
       .actions
         sgs-button(label="Send" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
