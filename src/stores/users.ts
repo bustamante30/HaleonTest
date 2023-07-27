@@ -123,11 +123,11 @@ function IterateLocation(LocationList: [], count: number) {
 }
 
 
-export async function  searchPrinter(printerId: number, userIdValue: number, userType: string) {
+export async function  searchPrinter(printerId: number, userIdValue: number, userType: string ="", searchPrinterKey: string ="") {
   try {
     // Create a SearchRequestDto object with the printerName and other parameters
     const searchRequest: SearchRequestDto = {
-      searchText: "",
+      searchText: searchPrinterKey,
       pageNumber: 1,
       pageCount: 30,
       orderBy: "PrinterId",
@@ -198,7 +198,7 @@ export const useUsersStore = defineStore('users', {
       let printerId: string ='';
       if (!this.all.length || page === 0) {
         // const all = genPrinters(total)
-        const all = await searchPrinter(0,0,'')
+        const all = await searchPrinter(0,0,"",searchPrinterKey)
         this.all = chunk(all, 500)
       }
       this.printers = {

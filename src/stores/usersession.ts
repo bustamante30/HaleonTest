@@ -11,6 +11,9 @@ export type UserState = {
   isLoggedIn: Ref<boolean>
   userType: Ref<string>
   roleKey: Ref<string>
+  printerId: Ref<Number>
+  printerName: Ref<string>
+  userId: Ref<Number>
 }
 
 export const userSessionStore = defineStore('usersession', () => {

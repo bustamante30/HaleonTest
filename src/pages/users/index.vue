@@ -85,14 +85,30 @@ function editUser(user) {
       {
         printerId = usersStore.selected.id;
       }
-      
-  usersStore.getPrinterById(printerId,query.query)
+
+      //check search key
+      if(query.query != "")
+      {
+        usersStore.getPrinterById(printerId,query.query)
+      }
+      else
+      {
+        usersStore.getPrinterById(printerId,'')
+      }
 }
 
 async function searchPrinter(query) {
-
+console.log("SearchPrinter Query:" + query)
+      if(query.query != "")
+      {
+        usersStore.getPrinters(0,500,"",query.query)
+      }
+      else
+      {
+        usersStore.getPrinters(0)
+        usersStore.getPrinterById('')
+      }
 }
-
 </script>
 
 <template lang="pug">

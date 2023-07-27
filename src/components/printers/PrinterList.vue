@@ -1,6 +1,6 @@
 <script setup>
 import { faker } from '@faker-js/faker'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 import PrinterForm from './PrinterForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -34,6 +34,12 @@ const emit = defineEmits(['select', 'fetch', 'searchPrinter'])
 
 let isPrinterFormVisible = ref(false)
 const query = ref()
+
+watch(query, (changeQuery) => {
+  if (changeQuery === "") {
+    searchPrinter({ query: "" });
+  }
+});
 
 function selectPrinter(printer) {
   emit('select', printer)
