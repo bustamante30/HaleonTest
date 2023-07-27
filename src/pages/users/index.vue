@@ -9,16 +9,18 @@ import { useUsersStore } from '@/stores/users'
 import { useAuthStore } from "@/stores/auth"
 import { useB2CAuthStore } from "@/stores/b2cauth"
 
-const route = useRoute()
-let role = ref(route.query?.role)
+const route = useRoute();
+let role = ref(route.query?.role);
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const usersStore = useUsersStore()
-const printers = computed(() => usersStore.printers)
-const selected = computed(() => usersStore.selected)
-const user = computed(() => usersStore.user)
-const options = computed(() => usersStore.options)
+const usersStore = useUsersStore();
+const printers = computed(() => usersStore.printers);
+const selected = computed(() => usersStore.selected);
+const user = computed(() => usersStore.user);
+const options = computed(() => usersStore.options);
+let printerId = "";
+let userType ="";
 
 provide('options', options)
 
@@ -31,6 +33,10 @@ watch(() => route.query, (query) => {
   console.log(route.query?.role)
   role.value = query?.role
 })
+
+     
+
+
 
 function selectPrinter(printer) {
   usersStore.getPrinterById(printer)
@@ -50,6 +56,30 @@ function createUser() {
 function editUser(user) {
   usersStore.getUser(user.data.id)
 }
+
+function searchUser(query) {
+   //getting printerId value
+   if(authb2cStore.currentB2CUser.email != '')
+      {
+        if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+          userType =authb2cStore.currentB2CUser.userType;
+        }
+      }
+      if( userType == "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
+
+      }
+      else if(userType == "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+      
+  usersStore.getPrinterById(printerId,query.query)
+}
+
 </script>
 
 <template lang="pug">
@@ -66,7 +96,7 @@ function editUser(user) {
           printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters")
         .users-content
           sgs-scrollpanel(v-if="selected")
-            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" :user="user" :role="role")
+            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" :user="user" :role="role" @searchUser ="searchUser")
   router-view
 </template>
 

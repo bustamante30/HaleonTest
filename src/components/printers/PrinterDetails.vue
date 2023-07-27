@@ -30,7 +30,7 @@ const props = defineProps({
 })
 const usersStore = useUsersStore()
 
-const emit = defineEmits(['createUser', 'editUser'])
+const emit = defineEmits(['createUser', 'editUser','searchUser'])
 
 const tab = ref('users')
 const parentTab = ref('MSUser')
@@ -52,17 +52,13 @@ function edit(user: any) {
 }
 
 function search(query : any) {
-  if(parentTab.value != 'MSUser')
-  {
-    parentTab.value = 'MUser'
-  }
-  usersStore.getPrinterById("",query.query,parentTab.value)
- 
+  emit('searchUser', query)
 }
 
 function resend() {
   console.log('resend')
 }
+
 </script>
 
 <template lang="pug">
