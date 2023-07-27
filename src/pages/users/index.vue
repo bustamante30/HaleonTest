@@ -5,16 +5,18 @@ import AppHeader from '@/components/common/AppHeader.vue'
 import PrinterList from '@/components/printers/PrinterList.vue'
 import PrinterDetails from '@/components/printers/PrinterDetails.vue'
 
-import { useUsersStore } from '@/stores/users'
-import { useAuthStore } from "@/stores/auth"
-import { useB2CAuthStore } from "@/stores/b2cauth"
+import { useUsersStore } from '@/stores/users';
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+
+const authStore =  useAuthStore();
+const authb2cStore = useB2CAuthStore();
+const usersStore = useUsersStore();
 
 const route = useRoute();
 let role = ref(route.query?.role);
 
-const authStore = useAuthStore();
-const authb2cStore = useB2CAuthStore();
-const usersStore = useUsersStore();
+
 const printers = computed(() => usersStore.printers);
 const selected = computed(() => usersStore.selected);
 const user = computed(() => usersStore.user);
@@ -42,11 +44,11 @@ function selectPrinter(printer) {
   usersStore.getPrinterById(printer)
 }
 
-async function getPrinters(event) {
+ function getPrinters(event) {
   const page = event ? event / 20 : 0
   console.log(event, page)
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
-  await usersStore.getPrinters(page)
+   usersStore.getPrinters(page)
 }
 
 function createUser() {
@@ -54,34 +56,41 @@ function createUser() {
 }
 
 function editUser(user) {
-  usersStore.getUser(user.data.id)
+ usersStore.getUser(user.data.id)
 }
-
-async function searchUser(query) {
+ function searchUser(query) {
    //getting printerId value
-   if(authb2cStore.currentB2CUser.email != '')
+      if(authStore.currentUser.email != '')
       {
+        if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+          userType =authStore.currentUser.userType;
+        } 
+      }
+      
+     if(authb2cStore.currentB2CUser.email != '')
+     {
         if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
           userType =authb2cStore.currentB2CUser.userType;
         }
       }
-      if( userType == "EXT")
+      
+      if( userType === "EXT")
       {
         if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
           printerId = authb2cStore.currentB2CUser.printerId;
         }
 
       }
-      else if(userType == "INT")
+      else if(userType === "INT")
       {
         printerId = usersStore.selected.id;
       }
       
-  await usersStore.getPrinterById(printerId,query.query)
+  usersStore.getPrinterById(printerId,query.query)
 }
 
 async function searchPrinter(query) {
-  
+
 }
 
 </script>
