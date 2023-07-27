@@ -57,7 +57,7 @@ function editUser(user) {
   usersStore.getUser(user.data.id)
 }
 
-function searchUser(query) {
+async function searchUser(query) {
    //getting printerId value
    if(authb2cStore.currentB2CUser.email != '')
       {
@@ -77,7 +77,11 @@ function searchUser(query) {
         printerId = usersStore.selected.id;
       }
       
-  usersStore.getPrinterById(printerId,query.query)
+  await usersStore.getPrinterById(printerId,query.query)
+}
+
+async function searchPrinter(query) {
+  
 }
 
 </script>
@@ -93,7 +97,7 @@ function searchUser(query) {
           h1 Manage Users
       main(:class="{ super: role && role === 'super' }")
         .printers(v-if="role && role === 'super'")
-          printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters")
+          printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
         .users-content
           sgs-scrollpanel(v-if="selected")
             printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" :user="user" :role="role" @searchUser ="searchUser")
