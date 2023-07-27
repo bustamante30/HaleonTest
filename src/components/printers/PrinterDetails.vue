@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { config as userConfig } from '@/data/config/user-table'
 import { config as internalUserConfig } from '@/data/config/internal-user-table'
 import { config as locationConfig } from '@/data/config/location-table'
@@ -36,6 +36,11 @@ const tab = ref('users')
 const parentTab = ref('MSUser')
 const query = ref()
 
+watch(query, (changeQuery) => {
+  if (changeQuery === "") {
+    search({ query: "" });
+  }
+});
 
 function selectTab(tabName: string, parentTabName: string) {
   tab.value = tabName

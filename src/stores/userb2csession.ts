@@ -12,6 +12,10 @@ export type UserState = {
   userType: Ref<string>
   roleKey: Ref<string>
   isValidDomain: Ref<boolean>
+  userId: Ref<Number>
+  printerId: Ref<Number>
+  printerName:Ref<string>
+  
 }
 
 export const userB2CSessionStore = defineStore('userb2csession', () => {
