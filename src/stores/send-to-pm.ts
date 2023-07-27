@@ -37,7 +37,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         jobNumber: null,
         comments: null,
         location: null,
-        colors:[] as any[]
+        colors:[] as any[],
+        uploadedFiles: [] as any[]
       }
     },
     async sendToPm(form : any) {
@@ -53,6 +54,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     },
     async submitorder(order:any){
       order.colors = this.newOrder.colors;
+      order.files = this.newOrder.uploadedFiles;
       await SendToPMService.submitExitOrder(order)
 
       this.newOrder = null
@@ -60,6 +62,9 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     async updateColors(colors:any[]){
       this.newOrder.colors = [...colors]
 
-    }
+    },
+    async uploadData(files: []) {
+      this.newOrder.uploadedFiles = [...files]
+    },
   }
 })

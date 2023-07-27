@@ -20,9 +20,9 @@ const colors = computed(() => ordersStore.selectedOrder.colors.filter(color => c
 
 let isFormVisible = ref(false)
 
-    onBeforeMount(async () => {
-        if (ordersStore.selectedOrder.id !== props.selectedId && ordersStore.selectedOrder.sgsId !== props.selectedId)
-            await ordersStore.getOrderById(props.selectedId)
+onBeforeMount(async () => {
+  if (ordersStore.selectedOrder.id !== props.selectedId && ordersStore.selectedOrder.sgsId !== props.selectedId)
+    await ordersStore.getOrderById(props.selectedId)
 })
 
 
@@ -32,62 +32,61 @@ function confirm() {
 
 const errorMessage = ref('');
 
- async function placeOrder() {
- 
+async function placeOrder() {
+
   var dateError;
-  var timeError;
-  if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
+  if (checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
     dateError = true;
   } else {
     dateError = false;
   }
+  let result = ''
+  if (ordersStore.selectedOrder.id > 0) {
+    ordersStore.selectedOrder.statusId = 2
+    result = await ReorderService.updateDraft(ordersStore.selectedOrder)
+    if (!result) {
+      alert('Error updating draft')
+    }
+    else {
+      ordersStore.cartCount = ordersStore.cartCount - 1
+    }
+  }
+  else {
+    if (!dateError) {
+      result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      ordersStore.setOrderInStore(result)
+    }
+    else {
+      errorMessage.value = "Date and time are mandatory fields";
 
-  if (checkout.value.expectedTime === '' || checkout.value.expectedTime === null) {
-    timeError = true;
-  } else {
-    timeError = false;
-     }
-     let result = ''
-     if (ordersStore.selectedOrder.id > 0) {
-         ordersStore.selectedOrder.statusId = 2
-         result = await ReorderService.updateDraft(ordersStore.selectedOrder)
-         if (!result) {
-             alert('Error updating draft')
-         }
-         else {
-             ordersStore.cartCount = ordersStore.cartCount - 1
-         }
-     }
-     else {
-         result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
-         ordersStore.setOrderInStore(result)
-     }
+    }
+  }
   console.log(result)
-  if (!timeError && !dateError) {
-    checkout.value.expectedDate =  null
+  if (!dateError) {
+    checkout.value.expectedDate = null
     checkout.value.expectedTime = null
     checkout.value.purchaseOrder = null
     router.push(`/dashboard/${props.selectedId}/success`);
   }
-  else{
+  else {
     errorMessage.value = "Date and time are mandatory fields";
-  
+
   }
 }
 
 function updateCheckout(values) {
   ordersStore.updateCheckout(values)
-    }
+}
 function getShippingAddress() {
-        
-    if (!ordersStore.selectedOrder.customerContacts) {
-        return "No printer site provided"
-    }
-    ordersStore.selectedOrder.customerContacts[0].isActive = true
-    return ordersStore.selectedOrder.customerContacts[0].shippingAddress ? ordersStore.selectedOrder.customerContacts[0].shippingAddress : ""
+
+  if (!ordersStore.selectedOrder.customerContacts) {
+    return "No printer site provided"
+  }
+  ordersStore.selectedOrder.customerContacts[0].isActive = true
+  return ordersStore.selectedOrder.customerContacts[0].shippingAddress ? ordersStore.selectedOrder.customerContacts[0].shippingAddress : ""
 }
 function checkCustomerDetails() {
-        return ordersStore.selectedOrder.customerContacts && ordersStore.selectedOrder.customerContacts.length === 1
+  return ordersStore.selectedOrder.customerContacts && ordersStore.selectedOrder.customerContacts.length === 1
 }
 </script>
 
@@ -98,9 +97,9 @@ function checkCustomerDetails() {
       header
         h1.title Please confirm your order
         a.close(@click="router.push('/dashboard')")
-            span.material-icons.outline close
+          span.material-icons.outline close
     .card.context
-      .thumbnail
+      .thumbnail(v-if="selection && selection.thumbNailPath")
         prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
       .details
         .f
@@ -123,9 +122,9 @@ function checkCustomerDetails() {
         .f.shipping
           label Shipping Adress
           div(v-if="checkCustomerDetails()")
-           span {{ getShippingAddress() }}
+            span {{ getShippingAddress() }}
           div(v-if="selection.customerContacts && selection.customerContacts.length>1")
-           prime-dropdown.sm.address(v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" appendTo="body" 
+            prime-dropdown.sm.address(v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" appendTo="body" 
           optionLabel="shippingAddress" optionValue="shippingAddress")
     .card.colors
       h3 Plates
@@ -141,7 +140,7 @@ function checkCustomerDetails() {
   prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
     order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
     span.error-message(v-if="errorMessage !== ''") 
-        span(v-if="errorMessage !== ''") {{ errorMessage }}
+      span(v-if="errorMessage !== ''") {{ errorMessage }}
     template(#footer)
       footer
         .secondary-actions &nbsp;

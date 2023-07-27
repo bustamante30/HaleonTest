@@ -7,13 +7,13 @@ form.advanced-search(@submit.prevent="onSubmit")
       header
         h3 Advanced Search
     template(#subheader)
-        p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
-        p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
-        .error-message(v-if="showError") {{ error }}
+      p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
+      p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
+    .error-message(v-if="showError") {{ error }}
     sgs-panel(v-if="formattedDates && formattedDates.length" :header="`Recent Searches [${formattedDates.length}]`")
-          ul.recent-searches
-            li(v-for="item in formattedDates")
-              a(@click="handleDateClick(item.id)") {{ item.date }}
+      ul.recent-searches
+        li(v-for="item in formattedDates")
+          a(@click="handleDateClick(item.id)") {{ item.date }}
     .form-fields(v-if="advancedFilters")
       .field-group(v-for="section in sections")
         h4(v-if="section.label") {{ section.label }}
@@ -42,6 +42,10 @@ import { useSearchhistoryStore } from "@/stores/searchHistory";
 import dayjs from 'dayjs';
 import { keysIn } from 'lodash'
 import { useOrdersStore } from "@/stores/orders";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const props = defineProps({
   sections: {
@@ -57,24 +61,10 @@ const props = defineProps({
 const user = { isExternal: false }
 const searchhistoryStore = useSearchhistoryStore()
 const ordersStore = useOrdersStore()
-let formattedDates: Ref<{ id: any; date: string; }[]>  = ref([])
-
-// interface AdvancedFilters {
-//   itemNumber: string | null;
-//   startDate: [];
-//   printerName: string | null;
-//   printerSite: string | null;
-//   printerReference: string | null;
-//   poNumber: string | null;
-//   printerPlateCode: string | null;
-//   barcodeNumber: string | null;
-//   sgsReferenceNumberList: string | null;
-//   // Add more properties as needed
-// }
+let formattedDates: Ref<{ id: any; date: string; }[]> = ref([])
 
 const emit = defineEmits(["reset", "search"]);
 
-// const advancedFilters = ref<AdvancedFilters>();
 const printerResults: Ref<string[]> = ref([])
 const printerSiteResults: Ref<string[]> = ref([])
 const imageCarrierCodeTypes = ref([
@@ -111,15 +101,17 @@ const closeForm = () => {
 onBeforeMount(async () => {
   (advancedFilters as any).value = { ...(props.filters) };
   ordersStore.resetFilters()
-  await searchhistoryStore.getSearchDate().then(()=>{formatDate()});
-  
+  await searchhistoryStore.getSearchDate().then(() => { formatDate() });
+
   await searchhistoryStore.getSearchField();
 });
 
 async function formatDate() {
   if (searchDate.value && searchDate.value.length > 0) {
     searchDate.value.forEach((data) => {
-     return formattedDates.value.push({ id: (data as any).userId, date: dayjs((data as any).TimeStamp).format('dddd, MMMM D, YYYY') });
+      const localDate = dayjs.utc((data as any).timestamp).local();
+      const formattedLocalDate = localDate.format('ddd, MMM D, YYYY h:mm:ss A');
+      return formattedDates.value.push({ id: (data as any).userId, date: formattedLocalDate});
     })
   }
 }
@@ -164,13 +156,11 @@ async function searchPrinter(value?: any) {
   }
 }
 async function searchPrinterSites(value?: any) {
-  console.log(value)
   if (value.query && advancedFilters.value?.printerName)
     printerSiteResults.value = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
 }
 
 function onSubmit() {
-  console.log(advancedFilters.value)
   const validationErrors = validateForm();
   if (validationErrors) {
     console.log(validationErrors)
@@ -178,11 +168,10 @@ function onSubmit() {
     showError.value = true;
     setTimeout(() => {
       showError.value = false;
-    }, 3000); // Adjust the time (in milliseconds) as needed
+    }, 3000);
     return;
   }
 
-  // Proceed with form submission or other actions
   search(advancedFilters.value)
   closeForm()
 }
@@ -198,10 +187,6 @@ function validateForm() {
 
   const errorMessage =
     "You must enter information into at least 1 field. Printer Name and Location must have an entry";
-  //       const fields = Object.keys((advancedFilters.value as any)) 
-  // console.log(fields)
-  // for (const field  of fields) {
-  //   const value = (advancedFilters.value as any)[field];
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter(
     (field) => field !== "printerName" && field !== "printerSite"
