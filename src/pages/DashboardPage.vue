@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, provide,ref } from "vue";
+import { computed, onBeforeMount, provide, reactive,ref } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -66,6 +66,7 @@ const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
+const showMultipleSelection = ref(false)
 
 provide("options", options);
 
@@ -118,16 +119,40 @@ function sendToPm(form: any) {
 }
 
 async function addToCart(order: any) {
-  let orderToAdd = await ordersStore.getOrderById(order.sgsId)
-    if (await ordersStore.addToCart(orderToAdd)) {
-        alert('Order added to the cart successfully')
-    }
+  if(confirm('do you want to add more items from the dashboard?')){
+    order.selected = true
+    showMultipleSelection.value = true
+  }
+  else
+  {
+    let orderToAdd = await ordersStore.getOrderById(order.sgsId)
+      if (await ordersStore.addToCart(orderToAdd)) {
+          alert('Order added to the cart successfully')
+      }
+  }
 }
 function reorder(order: any) {
   ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
   ordersStore.cancelOrder(order);
+}
+
+async function addMultipleToCart(values){
+  let ordersToAdd = ordersStore.orders.filter(x=> x.selected)
+  for( let i = 0; i< ordersToAdd.length ; i++){
+    let order = ordersToAdd[i]
+    let orderToAdd = await ordersStore.getOrderById(order.sgsId)
+    if (!await ordersStore.addToCart(orderToAdd)) {
+      alert('Error adding some orders to the cart')
+        ordersToAdd.forEach(order => {order.selected = false})
+        showMultipleSelection.value = false
+        return
+    }
+    order.selected = false
+  }
+  showMultipleSelection.value = false
+  alert('Orders added to the cart successfully');
 }
 </script>
 
@@ -149,7 +174,8 @@ function cancelOrder(order: any) {
                 orders-search(:config="userFilterConfig" :filters="filters" @search="search")
                 template(v-if="userType === 'EXT'")
                   send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
-        orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder")
+        orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
+        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" )
         paginator(:rows="10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
     router-view
 </template>

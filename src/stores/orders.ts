@@ -155,6 +155,7 @@ export const useOrdersStore = defineStore('ordersStore', {
                 this.orders[i].thumbNailPath = decodeURIComponent(this.orders[i].thumbNailPath);
             }
             this.orders[i].submittedDate = DateTime.fromISO(this.orders[i].submittedDate).toLocaleString(DateTime.DATETIME_MED)
+            this.orders[i].selected = false
         }  
       },
       decorateCartOrders() {
