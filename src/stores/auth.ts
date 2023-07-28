@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { userSessionStore } from "@/stores/usersession";
 import UserService from "@/services/userService";
+import jwt_decode from 'jwt-decode'
+import { DateTime } from 'luxon'
 
 const authConfig = {
   auth: {
@@ -23,6 +25,9 @@ export const useAuthStore = defineStore("auth", {
     account: null as AccountInfo | null,
     msalInstance: new PublicClientApplication(authConfig),
     accessToken: "",
+    accessTokenUpdatedOn: new Date(),
+    accessTokenValidation: null as any,
+    redirectAfterLogin: '/dashboard'
   }),
   actions: {
     async aquireToken() {
@@ -38,6 +43,25 @@ export const useAuthStore = defineStore("auth", {
       // if the the user is logged in
       if (this.account && tokenResponse) {
         this.updateUserStore(tokenResponse);
+      }
+    },
+    async acquireTokenSilent() {
+      // 1. try to obtain token use account detaials
+      await this.getAccount()
+      const accessTokenRequest = {
+        scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+        account: this.msalInstance.getAllAccounts()[0]
+      }
+      console.info('acquireTokenSilent')
+      const tokenResponse = await this.msalInstance.acquireTokenSilent(accessTokenRequest)
+      if (tokenResponse) {
+        this.account = tokenResponse.account
+      } else {
+        this.account = this.msalInstance.getAllAccounts()[0]
+      }
+      // if the the user is logged in
+      if (this.account && tokenResponse) {
+        this.updateUserStore(tokenResponse)
       }
     },
     async getAccount() {
@@ -123,5 +147,32 @@ export const useAuthStore = defineStore("auth", {
       localStorage.setItem("userType",this.currentUser.userType);
       }
     },
+    validateToken() {
+      console.info(` -- Clearing Interval `)
+      clearInterval(this.accessTokenValidation)
+      this.accessTokenValidation = setInterval(() => {
+        const token: any = jwt_decode(this.accessToken)
+        const currentTime = DateTime.fromJSDate(new Date())
+        const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
+        const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
+        if (diff > -5) {
+          console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
+
+  
+          const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
+          const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
+
+          if(diffs > 3){
+            console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
+            location.reload()
+          }
+          this.acquireTokenSilent()
+        }
+      }, 5000)
+    },
   },
+  
+  // persist: {
+  //   enabled: true
+  // }
 });
