@@ -30,12 +30,15 @@ const props = defineProps({
   filters: {
     type: Object,
     default: () => {}
-  }
+  },
+  showMultipleSelection: {
+    type: Boolean,
+    default: () => false
+  }  
 })
 
 let selected = ref()
-
-const emit = defineEmits(['deleteFilter', 'add', 'reorder', 'cancel'])
+const emit = defineEmits(['deleteFilter', 'add', 'reorder', 'cancel','addMultipleToCart'])
 
 
 function stylify(width: any) {
@@ -184,7 +187,29 @@ data-table.p-datatable-sm.orders-table(
       div No records found.
     template(#loading)
       div Loading data. Please wait.
-
+    //- Add to cart Selection column
+    Column(
+      v-if="showMultipleSelection"
+      field="selected"
+      header=""
+      class="frozen-column"
+      :headerStyle="{ width: `50px`, flex: 'none' }"
+      :bodyStyle="{ width: `50px`, flex: 'none' }"
+    )
+      template(#header)
+        div.headerAddToCart
+          Button.centered(
+            type="button"
+            label="Add"
+            icon="pi pi-shopping-cart"
+            @click="emit('addMultipleToCart', data)"
+            class="custom-button"
+            severity="secondary"
+          )
+      template(#body="{ data }")
+        div.centered
+          prime-checkbox.square(v-model="data.selected" :binary="true")
+      
     //- ThumbNail column
     Column(
       field="thumbNailPath"
@@ -445,5 +470,10 @@ data-table.p-datatable-sm.orders-table(
 .my-custom-calendar
     width: 200px
     height: 30px
-  
+.centered
+  +flex(center,center)
+.headerAddToCart
+  width: 70px
+  display: flex
+  justify-content: center
 </style>
