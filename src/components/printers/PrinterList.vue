@@ -1,6 +1,6 @@
 <script setup>
 import { faker } from '@faker-js/faker'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 import PrinterForm from './PrinterForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -30,10 +30,16 @@ const props = defineProps({
 })
 
 const usersStore = useUsersStore()
-const emit = defineEmits(['select', 'fetch'])
+const emit = defineEmits(['select', 'fetch', 'searchPrinter'])
 
 let isPrinterFormVisible = ref(false)
 const query = ref()
+
+watch(query, (changeQuery) => {
+  if (changeQuery === "") {
+    searchPrinter({ query: "" });
+  }
+});
 
 function selectPrinter(printer) {
   emit('select', printer)
@@ -44,8 +50,8 @@ function getPrinters(event) {
 
 }
 
-function search(query) {
-  console.log(query)
+function searchPrinter(query) {
+  emit('searchPrinter', query)
 }
 
 
@@ -66,7 +72,7 @@ async function saveprinter(printerFormRequest) {
       header
         .search
           .input
-            prime-auto-complete.search-input(placeholder="Search Printers ..." v-model="query" name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="search")
+            prime-auto-complete.search-input(placeholder="Search Printers ..." v-model="query" name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="searchPrinter")
             span.material-icons.outline search
         sgs-button.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
     .printer(v-for="(printer, i) in printers.data" :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")

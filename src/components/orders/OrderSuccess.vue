@@ -6,16 +6,13 @@ import ColorsTable from '@/components/orders/ColorsTable.vue'
 import config from '@/data/config/color-table-reorder'
 import router from '@/router'
 import { DateTime } from 'luxon'
-
-const props = defineProps({
-
- });
-
-onBeforeMount(() => {
-});
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
 
 
 const ordersStore = useOrdersStore();
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
 let selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function back() {
@@ -51,10 +48,7 @@ watch(ordersStore.selectedOrder, (value) => {
         span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
-        span {{ selectedOrder.originalOrderId }}
-      .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
-        label Work Requested By
-        span {{ selectedOrder.customerContacts[0].customerName }}
+        span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}

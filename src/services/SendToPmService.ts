@@ -23,7 +23,7 @@ interface SendToPM {
     mySGSOrderId?: number;
     comments?: string,
     colors: Color[];
-    files?: files
+    files?: files[]
     code: string
    
 }
@@ -34,10 +34,10 @@ interface Color {
 
 interface files{
     fileName:string;
-    publicStoragePath: string;
-    privateStoragePath: string;
-    checkSum: number;
-    metadata: string;
+    publicStoragePath?: string;
+    privateStoragePath?: string;
+    checkSum?: number;
+    metadata?: string;
 }
 
 class SendToPMService {

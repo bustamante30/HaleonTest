@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { config as userConfig } from '@/data/config/user-table'
 import { config as internalUserConfig } from '@/data/config/internal-user-table'
 import { config as locationConfig } from '@/data/config/location-table'
@@ -30,12 +30,17 @@ const props = defineProps({
 })
 const usersStore = useUsersStore()
 
-const emit = defineEmits(['createUser', 'editUser'])
+const emit = defineEmits(['createUser', 'editUser','searchUser'])
 
 const tab = ref('users')
 const parentTab = ref('MSUser')
 const query = ref()
 
+watch(query, (changeQuery) => {
+  if (changeQuery === "") {
+    search({ query: "" });
+  }
+});
 
 function selectTab(tabName: string, parentTabName: string) {
   tab.value = tabName
@@ -52,17 +57,13 @@ function edit(user: any) {
 }
 
 function search(query : any) {
-  if(parentTab.value != 'MSUser')
-  {
-    parentTab.value = 'MUser'
-  }
-  usersStore.getPrinterById("",query.query,parentTab.value)
- 
+  emit('searchUser', query)
 }
 
 function resend() {
   console.log('resend')
 }
+
 </script>
 
 <template lang="pug">

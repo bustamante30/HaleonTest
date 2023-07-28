@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from 'luxon';
 import { onBeforeMount,computed,ref, watch } from 'vue';
+import { useB2CAuthStore } from "@/stores/b2cauth";
 
 const props = defineProps({
   checkout: {
@@ -14,6 +15,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['change'])
+const authb2cStore = useB2CAuthStore();
 
 const checkoutForm = ref()
 
@@ -27,16 +29,20 @@ watch(props.checkout, () => {
 
 function updateCheckout() {
   let expectedDateTime: Date = checkoutForm.value.expectedDate;
-  expectedDateTime.setHours(checkoutForm.value.expectedTime.getHours());
-  expectedDateTime.setMinutes(checkoutForm.value.expectedTime.getMinutes())
-  emit('change', { purchaseOrder:checkoutForm.value.purchaseOrder,expectedDate:expectedDateTime, notes: checkoutForm.value.notes })
+  if(checkoutForm.value.expectedDate) {
+  expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
+  expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes())
+  }
+  emit('change', { 
+    purchaseOrder:checkoutForm.value.purchaseOrder? checkoutForm.value.purchaseOrder: null,
+    expectedDate:expectedDateTime, 
+    notes: checkoutForm.value.notes ? checkoutForm.value.notes: null
+  })
 }
 
 function minSelectableDate() {
   return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
 }
-const userType = ref(localStorage.getItem('userType'));
-
 const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
 
 const errorMessages = {
@@ -67,8 +73,7 @@ function validatePurchaseOrder(): string {
  return "";
 }
 function showNotes(): boolean {
-
-  return userType.value === 'External';
+  return authb2cStore.currentB2CUser.userType === 'EXT';
 }
 
 const isExpectedTimeDisabled = computed(() => {
@@ -78,16 +83,16 @@ const isExpectedTimeDisabled = computed(() => {
 </script>
 
 <template lang="pug">
-.order-conformation-form(v-if="checkoutForm" @change="updateCheckout()")
+.order-conformation-form(v-if="checkoutForm" @change.prevent="updateCheckout")
   .details
     .f
       label Delivery Date *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
+        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
     .f
       label Delivery time *
-      span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedTime" :disabled="isExpectedTimeDisabled" timeOnly appendTo="body" hourFormat="24")
+      span.input.calendar    
+        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" timeOnly appendTo="body" hourFormat="12" required="true")
     .f
       label Purchase Order #
       span.input

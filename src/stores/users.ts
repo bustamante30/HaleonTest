@@ -123,11 +123,11 @@ function IterateLocation(LocationList: [], count: number) {
 }
 
 
-export async function  searchPrinter(printerId: number, userIdValue: number, userType: string) {
+export async function  searchPrinter(printerId: number, userIdValue: number, userType: string ="", searchPrinterKey: string ="") {
   try {
     // Create a SearchRequestDto object with the printerName and other parameters
     const searchRequest: SearchRequestDto = {
-      searchText: "",
+      searchText: searchPrinterKey,
       pageNumber: 1,
       pageCount: 30,
       orderBy: "PrinterId",
@@ -193,12 +193,12 @@ export const useUsersStore = defineStore('users', {
     userRoleValue: null as any,
   }),
   actions: {
-    async getPrinters(page: number, perPage: number = 500) {
+    async getPrinters(page: number, perPage: number = 500, searchUserKey: string ="", searchPrinterKey: string ="") {
       const total = 301
       let printerId: string ='';
       if (!this.all.length || page === 0) {
         // const all = genPrinters(total)
-        const all = await searchPrinter(0,0,'')
+        const all = await searchPrinter(0,0,"",searchPrinterKey)
         this.all = chunk(all, 500)
       }
       this.printers = {
@@ -217,17 +217,16 @@ export const useUsersStore = defineStore('users', {
         this.selected = this.printers.data[0]
         if (this.selected)
         {
-        this.getPrinterById(this.selected?.id)
+        this.getPrinterById(this.selected?.id,searchUserKey)
         }
         else
         {
-          this.getPrinterById(printerId)
+          this.getPrinterById(printerId,searchUserKey)
         }
-        
-      
       
     },
-    async getPrinterById(id: string, searchValue?: string| "", parentTab?: string| "") {
+    async getPrinterById(id: string, searchUserValue: string = "") 
+    {
       const printer = this.printers.data.find((p: any) => p.id === id)
 
       let prtId: number = 0;
@@ -277,8 +276,9 @@ export const useUsersStore = defineStore('users', {
       }
     }
       
-      if (searchValue !== undefined && searchValue !== null) {
-        searchKey = searchValue;
+      if (searchUserValue !== undefined && searchUserValue !== null && searchUserValue != "") {
+        console.log("searchKey:" + searchUserValue);
+        searchKey = searchUserValue;
       }
 
       console.log("getPrinterById");
@@ -318,14 +318,14 @@ export const useUsersStore = defineStore('users', {
 
        if(userType == 'EXT')
        {
-        this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchKey);
+        this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchUserValue);
        }
        else if(userType == 'INT')
        {
-        this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchKey);
+        this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchUserValue);
        }
        
-       this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchKey);
+       this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchUserValue);
        
        console.log("PrinterId:"+ prtId);
        
