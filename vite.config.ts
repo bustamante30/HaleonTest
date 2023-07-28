@@ -18,7 +18,6 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      cros: { origin: "*" },
     },
   },
   resolve: {

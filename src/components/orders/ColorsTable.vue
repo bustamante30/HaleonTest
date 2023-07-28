@@ -9,6 +9,7 @@ import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
 import { useOrdersStore } from '@/stores/orders'
 
+
 const props = defineProps({
   data: {
     type: Array,
@@ -38,17 +39,18 @@ function stylify(width) {
     : { width: 'auto', flex: '1' }
 }
 
-function checkAllValuesZero(arr, property) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i][property] !== 0) {
-      return false;
-    }
+function setDefaultValues(obj, defaultValue) {
+  if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
+    obj[key] = defaultValue;
+
   }
-  return true;
 }
 
-onMounted(()=>{
-  const colorData = (props.data && props.data.filter(x=>x.sets>0))
+onMounted(() => {
+  let colorData = (props.data && props.data.filter(x => x.sets > 0))
+  // colorData.forEach((color) => {
+  //   setDefaultValues(color, 'N/A')
+  // })
   selected.value = [...colorData]
 })
 
@@ -58,8 +60,8 @@ watch(selected, (colors, prevColors) => {
     const colorIds = colors.map(c => c.mcgColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      if (prevColorIds && !prevColorIds.includes(color.mcgColourId) && color.sets<1) {
-        updateColor({ id: color.mcgColourId, field: 'sets', value: 1})
+      if (prevColorIds && !prevColorIds.includes(color.mcgColourId) && color.sets < 1) {
+        updateColor({ id: color.mcgColourId, field: 'sets', value: 1 })
       }
     })
     // If color removed sets = 0
@@ -68,7 +70,7 @@ watch(selected, (colors, prevColors) => {
         updateColor({ id: color.mcgColourId, field: 'sets', value: 0 })
       }
     })
-  } 
+  }
 })
 
 function updateColor({ id, field, value }) {
