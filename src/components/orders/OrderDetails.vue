@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-    import { ref, computed, reactive, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table'
@@ -16,14 +16,12 @@ const props = defineProps({
     default: () => "",
   },
 })
-    const selectedOrder = computed(()=>ordersStore.selectedOrder)
+const selectedOrder = computed(() => ordersStore.selectedOrder)
+const colors = computed(() => ordersStore.selectedOrder.colors)
 
-    const colors = computed(()=>ordersStore.selectedOrder.colors)
-
-    onMounted(async() => {
-        await ordersStore.getOrderById(props.selectedId)
-    })
-
+onMounted(async () => {
+  await ordersStore.getOrderById(props.selectedId)
+})
 
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
@@ -42,17 +40,17 @@ function viewPreview() {
       template(#header)
         header
           h1.title
-            span {{ selectedOrder.brandName }} / {{ selectedOrder.description }}
+            span {{ selectedOrder.brandName ? selectedOrder.brandName : 'N/A' }} / {{ selectedOrder.description ? selectedOrder.description : 'N/A'}}
           a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       .card.context
         .details
           h4
-            span Item Code: {{ selectedOrder.itemCode }}
+            span Item Code: {{ selectedOrder.itemCode ? selectedOrder.itemCode : 'N/A'}}
             span.separator |
-            span {{ selectedOrder.packType }}
+            span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
             span.separator |
-            span {{ selectedOrder.printerName }}, {{ selectedOrder.printerLocationName }}
+            span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }}, {{ selectedOrder.printerLocationName ? selectedOrder.printerLocationName : 'N/A' }}
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
