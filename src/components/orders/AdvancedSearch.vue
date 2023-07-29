@@ -21,8 +21,8 @@ form.advanced-search(@submit.prevent="onSubmit")
           label(v-if="filter.label") {{ filter.label }}
           prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
           prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found"  )
-          prime-auto-complete(v-else-if="filter.type === 'printerSiteSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerSiteResults" completeOnFocus=true appendTo="body" @complete="searchPrinterSites($event)" emptyMessage="No results found" )
+          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found" @item-select="searchPrinterSites()" )
+          prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults" emptyMessage="No results found")
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
       footer
@@ -155,9 +155,12 @@ async function searchPrinter(value?: any) {
     printerResults.value = await SuggesterService.getPrinterList(value.query)
   }
 }
-async function searchPrinterSites(value?: any) {
-  if (value.query && advancedFilters.value?.printerName)
-    printerSiteResults.value = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, value.query)
+async function searchPrinterSites() {
+  if (advancedFilters.value?.printerName){
+    printerSiteResults.value = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, '')
+    debugger
+  }
+
 }
 
 function onSubmit() {
