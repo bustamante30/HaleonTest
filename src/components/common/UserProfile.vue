@@ -69,6 +69,7 @@ watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
 <template lang="pug">
 .user-profile
   span.avatar(@click="togglePopup()") {{ initials() }}
+  .mask(v-if="isPopupVisible" @click="togglePopup")
   .popup(v-if="isPopupVisible")
    h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}
     h6 {{ authb2cStore.currentB2CUser.email ? authb2cStore.currentB2CUser.email : (authStore.currentUser.email ||'User@gmail.com') }}
@@ -91,6 +92,11 @@ watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
     font-size: 1rem
     font-weight: 600
     text-align: center
+  
+  .mask
+    +fixed
+    background: rgba(0, 0, 0, 0.02)
+    z-index: $z-user-profile - 1
 
   .popup
     +fixed-ne

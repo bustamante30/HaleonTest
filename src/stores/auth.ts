@@ -4,6 +4,7 @@ import { userSessionStore } from "@/stores/usersession";
 import UserService from "@/services/userService";
 import jwt_decode from 'jwt-decode'
 import { DateTime } from 'luxon'
+import store from "store";
 
 const authConfig = {
   auth: {
@@ -21,7 +22,7 @@ const requestScope = {
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    currentUser: userSessionStore(),
+    currentUser: store.get('currentUser') || userSessionStore(),
     account: null as AccountInfo | null,
     msalInstance: new PublicClientApplication(authConfig),
     accessToken: "",
@@ -145,6 +146,7 @@ export const useAuthStore = defineStore("auth", {
       this.currentUser.userId = user.userId as number;
       this.currentUser.roleKey = user.roleKey as string;
       localStorage.setItem("userType",this.currentUser.userType);
+      store.set('currentUser',this.currentUser);
       }
     },
     validateToken() {
@@ -170,9 +172,5 @@ export const useAuthStore = defineStore("auth", {
         }
       }, 5000)
     },
-  },
-  
-  // persist: {
-  //   enabled: true
-  // }
+  }
 });

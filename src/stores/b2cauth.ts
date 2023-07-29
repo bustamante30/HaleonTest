@@ -7,6 +7,7 @@ import {
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";
 import router from "@/router";
+import store from "store";
 
 const authB2CConfig = {
   auth: {
@@ -25,7 +26,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => ({
     msalB2cInstance: new PublicClientApplication(authB2CConfig),
     accessToken: "",
-    currentB2CUser: userB2CSessionStore(),
+    currentB2CUser: store.get('currentb2cUser') ||userB2CSessionStore(),
     account: null as AccountInfo | null,
   }),
   actions: {
@@ -154,6 +155,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.currentB2CUser.userId = user.userId as number;
       this.currentB2CUser.roleKey = user.roleKey as string;
       localStorage.setItem("userType",this.currentB2CUser.userType);
+      store.set('currentb2cUser',this.currentB2CUser);
       }
     },
   },
