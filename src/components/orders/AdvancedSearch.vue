@@ -158,7 +158,6 @@ async function searchPrinter(value?: any) {
 async function searchPrinterSites() {
   if (advancedFilters.value?.printerName){
     printerSiteResults.value = await SuggesterService.getPrinterSiteList(advancedFilters.value?.printerName, '')
-    debugger
   }
 
 }
