@@ -6,10 +6,10 @@ form.advanced-search(@submit.prevent="onSubmit")
     template(#header)
       header
         h3 Advanced Search
-    template(#subheader)
-      p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
-      p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
+    p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
+    p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
     .error-message(v-if="showError") {{ error }}
+    template(#subheader)
     sgs-panel(v-if="formattedDates && formattedDates.length" :header="`Recent Searches [${formattedDates.length}]`")
       ul.recent-searches
         li(v-for="item in formattedDates")

@@ -51,7 +51,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :max="10" :disabled="parseInt(value)===0" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
-  span(v-else) {{ get(data, config.field) }}
+  span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
 
 </template>
 
