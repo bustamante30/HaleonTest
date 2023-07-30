@@ -77,7 +77,7 @@ export const useAuthStore = defineStore("auth", {
 
     async login() {
       try {
-        if (this.currentUser.roleKey) {
+       
           let tokenResponse = await this.msalInstance.handleRedirectPromise();
           const accessTokenRequest = {
             scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
@@ -111,9 +111,7 @@ export const useAuthStore = defineStore("auth", {
             );
             await this.msalInstance.loginRedirect(requestScope);
           }
-        } else {
-          router.push("/error");
-        }
+       
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
       }
@@ -151,6 +149,9 @@ export const useAuthStore = defineStore("auth", {
         this.currentUser.roleKey = user.roleKey as string;
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);
+        if (!this.currentUser.roleKey) {
+          router.push("/error");
+        }
       }
     },
     validateToken() {
