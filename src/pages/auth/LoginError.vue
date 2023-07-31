@@ -8,9 +8,9 @@ import AppLogo from "@/components/common/AppLogo.vue";
   main
     h1 Access Denied
     p
-      | Sorry you do not have necessary permission
+      | You are not authorized to access the application.
       br/
-      | to access this application
+      | Please contact SGS helpdesk to access this application
 </template>
 
 <style lang="sass" scoped>

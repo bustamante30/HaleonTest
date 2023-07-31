@@ -138,7 +138,7 @@ function cancelOrder(order: any) {
   ordersStore.cancelOrder(order);
 }
 
-async function addMultipleToCart(values){
+async function addMultipleToCart(values: any){
   let ordersToAdd = ordersStore.orders.filter(x=> x.selected)
   for( let i = 0; i< ordersToAdd.length ; i++){
     let order = ordersToAdd[i]
