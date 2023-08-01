@@ -70,8 +70,7 @@ const filters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
     description: { value: "", matchMode: FilterMatchMode.CONTAINS },
     orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
-    packType: { value: "", matchMode: FilterMatchMode.CONTAINS },
-    status: { value: "", matchMode: FilterMatchMode.IN },
+    packType: { value: "", matchMode: FilterMatchMode.CONTAINS }
 });
 
 
@@ -83,8 +82,7 @@ const mutationMap: { [key: string]: string } = {
   brandName: 'setBrandNameFilter',
   description: 'setDescriptionFilter',
   orderDate: 'setOrderStartDateFilter',
-  packType: 'setPackTypeFilter',
-  status: 'setOrderStatusFilter',
+  packType: 'setPackTypeFilter'
 };
 
 const showCalendar = ref(false);
@@ -97,7 +95,6 @@ const globalClearFilter = async () => {
   filterStore.commit('setPackTypeFilter', null);
   filterStore.commit('setOrderStartDateFilter', null);
   filterStore.commit('setOrderEndDateFilter', null);
-  filterStore.commit('setOrderStatusFilter', null);
 
 
   const response = await orderStore.getOrders();
@@ -120,20 +117,10 @@ function getFormattedValue(value: string | null, matchMode: string): string | nu
 
 async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
   const fieldName = field as keyof typeof filters.value;
-  if (fieldName === 'status') {
-    let statusFilter = filterModel.value
-    for (const [key, value] of orderStatusLabels) {
-      if (value.label === filterModel.value) {
-        filterStore.commit('setOrderStatusFilter', key);
-        break;
-      }
-    }
-  }
-  else if (mutationMap.hasOwnProperty(fieldName)) {
   filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, filters.value[fieldName].value);
-  }
+  
   orderStore.setFilters(filters);
 }
 
@@ -402,7 +389,6 @@ data-table.p-datatable-sm.orders-table(
     //- Status column
     Column(
       field="orderStatus"
-      v-model="selectedStatusFilter"
       header="Status"
       type= 'badge'
       width= 7
@@ -415,30 +401,6 @@ data-table.p-datatable-sm.orders-table(
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[10]" :data="data")
-      template(v-slot:filter="{ filterModel }")
-        Dropdown(
-          v-model="filterModel.value"
-          :options="dropdownOptions"
-          placeholder="Select One"
-          class="p-column-filter"
-          showClear
-        )
-      template(#filterclear="{ filterModel }")
-        Button(
-          type="button"
-          icon="pi pi-times"
-          @click="clearFilter('status', filterModel)"
-          class="custom-button"
-          severity="secondary"
-        )
-      template(#filterapply="{ filterModel, filterCallback }")
-        Button(
-          type="button"
-          icon="pi pi-check"
-          class="custom-button"
-          @click="customFilter('status', filterModel)"
-          severity="success"
-        )
         //- Action column
     Column(
       field="actions"

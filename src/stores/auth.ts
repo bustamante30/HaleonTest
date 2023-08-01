@@ -4,6 +4,8 @@ import { userSessionStore } from "@/stores/usersession";
 import UserService from "@/services/userService";
 import jwt_decode from 'jwt-decode'
 import { DateTime } from 'luxon'
+import store from "store";
+import router from "@/router";
 
 const authConfig = {
   auth: {
@@ -16,12 +18,12 @@ const authConfig = {
 };
 
 const requestScope = {
-  scopes:  [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+  scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
 };
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    currentUser: userSessionStore(),
+    currentUser: store.get('currentUser') || userSessionStore(),
     account: null as AccountInfo | null,
     msalInstance: new PublicClientApplication(authConfig),
     accessToken: "",
@@ -75,39 +77,41 @@ export const useAuthStore = defineStore("auth", {
 
     async login() {
       try {
-        let tokenResponse = await this.msalInstance.handleRedirectPromise();
-        const accessTokenRequest = {
-          scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
-          account: this.msalInstance.getAllAccounts()[0],
-        };
-        console.log("accessTokenRequest" + accessTokenRequest);
-        if (tokenResponse) {
-          this.account = tokenResponse.account;
-        } else {
-          this.account = this.msalInstance.getAllAccounts()[0];
-        }
+       
+          let tokenResponse = await this.msalInstance.handleRedirectPromise();
+          const accessTokenRequest = {
+            scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+            account: this.msalInstance.getAllAccounts()[0],
+          };
+          console.log("accessTokenRequest" + accessTokenRequest);
+          if (tokenResponse) {
+            this.account = tokenResponse.account;
+          } else {
+            this.account = this.msalInstance.getAllAccounts()[0];
+          }
 
-        if (this.account && tokenResponse) {
-          console.log(
-            "[Auth Store] successgully obtained valid account and tokenResponse"
-          );
-          await this.updateUserStore(tokenResponse);
-        } else if (this.account) {
-          console.log("[Auth Store] User has logged in, but no tokens.");
-          try {
-            tokenResponse = await this.msalInstance.acquireTokenSilent(
-              accessTokenRequest
+          if (this.account && tokenResponse) {
+            console.log(
+              "[Auth Store] successgully obtained valid account and tokenResponse"
             );
             await this.updateUserStore(tokenResponse);
-          } catch (err) {
-            await this.msalInstance.acquireTokenRedirect(requestScope);
+          } else if (this.account) {
+            console.log("[Auth Store] User has logged in, but no tokens.");
+            try {
+              tokenResponse = await this.msalInstance.acquireTokenSilent(
+                accessTokenRequest
+              );
+              await this.updateUserStore(tokenResponse);
+            } catch (err) {
+              await this.msalInstance.acquireTokenRedirect(requestScope);
+            }
+          } else {
+            console.log(
+              "[Auth Store]  No account or tokenResponse present. User must now login."
+            );
+            await this.msalInstance.loginRedirect(requestScope);
           }
-        } else {
-          console.log(
-            "[Auth Store]  No account or tokenResponse present. User must now login."
-          );
-          await this.msalInstance.loginRedirect(requestScope);
-        }
+       
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
       }
@@ -132,19 +136,22 @@ export const useAuthStore = defineStore("auth", {
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       const user = await UserService.getUserClaimInfo();
-      if(user !== null)
-      {
-      console.log("userclaimsPrinterId:" + user.printerId);
-      this.currentUser.firstName = user.firstName as string;
-      this.currentUser.lastName = user.lastName as string;
-      this.currentUser.email = user.email as string;
-      this.currentUser.displayName = user.displayName as string;
-      this.currentUser.userType = user.userType as string;
-      this.currentUser.printerId = user.printerId as number;
-      this.currentUser.printerName = user.printerName as string;
-      this.currentUser.userId = user.userId as number;
-      this.currentUser.roleKey = user.roleKey as string;
-      localStorage.setItem("userType",this.currentUser.userType);
+      if (user !== null) {
+        console.log("userclaimsPrinterId:" + user.printerId);
+        this.currentUser.firstName = user.firstName as string;
+        this.currentUser.lastName = user.lastName as string;
+        this.currentUser.email = user.email as string;
+        this.currentUser.displayName = user.displayName as string;
+        this.currentUser.userType = user.userType as string;
+        this.currentUser.printerId = user.printerId as number;
+        this.currentUser.printerName = user.printerName as string;
+        this.currentUser.userId = user.userId as number;
+        this.currentUser.roleKey = user.roleKey as string;
+        localStorage.setItem("userType", this.currentUser.userType);
+        store.set('currentUser', this.currentUser);
+        if (!this.currentUser.roleKey) {
+          router.push("/error");
+        }
       }
     },
     validateToken() {
@@ -158,11 +165,11 @@ export const useAuthStore = defineStore("auth", {
         if (diff > -5) {
           console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
 
-  
+
           const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
           const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
 
-          if(diffs > 3){
+          if (diffs > 3) {
             console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
             location.reload()
           }
@@ -170,9 +177,5 @@ export const useAuthStore = defineStore("auth", {
         }
       }, 5000)
     },
-  },
-  
-  // persist: {
-  //   enabled: true
-  // }
+  }
 });
