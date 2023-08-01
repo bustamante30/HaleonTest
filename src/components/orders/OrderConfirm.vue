@@ -40,28 +40,29 @@ async function placeOrder() {
   } else {
     dateError = false;
   }
-  let result = ''
   if (ordersStore.selectedOrder.id > 0) {
     ordersStore.selectedOrder.statusId = 2
-    result = await ReorderService.updateDraft(ordersStore.selectedOrder)
-    if (!result) {
+    let draftResult = await ReorderService.updateDraft(ordersStore.selectedOrder)
+    if (!draftResult.success) {
       alert('Error updating draft')
     }
     else {
-      ordersStore.cartCount = ordersStore.cartCount - 1
+      let index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder)
+      ordersStore.cartOrders[index] = draftResult.result
+      ordersStore.selectedOrder = draftResult.result
     }
   }
   else {
     if (!dateError) {
-      result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
       ordersStore.setOrderInStore(result)
+      console.log(result)
     }
     else {
       errorMessage.value = "Date and time are mandatory fields";
 
     }
   }
-  console.log(result)
   if (!dateError) {
     checkout.value.expectedDate = null
     checkout.value.expectedTime = null

@@ -1,32 +1,42 @@
 <script setup>
 import Image from "primevue/image";
-import { computed, onBeforeMount, watch } from "vue";
+import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import ColorsTable from '@/components/orders/ColorsTable.vue'
-import config from '@/data/config/color-table-reorder'
-import router from '@/router'
-import { DateTime } from 'luxon'
+import ColorsTable from "@/components/orders/ColorsTable.vue";
+import config from "@/data/config/color-table-reorder";
+import router from "@/router";
+import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-
 
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 let selectedOrder = computed(() => ordersStore.selectedOrder);
-
+const expectedDate = ref("");
+onBeforeMount(async () => {
+  let x = ordersStore.selectedOrder.expectedDate.toString();
+  if (ordersStore.selectedOrder.expectedDate instanceof Date)
+    x = ordersStore.selectedOrder.expectedDate.toISOString();
+  expectedDate.value = DateTime.fromISO(x).toFormat("dd LLL, yyyy hh:mm a");
+});
+onMounted(async () => {
+  const index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
+  if (index > -1) {
+    ordersStore.cartOrders.splice(index, 1);
+    ordersStore.cartCount = ordersStore.cartCount - 1;
+  }
+});
 function back() {
-    const index = ordersStore.cartOrders.indexOf(selectedOrder, 0);
-    if (index > -1) {
-        ordersStore.cartOrders.splice(index, 1);
-        ordersStore.cartCount = ordersStore.cartCount - 1
-    }
-    router.push('/dashboard')
+  const form = document.querySelector(".page.success");
+  if (form) {
+    form.style.display = "none";
+  }
 }
 
 watch(ordersStore.selectedOrder, (value) => {
-  selectedOrder = value
-})
+  selectedOrder = value;
+});
 </script>
 
 <template lang="pug">
@@ -41,7 +51,7 @@ watch(ordersStore.selectedOrder, (value) => {
         | The following plate re-order has been placed. &nbsp;
         br/
         | Your order is expected to be delivered on &nbsp;
-        em(v-if="selectedOrder.expectedDate") {{ DateTime.fromISO(selectedOrder.expectedDate).toFormat('dd LLL, yyyy hh:mm a') }}
+        em(v-if="selectedOrder.expectedDate") {{ expectedDate }}
     .card.context
       .f
         label Order Date

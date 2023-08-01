@@ -211,7 +211,8 @@ export const useOrdersStore = defineStore('ordersStore', {
       const colorIndex = colors.findIndex((color: any) => color.mcgColourId == id);
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
         if (!isNaN(parseFloat(this.selectedOrder.id)) && isFinite((this.selectedOrder.id as any)) && parseFloat(this.selectedOrder.id)>0) {
-          if (!await ReorderService.updateDraft(this.selectedOrder)) {
+          let result = await ReorderService.updateDraft(this.selectedOrder)
+          if(!result.success){
             alert('error updating draft')
           }
       }

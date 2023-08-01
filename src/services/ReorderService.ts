@@ -61,7 +61,7 @@ interface CustomerContact {
     isActive: boolean;
 }
 class ReorderService {
-    public static updateDraft(reorder: any) {
+    public static updateDraft(reorder: any):SubmitReorderResponse {
         reorder.colors.forEach((color: any) => {
             color.isActive = color.sets > 0 ? true : false
         })
@@ -70,11 +70,13 @@ class ReorderService {
             .then((response: SubmitReorderResponse) => {
                 console.log('updated Order:')
                 console.log(response.result);
-                return response.success;
+                return response;
             })
             .catch((error: any) => {
                 console.log('Error submitting reorder:', error);
-                return false;
+                let x: SubmitReorderResponse;
+                x.success = false
+                return x;
             });
     }
     public static submitReorder(reorderInfo: any, statusId: number) {
