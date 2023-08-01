@@ -138,20 +138,21 @@ class ReorderService {
                 return false;
             });
     }
-    public static getRecentReorders(query?: string, sortBy?: string,
+    public static getRecentReorders(status: number, query?: string, sortBy?: string,
         sortOrder?: string,
         page?: number,
         pageSize?: number, advancedSearchParameters?: any, columnFilters? : any) {
         let params = {}
         if (query=="") {
              params = {
+                "status" :status,
                 "pageNumber": page,
                 "pageCount": pageSize,
                 "printerId": 1,
                 "brandName": columnFilters!= null?columnFilters.state.brandNameFilter !=null?columnFilters.state.brandNameFilter: null:null,
                 "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
                 "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
-                "orderStatusId": columnFilters!= null?columnFilters.state.orderStatusFilter !=null?columnFilters.state.orderStatusFilter: null:null,
+                "orderStatusId": status,
                 "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
                 "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
                 
@@ -159,6 +160,7 @@ class ReorderService {
         }
        else {
             params = {
+                "status" :status,
                 "pageNumber": page,
                 "pageCount": pageSize,
                 "printerId": 1,
@@ -166,7 +168,7 @@ class ReorderService {
                 "brandName": columnFilters!= null?columnFilters.state.brandNameFilter !=null?columnFilters.state.brandNameFilter: null:null,
                 "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
                 "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
-                "orderStatusId": columnFilters!= null?columnFilters.state.orderStatusFilter !=null?columnFilters.state.orderStatusFilter: null:null,
+                "orderStatusId": status,
                 "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
                 "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
                 

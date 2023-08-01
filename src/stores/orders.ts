@@ -31,6 +31,24 @@ export const useOrdersStore = defineStore('ordersStore', {
     },
     totalRecords: 0,
     searchHistory: [] as any[],
+    statusList: [
+      {
+        name: "Draft",
+        value: 1
+      },
+      {
+        name:"Completed",
+        value: 4
+      },
+      {
+        name: "Submitted",
+        value:2
+      },
+      {
+        name: "Cancelled",
+        value: 3
+      }
+    ]
   }),
   getters: {
     filteredOrders() {
@@ -39,7 +57,7 @@ export const useOrdersStore = defineStore('ordersStore', {
   },
   actions: {
     async getOrders() {
-      const result = await ReorderService.getRecentReorders(undefined,
+      const result = await ReorderService.getRecentReorders(4, undefined,
         undefined,
         undefined,
         this.pageState.page,
@@ -108,7 +126,7 @@ export const useOrdersStore = defineStore('ordersStore', {
     async setFilters(filters: any) {
 
       this.filters = { ...this.filters, ...filters }
-      const result = await ReorderService.getRecentReorders(filters.query, filters.sortBy,
+      const result = await ReorderService.getRecentReorders(filters.status, filters.query, filters.sortBy,
         filters.sortOrder,
         this.pageState.page,
         this.pageState.rows, filters, filterStore);
@@ -127,6 +145,7 @@ export const useOrdersStore = defineStore('ordersStore', {
       this.selectedOrder = this.orders[0]
     },
     resetFilters() {
+      this.filters['status'] = 4
       this.filters['itemNumber'] = null
       this.filters['orderDate'] = []
       this.filters['printerName'] = null
@@ -143,7 +162,6 @@ export const useOrdersStore = defineStore('ordersStore', {
       filterStore.state.brandNameFilter = null
       filterStore.state.descriptionFilter = null
       filterStore.state.packTypeFilter = null
-      filterStore.state.orderStatusFilter = null
       filterStore.state.sortFields = null
     },
     decorateOrders() {
