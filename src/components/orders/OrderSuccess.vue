@@ -1,6 +1,6 @@
 <script setup>
 import Image from "primevue/image";
-import { computed, onBeforeMount, watch } from "vue";
+import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
