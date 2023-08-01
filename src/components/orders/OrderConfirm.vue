@@ -48,7 +48,9 @@ async function placeOrder() {
       alert('Error updating draft')
     }
     else {
-      ordersStore.cartCount = ordersStore.cartCount - 1
+      let index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder)
+      ordersStore.cartOrders[index] = result
+      ordersStore.selectedOrder = result
     }
   }
   else {
