@@ -106,7 +106,10 @@ export const useOrdersStore = defineStore('ordersStore', {
                 let details = JSON.parse(JSON.stringify(await ReorderService.getOrderDetails(id)))
                 this.selectedOrder.description = details.jobDescription
                 this.selectedOrder.colors = Array.from(details.colors)
-                this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0 });
+                this.selectedOrder.colors.map(x => { if (!(x as any)['sets']) (x as any)['sets'] = 0,
+                                                    (x as any)['newColour'] = (x as any)['isNew']? "New":"Common",
+                                                    (x as any)['colourTypeDesc'] = ReorderService.getColorType((x as any)['colourType'])
+                                                  });
                 (this.selectedOrder as any)['customerContacts'] = details.customerContacts
                 this.selectedOrder.barcodes = details.barcode
                 this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie
@@ -120,9 +123,11 @@ export const useOrdersStore = defineStore('ordersStore', {
                 this.selectedOrder.dispro = details.techSpec.dispro
                 this.selectedOrder.plateType = details.techSpec.plateType
             }
+            console.log(this.selectedOrder)
         return this.selectedOrder
       }
     },
+    
     async setFilters(filters: any) {
 
       this.filters = { ...this.filters, ...filters }
@@ -184,6 +189,7 @@ export const useOrdersStore = defineStore('ordersStore', {
               else if (this.cartOrders[i].thumbNailPath) {
                   this.cartOrders[i].thumbNailPath = decodeURIComponent(this.cartOrders[i].thumbNailPath);
               }
+              ReorderService.decorateColours(this.cartOrders[i].colors)
           }
       },
     initAdvancedFilters() {

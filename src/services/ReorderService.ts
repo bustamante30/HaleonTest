@@ -11,8 +11,8 @@ interface SearchPagedResultDto {
 } 
 
 interface SubmitReorderResponse {
-    success: boolean;
-    result: SubmitReorder;
+    success?: boolean;
+    result?: SubmitReorder;
 }
 interface SubmitReorder {
     Id?: number;
@@ -33,7 +33,7 @@ interface SubmitReorder {
     PlateRelief: string;
     ThumbNailPath: string;
     Variety: string;
-    Colors: Color[];
+    colors: Color[];
     CustomerContacts: CustomerContact[];
 }
 interface Color {
@@ -49,6 +49,11 @@ interface Color {
     plateTypeDescription: string;
     plateThicknessId: number;
     plateThicknessDescription: string;
+    colourType: number;
+    colourTypeDesc?: string;
+    isNew: boolean;
+    newColour?: string;
+    commonColourRef: string;
     isActive: boolean;
 }
 interface CustomerContact {
@@ -61,21 +66,21 @@ interface CustomerContact {
     isActive: boolean;
 }
 class ReorderService {
-    public static updateDraft(reorder: any):SubmitReorderResponse {
+    public static async updateDraft(reorder: any):Promise<SubmitReorderResponse> {
         reorder.colors.forEach((color: any) => {
             color.isActive = color.sets > 0 ? true : false
         })
-        return httpService
+        return await httpService
             .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
             .then((response: SubmitReorderResponse) => {
                 console.log('updated Order:')
+                this.decorateColours(response.result?.colors)
                 console.log(response.result);
                 return response;
             })
             .catch((error: any) => {
                 console.log('Error submitting reorder:', error);
-                let x: SubmitReorderResponse;
-                x.success = false
+                let x: SubmitReorderResponse ={success : false};
                 return x;
             });
     }
@@ -97,12 +102,12 @@ class ReorderService {
             ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
             Notes: reorderInfo.Notes,
             PlateRelief: reorderInfo.PlateRelief,
-            Colors: [],
+            colors: [],
             CustomerContacts: []
         }
         reorderInfo.colors.forEach((color: any) => {
             let isActiveColor: boolean = color.sets > 0 ? true : false
-            newReorder.Colors.push({
+            newReorder.colors.push({
                 clientPlateColourRef: color.clientPlateColourRef,
                 colourName: color.colourName,
                 custCarrierIdNo: color.custCarrierIdNo,
@@ -113,8 +118,11 @@ class ReorderService {
                 plateThicknessId: color.plateThicknessId,
                 plateTypeDescription: color.plateTypeDescription,
                 plateTypeId: color.plateTypeId,
-                sequenceNumber: color.colourOrder,
+                sequenceNumber: color.sequenceNumber,
                 sets: color.sets,
+                colourType: color.colourType,
+                isNew: color.isNew,
+                commonColourRef: color.commonColourRef,
                 isActive: isActiveColor
             })
         })
@@ -133,6 +141,7 @@ class ReorderService {
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
+                this.decorateColours(response.result?.colors)
                 return response.result;                    
             })
             .catch((error: any) => {
@@ -260,6 +269,23 @@ class ReorderService {
             console.log("error discarding order: ", error);
             return false
         });
+    }
+    public static getColorType(colourType: number){
+        switch(colourType){
+            case 2: return "Tone"
+            case 0: return "Unknown"
+            case 5: return "Combo-L/T"
+            case 1: return "Line"
+            case 11: return "Technical"
+            default: return ""
+        }
+    }
+    public static decorateColours(colors: Color[] | undefined){
+        if(colors)
+            colors.forEach(color =>{
+                color.colourTypeDesc = this.getColorType(color.colourType)
+                color.newColour = color.isNew? "New":"Common"
+            })
     }
 }
 
