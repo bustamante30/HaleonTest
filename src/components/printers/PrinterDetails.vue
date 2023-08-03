@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import { ref, watch } from 'vue'
 import { config as userConfig } from '@/data/config/user-table'
 import { config as internalUserConfig } from '@/data/config/internal-user-table'
@@ -30,7 +30,7 @@ const props = defineProps({
 })
 const usersStore = useUsersStore()
 
-const emit = defineEmits(['createUser', 'editUser','searchUser'])
+const emit = defineEmits(['createUser', 'editUser','searchUser', 'deleteUser'])
 
 const tab = ref('users')
 const parentTab = ref('MSUser')
@@ -42,26 +42,31 @@ watch(query, (changeQuery) => {
   }
 });
 
-function selectTab(tabName: string, parentTabName: string) {
+function selectTab(tabName, parentTabName) {
   tab.value = tabName
   parentTab.value = parentTabName
 }
 
-function create(path: string) {
+function create(path) {
   emit('createUser')
 }
 
-function edit(user: any) {
+function edit(user) {
   emit('editUser', user)
   // router.push(`/users/${user.data.id}?role=super`)
 }
 
-function search(query : any) {
+function search(query) {
   emit('searchUser', query)
 }
 
-function resend() {
-  console.log('resend')
+function deleteUser(user) {
+  emit('deleteUser', user)
+}
+
+
+function resend(user) {
+  emit('resend', user)
 }
 
 </script>
@@ -88,7 +93,7 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
           span.material-icons.outline search
       sgs-button.sm(label="Add User" icon="add" @click="create")
   .content
-    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @resend="resend" :className="[ user ? 'lay-low' : '']")
+    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @deleteUser="deleteUser" @resend="resend" :className="[ user ? 'lay-low' : '']")
     user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
     location-table(v-else-if="tab === 'locations'" :data="printer.locations" :config="locationConfig")
     printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")

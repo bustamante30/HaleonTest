@@ -304,12 +304,6 @@ export const useUsersStore = defineStore('users', {
 
         console.log("locations:"+ this.options.locations);
       }
-      //todo: we need to get printerId for internal user
-      // else {
-      //   // If `printerName` is not available, use the default locations
-      //   this.options.locations = locations;
-      // }
-      //const locationsResp = this.options.locations;
 
        if(userType === 'INT')
        {
@@ -483,9 +477,10 @@ export const useUsersStore = defineStore('users', {
           displayName: printerreq.value.admin,
           email: printerreq.value.email
           },
-          userIdentityProv: [
+            printerIdentityProv: [
             {
-              identityProviderId: printerreq.value.provider,
+                identityProviderId: printerreq.value.provider,
+                identityTypeId: 1
             },
           ]
         };
@@ -500,6 +495,24 @@ export const useUsersStore = defineStore('users', {
         console.error('Error saving printer:', error);
         // Handle error scenario
       });
+    },
+    async deleteUser(user: any) {
+      console.log("DeleteUser:"+ user);
+      try {
+        await UserService.DeleteUser(user);
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        // Handle error scenario if needed
+      }
+    },
+    async resendInvitation(user: any) {
+      try {
+        await UserService.ResendInvitation(user);
+        console.log("Invitation resent successfully.");
+      } catch (error) {
+        console.error("Error resending invitation:", error);
+        // Handle error scenario if needed
+      }
     },
   },
 });

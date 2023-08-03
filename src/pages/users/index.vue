@@ -109,8 +109,44 @@ console.log("SearchPrinter Query:" + query)
         usersStore.getPrinterById('')
       }
 }
-</script>
 
+function deleteUser(user) {
+  if(authStore.currentUser.email != '')
+      {
+        if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+          userType =authStore.currentUser.userType;
+        } 
+      }
+      
+     if(authb2cStore.currentB2CUser.email != '')
+     {
+        if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+          userType =authb2cStore.currentB2CUser.userType;
+        }
+      }
+      
+      if( userType === "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
+
+      }
+      else if(userType === "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+
+ usersStore.deleteUser(user.data.id)
+ usersStore.getPrinters(0)
+ usersStore.getPrinterById(printerId,'')
+}
+
+function resend(user) {
+ usersStore.resendInvitation(user.data.id)
+}
+
+</script>
 <template lang="pug">
 .page.users
   sgs-scrollpanel(:scroll="false")
@@ -125,7 +161,7 @@ console.log("SearchPrinter Query:" + query)
           printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
         .users-content
           sgs-scrollpanel(v-if="selected")
-            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" :user="user" :role="role" @searchUser ="searchUser")
+            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" :user="user" :role="role" @searchUser ="searchUser")
   router-view
 </template>
 
