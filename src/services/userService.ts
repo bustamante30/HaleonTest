@@ -6,7 +6,7 @@ import type { SearchResponeDto} from  '../models/SearchResponeDto';
 import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
 
-const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ?? 'https://localhost:7026/';
+const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
 //import.meta.env.VITE_USER_API_BASE_URL ??
 
 const httpService = new ApiService(baseUrl)
@@ -90,6 +90,32 @@ public static SavePrinter(printerData: PrinterDto) {
       return null;
     });
 }
+
+public static DeleteUser(userId: string) {
+  const params = { userId, isActive: false };
+  return httpService
+    .delete<boolean>('v1/user/Delete?userId='+ userId +'&isActive=false')
+    .then((response: boolean) => {
+      return response;
+    })
+    .catch((error: any) => {
+      console.log('Error deleting user:', error);
+      return null;
+    });
+}
+
+public static ResendInvitation(userId: string) {
+  const params = { userId };
+  return httpService
+    .post<boolean>('v1/user/ResendInvitation?userId='+ userId)
+    .then((response: boolean) => {
+    return response;
+    })
+    .catch((error: any) => {
+      console.log('Error resending invitation:', error);
+    });
+}
+
 
 }
 
