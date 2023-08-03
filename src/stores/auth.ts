@@ -31,8 +31,7 @@ export const useAuthStore = defineStore("auth", {
       accessToken: "",
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
-      redirectAfterLogin: '/dashboard',
-      decodedToken: {}      
+      redirectAfterLogin: '/dashboard'
     }
   },
   actions: {
@@ -157,17 +156,13 @@ export const useAuthStore = defineStore("auth", {
       this.accessTokenValidation = setInterval(() => {
         console.log('interval running')
         const token: any = jwt_decode(this.accessToken)
-        this.decodedToken = token
         const currentTime = DateTime.fromJSDate(new Date())
         const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
         const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
         if (diff > -5) {
           console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
-
-
           const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
           const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
-
           if (diffs > 3) {
             console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
             location.reload()
