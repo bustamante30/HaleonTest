@@ -31,7 +31,8 @@ export const useAuthStore = defineStore("auth", {
       accessToken: "",
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
-      redirectAfterLogin: '/dashboard'      
+      redirectAfterLogin: '/dashboard',
+      decodedToken: {}      
     }
   },
   actions: {
@@ -141,9 +142,10 @@ export const useAuthStore = defineStore("auth", {
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
         this.currentUser = {...this.currentUser,...user} as any;
-        console.log("currentUser:" +  JSON.stringify(this.currentUser));
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);
+
+
         if (!this.currentUser.roleKey) {
           router.push("/error");
         }
@@ -155,6 +157,7 @@ export const useAuthStore = defineStore("auth", {
       this.accessTokenValidation = setInterval(() => {
         console.log('interval running')
         const token: any = jwt_decode(this.accessToken)
+        this.decodedToken = token
         const currentTime = DateTime.fromJSDate(new Date())
         const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
         const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
