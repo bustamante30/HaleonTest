@@ -3,21 +3,25 @@ import { ref, type Ref } from 'vue'
 import Emitter from 'pico-emitter'
 
 export type UserState = {
-  firstName: Ref<string>
-  lastName: Ref<string>
-  displayName: Ref<string>
+  firstName?: Ref<string>
+  lastName?: Ref<string>
+  displayName?: Ref<string>
   username: Ref<string>
-  email: Ref<string>
+  email?: Ref<string>
   isLoggedIn: Ref<boolean>
   userType: Ref<string>
-  roleKey: Ref<string>
+  roleKey?: Ref<string>
   printerId: Ref<Number>
   printerName: Ref<string>
-  userId: Ref<Number>
+  userId?: Ref<Number>
+  identityProviderId?: Ref<Number>
+  identityProviderName?: Ref<string>
+  identityTypeName?: Ref<string>
+  prtLocation: Ref<Array<string>>
 }
 
-export const userSessionStore = defineStore('usersession', () => {
-  const userSession = {
+export const useUserSessionStore = defineStore('userSession', () => {
+  const userSession = ref({
     username: ref(''),
     email: ref(''),
     emitter: ref(new Emitter()),
@@ -30,6 +34,10 @@ export const userSessionStore = defineStore('usersession', () => {
     printerName: ref(''),
     userId:ref(new Number()),
     roleKey: ref(''),
-  }
-  return userSession
+    identityProviderId: ref(new Number()),
+    identityProviderName: ref(''),
+    identityTypeName: ref(''),
+    prtLocation: ref([]),
+  })
+  return { userSession }
 })
