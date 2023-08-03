@@ -4,7 +4,6 @@ import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue';
 import { useIdle, useCounter } from '@vueuse/core'
 import { useAuthStore } from './stores/auth';
-import { userSessionStore } from './stores/usersession';
 
 
 const notificationsStore = useNotificationsStore()
@@ -17,7 +16,6 @@ const { idle, lastActive } = useIdle(15 * 60 * 1000) // 15 min
 
 const authStore = useAuthStore()
 const user = authStore.currentUser
-const auth = userSessionStore()
 const lastUserActiveTime = ref()
 
 watch(notification, (message: any) => {
