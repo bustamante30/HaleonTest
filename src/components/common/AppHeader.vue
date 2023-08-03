@@ -4,13 +4,19 @@ import UserProfile from './UserProfile.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useOrdersStore } from "@/stores/orders";
-import {  onBeforeMount,onMounted, computed  } from "vue";
+import { onBeforeMount, onMounted, computed } from "vue";
+import store from "store";
 
 const ordersStore = useOrdersStore()
-const cartCount = computed(()=>ordersStore.cartCount) 
+const cartCount = computed(() => ordersStore.cartCount)
 onMounted(async () => {
-       await ordersStore.getCartCount()
-      
+  if (store.get('currentUser')) {
+    authStore.currentUser = store.get('currentUser');
+  }
+  if (store.get('currentb2cUser')) {
+    authb2cStore.currentB2CUser = store.get('currentb2cUser');
+  }
+  await ordersStore.getCartCount()
 });
 
 

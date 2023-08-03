@@ -23,12 +23,15 @@ const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 export const useB2CAuthStore = defineStore("b2cauth", {
-  state: () => ({
+  state: () => {
+    const userb2cSessionStore = userB2CSessionStore()
+    return {
     msalB2cInstance: new PublicClientApplication(authB2CConfig),
     accessToken: "",
-    currentB2CUser: store.get('currentb2cUser') ||userB2CSessionStore(),
+    currentB2CUser: userb2cSessionStore.userB2CSession,
     account: null as AccountInfo | null,
-  }),
+    }
+  },
   actions: {
     async getAccount() {
       const accounts = this.msalB2cInstance.getAllAccounts();
@@ -142,20 +145,13 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       const user = await UserService.getUserClaimInfo();
-      console.log("userb2cclaims:" + user);
+      console.log("userb2cclaims:" + JSON.stringify(user));
       if(user !== null)
       {
-      this.currentB2CUser.firstName = user.firstName as string;
-      this.currentB2CUser.lastName = user.lastName as string;
-      this.currentB2CUser.email = user.email as string;
-      this.currentB2CUser.displayName = user.displayName as string;
-      this.currentB2CUser.userType =user.userType as string;
-      this.currentB2CUser.printerId = user.printerId as number;
-      this.currentB2CUser.printerName = user.printerName as string;
-      this.currentB2CUser.userId = user.userId as number;
-      this.currentB2CUser.roleKey = user.roleKey as string;
-      localStorage.setItem("userType",this.currentB2CUser.userType);
-      store.set('currentb2cUser',this.currentB2CUser);
+        this.currentB2CUser = {...this.currentB2CUser, ...user } as any;
+        console.log("currentB2CUser:" +  JSON.stringify(this.currentB2CUser));
+        localStorage.setItem("userType",this.currentB2CUser.userType);
+        store.set('currentb2cUser',this.currentB2CUser);
       }
     },
   },

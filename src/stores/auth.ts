@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
-import { userSessionStore } from "@/stores/usersession";
+import { useUserSessionStore } from "./usersession";
 import UserService from "@/services/userService";
 import jwt_decode from 'jwt-decode'
 import { DateTime } from 'luxon'
@@ -22,15 +22,18 @@ const requestScope = {
 };
 
 export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    currentUser: store.get('currentUser') || userSessionStore(),
-    account: null as AccountInfo | null,
-    msalInstance: new PublicClientApplication(authConfig),
-    accessToken: "",
-    accessTokenUpdatedOn: new Date(),
-    accessTokenValidation: null as any,
-    redirectAfterLogin: '/dashboard'
-  }),
+  state: () => {
+    const userSessionStore = useUserSessionStore()
+    return {
+      currentUser: userSessionStore.userSession,
+      account: null as AccountInfo | null,
+      msalInstance: new PublicClientApplication(authConfig),
+      accessToken: "",
+      accessTokenUpdatedOn: new Date(),
+      accessTokenValidation: null as any,
+      redirectAfterLogin: '/dashboard'      
+    }
+  },
   actions: {
     async aquireToken() {
       // 1. try to obtain token use account detaials
@@ -137,16 +140,8 @@ export const useAuthStore = defineStore("auth", {
       localStorage.setItem("token", this.accessToken);
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
-        console.log("userclaimsPrinterId:" + user.printerId);
-        this.currentUser.firstName = user.firstName as string;
-        this.currentUser.lastName = user.lastName as string;
-        this.currentUser.email = user.email as string;
-        this.currentUser.displayName = user.displayName as string;
-        this.currentUser.userType = user.userType as string;
-        this.currentUser.printerId = user.printerId as number;
-        this.currentUser.printerName = user.printerName as string;
-        this.currentUser.userId = user.userId as number;
-        this.currentUser.roleKey = user.roleKey as string;
+        this.currentUser = {...this.currentUser,...user} as any;
+        console.log("currentUser:" +  JSON.stringify(this.currentUser));
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);
         if (!this.currentUser.roleKey) {
@@ -158,6 +153,7 @@ export const useAuthStore = defineStore("auth", {
       console.info(` -- Clearing Interval `)
       clearInterval(this.accessTokenValidation)
       this.accessTokenValidation = setInterval(() => {
+        console.log('interval running')
         const token: any = jwt_decode(this.accessToken)
         const currentTime = DateTime.fromJSDate(new Date())
         const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
