@@ -35,7 +35,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
       redirectAfterLogin: '/dashboard',
-      decodedToken: {}
+      decodedToken: {},
+      isValidIdentityProvider: false,
     }
   },
   actions: {
@@ -186,6 +187,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         store.set('currentb2cUser', this.currentB2CUser);
         if (!user.roleKey || user.identityProviderName !== identityProviderSelected || user.identityTypeName !== identityProviderSelected) {
           router.push("/error");
+        } else {
+          this.isValidIdentityProvider = true
         }
       }
     },
