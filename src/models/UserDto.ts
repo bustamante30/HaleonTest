@@ -11,6 +11,7 @@ export type UserDto = {
     userType?: string | null;
     printerId?: number| null;
     isAdmin?: boolean | null;
+    isPrimaryPM?: boolean | null;
     roles?: Array<UserRoleDto> | null;
     printerLoc?: Array<UserPrinterLocationDto> | null;
 };

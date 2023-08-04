@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router'
-import { providers } from '@/data/config/identitiy-providers'
+import { providers, federated } from '@/data/config/identitiy-providers'
 import { useUsersStore } from '@/stores/users'
 import SuggesterService from "@/services/SuggesterService";
 
@@ -15,8 +15,8 @@ const printerResults = ref([])
 const printerForm = ref({
   id: null,
   name: null,
-  provider: null,
-  tenantId: null,
+  provider: 1,
+  federatedProvider: 1,
   admin: null,
   email: null,
 })
@@ -53,10 +53,11 @@ function save() {
             prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found")
           .f
             label Identify Provider
-            prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value")
-          //- .f(v-if="printerForm.provider !== 'photon'")
-          //-   label Tenant ID
-          //-   prime-inputtext(v-model="printerForm.tenantId")
+            prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
+          template(v-if="printerForm.provider !== 1")
+            .f.radio-item(v-for="platform in federated")
+              prime-radiobutton.square(v-model="printerForm.federatedProvider" name="federated" :inputId="platform.value" :value="platform.value")
+              label(:for="platform.value") {{ platform.label }}
           h5 Admin
           .f
             label Name
@@ -118,6 +119,11 @@ function save() {
       h2, h3, h4, p
         margin-top: 0
 
+  .fields
+    padding: $s 0
+    margin: $s 0
+    border-top: 1px solid #f2f2f2
+
   .f
     padding: $s50 0
     font-weight: 600
@@ -131,13 +137,21 @@ function save() {
         display: inline-block
         margin-bottom: $s25
 
-  .f.checkbox
-    +flex
-    label
-      display: inline-block
-      margin: 0
-      margin-left: $s50
-      &:after
-        content: ""
+  .f.switch
+        +flex-fill
+        label
+          width: auto
+          margin-right: $s
+          &:after
+            content: ''
+    
+  .f.checkbox, .f.radio
+        +flex
+        label
+          display: inline-block
+          margin: 0
+          margin-left: $s50
+          &:after
+            content: ""
 
 </style>
