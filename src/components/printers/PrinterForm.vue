@@ -141,7 +141,7 @@ function save() {
         +flex-fill
         label
           width: auto
-          martin-right: $s
+          margin-right: $s
           &:after
             content: ''
     

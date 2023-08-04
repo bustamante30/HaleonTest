@@ -28,7 +28,6 @@ onMounted(async () => {
 
 watch(currentUser, (value) => {
   if (authStore.currentUser) {
-    console.log('check watch', value)
     if (value.userType === 'INT' && value.roleKey=== 'PMSuperAdminUser') {
       IsExternalAdmin.value = 'PMSuperAdminUser';
     } else if (value.userType === 'INT' && value.roleKey === 'PMUser') {
@@ -40,7 +39,6 @@ watch(currentUser, (value) => {
 
 watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser) {
-    console.log('check watch', value)
    if (value.userType === 'EXT' && value.roleKey === 'PrinterAdmin') {
       IsExternalAdmin.value = 'PrinterAdmin';
     } else if (value.userType === 'EXT' && value.roleKey=== 'PrinterUser') {
