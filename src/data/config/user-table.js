@@ -42,7 +42,7 @@ const config = {
       field: 'isAdmin',
       type: 'check',
       width: 3
-    },
+    }
   ],
   actions: (user) => {
     return [

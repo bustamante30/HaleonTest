@@ -360,7 +360,8 @@ export const useUsersStore = defineStore('users', {
           firstName: null,
           lastName: null,
           email: null,
-          isAdmin: false
+          isAdmin: false,
+          isPrimaryPM: false
         }
       }
       console.log("createUser");
@@ -382,7 +383,8 @@ export const useUsersStore = defineStore('users', {
         lastName: userEditResp.lastName,
         email: userEditResp.email,
        location : userEditResp.printerLoc?.[0]?.locationName || "N/A",
-       isAdmin: userEditResp.roles?.[0]?.isAdmin || false
+       isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
+       isPrimaryPM: userEditResp.isPrimaryPM || false
       };
     
 
@@ -441,6 +443,7 @@ export const useUsersStore = defineStore('users', {
           printerId: printerIdValue,
           roles: null, 
           isAdmin: userreq.value.isAdmin,
+          isPrimaryPM:userreq.value.isPrimaryPM,
           printerLoc: [
             {
               locationName: userreq.value.location,
@@ -475,12 +478,12 @@ export const useUsersStore = defineStore('users', {
           firstName: printerreq.value.admin,
           lastName: printerreq.value.admin,
           displayName: printerreq.value.admin,
-          email: printerreq.value.email
+          email: printerreq.value.email,
           },
             printerIdentityProv: [
             {
                 identityProviderId: printerreq.value.provider,
-                identityTypeId: 1
+                identityTypeId: printerreq.value.federatedProvider
             },
           ]
         };

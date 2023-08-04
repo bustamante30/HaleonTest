@@ -31,7 +31,7 @@ function stylify(width) {
 }
 
 function handleAction(action) {
-  if(action.event === 'editUser')
+  if(action.event === 'edit')
   {
   emit('editUser',{event: action.event, data: action.data})
   }

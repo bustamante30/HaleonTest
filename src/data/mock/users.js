@@ -9,6 +9,7 @@ function genUser(i, printerName, locations, isAdmin) {
     lastName,
     location: faker.helpers.arrayElement(locations),
     isAdmin,
+    // isPrimaryPM,
     email: (`${firstName}.${lastName}@${printerName || ''}.com`)
       .replace(/and/ig, '')
       .replace(/[,\s'-]/ig, '')

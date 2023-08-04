@@ -30,7 +30,7 @@ const providerName = computed(() => {
   .settings
     sgs-scrollpanel.panel
       h3(v-if="providerName") Setup {{ providerName }} 
-      .fields(v-if="provider && provider.type !== 'photon'")
+      .fields(v-if="provider && provider.type !== 1")
         .f
           label Tenant ID
           prime-inputtext.sm(v-model="provider.tenantId" :disabled="provider && provider.type === 'photon'")
