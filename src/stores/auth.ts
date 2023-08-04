@@ -31,7 +31,8 @@ export const useAuthStore = defineStore("auth", {
       accessToken: "",
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
-      redirectAfterLogin: '/dashboard'
+      redirectAfterLogin: '/dashboard',
+      isValidIdentityProvider: true
     }
   },
   actions: {
