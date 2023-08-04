@@ -4,6 +4,7 @@ import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue';
 import { useIdle, useCounter } from '@vueuse/core'
 import { useAuthStore } from './stores/auth';
+import { useB2CAuthStore } from './stores/b2cauth';
 
 
 const notificationsStore = useNotificationsStore()
@@ -15,7 +16,9 @@ const { inc, count } = useCounter()
 const { idle, lastActive } = useIdle(15 * 60 * 1000) // 15 min
 
 const authStore = useAuthStore()
+const b2cAuthStore = useB2CAuthStore()
 const user = authStore.currentUser
+const b2cUser = b2cAuthStore.currentB2CUser
 const lastUserActiveTime = ref()
 
 watch(notification, (message: any) => {
@@ -31,12 +34,12 @@ watch(idle, async (idleValue) => {
   } else {
     // Refresh Token
     console.log(` --  Tab is Visible${new Date()} -  User Action Detected - `, new Date(lastUserActiveTime.value))
-    await authStore.acquireTokenSilent()
+    if(user)
+      await authStore.acquireTokenSilent()
+    if(b2cUser)
+      await b2cAuthStore.acquireTokenSilent()
   }
 })
-
-// Pinia multiple store state persist globally save and retrieve in page refresh  
-
 
 document.addEventListener('visibilitychange', async () => {
   if (document.hidden) {

@@ -31,7 +31,7 @@ export const useAuthStore = defineStore("auth", {
       accessToken: "",
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
-      redirectAfterLogin: '/dashboard'      
+      redirectAfterLogin: '/dashboard'
     }
   },
   actions: {
@@ -141,9 +141,10 @@ export const useAuthStore = defineStore("auth", {
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
         this.currentUser = {...this.currentUser,...user} as any;
-        console.log("currentUser:" +  JSON.stringify(this.currentUser));
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);
+
+
         if (!this.currentUser.roleKey) {
           router.push("/error");
         }
@@ -160,11 +161,8 @@ export const useAuthStore = defineStore("auth", {
         const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
         if (diff > -5) {
           console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
-
-
           const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
           const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
-
           if (diffs > 3) {
             console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
             location.reload()
