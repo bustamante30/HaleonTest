@@ -18,13 +18,6 @@ import type { PrinterDto } from '../models/PrinterDto';
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
-
-// const locations = [
-//   { label: 'TestLancaster', value: 1 },
-//   { label: 'Concord NH', value: 2 },
-//   { label: 'Neenah, WI', value: 3 }
-// ];
-
 export async function fetchLocations(printerName: string) {
   try {
     const locationResult = await SuggesterService.getPrinterSiteList(printerName, "");
@@ -153,8 +146,12 @@ export async function  searchPrinter(printerId: number, userIdValue: number, use
           admins: printer.totalUserCount,
           users: printer.externalUserCount,
           internalUsers: printer.internalUserCount,
-          identityProvider: faker.helpers.arrayElement(['google', 'microsoft']),
+          identityProvider: printer.identityProviderName,
         },
+        identityProviderId: printer.identityProviderId,
+        identityProviderName: printer.identityProviderName,
+        identityTypeId: printer.identityTypeId,
+        identityTypeName: printer.identityTypeName
       }));
 
       // Return the mapped printers array
@@ -191,6 +188,10 @@ export const useUsersStore = defineStore('users', {
     locationSearchResp: null as any,
     userTypeValue: null as any,
     userRoleValue: null as any,
+    identityProviderId: null as any,
+    identityProviderName: null as any,
+    identityTypeId: null as any,
+    identityTypeName: null as any,
   }),
   actions: {
     async getPrinters(page: number, perPage: number = 500, searchUserKey: string ="", searchPrinterKey: string ="") {
@@ -207,14 +208,19 @@ export const useUsersStore = defineStore('users', {
         total,
         data: this.all && this.all[page] ? this.all[page] : []
       }
-
+      if(authb2cStore.currentB2CUser != null)
+      {
+        this.userTypeValue = authb2cStore.currentB2CUser.userType;
       if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
         printerId = authb2cStore.currentB2CUser.printerId.toString();
       }
-         // const all = await searchPrinter(Number(authb2cStore.currentB2CUser.printerId),0,'')
+      }
+         // const all  = await searchPrinter(Number(authb2cStore.currentB2CUser.printerId),0,'')
          // this.getPrinterById(authb2cStore.currentB2CUser.printerId.toString())
       
         this.selected = this.printers.data[0]
+      if(this.userTypeValue !== 'EXT')
+      {
         if (this.selected)
         {
         this.getPrinterById(this.selected?.id,searchUserKey)
@@ -223,6 +229,11 @@ export const useUsersStore = defineStore('users', {
         {
           this.getPrinterById(printerId,searchUserKey)
         }
+      }
+      else
+      {
+        this.getPrinterById(printerId,searchUserKey)
+      }
       
     },
     async getPrinterById(id: string, searchUserValue: string = "") 
@@ -275,7 +286,15 @@ export const useUsersStore = defineStore('users', {
         prtId = Number(id);
       }
     }
-      
+
+    if(printer != undefined)
+    {
+    this.identityProviderId = printer.identityProviderId;
+    this.identityProviderName = printer.identityProviderName;
+    this.identityTypeId = printer.identityTypeId;
+    this.identityTypeName = printer.identityTypeName;
+    }
+    
       if (searchUserValue !== undefined && searchUserValue !== null && searchUserValue != "") {
         console.log("searchKey:" + searchUserValue);
         searchKey = searchUserValue;
