@@ -16,7 +16,7 @@ const printerForm = ref({
   id: null,
   name: null,
   provider: 1,
-  federatedProvider: 1,
+  federatedProvider: null,
   admin: null,
   email: null,
 })
@@ -51,13 +51,14 @@ function save() {
           .f
             label Printer Name
             prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found")
-          .f
-            label Identify Provider
-            prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
-          template(v-if="printerForm.provider !== 1")
-            .f.radio-item(v-for="platform in federated")
-              prime-radiobutton.square(v-model="printerForm.federatedProvider" name="federated" :inputId="platform.value" :value="platform.value")
-              label(:for="platform.value") {{ platform.label }}
+          .fields
+            .f
+             label Identify Provider
+             prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
+            template(v-if="printerForm.provider !== 1")
+              .f.radio(v-for="platform in federated")
+                prime-radiobutton.square(v-model="printerForm.federatedProvider" name="federated" :inputId="platform.value" :value="platform.value")
+                label(:for="platform.value") {{ platform.label }}
           h5 Admin
           .f
             label Name
@@ -118,6 +119,14 @@ function save() {
       padding: 0 $s
       h2, h3, h4, p
         margin-top: 0
+    .f.radio
+        +flex
+        label
+          display: inline-block
+          margin: 0
+          margin-left: $s50
+          &:after
+            content: ""
 
   .fields
     padding: $s 0
@@ -144,14 +153,5 @@ function save() {
           margin-right: $s
           &:after
             content: ''
-    
-  .f.checkbox, .f.radio
-        +flex
-        label
-          display: inline-block
-          margin: 0
-          margin-left: $s50
-          &:after
-            content: ""
 
 </style>

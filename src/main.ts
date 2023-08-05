@@ -31,6 +31,7 @@ import ToastService from 'primevue/toastservice';
 import Paginator from 'primevue/paginator';
 import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
+import RadioButton from 'primevue/radiobutton';
 
 const app = createApp(App)
 
@@ -65,4 +66,5 @@ app.component('Message',Message)
 app.component('PrimePagination',Paginator)
 app.component('PrimeTextarea', Textarea)
 app.component('PrimeToast', Toast)
+app.component('PrimeRadiobutton',RadioButton)
 app.mount('#app')
