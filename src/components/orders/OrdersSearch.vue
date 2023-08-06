@@ -1,8 +1,8 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
-
-console.log("Testing search dash................");
+import { useSearchhistoryStore } from "@/stores/searchHistory";
+import { debounce } from "lodash";
 
 const props = defineProps({
   config: {
@@ -18,14 +18,44 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["search"]);
-
-const items = computed(() => []);
-
+const searchhistoryStore = useSearchhistoryStore()
+const searchDate = computed(() => searchhistoryStore.searchDate);
+const searchHistory = computed(() => searchhistoryStore.searchHistory);
+const filteredSuggestions = ref([]);
+const searchedValue = ref();
+const dateRefId = ref("");
 const isFiltersVisible = ref(false);
+const loadingSuggestions = ref(false);
 
-function search(filters) {
+onMounted(async () => {
+  await searchhistoryStore.getSearchDate(false)
+  await searchhistoryStore.getSearchField();
+  dateRefId.value = searchDate.value?.[0]?.userId;
+});
+
+async function handleFocus(item) {
+  if (dateRefId.value) {
+    await searchhistoryStore.getSearchHistory(dateRefId.value, false)
+  }
+  filteredSuggestions.value = searchHistory.value.map(x => x.value)
+}
+
+async function search(filters) {
   isFiltersVisible.value = false;
-  emit("search", filters);
+  if (filters.query !== "") {
+    emit("search", filters);
+  } else {
+    handleFocus(filters.query)
+  }
+}
+async function addToHistory() {
+  loadingSuggestions.value = true;
+  if (searchedValue.value) {
+    await searchhistoryStore.setKeywordSearchHistory(searchedValue.value, false);
+  } else {
+    handleFocus(searchedValue.value)
+  }
+  loadingSuggestions.value = false;
 }
 
 function toggleFilters() {
@@ -37,12 +67,13 @@ function toggleFilters() {
 .orders-search
   .search
     .input
-      prime-auto-complete.search-input(placeholder="Search by plate code, item code, UPC code..." v-model="value" :suggestions="items" @complete="search")
+      prime-auto-complete.search-input(v-model="searchedValue" :suggestions="filteredSuggestions" 
+      @keyup.enter="addToHistory()" @complete="search" completeOnFocus forceSelection 
+      placeholder="Search by plate code, item code, UPC code..." :loading="loadingSuggestions")
       span.material-icons.outline search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
-    //- sgs-mask(@click="toggleFilters")
     advanced-search(:sections="config.sections" :filters="filters" @search="search")
 </template>
 
