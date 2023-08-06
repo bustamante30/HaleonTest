@@ -59,7 +59,7 @@ const isValidIdentityProvider = computed(() => {
     return authStore.isValidIdentityProvider;
   }
   else{
-    return false;
+    return true;
   }
 });
 const userFilterConfig = computed(() => filterConfig("user"));
