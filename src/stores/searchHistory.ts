@@ -7,23 +7,23 @@ import type { SearchDateDto } from "@/models/SearchDateDto";
 export const useSearchhistoryStore = defineStore("searchHistory", {
   state: () => ({
     searchFieldReference: [] as SearchFieldDto[],
-    searchHistory: [] as SearchHistoryDto[], // Specify the type of colors
-    searchDate: [] as SearchDateDto[]
+    searchHistory: [] as SearchHistoryDto[],
+    searchDate: [] as SearchDateDto[],
   }),
   actions: {
-    async getSearchHistory(dateRefId: number) {
-      const history = await SearchHistoryService.getSearchHistory(dateRefId);
+    async getSearchHistory(dateRefId: number, isAdvanceSearch: boolean) {
+      const history = await SearchHistoryService.getSearchHistory(dateRefId, isAdvanceSearch);
       this.searchHistory = history as SearchHistoryDto[];
     },
     async getSearchField() {
       const searchField = await SearchHistoryService.getSearchField();
       this.searchFieldReference = searchField as SearchFieldDto[];
     },
-    async getSearchDate() {
-      const searchDate = await SearchHistoryService.getSearchDate();
+    async getSearchDate(isAdvanceSearch: boolean) {
+      const searchDate = await SearchHistoryService.getSearchDate(isAdvanceSearch);
       this.searchDate = searchDate as SearchDateDto[];
     },
-    async setSearchHistory(advanceSearchParameters: any) {
+    async setSearchHistory(advanceSearchParameters: any, isAdvanceSearch: boolean) {
       let searchRequest: SearchHistoryDto[] = [];
       if (this.searchFieldReference.length > 0) {
         this.searchFieldReference.forEach((field) => {
@@ -43,7 +43,19 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
             }
           }
         })
-        const result = await SearchHistoryService.setSearchHistory(searchRequest);
+        const result = await SearchHistoryService.setSearchHistory(searchRequest, isAdvanceSearch);
+      }
+    },
+    async setKeywordSearchHistory(keywordSearchValue: any, isAdvanceSearch: boolean) {
+      if (keywordSearchValue === "") {
+        return;
+      }
+
+      const searchRequest: SearchHistoryDto[] = this.searchFieldReference
+        .filter((field: any) => field.fieldName === "keywordSearch")
+        .map((field: any) => ({ SearchFieldId: field.id, Value: keywordSearchValue, }));
+      if (searchRequest.length > 0) {
+        const result = await SearchHistoryService.setSearchHistory(searchRequest, isAdvanceSearch);
       }
     }
   },

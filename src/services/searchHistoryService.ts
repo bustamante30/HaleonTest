@@ -11,7 +11,6 @@ class SearchHistoryService {
 
     public static getSearchField() {
         return httpService.get<SearchFieldDto>("v1/Reorder/searchfield").then((response: SearchFieldDto) => {
-            console.log('api', response)
             return response
         }).catch((error: any) => {
             console.log("error getting search field: ", error);
@@ -19,8 +18,8 @@ class SearchHistoryService {
         });
     }
 
-    public static getSearchDate() {
-        return httpService.get<SearchDateDto>("v1/Reorder/getDate").then((response: SearchDateDto) => {
+    public static getSearchDate(isAdvanceSearch: boolean) {
+        return httpService.get<SearchDateDto>("v1/Reorder/getDate?isAdvanceSearch=" + isAdvanceSearch).then((response: SearchDateDto) => {
             return response
         }).catch((error: any) => {
             console.log("error getting search field: ", error);
@@ -28,8 +27,8 @@ class SearchHistoryService {
         });
     }
 
-    public static getSearchHistory(dateRefId: number) {
-        return httpService.get<SearchHistoryDto>("v1/Reorder/getHistory",{'dateRefId': dateRefId}).then((response: SearchHistoryDto) => {
+    public static getSearchHistory(dateRefId: number, isAdvanceSearch: boolean) {
+        return httpService.get<SearchHistoryDto>("v1/Reorder/getHistory?dateRefId="+dateRefId+"&&isAdvanceSearch="+isAdvanceSearch).then((response: SearchHistoryDto) => {
             return response
         }).catch((error: any) => {
             console.log("error getting search history: ", error);
@@ -37,8 +36,8 @@ class SearchHistoryService {
         });
     }
 
-    public static setSearchHistory(history: any) {
-        return httpService.post<SearchHistoryDto>('v1/Reorder/addhistory', history).then((response: SearchHistoryDto) => {
+    public static setSearchHistory(history: SearchHistoryDto[], isAdvanceSearch: boolean) {
+        return httpService.post<SearchHistoryDto>("v1/Reorder/addhistory?isAdvanceSearch=" + isAdvanceSearch,  history).then((response: SearchHistoryDto) => {
             return response
         }).catch((error: any) => {
             console.log("error setting search history: ", error);

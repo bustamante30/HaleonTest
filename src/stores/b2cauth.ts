@@ -185,7 +185,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
         localStorage.setItem("userType", this.currentB2CUser.userType);
         store.set('currentb2cUser', this.currentB2CUser);
-        if (!user.roleKey || user.identityProviderName !== identityProviderSelected || user.identityTypeName !== identityProviderSelected) {
+        if (!user.roleKey || user.identityTypeName !== identityProviderSelected || user.identityProviderName !== identityProviderSelected) {
           router.push("/error");
         } else {
           this.isValidIdentityProvider = true

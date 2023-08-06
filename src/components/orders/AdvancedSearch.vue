@@ -101,7 +101,7 @@ const closeForm = () => {
 onBeforeMount(async () => {
   (advancedFilters as any).value = { ...(props.filters) };
   ordersStore.resetFilters()
-  await searchhistoryStore.getSearchDate().then(() => { formatDate() });
+  await searchhistoryStore.getSearchDate(true).then(() => { formatDate() });
 
   await searchhistoryStore.getSearchField();
 });
@@ -118,7 +118,7 @@ async function formatDate() {
 
 async function handleDateClick(dateRefId: number): Promise<void> {
   await searchhistoryStore.getSearchField()
-  await searchhistoryStore.getSearchHistory(dateRefId)
+  await searchhistoryStore.getSearchHistory(dateRefId, true)
   const columnNames = keysIn(advancedFilters.value as object)
   if (searchFieldReference.value.length > 0) {
     searchFieldReference.value.forEach((searchReference) => {
@@ -146,7 +146,7 @@ function reset() {
 }
 
 async function search(advancedSearchParameters?: any) {
-  await searchhistoryStore.setSearchHistory(advancedSearchParameters)
+  await searchhistoryStore.setSearchHistory(advancedSearchParameters, true)
   emit("search", advancedSearchParameters);
 }
 
