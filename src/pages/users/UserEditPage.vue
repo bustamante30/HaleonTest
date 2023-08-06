@@ -22,30 +22,9 @@ onBeforeMount(() => {
   usersStore.getUser(id)
 })
 
-const authStore = useAuthStore();
-  const authb2cStore = useB2CAuthStore();
-  let userType = '';
-  let userRole = '';
-
-  if (authStore.currentUser.email !== '') {
-    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-      userType = authStore.currentUser.userType;
-      userRole = authStore.currentUser.roleKey;
-    }
-  }
-
-  if (authb2cStore.currentB2CUser.email !== '') {
-    if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-      userType = authb2cStore.currentB2CUser.userType;
-      userRole = authb2cStore.currentB2CUser.roleKey;
-    }
-  }
-
-
-
-function saveUser(value) {
-  usersStore.saveUser(value)
-  usersStore.getPrinters(0)
+async function saveUser(value) {
+  await usersStore.saveUser(value)
+  await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
 }
 
 </script>

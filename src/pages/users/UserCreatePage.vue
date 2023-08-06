@@ -40,7 +40,7 @@ onMounted(() => {
 
 async function saveUser(userRequest) {
  await usersStore.saveUser(userRequest)
- await usersStore.getPrinters(0)
+ await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
  if (userType === 'INT') {
     router.push('/users?role=super');
   } else if (userType === 'EXT') {

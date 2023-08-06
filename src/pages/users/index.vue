@@ -110,7 +110,7 @@ console.log("SearchPrinter Query:" + query)
       }
 }
 
-function deleteUser(user) {
+async function deleteUser(user) {
   if(authStore.currentUser.email != '')
       {
         if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
@@ -137,9 +137,8 @@ function deleteUser(user) {
         printerId = usersStore.selected.id;
       }
 
- usersStore.deleteUser(user.data.id)
- usersStore.getPrinters(0)
- usersStore.getPrinterById(printerId,'')
+ await usersStore.deleteUser(user.data.id)
+ await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
 }
 
 function resend(user) {

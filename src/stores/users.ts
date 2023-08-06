@@ -194,8 +194,8 @@ export const useUsersStore = defineStore('users', {
     identityTypeName: null as any,
   }),
   actions: {
-    async getPrinters(page: number, perPage: number = 500, searchUserKey: string ="", searchPrinterKey: string ="") {
-      const total = 301
+    async getPrinters(page: number, perPage: number = 500, searchUserKey: string ="", searchPrinterKey: string ="", requestPrinterId: string ="") {
+      const total = 500
       let printerId: string ='';
       if (!this.all.length || page === 0) {
         // const all = genPrinters(total)
@@ -221,13 +221,13 @@ export const useUsersStore = defineStore('users', {
         this.selected = this.printers.data[0]
       if(this.userTypeValue !== 'EXT')
       {
-        if (this.selected)
+        if (requestPrinterId === "")
         {
         this.getPrinterById(this.selected?.id,searchUserKey)
         }
         else
         {
-          this.getPrinterById(printerId,searchUserKey)
+          this.getPrinterById(requestPrinterId,searchUserKey)
         }
       }
       else
@@ -239,7 +239,8 @@ export const useUsersStore = defineStore('users', {
     async getPrinterById(id: string, searchUserValue: string = "") 
     {
       const printer = this.printers.data.find((p: any) => p.id === id)
-
+    if(printer != undefined)
+    {
       let prtId: number = 0;
       let userId: number = 0;
       let userType: string ='';
@@ -247,7 +248,6 @@ export const useUsersStore = defineStore('users', {
       let printerName: string ='';
 
       //validating the user type.
-
       if(authStore.currentUser.email != '')
       {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
@@ -296,11 +296,9 @@ export const useUsersStore = defineStore('users', {
     }
     
       if (searchUserValue !== undefined && searchUserValue !== null && searchUserValue != "") {
-        console.log("searchKey:" + searchUserValue);
         searchKey = searchUserValue;
       }
 
-      console.log("getPrinterById");
       if(userType === 'EXT')
       {
        printerName = authb2cStore.currentB2CUser.printerName;
@@ -313,15 +311,12 @@ export const useUsersStore = defineStore('users', {
         }
       }
       if (printerName) {
-      console.log("printername:" + printerName);
         const locationResult = await fetchLocations(printerName);
         // Ensure the locations are in the required format with 'label' and 'value' properties
         this.options.locations = locationResult.map((location: string, index: string) => ({
           label: location,
           value: location, // You can use a unique identifier here if available from the API.
         }));
-
-        console.log("locations:"+ this.options.locations);
       }
 
        if(userType === 'INT')
@@ -339,12 +334,8 @@ export const useUsersStore = defineStore('users', {
        }
        
        this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchUserValue);
+       this.locationSearchResp = await searchLocation(prtId,0, '');
        
-       console.log("PrinterId:"+ prtId);
-       
-        this.locationSearchResp = await searchLocation(prtId,0, '');
-       
-     // this.searchUsers(2);
       const locations = this.locationSearchResp;
       const printerDetails = {
         ...printer,
@@ -361,13 +352,14 @@ export const useUsersStore = defineStore('users', {
           //...genUsers(printer.summary.internalUsers, 'sgsco'),
         ],
         identityProvider: {
-          type: 'google',
+          type:  this.identityProviderName,
           tenantId: null,
           admin: null,
           email: null
         }
       }
       this.selectPrinter(printerDetails)
+    }
     },
     selectPrinter(printer: any) {
       this.selected = { ...printer }
@@ -489,8 +481,6 @@ export const useUsersStore = defineStore('users', {
  
     },
    async savePrinter(printerreq : any) {
-      console.log('Save provider', printerreq)
-
         const printerDto: PrinterDto = {
           printerName: printerreq.value.name,
           userData: {
