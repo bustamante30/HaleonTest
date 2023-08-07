@@ -5,16 +5,14 @@ import { useUsersStore } from '@/stores/users'
 import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useToast } from "primevue/usetoast";
-import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
+import { useNotificationsStore } from '@/stores/notifications';
 
 
 const route = useRoute()
 const usersStore = useUsersStore()
 const authStore =  useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const toast = useToast();
+const notificationsStore = useNotificationsStore();
 
 const id = route.params.id
 
@@ -59,7 +57,11 @@ async function saveUser(value) {
       }
       
   await usersStore.saveUser(value)
-  showSuccess("User updated successfully", "Success");
+  notificationsStore.addNotification(
+        `User Update`,
+        `User Updated Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
   await usersStore.getPrinters(0,500,'','',printerId)
 }
 

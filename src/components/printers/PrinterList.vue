@@ -6,9 +6,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useUsersStore } from '@/stores/users';
 import router from '@/router';
-import { useToast } from "primevue/usetoast";
-import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
+import { useNotificationsStore } from '@/stores/notifications';
 
 const props = defineProps({
   printers  : {
@@ -32,7 +30,8 @@ const props = defineProps({
   }
 })
 
-const toast = useToast();
+
+const notificationsStore = useNotificationsStore()
 const usersStore = useUsersStore()
 const emit = defineEmits(['select', 'fetch', 'searchPrinter'])
 
@@ -61,7 +60,11 @@ function searchPrinter(query) {
 
 async function saveprinter(printerFormRequest) {
   await  usersStore.savePrinter(printerFormRequest);
-  showSuccess("Printer created successfully", "Success");
+  notificationsStore.addNotification(
+        `Printer Creation`,
+        `Printer Created Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
   await usersStore.getPrinters(0)
   isPrinterFormVisible.value = false;
   router.push('/users?role=super');

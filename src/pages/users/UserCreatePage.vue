@@ -6,13 +6,11 @@ import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
-import { useToast } from "primevue/usetoast";
-import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
+import { useNotificationsStore } from '@/stores/notifications';
 
 const route = useRoute()
 const usersStore = useUsersStore()
-const toast = useToast();
+const notificationsStore = useNotificationsStore();
 
 const id = route.params.id
 const printer = computed(() => usersStore.selected)
@@ -58,17 +56,17 @@ async function saveUser(userRequest) {
       }
 
  await usersStore.saveUser(userRequest)
- showSuccess("User created successfully", "Success");
+ notificationsStore.addNotification(
+        `User Creation`,
+        `User Created Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
  await usersStore.getPrinters(0,500,'','',printerId)
  if (userType === 'INT') {
     router.push('/users?role=super');
   } else if (userType === 'EXT') {
     router.push('/users');
   }
-}
-
-const showSuccess = (summary, severity) => {
-    toast.add({ severity: severity, summary: summary, detail: 'Message Content', life: 3000 });
 }
 
 </script>
