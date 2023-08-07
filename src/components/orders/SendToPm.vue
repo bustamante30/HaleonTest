@@ -31,6 +31,11 @@ const printerName = computed(() => {
   return user?.printerName || '';
 });
 
+const prntLocation = computed(() => {
+  const user = authb2cStore.currentB2CUser;
+  return user?.prtLocation || [];
+});
+
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
@@ -61,6 +66,8 @@ function updateColors(colors: any) {
 }
 
 async function submit() {
+  sendForm.value.printerName = printerName
+  await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
   await sendToPmstore.submitorder(sendForm.value)
   emit('submit', sendForm);
 }
@@ -187,13 +194,6 @@ async function onDeleteClick(name: string) {
 
 }
 
-
-const imageCarrierCodeTypestypes = ref([
-  { label: "UPC Code", value: "UPC" },
-  { label: "QR Code", value: "QR" },
-  { label: "EAN Code", value: "EAN" },
-  { label: "Data Matrix Code", value: "DATA_MATRIX" },
-]);
 </script>
 
 <template lang="pug">
@@ -212,7 +212,7 @@ const imageCarrierCodeTypestypes = ref([
               strong {{printerName}}
             .f
               label(for="location") Location
-              prime-dropdown(:options="sendToPmstore.options.locations" v-model="sendForm.location")
+              prime-dropdown(:options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="printerLocationId")
         .divider
         h4 Items Details
         .fields
@@ -238,7 +238,7 @@ const imageCarrierCodeTypestypes = ref([
             .f
               label(for="code") Code #
               .field-group
-                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="imageCarrierCodeTypestypes" optionLabel="label" optionValue="value")
+                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
                 prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
             .f
               label(for="job_number") SGS Job #

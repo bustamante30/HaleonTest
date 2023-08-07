@@ -144,6 +144,7 @@ const onPageChange = async (pageState: pagination.PageState) => {
 function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
+  sendToPmStore.getCodeTypes()
 }
 
 function sendToPm(form: any) {
