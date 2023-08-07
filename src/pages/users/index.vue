@@ -32,19 +32,15 @@ onMounted(() => {
 })
 
 watch(() => route.query, (query) => {
-  console.log(route.query?.role)
   role.value = query?.role
 })
 
 async function selectPrinter(printer) {
-  debugger;
   await usersStore.getPrinterById(printer)
 }
 
  async function getPrinters(event) {
-  debugger;
   const page = event ? event / 20 : 0
-  console.log(event, page)
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
    await usersStore.getPrinters(page)
 }
@@ -96,7 +92,6 @@ function editUser(user) {
 }
 
 async function searchPrinter(query) {
-console.log("SearchPrinter Query:" + query)
       if(query.query != "")
       {
         usersStore.getPrinters(0,500,"",query.query)

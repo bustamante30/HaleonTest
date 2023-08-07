@@ -365,8 +365,6 @@ export const useUsersStore = defineStore('users', {
        {
         this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchUserValue);
        }
-       
-       
        this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchUserValue);
        this.locationSearchResp = await searchLocation(prtId,0, '');
        
@@ -377,13 +375,9 @@ export const useUsersStore = defineStore('users', {
         users: [
           //printer.name
         ...IterateUser(this.userSearchExtResp.data,this.userSearchExtResp.totalRecords)
-        //...IterateLocation(this.locationSearchResp.data,this.locationSearchResp.totalRecords)
-        // ...genUsers(printer.summary.admins, printer.name, locationsResp, true),
-        // ...genUsers(printer.summary.users, printer.name, locationsResp),
         ],
         internalUsers: [
           ...IterateUser(this.userSearchIntResp.data,this.userSearchIntResp.totalRecords),
-          //...genUsers(printer.summary.internalUsers, 'sgsco'),
         ],
         identityProvider: {
           type:  this.identityProviderName,
@@ -415,6 +409,7 @@ export const useUsersStore = defineStore('users', {
    async getUser(id: string) {
    // this.user = null;
       console.log("Getid:"+ id);
+      this.user= null;
       //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
       console.log("Getusers:"+ userEditResp);
