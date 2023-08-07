@@ -146,7 +146,7 @@ data-table.p-datatable-sm.orders-table(
     template(#empty)
       div No records found.
     template(#loading)
-      i.pi.pi-spin.pi-cog.spinningnpm 
+      i.pi.pi-spin.pi-cog.spinning
     //- Add to cart Selection column
     Column(
       v-if="showMultipleSelection"
