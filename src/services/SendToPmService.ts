@@ -1,6 +1,8 @@
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
 import ApiService from '../services/apiService';
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import { inject, ref, computed, watch, onBeforeMount, reactive } from 'vue'
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
 
@@ -13,6 +15,7 @@ interface SubmitResponse {
 }
 
 interface SendToPM {
+    printerName?: string;
     brand?: number;
     packType?: string;
     itemNumber?: string;
@@ -24,7 +27,9 @@ interface SendToPM {
     comments?: string,
     colors: Color[];
     files?: files[]
-    code: string
+    code: string,
+    printerLocationId: number,
+    pmUsersForPrinter: any[];
    
 }
 interface Color {
@@ -47,6 +52,7 @@ class SendToPMService {
 
         console.log("service",exitOrderInfo)
         let newExitOrder: SendToPM = {
+            printerName: exitOrderInfo.printerName,
             brand: exitOrderInfo.brand,
             packType: exitOrderInfo.packType,
             itemNumber: exitOrderInfo.itemCode,
@@ -59,6 +65,8 @@ class SendToPMService {
             files:exitOrderInfo.files,
             code:exitOrderInfo.carrierCode.code,
             colors: exitOrderInfo.colors,
+            printerLocationId: exitOrderInfo.location,
+            pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter
         }
         if (exitOrderInfo.colors && Array.isArray(exitOrderInfo.colors)) {
             exitOrderInfo.colors.forEach((color: any) => {
@@ -127,6 +135,14 @@ class SendToPMService {
                 console.log('Error submitting files:', error);
                 return false;
             });
+    }
+
+    public static getCodeTypeList() {
+        return httpService.get<string[]>("v1/getCodeTypes").
+        then((response: any) => { return response }).catch ((error: any) => {
+            console.log("error getting code types", error);
+            return []
+        });
     }
 }
 
