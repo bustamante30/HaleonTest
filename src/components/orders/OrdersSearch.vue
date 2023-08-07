@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, watch } from "vue";
+import { computed, ref, } from "vue";
 import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import { debounce } from "lodash";
@@ -27,13 +27,10 @@ const dateRefId = ref("");
 const isFiltersVisible = ref(false);
 const loadingSuggestions = ref(false);
 
-onMounted(async () => {
+async function handleFocus(item) {
   await searchhistoryStore.getSearchDate(false)
   await searchhistoryStore.getSearchField();
   dateRefId.value = searchDate.value?.[0]?.userId;
-});
-
-async function handleFocus(item) {
   if (dateRefId.value) {
     await searchhistoryStore.getSearchHistory(dateRefId.value, false)
   }

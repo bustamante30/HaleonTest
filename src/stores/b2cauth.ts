@@ -185,25 +185,23 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
         localStorage.setItem("userType", this.currentB2CUser.userType);
         store.set('currentb2cUser', this.currentB2CUser);
-        if (!user.roleKey) {
-          router.push("/error");
-        } else {
-          if (user.identityProviderName === "Federated") {
-            if (user.identityTypeName === identityProviderSelected) {
-              this.isValidIdentityProvider = true
-            } else if (user.identityProviderName === identityProviderSelected) {
-              this.isValidIdentityProvider = true
-            }
-            else {
-              router.push("/error");
-            }
+        if (user.identityProviderName === "Federated") {
+          if (user.identityTypeName === identityProviderSelected) {
+            this.isValidIdentityProvider = true
           } else if (user.identityProviderName === identityProviderSelected) {
             this.isValidIdentityProvider = true
           }
           else {
             router.push("/error");
           }
+        } else if (user.identityProviderName === identityProviderSelected) {
+          this.isValidIdentityProvider = true
         }
+        else {
+          router.push("/error");
+        }
+      } else {
+        router.push("/error");
       }
     },
     getIdentityUsingToken(decodedToken: any) {
