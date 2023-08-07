@@ -36,19 +36,17 @@ watch(() => route.query, (query) => {
   role.value = query?.role
 })
 
-     
-
-
-
-function selectPrinter(printer) {
-  usersStore.getPrinterById(printer)
+async function selectPrinter(printer) {
+  debugger;
+  await usersStore.getPrinterById(printer)
 }
 
- function getPrinters(event) {
+ async function getPrinters(event) {
+  debugger;
   const page = event ? event / 20 : 0
   console.log(event, page)
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
-   usersStore.getPrinters(page)
+   await usersStore.getPrinters(page)
 }
 
 function createUser() {
