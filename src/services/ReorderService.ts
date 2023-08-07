@@ -164,8 +164,8 @@ class ReorderService {
                 "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
                 "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
                 "orderStatusId": status,
-                "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
-                "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
+                "OrderBy":  sortBy!= null?sortBy:null,
+                "OrderByAsc":  sortOrder!= null?sortOrder:true,
                 
             }
         }
@@ -180,9 +180,8 @@ class ReorderService {
                 "packType": columnFilters!= null?columnFilters.state.packTypeFilter !=null?columnFilters.state.packTypeFilter: null:null,
                 "Description": columnFilters!= null?columnFilters.state.descriptionFilter !=null?columnFilters.state.descriptionFilter: null:null,
                 "orderStatusId": status,
-                "OrderBy":  columnFilters!= null?columnFilters.state.sortFields !=null?columnFilters.state.sortFields: null:null,
-                "OrderByAsc":  columnFilters!= null?columnFilters.state.sortOrder !=null?columnFilters.state.sortOrder: true:true,
-                
+                "OrderBy":  sortBy!= null?sortBy:null,
+                "OrderByAsc":  sortOrder!= null?sortOrder:true
             }
         }
 

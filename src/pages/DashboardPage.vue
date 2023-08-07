@@ -11,8 +11,6 @@ import { filterConfig } from "@/data/config/order-filters";
 import { useOrdersStore } from "@/stores/orders";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import Paginator from "primevue/paginator";
-import * as pagination from "primevue/paginator";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import SendPm from "@/components/orders/SendToPm.vue";
 
@@ -42,41 +40,24 @@ const username = computed(
 
 const dateFilter = computed(() => getDateFilter());
 const selectedDate = ref(() => dateFilter.value[0]);
-const statusList = computed(() =>
-  ordersStore.statusList.filter((x) => x.value > 1)
-);
+const statusList = computed(() =>ordersStore.statusList);
 const selectedStatus = ref();
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
 const userFilterConfig = computed(() => filterConfig("user"));
-const filterTokens = computed(() => {
-  return keys(filters.value).map((key) => {
-    let config:
-      | { name: string; label: string; short: string; type?: undefined }
-      | { name: string; label: string; short: string; type: string }
-      | { name: string; label: string; short?: undefined; type?: undefined }
-      | null
-      | undefined = null;
-    userFilterConfig.value.sections.forEach((section) => {
-      config = config || section.filters.find((filter) => filter.name === key);
-    });
-    return { ...(config || {}), key, value: filters.value[key] };
-  });
-});
+const loadingOrders = computed(() => ordersStore.loadingOrders)
 const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
-
 provide("options", options);
 
 onBeforeMount(() => {
   ordersStore.initAdvancedFilters();
-  changeDateFilter(dateFilter.value[0]);
   selectedStatus.value = statusList.value[0];
-  
+  changeDateFilter(dateFilter.value[0]);
 });
 onMounted(()=>{
   const statusList:any = document.getElementById("statusListbox")?.getElementsByTagName("Ul")[0];
@@ -105,10 +86,14 @@ function getDateFilter() {
 }
 function changeDateFilter(dtFilter: any) {
   selectedDate.value = dtFilter.value;
+  ordersStore.resetFilters()
   filters.value.startDate = dtFilter.value;
+  filters.value.status = selectedStatus.value.value;
   ordersStore.setFilters(filters.value);
 }
 function searchByStatus(){
+  ordersStore.resetFilters()
+  filters.value.startDate = selectedDate.value;
   filters.value.status = selectedStatus.value.value;
   ordersStore.setFilters(filters.value);
 }
@@ -124,10 +109,6 @@ function getSearchHistory() {
   ordersStore.getSearchHistory(history);
 }
 
-const onPageChange = async (pageState: pagination.PageState) => {
-  ordersStore.getOrders();
-};
-
 function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
@@ -142,10 +123,12 @@ async function addToCart(order: any) {
     order.selected = true;
     showMultipleSelection.value = true;
   } else {
+    ordersStore.loadingOrders=true;
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     if (await ordersStore.addToCart(orderToAdd)) {
       alert("Order added to the cart successfully");
     }
+    ordersStore.loadingOrders=false;
   }
 }
 function reorder(order: any) {
@@ -156,6 +139,7 @@ function cancelOrder(order: any) {
 }
 
 async function addMultipleToCart(values: any) {
+  ordersStore.loadingOrders=true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
@@ -172,6 +156,7 @@ async function addMultipleToCart(values: any) {
   }
   showMultipleSelection.value = false;
   alert("Orders added to the cart successfully");
+  ordersStore.loadingOrders=false;
 }
 </script>
 
@@ -195,9 +180,8 @@ async function addMultipleToCart(values: any) {
               orders-search(:config="userFilterConfig" :filters="filters" @search="search")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
-        orders-table(:config="config" :data="orders" :filters="filterTokens" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
-        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" )
-        //paginator(:rows="10" :totalRecords="useOrdersStore.totalNumberOfRecords" :rowsPerPageOptions="[5, 10, 20]" @page="onPageChange") 
+        orders-table(:config="config" :data="orders" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
+        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" )
     router-view
 </template>
 

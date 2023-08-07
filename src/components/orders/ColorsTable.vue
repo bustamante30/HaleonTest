@@ -22,7 +22,11 @@ const props = defineProps({
   isEditable: {
     type: Boolean,
     default: false
-  }
+  },
+  loading: {
+    type: Boolean,
+    default: () => false
+  },
 })
 
 const ordersStore = useOrdersStore();
@@ -80,7 +84,9 @@ function updateColor({ id, field, value }) {
 </script>
 
 <template lang="pug">
-data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="mcgColourId")
+data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="mcgColourId" :lazy="true" :loading="loading")
+  template(#loading)
+    i.pi.pi-spin.pi-cog.spinning
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
     template(#body="{ data }")
@@ -95,4 +101,7 @@ data-table.colors-table(:value="data" v-model:selection="selected" scrollable sc
 .colors-table
   header
     +flex-fill
+.spinning
+  font-size: 1rem
+  background-color: white
 </style>

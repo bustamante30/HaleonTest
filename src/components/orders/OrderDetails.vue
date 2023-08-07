@@ -17,6 +17,7 @@ const props = defineProps({
   },
 })
 const selectedOrder = computed(() => ordersStore.selectedOrder)
+const loadingOrder = computed(() => ordersStore.loadingOrder)
 const colors = computed(() => ordersStore.selectedOrder.colors)
 
 onMounted(async () => {
@@ -56,7 +57,7 @@ function viewPreview() {
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
           sgs-button.sm(label="View PDF" @click="viewPreview")
         .details
-          colors-table.p-datatable-sm(:config="config" :data="colors")
+          colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder.details")
       .card
