@@ -118,7 +118,6 @@ function IterateLocation(LocationList: [], count: number) {
 
 export async function  searchPrinter(printerId: number, userIdValue: number, userType: string ="", searchPrinterKey: string ="", loginUserType: string="") {
   try {
-    debugger;
     let externalprinterCountResponse: any;
     // Create a SearchRequestDto object with the printerName and other parameters
     const searchRequest: SearchRequestDto = {
@@ -204,7 +203,6 @@ export const useUsersStore = defineStore('users', {
   }),
   actions: {
     async getPrinters(page: number, perPage: number = 500, searchUserKey: string ="", searchPrinterKey: string ="", requestPrinterId: any) {
-      debugger;
       const total = 500
       let printerId: string ='';
       let userId: any;
@@ -273,7 +271,6 @@ export const useUsersStore = defineStore('users', {
     },
     async getPrinterById(id: string, searchUserValue: string = "") 
     {
-      debugger;
       const printer = this.printers.data.find((p: any) => p.id === id)
     if(printer != undefined)
     {
