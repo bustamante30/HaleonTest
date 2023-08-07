@@ -105,7 +105,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             this.currentB2CUser.isLoggedIn = false;
             localStorage.clear();
             sessionStorage.clear();
-            if(error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
+            if (error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
               this.currentB2CUser.isValidDomain = false
               router.push("/error");
             } else {
@@ -185,8 +185,14 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
         localStorage.setItem("userType", this.currentB2CUser.userType);
         store.set('currentb2cUser', this.currentB2CUser);
-        if (!user.roleKey || user.identityTypeName !== identityProviderSelected || user.identityProviderName !== identityProviderSelected) {
-          router.push("/error");
+        if (!user.roleKey) {
+          if (user.identityTypeName === 'Federated') {
+            if (user.identityProviderName !== identityProviderSelected) {
+              router.push("/error");
+            }
+          } else {
+            this.isValidIdentityProvider = true
+          }
         } else {
           this.isValidIdentityProvider = true
         }
@@ -194,21 +200,19 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     },
     getIdentityUsingToken(decodedToken: any) {
       let identityProvider = ""
-      if(decodedToken.hasOwnProperty('idp')) {
-        if(decodedToken.idp.includes('.com')) {
-          if(decodedToken.idp.includes('google')) {
+      if (decodedToken.hasOwnProperty('idp')) {
+        if (decodedToken.idp.includes('.com')) {
+          if (decodedToken.idp.includes('google')) {
             identityProvider = "Google"
-          } else if(decodedToken.idp.includes('amazon')) {
+          } else if (decodedToken.idp.includes('amazon')) {
             identityProvider = "Amazon"
-          } else if(decodedToken.idp.includes('apple')) {
+          } else if (decodedToken.idp.includes('apple')) {
             identityProvider = "Apple"
-          } 
+          }
         } else {
           identityProvider = "Microsoft"
         }
-      } else {
-        identityProvider = "Photon"
-      }
+      } 
       return identityProvider
     },
     validateToken() {
