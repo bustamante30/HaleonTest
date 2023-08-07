@@ -1,10 +1,11 @@
 <script setup>
-import { ref, inject, computed, onBeforeMount, reactive } from 'vue';
+import { ref, inject, computed, onBeforeMount, reactive ,watch} from 'vue';
 import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
 import { useUsersStore } from '@/stores/users'
+
 
 const props = defineProps({
   user: {
@@ -17,12 +18,16 @@ const props = defineProps({
   },
 })
 
+const userForm = ref({ ...props.user })
+watch(()=>props.user,()=>{
+  userForm.value = { ...props.user }
+})
 const usersStore = useUsersStore()
 
 
 const emit = defineEmits(['save'])
 
-const userForm = ref({ ...props.user })
+
 
 //const userForm = computed(()=>usersStore.user)
 
@@ -48,7 +53,6 @@ const authb2cStore = useB2CAuthStore();
 
 function handleClose() {
   if (userType === 'INT') {
-    console.log("user data:" + usersStore.user.value);
     router.push('/users?role=super');
   } else if (userType === 'EXT') {
     //usersStore.user.id = null;
