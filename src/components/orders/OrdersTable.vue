@@ -16,6 +16,7 @@ import Button from 'primevue/button'
 import filterStore from  '@/stores/filterStore'
 import { useOrdersStore } from '@/stores/orders'
 import { orderStatusLabels } from '@/data/config/keylabelpairconfig'
+import { filter } from 'lodash'
 
 
 const props = defineProps({
@@ -27,19 +28,23 @@ const props = defineProps({
     type: Object,
     default: () => ({ cols: [] })
   },
-  filters: {
-    type: Object,
-    default: () => {}
-  },
   showMultipleSelection: {
     type: Boolean,
     default: () => false
-  }  
+  },
+  loading: {
+    type: Boolean,
+    default: () => true
+  },
+  currentPage: {
+    type: Object,
+    default: () => {value: 0}
+  }
 })
 
 let selected = ref()
 const emit = defineEmits(['deleteFilter', 'add', 'reorder', 'cancel','addMultipleToCart'])
-
+const current = ref(0)
 
 function stylify(width: any) {
   return width
@@ -54,10 +59,14 @@ onMounted(async () => {
     dropdownOptions.value.push(value.label);	
   }	
 });
-
+watch(() => props.currentPage,
+  (newValue) => {
+    current.value = newValue.value
+  }
+);
 watch(selected, (value) => {
   selected = value
-})
+});
 
 const showTextbox = ref(false)
 const orderStore = useOrdersStore()
@@ -66,17 +75,13 @@ const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
 
 const selectedStatusFilter = ref(null);	
-const filters = ref({
+const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
     description: { value: "", matchMode: FilterMatchMode.CONTAINS },
     orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
     packType: { value: "", matchMode: FilterMatchMode.CONTAINS }
 });
 
-
-const initFilters = () => {
-  filters.value = { ...filters.value };
-};
 
 const mutationMap: { [key: string]: string } = {
   brandName: 'setBrandNameFilter',
@@ -87,42 +92,6 @@ const mutationMap: { [key: string]: string } = {
 
 const showCalendar = ref(false);
 const sortFields = ref<string[]>([]);
-
-const globalClearFilter = async () => {
-  initFilters();
-  filterStore.commit('setBrandNameFilter', null);
-  filterStore.commit('setDescriptionFilter', null);
-  filterStore.commit('setPackTypeFilter', null);
-  filterStore.commit('setOrderStartDateFilter', null);
-  filterStore.commit('setOrderEndDateFilter', null);
-
-
-  const response = await orderStore.getOrders();
-};
-
-function filterValue(fieldName: string, matchMode: string): string | null {
-  const value = (filters.value as any)[fieldName]?.value;
-  if (value !== null && value !== undefined && value !== '') {
-    return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
-  }
-  return null;
-}
-
-function getFormattedValue(value: string | null, matchMode: string): string | null {
-  if (value !== null && value !== undefined && value !== '') {
-    return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
-  }
-  return null;
-}
-
-async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
-  const fieldName = field as keyof typeof filters.value;
-  filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
-  const mutation = mutationMap[fieldName];
-  filterStore.commit(mutation, filters.value[fieldName].value);
-  
-  orderStore.setFilters(filters);
-}
 
 const clearFilter = async (fieldName:string,filterModel:any) => {	
   filterModel.value = null;
@@ -136,44 +105,48 @@ const clearFilter = async (fieldName:string,filterModel:any) => {
 const sortColumn = async (event: any) => {
   const { sortField, sortOrder } = event;
   const order = sortOrder === 1 ? true : false;
-
-  const sortFields = ref<string[]>([]);
   sortField.replace('-', '');
-  //const sortFieldPrefix = sortOrder === 1 ? '-' : '';
   const sortedField =sortField.replace('-', '');
-
-  // Clear the existing sort field
-  sortFields.value = [];
-  sortFields.value.push(sortedField);
-  const sortFieldsString = sortFields.value[0]; // Get the first (and only) value
-  filterStore.commit('setSortFields', sortFieldsString);
-  filterStore.commit('setSortOrder', order);
-  orderStore.setFilters(filters);
+  orderStore.pageState.page = 1
+  orderStore.filters.sortBy = sortedField
+  orderStore.filters.sortOrder = order
+  orderStore.setFilters(orderStore.filters);
 }
 
 function handleAction(action: any) {
   emit(action.event, action.data)
 }
-
+function onPage(event:any) {
+  orderStore.pageState.page = event.page +1
+  orderStore.setFilters(orderStore.filters);
+}
 </script>
 
 <template lang="pug">
 data-table.p-datatable-sm.orders-table(
     :value="data"
-    scrollable 
-    scrollHeight="flex"
-    :rows="props.rows"
-    v-model:filters="filters"
+    paginator
+    responsiveLayout="scroll"
+    :rows="10"
+    v-model:first="current"
+    v-model:filters="columnFilters"
     class="small-icons"
     filterDisplay="menu"
     @sort="sortColumn"
     :globalFilterFields="['brandName','description', 'packType', 'orderDate']"
     class="frozen-columns"
+    :paginator="true"
+    :loading="loading"
+    :totalRecords="100"
+    :lazy="true"
+    scrollHeight="650px"
+    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink"
+    @page="onPage($event)"
   )
     template(#empty)
       div No records found.
     template(#loading)
-      div Loading data. Please wait.
+      i.pi.pi-spin.pi-cog.spinning
     //- Add to cart Selection column
     Column(
       v-if="showMultipleSelection"
@@ -385,22 +358,6 @@ data-table.p-datatable-sm.orders-table(
     )
       template(#body="{ data }")
         table-cell(:config="config.cols[9]" :data="data")
-
-    //- Status column
-    Column(
-      field="orderStatus"
-      header="Status"
-      type= 'badge'
-      width= 7
-      freeze= 'right'
-      filterField="status"
-      :sortable="true"
-      :headerStyle="stylify(config.cols[10].width)"
-      :bodyStyle="stylify(config.cols[10].width)"
-      :showFilterMatchModes="false"
-    )
-      template(#body="{ data }")
-        table-cell(:config="config.cols[10]" :data="data")
         //- Action column
     Column(
       field="actions"
@@ -438,4 +395,7 @@ data-table.p-datatable-sm.orders-table(
   width: 70px
   display: flex
   justify-content: center
+.spinning
+  font-size: 3rem
+  background-color: white
 </style>
