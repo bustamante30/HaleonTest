@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { config as userConfig } from '@/data/config/user-table'
 import { config as internalUserConfig } from '@/data/config/internal-user-table'
 import { config as locationConfig } from '@/data/config/location-table'
@@ -29,11 +29,10 @@ const props = defineProps({
   }
 })
 const usersStore = useUsersStore()
-
+//printer = computed(() => usersStore.selected);
 const emit = defineEmits(['createUser', 'editUser','searchUser', 'deleteUser'])
 
 const tab = ref('users')
-const parentTab = ref('MSUser')
 const query = ref()
 
 watch(query, (changeQuery) => {
@@ -42,9 +41,10 @@ watch(query, (changeQuery) => {
   }
 });
 
-function selectTab(tabName, parentTabName) {
+
+
+function selectTab(tabName) {
   tab.value = tabName
-  parentTab.value = parentTabName
 }
 
 function create(path) {
@@ -77,13 +77,13 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
     header
       h2 {{ role && role === 'super' ? printer.name : 'Manage Users' }}
       nav.tabs
-        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users','MSUser')")
-          span.f(v-if=printer && printer.summary && printer.summary.users) Users [{{ printer.summary.users }}]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal', 'MSUser')")
+        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users')")
+          span.f(v-if=printer && printer.summary) Users [{{ printer.summary.users }}]
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
           span(v-if=printer && printer.summary) Internal Users [{{ printer.summary.internalUsers }}]
-        a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations', 'MSUser')")
+        a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations')")
           span(v-if=printer && printer.summary) Locations [{{ printer.summary.locations }} ]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings','MSUser')")
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings')")
           span Settings
   .toolbar(v-if="['users', 'internal'].includes(tab)")
     .actions

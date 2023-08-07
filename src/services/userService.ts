@@ -5,9 +5,10 @@ import type { UserSearchResponseDto } from '../models/UserSearchResponseDto';
 import type { SearchResponeDto} from  '../models/SearchResponeDto';
 import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
+import type { ExternalPrinterCountResponseDto } from  '../models/ExternalPrinterCountResponseDto';
+
 
 const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
-//import.meta.env.VITE_USER_API_BASE_URL ??
 
 const httpService = new ApiService(baseUrl)
 
@@ -116,7 +117,13 @@ public static ResendInvitation(userId: string) {
     });
 }
 
-
+public static GetExternalUserCount(userId: string, printerId: string) {
+  return httpService.get<ExternalPrinterCountResponseDto>('v1/user/RetrieveExternalUserPrinter?printerId=' + printerId +'&userId=' + userId).then((response: ExternalPrinterCountResponseDto) => {
+      return response
+  }).catch((error: any) => {
+      console.log("error getting User Details: ", error);
+      return null;
+  });
 }
-
+}
 export default UserService;

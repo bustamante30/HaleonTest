@@ -22,8 +22,12 @@ onMounted(() => {
 })
 
 
-      let userType ='';
-      let userRole ='';
+  
+
+async function saveUser(userRequest) {
+
+  let userType ='';
+  let printerId = "";
       if(authStore.currentUser.email != '')
       {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
@@ -38,9 +42,20 @@ onMounted(() => {
       }
       }
 
-async function saveUser(userRequest) {
+      if( userType === "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
+
+      }
+      else if(userType === "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+
  await usersStore.saveUser(userRequest)
- await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
+ await usersStore.getPrinters(0,500,'','',printerId)
  if (userType === 'INT') {
     router.push('/users?role=super');
   } else if (userType === 'EXT') {
