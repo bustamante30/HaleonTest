@@ -82,11 +82,7 @@ const columnFilters = ref({
     packType: { value: "", matchMode: FilterMatchMode.CONTAINS }
 });
 
-/*
-const initFilters = () => {
-  filters.value = { ...filters.value };
-};
-*/
+
 const mutationMap: { [key: string]: string } = {
   brandName: 'setBrandNameFilter',
   description: 'setDescriptionFilter',
@@ -97,41 +93,6 @@ const mutationMap: { [key: string]: string } = {
 const showCalendar = ref(false);
 const sortFields = ref<string[]>([]);
 
-/*
-const globalClearFilter = async () => {
-  initFilters();
-  filterStore.commit('setBrandNameFilter', null);
-  filterStore.commit('setDescriptionFilter', null);
-  filterStore.commit('setPackTypeFilter', null);
-  filterStore.commit('setOrderStartDateFilter', null);
-  filterStore.commit('setOrderEndDateFilter', null);
-
-  const response = await orderStore.getOrders();
-};
-
-function filterValue(fieldName: string, matchMode: string): string | null {
-  const value = (filters.value as any)[fieldName]?.value;
-  if (value !== null && value !== undefined && value !== '') {
-    return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
-  }
-  return null;
-}
-
-function getFormattedValue(value: string | null, matchMode: string): string | null {
-  if (value !== null && value !== undefined && value !== '') {
-    return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
-  }
-  return null;
-}
-
-async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
-  const fieldName = field as keyof typeof filters.value;
-  filters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
-  const mutation = mutationMap[fieldName];
-  filterStore.commit(mutation, filters.value[fieldName].value);
-  orderStore.setFilters(filters);
-}
-*/
 const clearFilter = async (fieldName:string,filterModel:any) => {	
   filterModel.value = null;
   if (mutationMap.hasOwnProperty(fieldName)) {
