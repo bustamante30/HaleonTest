@@ -186,33 +186,44 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         localStorage.setItem("userType", this.currentB2CUser.userType);
         store.set('currentb2cUser', this.currentB2CUser);
         if (!user.roleKey) {
-          if (user.identityTypeName === 'Federated') {
-            if (user.identityProviderName !== identityProviderSelected) {
+          router.push("/error");
+        } else {
+          if (user.identityProviderName === "Federated") {
+            if (user.identityTypeName === identityProviderSelected) {
+              this.isValidIdentityProvider = true
+            } else if (user.identityProviderName === identityProviderSelected) {
+              this.isValidIdentityProvider = true
+            }
+            else {
               router.push("/error");
             }
-          } else {
+          } else if (user.identityProviderName === identityProviderSelected) {
             this.isValidIdentityProvider = true
           }
-        } else {
-          this.isValidIdentityProvider = true
+          else {
+            router.push("/error");
+          }
         }
       }
     },
     getIdentityUsingToken(decodedToken: any) {
       let identityProvider = ""
       if (decodedToken.hasOwnProperty('idp')) {
-        if (decodedToken.idp.includes('.com')) {
-          if (decodedToken.idp.includes('google')) {
-            identityProvider = "Google"
-          } else if (decodedToken.idp.includes('amazon')) {
-            identityProvider = "Amazon"
-          } else if (decodedToken.idp.includes('apple')) {
-            identityProvider = "Apple"
-          }
-        } else {
+        if (decodedToken.idp.includes('google')) {
+          identityProvider = "Google"
+        }
+        if (decodedToken.idp.includes('amazon')) {
+          identityProvider = "Amazon"
+        }
+        if (decodedToken.idp.includes('apple')) {
+          identityProvider = "Apple"
+        }
+        if (decodedToken.idp.includes('microsoftonline.com')) {
           identityProvider = "Microsoft"
         }
-      } 
+      } else {
+        identityProvider = "Photon"
+      }
       return identityProvider
     },
     validateToken() {
