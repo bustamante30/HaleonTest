@@ -107,7 +107,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           else
           {
             this.selectedOrder = this.orders.find(
-              (order: any) => order.sgsId === parseInt(id)
+              (order: any) => order.sgsId === id
             );
             let details = JSON.parse(
               JSON.stringify(await ReorderService.getPhotonReorderDetails(this.selectedOrder.id))
