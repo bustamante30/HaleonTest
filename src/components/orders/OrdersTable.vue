@@ -50,7 +50,7 @@ const props = defineProps({
     },
   },
 });
-
+const totalRecords = computed(()=>orderStore.totalRecords)
 let selected = ref();
 const emit = defineEmits([
   "deleteFilter",
@@ -150,7 +150,7 @@ data-table.p-datatable-sm.orders-table(
     class="frozen-columns"
     :paginator="true"
     :loading="loading"
-    :totalRecords="100"
+    :totalRecords="totalRecords"
     :lazy="true"
     scrollHeight="650px"
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink"

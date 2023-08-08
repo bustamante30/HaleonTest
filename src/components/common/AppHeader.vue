@@ -64,11 +64,7 @@ header.app-header
     router-link(to="/dashboard") Help
   span.separator
   .tools
-    //- router-link(to="/" v-tooltip.bottom="{ value: 'Manage Users' }")
-    //-   span.material-icons.outline groups
-    //- router-link(to="/" v-tooltip.bottom="{ value: 'Saved Orders' }")
-    //-   span.material-icons.outline bookmark
-    router-link(to="/cart" v-tooltip.bottom="{ value: 'Reorder Cart' }" v-badge.danger="cartCount")
+    router-link(to="/cart" v-badge.danger="cartCount")
       span.material-icons.outline shopping_cart
     user-profile
 </template>

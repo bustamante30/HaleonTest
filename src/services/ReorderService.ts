@@ -223,7 +223,7 @@ class ReorderService {
              }))
            : [];
  
-           const totalRecords: number = response.totalRecords ?? 0;
+           const totalRecords: number = response.totalRecords ?? 1000;
            return {
             reorderedData,
             totalRecords,
