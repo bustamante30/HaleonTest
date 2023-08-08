@@ -203,7 +203,7 @@ class ReorderService {
          const reorderedData: ReorderDto[] = response.data
            ? response.data.map((item: ReorderDto) => ({
                id: item.id,
-               sgsId: item.sgsId!=null?item.sgsId:item.id,
+               sgsId: item.sgsId!=null?item.sgsId:(item.id?item.id.toString():''),
                brandName: item.brandName,
                description: item.description,
                weight: item.weight,

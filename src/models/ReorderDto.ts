@@ -10,7 +10,7 @@ export type SearchPagedResultDto= {
 
 export type ReorderDto = {
     id?: number;
-    sgsId?: number;
+    sgsId?: string | number;
     brandName?: string | null;
     description?: string | null;
     weight?: string | null;
