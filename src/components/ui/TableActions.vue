@@ -19,7 +19,7 @@ const menu = ref()
 const emit = defineEmits(['select','action'])
 
 const items = computed(() => {
-
+  
   return props.actions.map(action => {
     return {
       label: action.label,
@@ -49,7 +49,7 @@ function toggleMenu(event) {
 </script>
 
 <template lang="pug">
-span.table-action
+span.table-action(v-if="actions.length>0")
   sgs-button.sm.default(icon="unfold_more" @click="toggleMenu" aria-haspopup="true" aria-controls="overlay_menu")
   prime-menu(ref="menu" id="overlay_menu" :model="items" popup)
     template(#item="{ item }")

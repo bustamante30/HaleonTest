@@ -67,7 +67,7 @@ function viewPreview() {
           .secondary-actions &nbsp;
           .actions
             //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button(icon="redo" label="Re-Order" @click="router.push(`/dashboard/${selectedId}/reorder`)")
+            sgs-button(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" icon="redo" label="Re-Order" @click="router.push(`/dashboard/${selectedId}/reorder`)")
 </template>
 
 <style lang="sass">
