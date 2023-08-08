@@ -60,7 +60,7 @@ header.app-header
   .nav
     router-link(to="/dashboard") Dashboard
     router-link(v-show="IsExternalAdmin === 'PrinterAdmin'" :to="'/users'") Manage Users
-    router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users (As Super)
+    router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users
     router-link(to="/dashboard") Help
   span.separator
   .tools
