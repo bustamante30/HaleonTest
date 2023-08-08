@@ -1,123 +1,136 @@
 <script setup lang="ts">
-import {ref, watch, reactive, onMounted, nextTick, getCurrentInstance, computed } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import { DateTime } from 'luxon'
-import router from '@/router'
+import {
+  ref,
+  watch,
+  reactive,
+  onMounted,
+  nextTick,
+  getCurrentInstance,
+  computed,
+} from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import { DateTime } from "luxon";
+import router from "@/router";
 
-import TableActions from '@/components/ui/TableActions.vue'
-import TableCell from '@/components/ui/TableCell.vue'
-import FilterTokens from '@/components/ui/FilterTokens.vue'
-import Dropdown from 'primevue/dropdown'
-import Calendar from 'primevue/calendar'
-import InputText from "primevue/inputtext"
-import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import Button from 'primevue/button'
-import filterStore from  '@/stores/filterStore'
-import { useOrdersStore } from '@/stores/orders'
-import { orderStatusLabels } from '@/data/config/keylabelpairconfig'
-import { filter } from 'lodash'
-
+import TableActions from "@/components/ui/TableActions.vue";
+import TableCell from "@/components/ui/TableCell.vue";
+import FilterTokens from "@/components/ui/FilterTokens.vue";
+import Dropdown from "primevue/dropdown";
+import Calendar from "primevue/calendar";
+import InputText from "primevue/inputtext";
+import { FilterMatchMode, FilterOperator } from "primevue/api";
+import Button from "primevue/button";
+import filterStore from "@/stores/filterStore";
+import { useOrdersStore } from "@/stores/orders";
+import { orderStatusLabels } from "@/data/config/keylabelpairconfig";
+import { filter } from "lodash";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: () => ({ cols: [] })
+    default: () => ({ cols: [] }),
   },
   showMultipleSelection: {
     type: Boolean,
-    default: () => false
+    default: () => false,
   },
   loading: {
     type: Boolean,
-    default: () => true
+    default: () => true,
   },
   currentPage: {
     type: Object,
-    default: () => {value: 0}
-  }
-})
+    default: () => {
+      value: 0;
+    },
+  },
+});
 
-let selected = ref()
-const emit = defineEmits(['deleteFilter', 'add', 'reorder', 'cancel','addMultipleToCart'])
-const current = ref(0)
+let selected = ref();
+const emit = defineEmits([
+  "deleteFilter",
+  "add",
+  "reorder",
+  "cancel",
+  "addMultipleToCart",
+]);
+const current = ref(0);
 
 function stylify(width: any) {
   return width
-    ? { width: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { width: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
 
-
-onMounted(async () => {	
-  
-  for (const [, value] of  orderStatusLabels) {	
-    dropdownOptions.value.push(value.label);	
-  }	
+onMounted(async () => {
+  for (const [, value] of orderStatusLabels) {
+    dropdownOptions.value.push(value.label);
+  }
 });
-watch(() => props.currentPage,
+watch(
+  () => props.currentPage,
   (newValue) => {
-    current.value = newValue.value
+    current.value = newValue.value;
   }
 );
 watch(selected, (value) => {
-  selected = value
+  selected = value;
 });
 
-const showTextbox = ref(false)
-const orderStore = useOrdersStore()
+const showTextbox = ref(false);
+const orderStore = useOrdersStore();
 const dropdownOptions = ref<string[]>([]);
 const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
 
-const selectedStatusFilter = ref(null);	
+const selectedStatusFilter = ref(null);
 const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
-    description: { value: "", matchMode: FilterMatchMode.CONTAINS },
-    orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
-    packType: { value: "", matchMode: FilterMatchMode.CONTAINS }
+  description: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
+  packType: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
-
 const mutationMap: { [key: string]: string } = {
-  brandName: 'setBrandNameFilter',
-  description: 'setDescriptionFilter',
-  orderDate: 'setOrderStartDateFilter',
-  packType: 'setPackTypeFilter'
+  brandName: "setBrandNameFilter",
+  description: "setDescriptionFilter",
+  orderDate: "setOrderStartDateFilter",
+  packType: "setPackTypeFilter",
 };
 
 const showCalendar = ref(false);
 const sortFields = ref<string[]>([]);
 
-const clearFilter = async (fieldName:string,filterModel:any) => {	
+const clearFilter = async (fieldName: string, filterModel: any) => {
   filterModel.value = null;
   if (mutationMap.hasOwnProperty(fieldName)) {
     const mutationName = mutationMap[fieldName];
     filterStore.commit(mutationName, null);
   }
- orderStore.getOrders();
+  orderStore.getOrders();
 };
 
 const sortColumn = async (event: any) => {
   const { sortField, sortOrder } = event;
   const order = sortOrder === 1 ? true : false;
-  sortField.replace('-', '');
-  const sortedField =sortField.replace('-', '');
-  orderStore.pageState.page = 1
-  orderStore.filters.sortBy = sortedField
-  orderStore.filters.sortOrder = order
+  sortField.replace("-", "");
+  const sortedField = sortField.replace("-", "");
+  orderStore.pageState.page = 1;
+  orderStore.filters.sortBy = sortedField;
+  orderStore.filters.sortOrder = order;
   orderStore.setFilters(orderStore.filters);
-}
+};
 
 function handleAction(action: any) {
-  emit(action.event, action.data)
+  emit(action.event, action.data);
 }
-function onPage(event:any) {
-  orderStore.pageState.page = event.page +1
+function onPage(event: any) {
+  orderStore.pageState.page = event.page + 1;
   orderStore.setFilters(orderStore.filters);
 }
 </script>
@@ -357,7 +370,7 @@ data-table.p-datatable-sm.orders-table(
       :bodyStyle="stylify(config.cols[9].width)"
     )
       template(#body="{ data }")
-        table-cell(:config="config.cols[9]" :data="data")
+        table-cell( :config="config.cols[9]" :data="data")
         //- Action column
     Column(
       field="actions"
@@ -379,13 +392,13 @@ data-table.p-datatable-sm.orders-table(
 .calendar-wrapper
     position: relatives
     z-index: 1
-.calendar-icon .p-calendar-button 
+.calendar-icon .p-calendar-button
     width: 5px
-  
+
 .custom-button
     width: 166px
     height: 30px
-  
+
 .my-custom-calendar
     width: 200px
     height: 30px
