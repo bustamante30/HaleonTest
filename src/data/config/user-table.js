@@ -42,13 +42,13 @@ const config = {
       field: 'isAdmin',
       type: 'check',
       width: 3
-    },
+    }
   ],
   actions: (user) => {
     return [
-      { icon: 'redo', label: 'Resend Invitation', event: 'edit' },
+      { icon: 'redo', label: 'Resend Invitation', event: 'resend' },
       { icon: 'edit', label: 'Edit', event: 'edit' },
-      { icon: 'delete', label: 'Delete', event: 'delete' },
+      { icon: 'delete', label: 'Delete', event: 'deleteUser' },
     ]
   }
 }

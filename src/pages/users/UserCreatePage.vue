@@ -6,10 +6,11 @@ import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
-
+import { useNotificationsStore } from '@/stores/notifications';
 
 const route = useRoute()
 const usersStore = useUsersStore()
+const notificationsStore = useNotificationsStore();
 
 const id = route.params.id
 const printer = computed(() => usersStore.selected)
@@ -22,8 +23,12 @@ onMounted(() => {
 })
 
 
-      let userType ='';
-      let userRole ='';
+  
+
+async function saveUser(userRequest) {
+
+  let userType ='';
+  let printerId = "";
       if(authStore.currentUser.email != '')
       {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
@@ -38,9 +43,25 @@ onMounted(() => {
       }
       }
 
-async function saveUser(userRequest) {
+      if( userType === "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
+
+      }
+      else if(userType === "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+
  await usersStore.saveUser(userRequest)
- await usersStore.getPrinters(0)
+ notificationsStore.addNotification(
+        `User Creation`,
+        `User Created Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
+ await usersStore.getPrinters(0,500,'','',printerId)
  if (userType === 'INT') {
     router.push('/users?role=super');
   } else if (userType === 'EXT') {

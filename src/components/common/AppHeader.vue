@@ -4,35 +4,51 @@ import UserProfile from './UserProfile.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useOrdersStore } from "@/stores/orders";
-import {  onBeforeMount,onMounted, computed  } from "vue";
+import { onMounted, computed, watch, ref } from "vue";
+import store from "store";
 
 const ordersStore = useOrdersStore()
-const cartCount = computed(()=>ordersStore.cartCount) 
+
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
+const cartCount = computed(() => ordersStore.cartCount)
+const currentUser = computed(() => authStore.currentUser);
+const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
+const IsExternalAdmin = ref('');
+
 onMounted(async () => {
-       await ordersStore.getCartCount()
-      
+  if (store.get('currentUser')) {
+    authStore.currentUser = store.get('currentUser');
+  }
+  if (store.get('currentb2cUser')) {
+    authb2cStore.currentB2CUser = store.get('currentb2cUser');
+  }
+  await ordersStore.getCartCount()
+});
+
+watch(currentUser, (value) => {
+  if (authStore.currentUser) {
+    if (value.userType === 'INT' && value.roleKey=== 'PMSuperAdminUser') {
+      IsExternalAdmin.value = 'PMSuperAdminUser';
+    } else if (value.userType === 'INT' && value.roleKey === 'PMUser') {
+      IsExternalAdmin.value = 'PMUser';
+    } 
+  }
 });
 
 
-
-  const authStore = useAuthStore();
-  const authb2cStore = useB2CAuthStore();
-  let userType = '';
-  let userRole = '';
-
-  if (authStore.currentUser.email !== '') {
-    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-      userType = authStore.currentUser.userType;
-      userRole = authStore.currentUser.roleKey;
+watch(currentB2CUser, (value) => {
+  if (authb2cStore.currentB2CUser) {
+   if (value.userType === 'EXT' && value.roleKey === 'PrinterAdmin') {
+      IsExternalAdmin.value = 'PrinterAdmin';
+    } else if (value.userType === 'EXT' && value.roleKey=== 'PrinterUser') {
+      IsExternalAdmin.value = 'PrinterUser';
+    }
+     else {
+      IsExternalAdmin.value = '';
     }
   }
-
-  if (authb2cStore.currentB2CUser.email !== '') {
-    if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-      userType = authb2cStore.currentB2CUser.userType;
-      userRole = authb2cStore.currentB2CUser.roleKey;
-    }
-  }
+});
 
 </script>
 
@@ -43,10 +59,8 @@ header.app-header
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
     router-link(to="/dashboard") Dashboard
-    //- Use a ternary operator to conditionally set the link's text
-    //- router-link(:to= "(userType === 'EXT' && userRole ==='PrinterAdmin') ?  '/users' : '/users?role=super'") {{ (userType === 'EXT' && userRole ==='PrinterAdmin') ?  'Manager Users' : 'Manage Users (As Super)' }}
-    router-link(to="/users") Manage Users
-    router-link(to="/users?role=super") Manage Users (As Super)
+    router-link(v-show="IsExternalAdmin === 'PrinterAdmin'" :to="'/users'") Manage Users
+    router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users
     router-link(to="/dashboard") Help
   span.separator
   .tools

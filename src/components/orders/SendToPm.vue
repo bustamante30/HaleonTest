@@ -7,7 +7,7 @@ import { useUploadFilesStore } from '@/stores/upload-files';
 import { useToast } from 'primevue/usetoast';
 import { useNotificationsStore } from '@/stores/notifications';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
-import { inject, ref, computed, watch, onBeforeMount, reactive } from 'vue'
+import { inject, ref, computed, watch } from 'vue'
 import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -31,6 +31,11 @@ const printerName = computed(() => {
   return user?.printerName || '';
 });
 
+const prntLocation = computed(() => {
+  const user = authb2cStore.currentB2CUser;
+  return user?.prtLocation || [];
+});
+
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
@@ -41,7 +46,7 @@ const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn)
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
 const toast = useToast()
-
+let validFiles: any[] = []
 
 watch(() => props.order, (order) => {
   sendForm.value = { ...order }
@@ -52,6 +57,8 @@ watch(() => props.order, (order) => {
 })
 
 function init() {
+  validFiles = [];
+  (sendUpload as any).value = [];
   emit('create')
 }
 
@@ -61,6 +68,9 @@ function updateColors(colors: any) {
 }
 
 async function submit() {
+  (sendUpload as any).value = [];
+  sendForm.value.printerName = printerName
+  await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
   await sendToPmstore.submitorder(sendForm.value)
   emit('submit', sendForm);
 }
@@ -111,7 +121,6 @@ function isValidFileType(file: any) {
 async function onDrop(event: any) {
   event.preventDefault();
   const uploadFiles = Array.from(event.dataTransfer.files);
-  const validFiles: any[] = [];
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
@@ -162,17 +171,19 @@ async function convertAndSendFile(file: any) {
   return await SendToPMService.uploadFilesToBlobStorage(uploadInfo)
 }
 const removeItemByProperty = (propName: any, propValue: any) => {
-  const index = (sendForm.value.uploadedFiles as any).value.findIndex((uploadedFile: any) => uploadedFile[propName] === propValue);
+  const index = sendUpload.value.findIndex((x: any) => x === propValue);
   if (index !== -1) {
-    (sendForm.value.uploadedFiles as any).value.splice(index, 1);
+    sendUpload.value.splice(index, 1);
+  }
+  const validIndex = validFiles.findIndex((x: any) => x === propValue);
+  if (index !== -1) {
+    validFiles.splice(validIndex, 1);
   }
 };
 
 async function onDeleteClick(name: string) {
   const fullname = name
-  //const fileNameWithoutExe = await removeFileExtension(name)
   const uploadInfo: DeleteFileDto = {
-    // FileName: fileNameWithoutExe + ".zip",
     FileName: name,
     UserId: await getUserId() as any
   }
@@ -187,13 +198,6 @@ async function onDeleteClick(name: string) {
 
 }
 
-
-const imageCarrierCodeTypestypes = ref([
-  { label: "UPC Code", value: "UPC" },
-  { label: "QR Code", value: "QR" },
-  { label: "EAN Code", value: "EAN" },
-  { label: "Data Matrix Code", value: "DATA_MATRIX" },
-]);
 </script>
 
 <template lang="pug">
@@ -212,7 +216,7 @@ const imageCarrierCodeTypestypes = ref([
               strong {{printerName}}
             .f
               label(for="location") Location
-              prime-dropdown(:options="sendToPmstore.options.locations" v-model="sendForm.location")
+              prime-dropdown(:options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="printerLocationId")
         .divider
         h4 Items Details
         .fields
@@ -238,7 +242,7 @@ const imageCarrierCodeTypestypes = ref([
             .f
               label(for="code") Code #
               .field-group
-                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="imageCarrierCodeTypestypes" optionLabel="label" optionValue="value")
+                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
                 prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
             .f
               label(for="job_number") SGS Job #

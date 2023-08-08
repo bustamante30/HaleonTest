@@ -45,6 +45,19 @@ const selectedStatus = ref();
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
+const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
+const isValidIdentityProvider = computed(() => {
+  if(isb2cUserLoggedIn.value){
+    return authb2cStore.isValidIdentityProvider;
+  }
+  else if(isUserLoggedIn.value){
+    return authStore.isValidIdentityProvider;
+  }
+  else{
+    return true;
+  }
+});
 const userFilterConfig = computed(() => filterConfig("user"));
 const loadingOrders = computed(() => ordersStore.loadingOrders)
 const searchHistory = computed(() => ordersStore.searchHistory);
@@ -112,6 +125,7 @@ function getSearchHistory() {
 function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
+  sendToPmStore.getCodeTypes()
 }
 
 function sendToPm(form: any) {
@@ -161,8 +175,8 @@ async function addMultipleToCart(values: any) {
 </script>
 
 <template lang="pug">
-.page.dashboard
-  sgs-scrollpanel(:scroll="false")
+.page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
+  sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
     template(#header)
       app-header
     main
@@ -197,6 +211,8 @@ async function addMultipleToCart(values: any) {
       +flex-fill
       h1
         flex: none
+  &.dark
+    background: var(--app-header-bg-color)
 .rangeFilter
   left:40px
 .leftHeader

@@ -5,9 +5,14 @@ import { useUsersStore } from '@/stores/users'
 import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useNotificationsStore } from '@/stores/notifications';
+
 
 const route = useRoute()
 const usersStore = useUsersStore()
+const authStore =  useAuthStore();
+const authb2cStore = useB2CAuthStore();
+const notificationsStore = useNotificationsStore();
 
 const id = route.params.id
 
@@ -22,30 +27,46 @@ onBeforeMount(() => {
   usersStore.getUser(id)
 })
 
-const authStore = useAuthStore();
-  const authb2cStore = useB2CAuthStore();
-  let userType = '';
-  let userRole = '';
+async function saveUser(value) {
+  let userType ='';
+  let printerId = "";
+      if(authStore.currentUser.email != '')
+      {
+      if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+        userType =authStore.currentUser.userType;
+      } 
+      }
+      
+     if(authb2cStore.currentB2CUser.email != '')
+      {
+      if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+        userType =authb2cStore.currentB2CUser.userType;
+      }
+      }
 
-  if (authStore.currentUser.email !== '') {
-    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-      userType = authStore.currentUser.userType;
-      userRole = authStore.currentUser.roleKey;
-    }
-  }
+      if( userType === "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
 
-  if (authb2cStore.currentB2CUser.email !== '') {
-    if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-      userType = authb2cStore.currentB2CUser.userType;
-      userRole = authb2cStore.currentB2CUser.roleKey;
-    }
-  }
+      }
+      else if(userType === "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+      
+  await usersStore.saveUser(value)
+  notificationsStore.addNotification(
+        `User Update`,
+        `User Updated Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
+  await usersStore.getPrinters(0,500,'','',printerId)
+}
 
-
-
-function saveUser(value) {
-  usersStore.saveUser(value)
-  usersStore.getPrinters(0)
+const showSuccess = (summary, severity) => {
+    toast.add({ severity: severity, summary: summary, detail: 'Message Content', life: 3000 });
 }
 
 </script>

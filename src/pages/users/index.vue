@@ -4,14 +4,15 @@ import { useRoute } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import PrinterList from '@/components/printers/PrinterList.vue'
 import PrinterDetails from '@/components/printers/PrinterDetails.vue'
-
 import { useUsersStore } from '@/stores/users';
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const authStore =  useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const usersStore = useUsersStore();
+const notificationsStore = useNotificationsStore();
 
 const route = useRoute();
 let role = ref(route.query?.role);
@@ -32,23 +33,17 @@ onMounted(() => {
 })
 
 watch(() => route.query, (query) => {
-  console.log(route.query?.role)
   role.value = query?.role
 })
 
-     
-
-
-
-function selectPrinter(printer) {
-  usersStore.getPrinterById(printer)
+async function selectPrinter(printer) {
+  await usersStore.getPrinterById(printer)
 }
 
- function getPrinters(event) {
+ async function getPrinters(event) {
   const page = event ? event / 20 : 0
-  console.log(event, page)
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
-   usersStore.getPrinters(page)
+   await usersStore.getPrinters(page)
 }
 
 function createUser() {
@@ -58,6 +53,7 @@ function createUser() {
 function editUser(user) {
  usersStore.getUser(user.data.id)
 }
+
  function searchUser(query) {
    //getting printerId value
       if(authStore.currentUser.email != '')
@@ -98,7 +94,6 @@ function editUser(user) {
 }
 
 async function searchPrinter(query) {
-console.log("SearchPrinter Query:" + query)
       if(query.query != "")
       {
         usersStore.getPrinters(0,500,"",query.query)
@@ -109,8 +104,53 @@ console.log("SearchPrinter Query:" + query)
         usersStore.getPrinterById('')
       }
 }
-</script>
 
+async function deleteUser(user) {
+  if(authStore.currentUser.email != '')
+      {
+        if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
+          userType =authStore.currentUser.userType;
+        } 
+      }
+      
+     if(authb2cStore.currentB2CUser.email != '')
+     {
+        if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
+          userType =authb2cStore.currentB2CUser.userType;
+        }
+      }
+      
+      if( userType === "EXT")
+      {
+        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
+          printerId = authb2cStore.currentB2CUser.printerId;
+        }
+
+      }
+      else if(userType === "INT")
+      {
+        printerId = usersStore.selected.id;
+      }
+
+ await usersStore.deleteUser(user.data.id)
+ notificationsStore.addNotification(
+        `User Deletion`,
+        `User Deleted Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
+ await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
+}
+
+function resend(user) {
+ usersStore.resendInvitation(user.data.id)
+ notificationsStore.addNotification(
+        `Resend Invitation`,
+        `Invitation resend Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
+}
+
+</script>
 <template lang="pug">
 .page.users
   sgs-scrollpanel(:scroll="false")
@@ -125,7 +165,7 @@ console.log("SearchPrinter Query:" + query)
           printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
         .users-content
           sgs-scrollpanel(v-if="selected")
-            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" :user="user" :role="role" @searchUser ="searchUser")
+            printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" :user="user" :role="role" @searchUser ="searchUser")
   router-view
 </template>
 

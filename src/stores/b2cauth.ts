@@ -2,10 +2,12 @@ import { defineStore } from "pinia";
 import {
   EventType,
   PublicClientApplication,
-  type AccountInfo,
+  type AccountInfo
 } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";
+import jwt_decode from 'jwt-decode'
+import { DateTime } from 'luxon'
 import router from "@/router";
 import store from "store";
 
@@ -23,13 +25,50 @@ const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 export const useB2CAuthStore = defineStore("b2cauth", {
-  state: () => ({
-    msalB2cInstance: new PublicClientApplication(authB2CConfig),
-    accessToken: "",
-    currentB2CUser: store.get('currentb2cUser') ||userB2CSessionStore(),
-    account: null as AccountInfo | null,
-  }),
+  state: () => {
+    const userb2cSessionStore = userB2CSessionStore()
+    return {
+      msalB2cInstance: new PublicClientApplication(authB2CConfig),
+      accessToken: "",
+      currentB2CUser: userb2cSessionStore.userB2CSession,
+      account: null as AccountInfo | null,
+      accessTokenUpdatedOn: new Date(),
+      accessTokenValidation: null as any,
+      redirectAfterLogin: '/dashboard',
+      decodedToken: {},
+      isValidIdentityProvider: false,
+    }
+  },
   actions: {
+    async aquireToken() {
+      await this.getAccount();
+      let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
+      if (tokenResponse) {
+        this.account = tokenResponse.account;
+      } else {
+        this.account = this.msalB2cInstance.getAllAccounts()[0];
+      }
+      if (this.account && tokenResponse) {
+        this.updateUserStore(tokenResponse);
+      }
+    },
+    async acquireTokenSilent() {
+      await this.getAccount()
+      const accessTokenRequest = {
+        scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+        account: this.msalB2cInstance.getAllAccounts()[0]
+      }
+      console.info('acquireTokenSilent')
+      const tokenResponse = await this.msalB2cInstance.acquireTokenSilent(accessTokenRequest)
+      if (tokenResponse) {
+        this.account = tokenResponse.account
+      } else {
+        this.account = this.msalB2cInstance.getAllAccounts()[0]
+      }
+      if (this.account && tokenResponse) {
+        this.updateUserStore(tokenResponse)
+      }
+    },
     async getAccount() {
       const accounts = this.msalB2cInstance.getAllAccounts();
       if (accounts.length == 0) {
@@ -43,9 +82,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         let response;
         this.getAccount();
         this.msalB2cInstance.addEventCallback((event) => {
-          // set active account after redirect
           if (event.eventType === EventType.LOGIN_SUCCESS) {
-            // this.account = event?.payload?.account 
             this.msalB2cInstance.setActiveAccount(this.account);
           }
         });
@@ -59,7 +96,6 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             } else {
               this.account = this.msalB2cInstance.getAllAccounts()[0];
             }
-            // if the the user is logged in
             if (this.account && tokenResponse) {
               this.updateUserStore(tokenResponse);
             }
@@ -69,7 +105,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             this.currentB2CUser.isLoggedIn = false;
             localStorage.clear();
             sessionStorage.clear();
-            if(error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
+            if (error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
               this.currentB2CUser.isValidDomain = false
               router.push("/error");
             } else {
@@ -142,21 +178,75 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       const user = await UserService.getUserClaimInfo();
-      console.log("userb2cclaims:" + user);
-      if(user !== null)
-      {
-      this.currentB2CUser.firstName = user.firstName as string;
-      this.currentB2CUser.lastName = user.lastName as string;
-      this.currentB2CUser.email = user.email as string;
-      this.currentB2CUser.displayName = user.displayName as string;
-      this.currentB2CUser.userType =user.userType as string;
-      this.currentB2CUser.printerId = user.printerId as number;
-      this.currentB2CUser.printerName = user.printerName as string;
-      this.currentB2CUser.userId = user.userId as number;
-      this.currentB2CUser.roleKey = user.roleKey as string;
-      localStorage.setItem("userType",this.currentB2CUser.userType);
-      store.set('currentb2cUser',this.currentB2CUser);
+      this.decodedToken = jwt_decode(this.accessToken)
+      const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
+      if (user !== null) {
+        this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
+        console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
+        localStorage.setItem("userType", this.currentB2CUser.userType);
+        store.set('currentb2cUser', this.currentB2CUser);
+        if (user.identityProviderName === "Federated") {
+          if (user.identityTypeName === identityProviderSelected) {
+            this.isValidIdentityProvider = true
+          } else if (user.identityProviderName === identityProviderSelected) {
+            this.isValidIdentityProvider = true
+          }
+          else {
+            router.push("/error");
+          }
+        } else if (user.identityProviderName === identityProviderSelected) {
+          this.isValidIdentityProvider = true
+        }
+        else {
+          router.push("/error");
+        }
+      } else {
+        router.push("/error");
       }
+    },
+    getIdentityUsingToken(decodedToken: any) {
+      let identityProvider = ""
+      if (decodedToken.hasOwnProperty('idp')) {
+        if (decodedToken.idp.includes('google')) {
+          identityProvider = "Google"
+        }
+        if (decodedToken.idp.includes('amazon')) {
+          identityProvider = "Amazon"
+        }
+        if (decodedToken.idp.includes('apple')) {
+          identityProvider = "Apple"
+        }
+        if (decodedToken.idp.includes('microsoftonline.com')) {
+          identityProvider = "Microsoft"
+        }
+      } else {
+        identityProvider = "Photon"
+      }
+      return identityProvider
+    },
+    validateToken() {
+      console.info(` -- Clearing Interval `)
+      clearInterval(this.accessTokenValidation)
+      this.accessTokenValidation = setInterval(() => {
+        console.log('interval running')
+        const token: any = jwt_decode(this.accessToken)
+        const currentTime = DateTime.fromJSDate(new Date())
+        const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
+        const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
+        if (diff > -5) {
+          console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
+
+
+          const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
+          const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
+
+          if (diffs > 3) {
+            console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
+            location.reload()
+          }
+          this.acquireTokenSilent()
+        }
+      }, 5000)
     },
   },
 });

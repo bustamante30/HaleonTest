@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import { useNotificationsStore } from './notifications'
 import SuggesterService from "@/services/SuggesterService";
 import SendToPMService from "@/services/SendToPmService";
+import type { SearchRequestDto } from  '../models/SearchRequestDto';
+import UserService from "@/services/userService";
 
 function timeout(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -16,7 +18,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     loading: false,
     options: {
       locations: [] as any[],
-    }
+    },
+    imageCarrierCodeTypes: [] as any[]
 
   }),
   getters: {
@@ -24,6 +27,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
   actions: {
     initNewOrder() {
       this.newOrder = {
+        printerName: null,
         brand: null,
         description: null,
         packType: null,
@@ -38,7 +42,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         comments: null,
         location: null,
         colors:[] as any[],
-        uploadedFiles: [] as any[]
+        uploadedFiles: [] as any[],
+        pmUsersForPrinter: [] as any[]
       }
     },
     async sendToPm(form : any) {
@@ -55,6 +60,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     async submitorder(order:any){
       order.colors = this.newOrder.colors;
       order.files = this.newOrder.uploadedFiles;
+      order.pmUsersForPrinter = this.newOrder.pmUsersForPrinter;
       await SendToPMService.submitExitOrder(order)
 
       this.newOrder = null
@@ -66,5 +72,30 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     async uploadData(files: []) {
       this.newOrder.uploadedFiles = [...files]
     },
+    async getCodeTypes(){
+      this.imageCarrierCodeTypes= await SendToPMService.getCodeTypeList();
+     },
+
+     async getPmusersForLocation(printerId: number){
+      const searchRequest: SearchRequestDto = {
+        searchText: "",
+        pageNumber: 1,
+        pageCount: 100,
+        orderBy: "ModifiedOn",
+        orderByAsc: true,
+        isActive: true,
+        printerId: printerId,
+        userId: 0,
+        userTypeKey: "INT",
+      };
+      console.log("userSearchReq:" + searchRequest);
+      const usersResponse = await UserService.searchUser(searchRequest);
+      if (usersResponse) {
+        this.newOrder.pmUsersForPrinter= usersResponse.data;
+      } else {
+        console.error('Error searching users:', usersResponse);
+      }
+    }
+
   }
 })

@@ -15,11 +15,14 @@ export type UserState = {
   userId: Ref<Number>
   printerId: Ref<Number>
   printerName:Ref<string>
-  
+  identityProviderId: Ref<Number>
+  identityProviderName: Ref<string>
+  identityTypeName: Ref<string>
+  prtLocation: Ref<Array<string>>
 }
 
 export const userB2CSessionStore = defineStore('userb2csession', () => {
-  const userB2CSession = {
+  const userB2CSession = ref({
     username: ref(''),
     email: ref(''),
     emitter: ref(new Emitter()),
@@ -32,7 +35,11 @@ export const userB2CSessionStore = defineStore('userb2csession', () => {
     printerId:ref(new Number()),
     printerName: ref(''),
     userId:ref(new Number()),
-    roleKey: ref('')
-  }
-  return userB2CSession
+    roleKey: ref(''),
+    identityProviderId: ref(new Number()),
+    identityProviderName: ref(''),
+    identityTypeName: ref(''),
+    prtLocation: ref([]),
+  })
+  return { userB2CSession }
 })

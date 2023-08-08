@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { providers } from '@/data/config/identitiy-providers'
+import { providers, federated } from '@/data/config/identitiy-providers'
+import { useUsersStore } from '@/stores/users'
 
 const props = defineProps({
   data: {
@@ -9,12 +10,21 @@ const props = defineProps({
   }
 })
 
-let provider = ref(props.data)
+const usersStore = useUsersStore()
+const identityProviderId  = computed(() => usersStore.identityProviderId);
+const identityTypeId = computed(() => usersStore.identityTypeId);
+let provider = ref({
+  identityProviderId : 2,
+  identityTypeId : 3
 
-const providerName = computed(() => {
-  const result = providers.find((p: any) => p.value === provider.value.type)
-  return result ? result.label : null
 })
+
+// const providerName = computed(() => {
+//   const result = providers.find((p: any) => p.value === provider.value)
+//   console.log("providers:" + providers)
+//   return result ? result.label : null
+// })
+
 </script>
 
 <template lang="pug">
@@ -22,30 +32,15 @@ const providerName = computed(() => {
   .identity-provider
     .fields
       .f
-        label Identity Provider
-        .provider(v-for="(p, i) in providers")
-          prime-radiobutton.square.sm(v-model="provider.type" name="provider" :inputId="p.value" :value="p.value")
-          label {{ p.label }}
-
-  .settings
-    sgs-scrollpanel.panel
-      h3(v-if="providerName") Setup {{ providerName }} 
-      .fields(v-if="provider && provider.type !== 'photon'")
-        .f
-          label Tenant ID
-          prime-inputtext.sm(v-model="provider.tenantId" :disabled="provider && provider.type === 'photon'")
-        .divider
-      h5 Primary Admin
-      .fields(v-if="provider")
-        .f
-          label Name
-          prime-inputtext.sm(v-model="provider.admin")
-        .f
-          label Email
-          prime-inputtext.sm(v-model="provider.email")
-      .fields.footer
-        .f
-          sgs-button.sm(label="Save")
+        h2.m-b-15.flex-center Identity Provider
+        .providers.m-b-15.flex-center
+          .provider(v-for="(p, i) in providers")
+            prime-radiobutton.square.sm(v-model="identityProviderId" name="provider" :inputId="p.value" :value="p.value")
+            label {{ p.label }}
+      .federateds.m-b-15.flex-center(v-if="identityProviderId !== 1")
+        .f.radio(v-for="platform in federated")
+          prime-radiobutton.square(v-model="identityTypeId" name="federated" :inputId="platform.value" :value="platform.value")
+          label(:for="platform.value") {{ platform.label }}
 </template>
 
 <style lang="sass" scoped>
@@ -56,7 +51,10 @@ const providerName = computed(() => {
   background: #fff
   align-items: stretch
   .identity-provider
-    width: 15rem
+    width: 100%
+    display: flex
+    padding: 1rem
+    justify-content: center
     padding: $s
   .settings
     flex: 1
@@ -81,4 +79,26 @@ const providerName = computed(() => {
   .footer
     padding-top: $s
     +flex($h: right)
+
+.providers
+  +flex
+  gap:1rem
+
+.f.radio
+  +flex
+  align-items: baseline
+  label
+    display: inline-block
+    margin: 0
+    margin-left: $s50
+    &:after
+      content: ""
+.federateds
+  +flex
+  gap: 1rem
+.m-b-15
+  margin-bottom: 15px
+.flex-center
+  display: flex
+  justify-content: center
 </style>

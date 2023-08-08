@@ -9,4 +9,8 @@ export type UserClaimDto = {
     printerId: number  | null;
     roleKey?: string  | null;
     printerName: string  | null;
+    identityProviderId?: number;
+    identityProviderName?: string;
+    identityTypeName?: string;
+    prtLocation: Array<string>;
 };

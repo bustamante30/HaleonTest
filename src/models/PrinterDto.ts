@@ -1,9 +1,9 @@
 import { type UserDto } from "./UserDto";
-import { type UserIdentityProviderDto } from "./UserIdentityProviderDto";
+import { type PrinterIdentityProviderDto } from "./PrinterIdentityProviderDto";
  
 export type PrinterDto = {
     id?: number;
     printerName?: string | null;
     userData?: UserDto | null;
-    userIdentityProv?: Array<UserIdentityProviderDto> | null;
+    printerIdentityProv?: Array<PrinterIdentityProviderDto> | null;
 };

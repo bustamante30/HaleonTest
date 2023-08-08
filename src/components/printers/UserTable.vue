@@ -22,7 +22,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['editUser'])
+const emit = defineEmits(['editUser', 'deleteUser', 'resend'])
 
 function stylify(width) {
   return width
@@ -31,7 +31,18 @@ function stylify(width) {
 }
 
 function handleAction(action) {
+  if(action.event === 'edit')
+  {
   emit('editUser',{event: action.event, data: action.data})
+  }
+  else if(action.event === 'deleteUser')
+  {
+  emit('deleteUser',{event: action.event, data: action.data})
+  }
+  else if(action.event === 'resend')
+  {
+  emit('resend',{event: action.event, data: action.data})
+  }
 }
 
 </script>
