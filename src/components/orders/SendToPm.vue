@@ -7,7 +7,7 @@ import { useUploadFilesStore } from '@/stores/upload-files';
 import { useToast } from 'primevue/usetoast';
 import { useNotificationsStore } from '@/stores/notifications';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
-import { inject, ref, computed, watch, onBeforeMount, reactive } from 'vue'
+import { inject, ref, computed, watch } from 'vue'
 import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -46,7 +46,7 @@ const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn)
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
 const toast = useToast()
-
+let validFiles: any[] = []
 
 watch(() => props.order, (order) => {
   sendForm.value = { ...order }
@@ -57,6 +57,8 @@ watch(() => props.order, (order) => {
 })
 
 function init() {
+  validFiles = [];
+  (sendUpload as any).value = [];
   emit('create')
 }
 
@@ -66,6 +68,7 @@ function updateColors(colors: any) {
 }
 
 async function submit() {
+  (sendUpload as any).value = [];
   sendForm.value.printerName = printerName
   await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
   await sendToPmstore.submitorder(sendForm.value)
@@ -118,7 +121,6 @@ function isValidFileType(file: any) {
 async function onDrop(event: any) {
   event.preventDefault();
   const uploadFiles = Array.from(event.dataTransfer.files);
-  const validFiles: any[] = [];
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
@@ -169,17 +171,19 @@ async function convertAndSendFile(file: any) {
   return await SendToPMService.uploadFilesToBlobStorage(uploadInfo)
 }
 const removeItemByProperty = (propName: any, propValue: any) => {
-  const index = (sendForm.value.uploadedFiles as any).value.findIndex((uploadedFile: any) => uploadedFile[propName] === propValue);
+  const index = sendUpload.value.findIndex((x: any) => x === propValue);
   if (index !== -1) {
-    (sendForm.value.uploadedFiles as any).value.splice(index, 1);
+    sendUpload.value.splice(index, 1);
+  }
+  const validIndex = validFiles.findIndex((x: any) => x === propValue);
+  if (index !== -1) {
+    validFiles.splice(validIndex, 1);
   }
 };
 
 async function onDeleteClick(name: string) {
   const fullname = name
-  //const fileNameWithoutExe = await removeFileExtension(name)
   const uploadInfo: DeleteFileDto = {
-    // FileName: fileNameWithoutExe + ".zip",
     FileName: name,
     UserId: await getUserId() as any
   }

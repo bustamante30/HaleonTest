@@ -144,11 +144,8 @@ export const useAuthStore = defineStore("auth", {
         this.currentUser = {...this.currentUser,...user} as any;
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);
-
-
-        if (!this.currentUser.roleKey) {
-          router.push("/error");
-        }
+      } else {
+        router.push("/error");
       }
     },
     validateToken() {
