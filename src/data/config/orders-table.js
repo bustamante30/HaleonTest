@@ -62,10 +62,18 @@ export default {
       }
   ],
   actions: (order) => {
-    return [
-      { icon: 'add', label: 'Add to Cart', event: 'add' },
-      { icon: 'redo', label: 'Order Again', event: 'reorder' },
-      { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
-    ]
+    switch(order.statusId){
+      case null:
+        return [
+          { icon: 'add', label: 'Add to Cart', event: 'add' },
+          { icon: 'redo', label: 'Order Again', event: 'reorder' }
+        ]
+      case 2:
+        return [
+          { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
+        ]
+      default:
+        return []
+    }
   }
 }

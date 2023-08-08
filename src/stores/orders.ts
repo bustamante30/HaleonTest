@@ -99,9 +99,21 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loadingOrder = true;
       if (id != null && id != undefined) {
         if (!isNaN(parseFloat(id)) && isFinite(id)) {
-          this.selectedOrder = this.cartOrders.find(
+          let order = this.cartOrders.find(
             (order: any) => order.id === id
           );
+          if(order!=null)
+            this.selectedOrder = order
+          else
+          {
+            this.selectedOrder = this.orders.find(
+              (order: any) => order.sgsId === parseInt(id)
+            );
+            let details = JSON.parse(
+              JSON.stringify(await ReorderService.getPhotonReorderDetails(this.selectedOrder.id))
+            );
+            this.mapColorAndCustomerDetailsToOrder(details);
+          }
         } else {
           this.selectedOrder = this.orders.find(
             (order: any) => order.sgsId === id
@@ -111,19 +123,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             JSON.stringify(await ReorderService.getOrderDetails(id))
           );
           this.selectedOrder.description = details.jobDescription;
-          this.selectedOrder.colors = Array.from(details.colors);
-          this.selectedOrder.colors.map((x) => {
-            if (!(x as any)["sets"])
-              ((x as any)["sets"] = 0),
-                ((x as any)["newColour"] = (x as any)["isNew"]
-                  ? "New"
-                  : "Common"),
-                ((x as any)["colourTypeDesc"] = ReorderService.getColorType(
-                  (x as any)["colourType"]
-                ));
-          });
-          (this.selectedOrder as any)["customerContacts"] =
-            details.customerContacts;
+          this.mapColorAndCustomerDetailsToOrder(details);
           this.selectedOrder.barcodes = details.barcode;
           this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
           this.selectedOrder.printProcess =
@@ -280,5 +280,20 @@ export const useOrdersStore = defineStore("ordersStore", {
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
     },
+    mapColorAndCustomerDetailsToOrder(details:any){
+      this.selectedOrder.colors = Array.from(details.colors);
+      this.selectedOrder.colors.map((x) => {
+        if (!(x as any)["sets"])
+          ((x as any)["sets"] = 0),
+            ((x as any)["newColour"] = (x as any)["isNew"]
+              ? "New"
+              : "Common"),
+            ((x as any)["colourTypeDesc"] = ReorderService.getColorType(
+              (x as any)["colourType"]
+            ));
+      });
+      (this.selectedOrder as any)["customerContacts"] =
+      details.customerContacts;
+    }
   },
 });

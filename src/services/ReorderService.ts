@@ -203,7 +203,7 @@ class ReorderService {
          const reorderedData: ReorderDto[] = response.data
            ? response.data.map((item: ReorderDto) => ({
                id: item.id,
-               sgsId: item.sgsId,
+               sgsId: item.sgsId!=null?item.sgsId:item.id,
                brandName: item.brandName,
                description: item.description,
                weight: item.weight,
@@ -253,6 +253,15 @@ class ReorderService {
             return 0;
         });
     }
+    public static getPhotonReorderDetails(id: string) {
+        return httpService.get<any>('v1/Reorder/getPhotonReorderDetails?orderId=' + id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting photon reorder: ", error);
+            return null;
+        });
+    }
+    
     public static getCart() {
         return httpService.get<any>('v1/Reorder/getUserCart').then((response: any) => {
             return response
