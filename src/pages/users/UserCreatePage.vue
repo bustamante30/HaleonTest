@@ -6,10 +6,11 @@ import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
-
+import { useNotificationsStore } from '@/stores/notifications';
 
 const route = useRoute()
 const usersStore = useUsersStore()
+const notificationsStore = useNotificationsStore();
 
 const id = route.params.id
 const printer = computed(() => usersStore.selected)
@@ -55,6 +56,11 @@ async function saveUser(userRequest) {
       }
 
  await usersStore.saveUser(userRequest)
+ notificationsStore.addNotification(
+        `User Creation`,
+        `User Created Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
  await usersStore.getPrinters(0,500,'','',printerId)
  if (userType === 'INT') {
     router.push('/users?role=super');

@@ -4,14 +4,15 @@ import { useRoute } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import PrinterList from '@/components/printers/PrinterList.vue'
 import PrinterDetails from '@/components/printers/PrinterDetails.vue'
-
 import { useUsersStore } from '@/stores/users';
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const authStore =  useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const usersStore = useUsersStore();
+const notificationsStore = useNotificationsStore();
 
 const route = useRoute();
 let role = ref(route.query?.role);
@@ -52,6 +53,7 @@ function createUser() {
 function editUser(user) {
  usersStore.getUser(user.data.id)
 }
+
  function searchUser(query) {
    //getting printerId value
       if(authStore.currentUser.email != '')
@@ -131,11 +133,21 @@ async function deleteUser(user) {
       }
 
  await usersStore.deleteUser(user.data.id)
+ notificationsStore.addNotification(
+        `User Deletion`,
+        `User Deleted Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
  await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
 }
 
 function resend(user) {
  usersStore.resendInvitation(user.data.id)
+ notificationsStore.addNotification(
+        `Resend Invitation`,
+        `Invitation resend Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
 }
 
 </script>

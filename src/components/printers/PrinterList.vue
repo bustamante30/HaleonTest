@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useUsersStore } from '@/stores/users';
 import router from '@/router';
+import { useNotificationsStore } from '@/stores/notifications';
 
 const props = defineProps({
   printers  : {
@@ -29,6 +30,8 @@ const props = defineProps({
   }
 })
 
+
+const notificationsStore = useNotificationsStore()
 const usersStore = useUsersStore()
 const emit = defineEmits(['select', 'fetch', 'searchPrinter'])
 
@@ -57,11 +60,19 @@ function searchPrinter(query) {
 
 async function saveprinter(printerFormRequest) {
   await  usersStore.savePrinter(printerFormRequest);
+  notificationsStore.addNotification(
+        `Printer Creation`,
+        `Printer Created Successfully`,
+        { severity: 'Success', position: 'top-right' }
+      );
   await usersStore.getPrinters(0)
   isPrinterFormVisible.value = false;
   router.push('/users?role=super');
 }
 
+const showSuccess = (summary, severity) => {
+    toast.add({ severity: severity, summary: summary, detail: 'Message Content', life: 3000 });
+}
 
 </script>
 
