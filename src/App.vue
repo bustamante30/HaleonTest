@@ -56,7 +56,7 @@ document.addEventListener('visibilitychange', async () => {
 
 <template lang="pug">
 #image-carrier
-  prime-toast(:position="notification && notification.position || 'bottom-left'")
+  prime-toast
   router-view
 </template>
 
