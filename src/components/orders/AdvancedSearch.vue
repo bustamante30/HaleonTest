@@ -22,7 +22,7 @@ form.advanced-search(@submit.prevent="onSubmit")
           prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
           prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
           prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found" @item-select="searchPrinterSites()" )
-          prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults" emptyMessage="No results found")
+          prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults.length ? printerSiteResults : [advancedFilters[filter.name]]" emptyMessage="No results found" )
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
       footer
@@ -87,7 +87,7 @@ let printerLoc = ref("AL");
 
 const error = ref("");
 const showError = ref(false);
-let advancedFilters = computed(() => ordersStore.filters)
+let advancedFilters: Ref<any> = ref({});
 const searchDate = computed(() => searchhistoryStore.searchDate)
 const searchFieldReference = computed(() => (searchhistoryStore.searchFieldReference))
 
@@ -99,12 +99,15 @@ const closeForm = () => {
 };
 
 onBeforeMount(async () => {
+  ordersStore.resetFilters();
   (advancedFilters as any).value = { ...(props.filters) };
-  ordersStore.resetFilters()
   await searchhistoryStore.getSearchDate(true).then(() => { formatDate() });
-
   await searchhistoryStore.getSearchField();
 });
+
+watch(() => props.filters, (value) => {
+  (advancedFilters as any).value = { ...(value) };
+})
 
 async function formatDate() {
   if (searchDate.value && searchDate.value.length > 0) {
@@ -117,9 +120,10 @@ async function formatDate() {
 }
 
 async function handleDateClick(dateRefId: number): Promise<void> {
+  const advanceFilterData = advancedFilters.value as object
   await searchhistoryStore.getSearchField()
   await searchhistoryStore.getSearchHistory(dateRefId, true)
-  const columnNames = keysIn(advancedFilters.value as object)
+  const columnNames = keysIn(advanceFilterData)
   if (searchFieldReference.value.length > 0) {
     searchFieldReference.value.forEach((searchReference) => {
       if (columnNames.includes((searchReference as any).fieldName)) {
@@ -142,6 +146,19 @@ async function handleDateClick(dateRefId: number): Promise<void> {
 
 
 function reset() {
+  advancedFilters.value["itemNumber"] = null;
+  advancedFilters.value["orderDate"] = [];
+  advancedFilters.value["printerName"] = null;
+  advancedFilters.value["printerSite"] = null;
+  advancedFilters.value["printerReference"] = null;
+  advancedFilters.value["poNumber"] = null;
+  advancedFilters.value["barcodeNumber"] = null;
+  advancedFilters.value["sgsReferenceNumberList"] = null;
+  advancedFilters.value["imageCarrierId"] = null;
+  advancedFilters.value["imageCarrierCode"] = null;
+  advancedFilters.value["imageCarrierCode"] = null;
+  advancedFilters.value["printerPlateCode"] = null;
+  advancedFilters.value["startDate"] = [];
   ordersStore.resetFilters()
 }
 
@@ -191,7 +208,7 @@ function validateForm() {
     "You must enter information into at least 1 field. Printer Name and Location must have an entry";
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter(
-    (field) => field !== "printerName" && field !== "printerSite"
+    (field) => field !== "printerName" && field !== "printerSite" && field !== "status"
   );
   for (const field of additionalFields) {
     const value = (advancedFilters.value as any)[field];
