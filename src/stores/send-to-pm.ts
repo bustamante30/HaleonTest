@@ -35,7 +35,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         itemCode: null,
         plateId: null,
         carrierCode: {
-          type: 'UPC',
+          type: null,
           code: null,
         },
         jobNumber: null,

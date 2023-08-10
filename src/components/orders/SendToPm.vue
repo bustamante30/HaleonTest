@@ -68,12 +68,47 @@ function updateColors(colors: any) {
 }
 
 async function submit() {
-  (sendUpload as any).value = [];
   sendForm.value.printerName = printerName
-  await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
-  await sendToPmstore.submitorder(sendForm.value)
-  emit('submit', sendForm);
+  const isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
+
+  // Check if any other field has a value
+  const hasAnyOtherFieldValue =
+    sendForm.value.brand ||
+    sendForm.value.description ||
+    sendForm.value.packType ||
+    sendForm.value.purchaseOrder ||
+    sendForm.value.itemCode ||
+    sendForm.value.plateId ||
+    (sendForm.value.carrierCode && sendForm.value.carrierCode.type) ||
+    sendForm.value.jobNumber ||
+    sendForm.value.comments ||
+    (sendUpload.value && sendUpload.value.length > 0);
+
+  console.log("hasAnyOtherFieldValue",hasAnyOtherFieldValue)
+
+
+  if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
+    const errorMessage = [];
+    if (isPrinterAndLocationEmpty) {
+      errorMessage.push("Printer and Location are required");
+    }
+    if (!hasAnyOtherFieldValue) {
+      errorMessage.push("At least one additional field is required");
+    }
+
+    notificationsStore.addNotification(
+      errorMessage.join("\n"),
+      "Please ensure you fill all required fields",
+      { severity: 'error', position: 'top-right' }
+    );
+  } else {
+    (sendUpload as any).value = [];
+    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
+    await sendToPmstore.submitorder(sendForm.value)
+    emit('submit', sendForm);
+  }
 }
+
 
 async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
