@@ -26,7 +26,7 @@ export default {
     },
     {
       header: "Quantity",
-      field: "sets",
+      field: "originalSets",
       type: "number",
       freeze: "center",
       width: 5,
