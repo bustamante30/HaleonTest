@@ -5,7 +5,7 @@ import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
 import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
-import { keys } from "lodash";
+import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
@@ -65,6 +65,10 @@ const searchHistory = computed(() => ordersStore.searchHistory);
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
+
+// Freetext tags 
+const searchTags =ref([])
+
 provide("options", options);
 
 onBeforeMount(() => {
@@ -110,12 +114,42 @@ function searchByStatus(){
   filters.value.status = selectedStatus.value.value;
   ordersStore.setFilters(filters.value);
 }
-function search(filters: any) {
-  if (filters) ordersStore.setFilters(filters);
+function search(event: any) {
+ 
+  if (event) {
+    searchTags.value = event.query.split(',')
+    const fil = {
+      ...filters.value,
+      query:event.query
+    }
+    ordersStore.setFilters(fil);
+  }
   else {
+    searchTags.value = []
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
   }
+}
+
+const clearSearchTags = (index: number) =>{
+  searchTags.value.splice(index,1)
+  if(searchTags.value.length > 0){
+    // Two way binding needed?
+    const fil = {
+      ...filters.value,
+      query:searchTags.value.join(',')
+    }
+    ordersStore.setFilters(fil);
+  }
+}
+
+const clearAllSearchTags = () =>{
+  searchTags.value = []
+  const fil = {
+      ...filters.value,
+      query:searchTags.value.join(',')
+    }
+    ordersStore.setFilters(fil);
 }
 
 function getSearchHistory() {
@@ -194,6 +228,13 @@ async function addMultipleToCart(values: any) {
               orders-search(:config="userFilterConfig" :filters="filters" @search="search")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
+          .search-tag
+            .tag(v-for="(tag ,index) in searchTags" :key="tag")
+              span {{tag}}
+              span.pi.pi-times.icon(@click="clearSearchTags(index)") 
+            .tag(v-if="searchTags.length > 0")
+              span Clear All
+              span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(:config="config" :data="orders" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
         @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" )
     router-view
@@ -223,4 +264,29 @@ async function addMultipleToCart(values: any) {
     display: flex
     align-content: flex-end
     align-items: center
+.search-tag
+  display: flex
+  align-items: center
+  justify-content: flex-start
+  gap: 1rem
+  padding: 0.5rem
+  flex-wrap: wrap
+  background: #f8f9fa
+  .tag
+    display: flex
+    align-items: baseline
+    justify-content: space-between
+    background: rgba(45,42,38,.1)
+    padding: 0.5rem
+    border-radius: 15px
+    border: 1px solid rgba(45,42,38,.1)
+    font-size: .9rem
+    font-weight: 500
+    line-height: 1
+    gap:.6rem
+    &:last-child
+      margin-left: 2rem
+    .icon
+      font-size: .8rem
+      cursor: pointer
 </style>
