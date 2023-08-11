@@ -47,6 +47,7 @@ function generateOrder(i) {
     plateType: "",
     customerContacts: faker.helpers.arrayElement([{ shippingAddres: 'test address' }, { shippingAddres: 'test address2' }]),
     expectedDate: faker.date.recent(),
+    priceMatrixItemId: null
   }
 }
 

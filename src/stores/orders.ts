@@ -139,6 +139,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
+          this.selectedOrder.priceMatrixItemId = details.priceMatrixItemId;
         }
         console.log(this.selectedOrder);
         this.loadingOrder = false;
