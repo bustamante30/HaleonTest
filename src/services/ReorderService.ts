@@ -45,6 +45,7 @@ interface Color {
     custImageIdNo: string;
     imageCarrierId: string;
     sets: number;
+    originalSets: number;
     plateTypeId: number;
     plateTypeDescription: string;
     plateThicknessId: number;
@@ -120,6 +121,7 @@ class ReorderService {
                 plateTypeId: color.plateTypeId,
                 sequenceNumber: color.sequenceNumber,
                 sets: color.sets,
+                originalSets: color.sets,
                 colourType: color.colourType,
                 isNew: color.isNew,
                 commonColourRef: color.commonColourRef,
@@ -291,6 +293,7 @@ class ReorderService {
     public static decorateColours(colors: Color[] | undefined){
         if(colors)
             colors.forEach(color =>{
+                color.originalSets = color.sets
                 color.colourTypeDesc = this.getColorType(color.colourType)
                 color.newColour = color.isNew? "New":"Common"
             })

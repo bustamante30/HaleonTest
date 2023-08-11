@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onBeforeMount, watch } from "vue";
+import { ref, computed } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTable.vue'
 import config from '@/data/config/color-table-edit'
