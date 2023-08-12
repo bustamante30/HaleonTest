@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, provide, reactive, ref, onMounted, onUpdated } from "vue";
+import { computed, onBeforeMount, provide, ref, onUpdated } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -80,8 +80,8 @@ onBeforeMount(() => {
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
 });
-onUpdated(()=>{
-  const statusList:any = document.getElementById("statusListbox")?.getElementsByTagName("Ul")[0];
+onUpdated(() => {
+  const statusList:any = document.getElementsByTagName("Ul")[0];
   if(statusList){
     statusList.style.display="flex";
     statusList.style["overflow-y"]="hidden";
