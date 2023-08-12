@@ -33,12 +33,16 @@ import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 import RadioButton from 'primevue/radiobutton';
 
+import ConfirmationService from 'primevue/confirmationservice';
+import ConfirmDialog from 'primevue/confirmdialog';
+
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(PrimeVue)
 app.use(router)
 app.use(ToastService)
+app.use(ConfirmationService)
 
 // UI Components - No Business Logic
 app.component('SgsButton', Button)
@@ -67,4 +71,5 @@ app.component('PrimePagination',Paginator)
 app.component('PrimeTextarea', Textarea)
 app.component('PrimeToast', Toast)
 app.component('PrimeRadiobutton',RadioButton)
+app.component('PrimeConfirmDialog', ConfirmDialog)
 app.mount('#app')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, provide, reactive, ref, onMounted } from "vue";
+import { computed, onBeforeMount, provide, reactive, ref, onMounted, onUpdated } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -13,7 +13,11 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import SendPm from "@/components/orders/SendToPm.vue";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from 'primevue/usetoast';
 
+const toast = useToast();
+const confirm = useConfirm();
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
@@ -76,7 +80,7 @@ onBeforeMount(() => {
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
 });
-onMounted(()=>{
+onUpdated(()=>{
   const statusList:any = document.getElementById("statusListbox")?.getElementsByTagName("Ul")[0];
   if(statusList){
     statusList.style.display="flex";
@@ -167,17 +171,29 @@ function sendToPm(form: any) {
 }
 
 async function addToCart(order: any) {
-  if (confirm("do you want to add more items from the dashboard?")) {
-    order.selected = true;
-    showMultipleSelection.value = true;
-  } else {
-    ordersStore.loadingOrders=true;
-    let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-    if (await ordersStore.addToCart(orderToAdd)) {
-      alert("Order added to the cart successfully");
-    }
-    ordersStore.loadingOrders=false;
-  }
+  confirm.require({
+    message: "Do you want to add more items to cart?",
+    header: "Add items to Cart",
+    icon: 'pi pi-info-circle',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      order.selected = true;
+      showMultipleSelection.value = true;
+    },
+    reject: async () => {
+      ordersStore.loadingOrders=true;
+      let orderToAdd = await ordersStore.getOrderById(order.sgsId);
+      if (await ordersStore.addToCart(orderToAdd)) {
+        toast.add({
+                severity: 'success',
+                summary: 'Order added to the cart successfully',
+                life: 5000,
+              })
+      }
+      ordersStore.loadingOrders=false;
+    },
+  });
 }
 function reorder(order: any) {
   ordersStore.reorder(order);
@@ -193,7 +209,11 @@ async function addMultipleToCart(values: any) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     if (!(await ordersStore.addToCart(orderToAdd))) {
-      alert("Error adding some orders to the cart");
+      toast.add({
+                severity: 'error',
+                summary: 'Error adding some orders to the cart',
+                life: 5000,
+              })
       ordersToAdd.forEach((order) => {
         order.selected = false;
       });
@@ -203,7 +223,11 @@ async function addMultipleToCart(values: any) {
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  alert("Orders added to the cart successfully");
+  toast.add({
+                severity: 'success',
+                summary: ordersToAdd.length+' Orders added to the cart successfully',
+                life: 5000,
+              })
   ordersStore.loadingOrders=false;
 }
 </script>
@@ -237,6 +261,11 @@ async function addMultipleToCart(values: any) {
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(:config="config" :data="orders" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
         @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" )
+      prime-confirm-dialog
+        template(#message="slotProps")
+          div.dialogLayout
+            i(:class="slotProps.message.icon" style="font-size: 1.5rem;margin-right:0.5rem;")
+            p(:class="pl-2") {{ slotProps.message.message }}
     router-view
 </template>
 
@@ -289,4 +318,8 @@ async function addMultipleToCart(values: any) {
     .icon
       font-size: .8rem
       cursor: pointer
+.dialogLayout
+  display: flex
+  align-items: center
+  margin: 1rem
 </style>
