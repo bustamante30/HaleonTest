@@ -103,7 +103,7 @@ async function submit() {
     );
   } else {
     (sendUpload as any).value = [];
-    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any)
+    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location)
     await sendToPmstore.submitorder(sendForm.value)
     emit('submit', sendForm);
   }
@@ -251,7 +251,7 @@ async function onDeleteClick(name: string) {
               strong {{printerName}}
             .f
               label(for="location") Location
-              prime-dropdown(:options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="printerLocationId")
+              prime-dropdown(:options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="locationId")
         .divider
         h4 Items Details
         .fields
