@@ -1,55 +1,71 @@
 <script setup>
-import { ref, computed } from 'vue'
-import ColorsTable from '@/components/orders/ColorsTable.vue'
-import config from '@/data/config/color-table-edit'
-import { useColorsStore } from '@/stores/colors'
-import router from '@/router'
+import { ref, computed } from "vue";
+import ColorsTable from "@/components/orders/ColorsTable.vue";
+import config from "@/data/config/color-table-edit";
+import { useColorsStore } from "@/stores/colors";
+import router from "@/router";
 import { useOrdersStore } from "@/stores/orders";
+import { useConfirm } from "primevue/useconfirm";
+import { useNotificationsStore } from '@/stores/notifications'
+
 defineProps({
   order: {
     type: Object,
-    default: () => { }
-  }
-})
+    default: () => {},
+  },
+});
 
-const colorsStore = useColorsStore()
-const colors = computed(() => order.colors)
-const isSpecsVisible = ref(false)
-    const ordersStore = useOrdersStore()
+const notificationsStore = useNotificationsStore()
+const confirm = useConfirm();
+const colorsStore = useColorsStore();
+const colors = computed(() => order.colors);
+const isSpecsVisible = ref(false);
+const ordersStore = useOrdersStore();
 
 function toggleColors() {
-  isSpecsVisible.value = !isSpecsVisible.value
+  isSpecsVisible.value = !isSpecsVisible.value;
 }
 
 function goto(path) {
-  router.push(path)
-    }
-    function getShippingAddress(order) {
-        if (!order.customerContacts) {
-            return "No printer site provided"
-        }
-        return order.customerContacts[0].shippingAddress ? order.customerContacts[0].shippingAddress: ""
-    }
-    async function discardOrder(order) {
-        if(confirm('Are you sure you want to discard this draft?')){
-            let result = await ordersStore.discardOrder(order.id)
-            if (!result) {
-                alert('Error discarding order')
-            }
-            else {
-                const index = ordersStore.cartOrders.indexOf(order, 0);
-                if (index > -1) {
-                    ordersStore.cartOrders.splice(index, 1);
-                    ordersStore.cartCount = ordersStore.cartCount - 1
-                    if(ordersStore.cartCount === 0){
-                        const form = document.querySelector(".page.cart")
-                        form.style.display = "none"
-                    }
-                }
-                alert('Draft discarded successfully')
-            }
-        }
-    }
+  router.push(path);
+}
+function getShippingAddress(order) {
+  if (!order.customerContacts) {
+    return "No printer site provided";
+  }
+  return order.customerContacts[0].shippingAddress
+    ? order.customerContacts[0].shippingAddress
+    : "";
+}
+async function discardOrder(order) {
+  confirm.require({
+    message: "Are you sure you want to discard this draft?",
+    header: "Confirmation - Discard Draft",
+    icon: 'pi pi-info-circle',
+    acceptClass: 'p-button-danger',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      let result = await ordersStore.discardOrder(order.id)
+      if (!result) {
+        notificationsStore.addNotification(`Error`, 'Error Discarding the order', { severity: 'error' })
+      }
+      else {
+          const index = ordersStore.cartOrders.indexOf(order, 0);
+          if (index > -1) {
+              ordersStore.cartOrders.splice(index, 1);
+              ordersStore.cartCount = ordersStore.cartCount - 1
+              if(ordersStore.cartCount === 0){
+                  const form = document.querySelector(".page.cart")
+                  form.style.display = "none"
+              }
+          }
+          notificationsStore.addNotification(`Sucess`, 'Draft discarded successfully', { severity: 'success' })
+      }
+    },
+    reject: () => {},
+  });
+}
 </script>
 <template lang="pug">
 .cart-order
