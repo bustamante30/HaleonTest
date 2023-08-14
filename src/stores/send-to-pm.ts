@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useNotificationsStore } from './notifications'
 import SuggesterService from "@/services/SuggesterService";
 import SendToPMService from "@/services/SendToPmService";
-import type { SearchRequestDto } from  '../models/SearchRequestDto';
+import type { SearchRequestDto,SearchRequestSendToPmDto } from  '../models/SearchRequestDto';
 import UserService from "@/services/userService";
 
 function timeout(ms: number) {
@@ -76,8 +76,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       this.imageCarrierCodeTypes= await SendToPMService.getCodeTypeList();
      },
 
-     async getPmusersForLocation(printerId: number){
-      const searchRequest: SearchRequestDto = {
+     async getPmusersForLocation(printerId: number,printerLocationId: number){
+      const searchRequest: SearchRequestSendToPmDto = {
         searchText: "",
         pageNumber: 1,
         pageCount: 100,
@@ -87,6 +87,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         printerId: printerId,
         userId: 0,
         userTypeKey: "INT",
+        roleKey:"PMUser",
+        locationId: printerLocationId
       };
       console.log("userSearchReq:" + searchRequest);
       const usersResponse = await UserService.searchUser(searchRequest);
