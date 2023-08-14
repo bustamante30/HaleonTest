@@ -6,14 +6,16 @@ import { useColorsStore } from "@/stores/colors";
 import router from "@/router";
 import { useOrdersStore } from "@/stores/orders";
 import { useConfirm } from "primevue/useconfirm";
-import { useToast } from 'primevue/usetoast';
+import { useNotificationsStore } from '@/stores/notifications'
+
 defineProps({
   order: {
     type: Object,
     default: () => {},
   },
 });
-const toast = useToast();
+
+const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const colorsStore = useColorsStore();
 const colors = computed(() => order.colors);
@@ -46,11 +48,7 @@ async function discardOrder(order) {
     accept: async () => {
       let result = await ordersStore.discardOrder(order.id)
       if (!result) {
-        toast.add({
-                severity: 'error',
-                summary: 'Error Discarding the order',
-                life: 5000,
-              })
+        notificationsStore.addNotification(`Error`, 'Error Discarding the order', { severity: 'error' })
       }
       else {
           const index = ordersStore.cartOrders.indexOf(order, 0);
@@ -62,11 +60,7 @@ async function discardOrder(order) {
                   form.style.display = "none"
               }
           }
-          toast.add({
-                severity: 'success',
-                summary: 'Draft discarded successfully',
-                life: 5000,
-              })
+          notificationsStore.addNotification(`Sucess`, 'Draft discarded successfully', { severity: 'success' })
       }
     },
     reject: () => {},

@@ -14,9 +14,9 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import SendPm from "@/components/orders/SendToPm.vue";
 import { useConfirm } from "primevue/useconfirm";
-import { useToast } from 'primevue/usetoast';
+import { useNotificationsStore } from '@/stores/notifications'
 
-const toast = useToast();
+const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
@@ -185,11 +185,7 @@ async function addToCart(order: any) {
       ordersStore.loadingOrders=true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       if (await ordersStore.addToCart(orderToAdd)) {
-        toast.add({
-                severity: 'success',
-                summary: 'Order added to the cart successfully',
-                life: 5000,
-              })
+        notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
       }
       ordersStore.loadingOrders=false;
     },
@@ -209,11 +205,7 @@ async function addMultipleToCart(values: any) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     if (!(await ordersStore.addToCart(orderToAdd))) {
-      toast.add({
-                severity: 'error',
-                summary: 'Error adding some orders to the cart',
-                life: 5000,
-              })
+      notificationsStore.addNotification(`Error`, 'Error adding some orders to the cart', { severity: 'error' })
       ordersToAdd.forEach((order) => {
         order.selected = false;
       });
@@ -223,11 +215,7 @@ async function addMultipleToCart(values: any) {
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  toast.add({
-                severity: 'success',
-                summary: ordersToAdd.length+' Orders added to the cart successfully',
-                life: 5000,
-              })
+  notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
   ordersStore.loadingOrders=false;
 }
 </script>
