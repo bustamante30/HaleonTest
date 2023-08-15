@@ -34,7 +34,7 @@ function resolvePath(config, data) {
 
 function update(value) {
   const { data, config } = props
-  emit('update', { id: data.mcgColourId, field: config.field, value: value })
+  emit('update', { id: data.jobTechSpecColourId, field: config.field, value: value })
 }
 </script>
 
