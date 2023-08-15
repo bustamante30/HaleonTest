@@ -118,7 +118,7 @@ function searchByStatus(){
   filters.value.status = selectedStatus.value.value;
   ordersStore.setFilters(filters.value);
 }
-function search(event: any) {
+function searchKeyword(event: any) {
  
   if (event) {
     searchTags.value = event.query.split(',')
@@ -130,6 +130,15 @@ function search(event: any) {
   }
   else {
     searchTags.value = []
+    ordersStore.initAdvancedFilters();
+    ordersStore.getOrders();
+  }
+}
+function search(filters: any) {
+  searchTags.value = []
+  filters.query =  ''
+  if (filters) ordersStore.setFilters(filters);
+  else {
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
   }
@@ -237,7 +246,7 @@ async function addMultipleToCart(values: any) {
             div
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
-              orders-search(:config="userFilterConfig" :filters="filters" @search="search")
+              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
           .search-tag

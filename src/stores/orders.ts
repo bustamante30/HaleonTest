@@ -4,6 +4,9 @@ import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import filterStore from "@/stores/filterStore";
 import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -150,6 +153,30 @@ export const useOrdersStore = defineStore("ordersStore", {
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };
       this.loadingOrders = true;
+      let printers = [] as string[]
+      let printerIds = [] as number[]
+          
+      const authStore = useAuthStore();
+      const b2cAuth = useB2CAuthStore();
+      if(authStore.currentUser.isLoggedIn){
+          // get printer Name 
+        
+          authStore.currentUser.prtLocation.forEach((printer:any) =>{
+              if(printer.printerId && printer.printerId > 0){
+                printers.push(printer.printerName)
+                printerIds.push(printer.printerId)
+              }
+          })
+        
+      }
+      if(b2cAuth.currentB2CUser.isLoggedIn){
+        b2cAuth.currentB2CUser.prtLocation.forEach((printer:any) =>{
+          if(printer.printerId && printer.printerId > 0){
+            printers.push(printer.printerName)
+            printerIds.push(printer.printerId)
+          }
+      })
+    }
       const result = await ReorderService.getRecentReorders(
         filters.status,
         filters.query,
@@ -158,7 +185,9 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.pageState.page,
         this.pageState.rows,
         filters,
-        filterStore
+        filterStore,
+        printers,
+        printerIds
       );
       if (Array.isArray(result)) {
         this.orders = [];
