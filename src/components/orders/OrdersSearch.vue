@@ -21,7 +21,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["search"]);
+const emit = defineEmits(["search" ,"searchkeyword"]);
 const searchhistoryStore = useSearchhistoryStore()
 const searchDate = computed(() => searchhistoryStore.searchDate);
 const searchHistory = computed(() => searchhistoryStore.searchHistory);
@@ -30,7 +30,7 @@ const searchedValue = ref();
 const dateRefId = ref("");
 const notificationsStore = useNotificationsStore()
 
-const items = computed(() => []);
+
 
 const searchValue = computed(() => props.value);
 
@@ -47,8 +47,9 @@ async function handleFocus(item) {
   filteredSuggestions.value = searchHistory.value.map(x => x.value)
 } 
 
-const search = debounce(async(event)=> {
+const keywordSearch =  debounce(async(event)=> {
   console.log('API from Search',event?.query)
+  loadingSuggestions.value = false;
   isFiltersVisible.value = false;
   if ((event.query && event.query !== "") || (event.value &&event.value !== "")) {
     event.query = event.query? event.query : event.value
@@ -56,7 +57,7 @@ const search = debounce(async(event)=> {
       console.log('API from Search',event?.query)
       //should be a non blocking add history call 
       searchhistoryStore.setKeywordSearchHistory(event?.query, false);
-    emit("search", event);
+    emit("searchkeyword", event);
   }else{ 
     // Notify User
     notificationsStore.addNotification(
@@ -65,15 +66,22 @@ const search = debounce(async(event)=> {
         { severity: 'error', position: 'top-right' }
       );
   }
-  } else {
-    handleFocus(event.query)
   }
-
 
 },350)
 
+
+async function search(filters) {
+  isFiltersVisible.value = false;
+  if (filters.query !== "") {
+    emit("search", filters);
+  } else {
+    handleFocus(filters.query)
+  }
+}
+
 async function addToHistory() {
-  loadingSuggestions.value = true;
+  // loadingSuggestions.value = true;
   if (searchedValue.value) {
     console.log('API from addToHistory')
     await searchhistoryStore.setKeywordSearchHistory(searchedValue.value, false);
@@ -86,7 +94,6 @@ async function addToHistory() {
 const validateSearch = (text) =>{
   // Allowed chars are - Alpha numeric , given special chars and spaces 
     const regex = /^[-_\/#.,+&():;<>\)\"a-zA-Z0-9\s]+$/
-console.log('saerch Text ',text)
     return regex.test(text)
 }
 
@@ -100,7 +107,7 @@ function toggleFilters() {
   .search
     .input
       prime-auto-complete.search-input(v-model="searchedValue" :suggestions="filteredSuggestions" 
-      @keyup.enter="addToHistory()"  @change="search"
+      @keyup.enter="keywordSearch($event)" @complete="keywordSearch" completeOnFocus forceSelection @focus="handleFocus" @item-select="keywordSearch"
       placeholder="Search by plate code, item code, UPC code..." :loading="loadingSuggestions")
       span.material-icons.outline search
     span.separator
