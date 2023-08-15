@@ -55,10 +55,14 @@ const props = defineProps({
   filters: {
     type: Object,
     default: () => { },
+  },
+  printerName: {
+    type: String,
+    default: "" 
   }
 });
 
-const user = { isExternal: false }
+const user = { isExternal: props.printerName.length>0 }
 const searchhistoryStore = useSearchhistoryStore()
 const ordersStore = useOrdersStore()
 let formattedDates: Ref<{ id: any; date: string; }[]> = ref([])
@@ -101,6 +105,10 @@ const closeForm = () => {
 onBeforeMount(async () => {
   ordersStore.resetFilters();
   (advancedFilters as any).value = { ...(props.filters) };
+  if(props.printerName.length>0){
+    advancedFilters.value["printerName"] = props.printerName;
+    searchPrinterSites();
+  }
   await searchhistoryStore.getSearchDate(true).then(() => { formatDate() });
   await searchhistoryStore.getSearchField();
 });
@@ -148,7 +156,7 @@ async function handleDateClick(dateRefId: number): Promise<void> {
 function reset() {
   advancedFilters.value["itemNumber"] = null;
   advancedFilters.value["orderDate"] = [];
-  advancedFilters.value["printerName"] = null;
+  advancedFilters.value["printerName"] = props.printerName.length>0? props.printerName : null;
   advancedFilters.value["printerSite"] = null;
   advancedFilters.value["printerReference"] = null;
   advancedFilters.value["poNumber"] = null;
@@ -159,6 +167,7 @@ function reset() {
   advancedFilters.value["imageCarrierCode"] = null;
   advancedFilters.value["printerPlateCode"] = null;
   advancedFilters.value["startDate"] = [];
+  searchPrinterSites()
   ordersStore.resetFilters()
 }
 
