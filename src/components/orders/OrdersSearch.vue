@@ -4,6 +4,7 @@ import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import { debounce } from "lodash";
 import { useNotificationsStore } from '@/stores/notifications'
+import { useB2CAuthStore } from "@/stores/b2cauth";
 const props = defineProps({
   config: {
     type: Object,
@@ -20,7 +21,8 @@ const props = defineProps({
     defulat:null
   }
 });
-
+const authb2cStore = useB2CAuthStore();
+const printerName = computed(()=> authb2cStore.currentB2CUser.isLoggedIn? authb2cStore.currentB2CUser.printerName: "")
 const emit = defineEmits(["search"]);
 const searchhistoryStore = useSearchhistoryStore()
 const searchDate = computed(() => searchhistoryStore.searchDate);
@@ -106,7 +108,7 @@ function toggleFilters() {
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
-    advanced-search(:sections="config.sections" :filters="filters" @search="search")
+    advanced-search(:sections="config.sections" :filters="filters" :printerName="printerName" @search="search")
 </template>
 
 <style lang="sass" scoped>
