@@ -16,11 +16,11 @@ export default {
       header: "SGS Colour",
       field: "colourName",
       freeze: "left",
-      width: 12,
+      width: 5,
     },
     {
       header: "Printer Plate Code",
-      field: "imageCarrierId",
+      field: "serialNumber",
       freeze: "left",
       width: 8,
     },

@@ -6,11 +6,11 @@ import AppLogo from "@/components/common/AppLogo.vue";
 .page.login
   app-logo.logo
   main
-    h1 Access Denied
+    h1 Having Trouble?
     p
-      | You are not authorized to access the application.
+      | You have not been authorized to access this application.
       br/
-      | Please contact SGS helpdesk to access this application
+      | Please contact SGS help desk or your administrator to access this application.
 </template>
 
 <style lang="sass" scoped>
@@ -26,7 +26,7 @@ import AppLogo from "@/components/common/AppLogo.vue";
     margin: $s4 auto $s
 
   main
-    width: 30rem
+    width: 40rem
     min-height: 0rem
     padding: $s3
     margin: $s3 auto

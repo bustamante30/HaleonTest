@@ -37,7 +37,7 @@ interface SubmitReorder {
     CustomerContacts: CustomerContact[];
 }
 interface Color {
-    mcgColourId: number;
+    jobTechSpecColourId: number;
     colourName: string;
     sequenceNumber: number;
     clientPlateColourRef: string;
@@ -114,7 +114,7 @@ class ReorderService {
                 custCarrierIdNo: color.custCarrierIdNo,
                 custImageIdNo: color.custImageIdNo,
                 imageCarrierId: color.imageCarrierId,
-                mcgColourId: color.mcgColourId,
+                jobTechSpecColourId: color.jobTechSpecColourId,
                 plateThicknessDescription: color.plateThicknessDescription,
                 plateThicknessId: color.plateThicknessId,
                 plateTypeDescription: color.plateTypeDescription,
