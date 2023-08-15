@@ -52,26 +52,24 @@ function setDefaultValues(obj, defaultValue) {
 
 onMounted(() => {
   let colorData = (props.data && props.data.filter(x => x.sets > 0))
-  // colorData.forEach((color) => {
-  //   setDefaultValues(color, 'N/A')
-  // })
+
   selected.value = [...colorData]
 })
 
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
-    const prevColorIds = prevColors && prevColors.map(c => c.mcgColourId)
-    const colorIds = colors.map(c => c.mcgColourId)
+    const prevColorIds = prevColors && prevColors.map(c => c.jobTechSpecColourId)
+    const colorIds = colors.map(c => c.jobTechSpecColourId)
     // If color added sets = 1
     colors.forEach((color) => {
-      if (prevColorIds && !prevColorIds.includes(color.mcgColourId) && color.sets < 1) {
-        updateColor({ id: color.mcgColourId, field: 'sets', value: 1 })
+      if (prevColorIds && !prevColorIds.includes(color.jobTechSpecColourId) && color.sets < 1) {
+        updateColor({ id: color.jobTechSpecColourId, field: 'sets', value: 1 })
       }
     })
     // If color removed sets = 0
     prevColors && prevColors.forEach((color) => {
-      if (!colorIds.includes(color.mcgColourId)) {
-        updateColor({ id: color.mcgColourId, field: 'sets', value: 0 })
+      if (!colorIds.includes(color.jobTechSpecColourId)) {
+        updateColor({ id: color.jobTechSpecColourId, field: 'sets', value: 0 })
       }
     })
   }
@@ -84,7 +82,7 @@ function updateColor({ id, field, value }) {
 </script>
 
 <template lang="pug">
-data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="mcgColourId" :lazy="true" :loading="loading")
+data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="jobTechSpecColourId" :lazy="true" :loading="loading")
   template(#loading)
     i.pi.pi-spin.pi-cog.spinning
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")

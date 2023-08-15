@@ -27,11 +27,14 @@ onMounted(async () => {
     ordersStore.cartCount = ordersStore.cartCount - 1;
   }
 });
-function back() {
+
+async function handleClose() {
   const form = document.querySelector(".page.success");
   if (form) {
     form.style.display = "none";
   }
+  await router.push(`/dashboard`);
+  await ordersStore.getOrders();
 }
 
 watch(ordersStore.selectedOrder, (value) => {
@@ -93,7 +96,7 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
-          sgs-button(label="Close" @click="back()")
+          sgs-button(label="Close" @click="handleClose()")
 </template>
 
 <style lang="sass" scoped>

@@ -247,7 +247,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     async updateColor({ id, field, value }: any) {
       const colors = this.selectedOrder["colors"];
       const colorIndex = colors.findIndex(
-        (color: any) => color.mcgColourId == id
+        (color: any) => color.jobTechSpecColourId == id
       );
       (this.selectedOrder.colors[colorIndex] as any)[field] = value;
       (this.selectedOrder.colors[colorIndex] as any)['originalSets'] = value;
