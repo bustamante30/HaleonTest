@@ -75,11 +75,7 @@ const keywordSearch =  debounce(async(event)=> {
 
 async function search(filters) {
   isFiltersVisible.value = false;
-  if (filters.query !== "") {
-    emit("search", filters);
-  } else {
-    handleFocus(filters.query)
-  }
+  emit("search", filters);
 }
 
 async function addToHistory() {
