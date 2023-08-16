@@ -7,7 +7,6 @@ import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 
-
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     pageState: {
@@ -155,7 +154,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loadingOrders = true;
       let printers = [] as string[]
       let printerIds = [] as number[]
-          
       const authStore = useAuthStore();
       const b2cAuth = useB2CAuthStore();
       if(authStore.currentUser.isLoggedIn){
@@ -323,5 +321,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    
   },
 });

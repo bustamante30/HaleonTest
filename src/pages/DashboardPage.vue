@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, provide, ref, onUpdated } from "vue";
+import { computed, watch, provide, ref, onUpdated, onMounted } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -23,6 +23,8 @@ const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
 
+const currentUser = computed(() => authStore.currentUser);
+const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
 const userType = computed(() => {
   const currentUser = authStore.currentUser;
   if (currentUser.email !== "" && currentUser.userType != null) {
@@ -74,11 +76,17 @@ const showMultipleSelection = ref(false);
 const searchTags =ref([])
 
 provide("options", options);
-
-onBeforeMount(() => {
+watch(currentUser, (value) => {
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
+});
+watch(currentB2CUser, (value) => {
+  if (authb2cStore.currentB2CUser) {
+    ordersStore.initAdvancedFilters();
+    selectedStatus.value = statusList.value[0];
+    changeDateFilter(dateFilter.value[0]);
+  }
 });
 onUpdated(() => {
   const statusList:any = document.getElementsByTagName("Ul")[0];
@@ -110,12 +118,20 @@ function changeDateFilter(dtFilter: any) {
   ordersStore.resetFilters()
   filters.value.startDate = dtFilter.value;
   filters.value.status = selectedStatus.value.value;
+  addPrinterFilter()
   ordersStore.setFilters(filters.value);
+}
+function addPrinterFilter(){
+  console.log('printer: '+authb2cStore.currentB2CUser.printerName)
+  const printerName = authb2cStore.currentB2CUser.isLoggedIn? authb2cStore.currentB2CUser.printerName: null
+  if(printerName && !filters.value.printerName)
+    filters.value.printerName = printerName 
 }
 function searchByStatus(){
   ordersStore.resetFilters()
   filters.value.startDate = selectedDate.value;
   filters.value.status = selectedStatus.value.value;
+  addPrinterFilter()
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
@@ -126,6 +142,7 @@ function searchKeyword(event: any) {
       ...filters.value,
       query:event.query
     }
+    addPrinterFilter()
     ordersStore.setFilters(fil);
   }
   else {
@@ -137,7 +154,10 @@ function searchKeyword(event: any) {
 function search(filters: any) {
   searchTags.value = []
   filters.query =  ''
-  if (filters) ordersStore.setFilters(filters);
+  if (filters) {
+    addPrinterFilter()
+    ordersStore.setFilters(filters);
+  }
   else {
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
@@ -152,6 +172,7 @@ const clearSearchTags = (index: number) =>{
       ...filters.value,
       query:searchTags.value.join(',')
     }
+    addPrinterFilter()
     ordersStore.setFilters(fil);
   }
 }
@@ -162,6 +183,7 @@ const clearAllSearchTags = () =>{
       ...filters.value,
       query:searchTags.value.join(',')
     }
+    addPrinterFilter()
     ordersStore.setFilters(fil);
 }
 

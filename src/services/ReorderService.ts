@@ -155,7 +155,8 @@ class ReorderService {
         sortOrder?: string,
         page?: number,
         pageSize?: number, advancedSearchParameters?: any, columnFilters? : any, printerNames?:string[], printerIds?:number[]) {
-        let params = {}
+        debugger
+            let params = {}
         if (query=="") {
              params = {
                 "status" :status,
