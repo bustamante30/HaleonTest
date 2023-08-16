@@ -169,7 +169,8 @@ class ReorderService {
                 "orderStatusId": status,
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
-                "printerName":printerNames?printerNames : []
+                "printerName":printerNames?printerNames : [],
+                "roleKey": advancedSearchParameters.roleKey
             }
         }
        else {
@@ -185,7 +186,8 @@ class ReorderService {
                 "orderStatusId": status,
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
-                "printerName":printerNames?printerNames : []
+                "printerName":printerNames?printerNames : [],
+                "roleKey": advancedSearchParameters.roleKey
             }
         }
 

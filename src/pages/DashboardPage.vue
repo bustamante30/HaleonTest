@@ -77,9 +77,11 @@ const searchTags =ref([])
 
 provide("options", options);
 watch(currentUser, (value) => {
-  ordersStore.initAdvancedFilters();
-  selectedStatus.value = statusList.value[0];
-  changeDateFilter(dateFilter.value[0]);
+  if (authStore.currentUser) {
+    ordersStore.initAdvancedFilters();
+    selectedStatus.value = statusList.value[0];
+    changeDateFilter(dateFilter.value[0]);
+  }
 });
 watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser) {
