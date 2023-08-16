@@ -146,14 +146,12 @@ function search(filters: any) {
 
 const clearSearchTags = (index: number) =>{
   searchTags.value.splice(index,1)
-  if(searchTags.value.length > 0){
-    // Two way binding needed?
-    const fil = {
-      ...filters.value,
-      query:searchTags.value.join(',')
-    }
-    ordersStore.setFilters(fil);
+  const fil = {
+    ...filters.value,
+    query:searchTags.value.join(',')
   }
+  ordersStore.setFilters(fil);
+
 }
 
 const clearAllSearchTags = () =>{
