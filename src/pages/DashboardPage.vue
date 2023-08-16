@@ -101,22 +101,38 @@ function getDateFilter() {
   let threeMonthsDate = new Date();
   threeMonthsDate.setMonth(new Date().getMonth() - 3);
   let filter = [];
-  filter.push({ label: "last 3 months", value: [threeMonthsDate, new Date()] });
+  filter.push({ label: "last 3 months", value: "last 3 months" });
   let sixMonthsFilter = new Date();
   sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-  filter.push({ label: "last 6 months", value: [sixMonthsFilter, new Date()] });
+  filter.push({ label: "last 6 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
       label: i.toString(),
-      value: [new Date(i, 0, 1), new Date(i + 1, 0, 1)],
+      value: i.toString(),
     });
   }
   return filter;
 }
+function getDateRange(filter: string) {
+  switch(filter)
+  {
+    case "last 3 months":
+      let threeMonthsDate = new Date();
+      threeMonthsDate.setMonth(new Date().getMonth() - 3); 
+      return [threeMonthsDate, new Date()] 
+    case "last 6 months":
+      let sixMonthsFilter = new Date();
+      sixMonthsFilter.setMonth(new Date().getMonth() - 6);
+      return [sixMonthsFilter, new Date()] 
+    default:
+      let i = parseInt(filter)
+      return [new Date(i, 0, 1), new Date(i + 1, 0, 1)]
+  }
+}
 function changeDateFilter(dtFilter: any) {
+  
   selectedDate.value = dtFilter.value;
-  ordersStore.resetFilters()
-  filters.value.startDate = dtFilter.value;
+  filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
@@ -129,7 +145,7 @@ function addPrinterFilter(){
 }
 function searchByStatus(){
   ordersStore.resetFilters()
-  filters.value.startDate = selectedDate.value;
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
@@ -166,15 +182,13 @@ function search(filters: any) {
 
 const clearSearchTags = (index: number) =>{
   searchTags.value.splice(index,1)
-  if(searchTags.value.length > 0){
-    // Two way binding needed?
-    const fil = {
-      ...filters.value,
-      query:searchTags.value.join(',')
-    }
-    addPrinterFilter()
-    ordersStore.setFilters(fil);
+  const fil = {
+    ...filters.value,
+    query:searchTags.value.join(',')
   }
+  addPrinterFilter()
+  ordersStore.setFilters(fil);
+
 }
 
 const clearAllSearchTags = () =>{
