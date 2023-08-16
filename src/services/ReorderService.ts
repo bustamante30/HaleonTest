@@ -55,11 +55,13 @@ interface Color {
     newColour?: string;
     commonColourRef: string;
     isActive: boolean;
+    jobTechSpecColourId: string;
 }
+
 interface CustomerContact {
     alias: string;
     customerContactId: string;
-    customerId: string;
+    sgsCustomerId: string;
     customerName: string;
     shippingAddress: string;
     siteName: string;
@@ -123,7 +125,8 @@ class ReorderService {
                 colourType: color.colourType,
                 isNew: color.isNew,
                 commonColourRef: color.commonColourRef,
-                isActive: isActiveColor
+                isActive: isActiveColor,
+                jobTechSpecColourId: color.jobTechSpecColourId
             })
         })
         reorderInfo.customerContacts.forEach((contact: any) => {
@@ -131,7 +134,7 @@ class ReorderService {
                 {
                     alias: contact.alias,
                     customerContactId: contact.customerContactId,
-                    customerId: contact.customerId,
+                    sgsCustomerId: contact.customerId,
                     customerName: contact.customerName,
                     siteName: contact.siteName,
                     shippingAddress: contact.shippingAddress ? contact.shippingAddress : "",
