@@ -53,7 +53,7 @@ export default {
     },
   ],
   plates: {
-    dataKey: 'plateTypeId',
+    dataKey: 'id',
     cols: [
       {
         header: 'Plate Type',

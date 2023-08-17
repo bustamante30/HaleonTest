@@ -23,3 +23,21 @@ function generateColors(count) {
 }
 
 export default generateColors(8)
+
+
+
+// totalSets computed
+
+// Select all should populate sets = 1. Select none .... sets = 0
+// Mixed should not appear as a dropdown option
+// Platethickness via API
+// Validation: totalSets 10
+// Validation: do not repeat platetype within colour
+
+// Remove last platetype within colour????
+// column widths??? Table width: 100%
+// Flatten plateTypeDescription for POST, Other screens
+
+// Loading spinner ???
+
+//Reorder and Add to cart button disabled when no rows selected

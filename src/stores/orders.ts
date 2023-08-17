@@ -1,5 +1,6 @@
 import ordersData from "@/data/mock/orders";
 import { plateTypes } from '@/data/mock/plate-types'
+import { faker } from '@faker-js/faker';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
@@ -7,6 +8,8 @@ import filterStore from "@/stores/filterStore";
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { sum } from 'lodash';
+import { toRaw } from 'vue';
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -283,23 +286,72 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     // color update flow
     async updateColor({ id, field, value }: any) {
-      // const colors = this.selectedOrder["colors"];
-      // const colorIndex = colors.findIndex(
-      //   (color: any) => color.jobTechSpecColourId == id
-      // );
-      // (this.selectedOrder.colors[colorIndex] as any)[field] = value;
-      // (this.selectedOrder.colors[colorIndex] as any)['originalSets'] = value;
-      // if (
-      //   !isNaN(parseFloat(this.selectedOrder.id)) &&
-      //   isFinite(this.selectedOrder.id as any) &&
-      //   parseFloat(this.selectedOrder.id) > 0
-      // ) {
-      //   let result = await ReorderService.updateDraft(this.selectedOrder);
-      //   if (!result.success) {
-      //     alert("error updating draft");
-      //   }
-      // }
+      const colours = this.selectedOrder['colors'] as any[]
+      const selectedIndex = colours.findIndex(c => c.id === id)
+      if (selectedIndex >= 0) {
+        const colour = this.selectedOrder['colors'][selectedIndex]
+        if (colour) {
+          const plateType = [...colour.plateType].map(plate => {
+            const p = toRaw(plate)
+            return { ...p, [field]: value }
+          })
+          this.selectedOrder['colors'][selectedIndex].plateType = [...plateType]
+        }
+      }
     },
+    // Add, Remove & Update Plates
+    addPlate(params: any) {
+      const colours = this.selectedOrder['colors'] as any[]
+      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      if (selectedIndex >= 0) {
+        const colour = this.selectedOrder['colors'][selectedIndex]
+        this.selectedOrder['colors'][selectedIndex] = {
+          ...colour,
+          plateType: [
+            ...colour.plateType,
+            { id: faker.datatype.uuid(), plateTypeId: 0, plateTypeDescription: '', plateThicknessId: 0, plateThicknessDescription: '', sets: 0, isEditable: true } as any
+          ]
+        }
+      }
+    },
+    removePlate(params: any) {
+      console.log('removePlate', params)
+      const colours = this.selectedOrder['colors'] as any[]
+      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      if (selectedIndex >= 0) {
+        const colour = this.selectedOrder['colors'][selectedIndex]
+        if (colour) {
+          const plateType = colour.plateType && colour.plateType.filter((plate: any) => plate.id !== params.id)
+          this.selectedOrder['colors'][selectedIndex] = { ...colour, plateType }
+        }
+      }
+    },
+    updatePlate(params: any) {
+      console.log('updatePlate', params)
+      const colours = this.selectedOrder['colors'] as any[]
+      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      if (selectedIndex >= 0) {
+        const colour = this.selectedOrder['colors'][selectedIndex]
+        if (colour) {
+          const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
+          let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
+          console.log('plateToReplace', plateToReplace, plateToReplace?.id, params)
+          if (plateToReplace) {
+            if (params.field === 'plateTypeDescription') {
+              const value = plateTypes.find(plateType => plateType.value === params.value)
+              plateToReplace = { ...plateToReplace, [params.field]: { ...value }, sets: 1 }
+            } else {
+              plateToReplace = { ...plateToReplace, [params.field]: params.value }
+            }
+            const newPlates = plateDetails.map(plate => plate.id === plateToReplace?.id ? plateToReplace : plate)
+            this.selectedOrder['colors'][selectedIndex].plateType = [...newPlates] as any[]
+            
+            const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))
+            this.selectedOrder['colors'][selectedIndex].totalSets = totalSets
+          }
+        }
+      }
+    },    
     // Order Table Actions
     async addToCart(order: any) {
       if (await ReorderService.submitReorder(order, 1)) {
@@ -322,11 +374,17 @@ export const useOrdersStore = defineStore("ordersStore", {
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any) {
       this.selectedOrder.colors = Array.from(details.colors).map((color: any) => {
         return {
+          id: faker.datatype.uuid(),
           ...color,
+          totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
+          plateTypes: color.plateType && color.plateType.length
+            ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
+            : '',        
           plateType: color.plateType.map((plateType: any) => {
             const { plateTypeDescription } = plateType
             return {
               ...plateType,
+              id: faker.datatype.uuid(),
               plateTypeDescription: { label: plateTypeDescription, value: plateTypeDescription }
             }
           })

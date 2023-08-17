@@ -64,9 +64,9 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
-    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :disabled="!value" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else-if="config.type === 'lookup'")
-    sgs-lookup(:modelValue="value && value.value ? value.value : null" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
+    sgs-lookup(:modelValue="value && value.value ? value.value : null" :edit="data.isEditable" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
   span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
 
@@ -77,12 +77,15 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
 
 .table-cell
   +flex
-  max-width: 100%
+  width: 100%
   overflow: hidden
   text-overflow: ellipsis
   white-space: nowrap
   &.disabled
     opacity: 0.4
+  > span
+    display: inline-block
+    width: 100%
 
 
 span.badge

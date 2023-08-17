@@ -34,7 +34,7 @@ const selected = ref([])
 const expandedRows = ref([])
 
 onBeforeMount(() => {
-  if (props.isEditable) selected.value = [...props.data]
+  // if (props.isEditable) selected.value = [...props.data]
 })
 
 function stylify(width) {
@@ -44,7 +44,7 @@ function stylify(width) {
 }
 
 watch(selected, (colors, prevColors) => {
-  if (prevColors) {
+  if (prevColors && prevColors.length) {
     console.log(`selected colors ${colors && colors.length}`, colors.length, prevColors.length)
     const prevColorIds = prevColors.map(c => c.id)
     const colorIds = colors.map(c => c.id)

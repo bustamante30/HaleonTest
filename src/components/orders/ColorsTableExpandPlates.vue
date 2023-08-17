@@ -33,7 +33,7 @@ function stylify(width: any) {
 function updatePlate({ id, field, value }: { id: number, field: string, value: any }) {
   const { colourId } = props
   console.log('update plate', { colourId, id, field, value })
-  if (colourId) emit('update', { colourId, plateTypeId: id, field, value })
+  if (colourId) emit('update', { colourId, id, field, value })
 }
 
 function addPlate() {
@@ -43,12 +43,8 @@ function addPlate() {
 }
 
 function removePlate(plate: any) {
-  const { plateTypeId } = plate
-  updatePlate({ id: plateTypeId, field: 'sets', value: 0 })
-  // const { colourId, data } = props
-  // const plate = data.find((plate: { plateTypeId: any; }) => plate.plateTypeId === plateId)
-  // console.log('remove plate', { colourId, ...plate })
-  // if (colourId && plate) emit('remove', { colourId, ...plate })
+  const { id } = plate
+  updatePlate({ id, field: 'sets', value: 0 })
 }
 </script>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
 const props = defineProps({
   modelValue: {
     type: [String, Number],
@@ -43,6 +43,10 @@ const selected = computed(() => {
 
 let editMode = ref(false)
 
+onBeforeMount(() => {
+  editMode.value = props.edit
+})
+
 function update(event) {
   emit('update:modelValue', event)
   editMode.value = false
@@ -61,7 +65,7 @@ function switchToEditMode() {
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :modelValue="modelValue" @update:modelValue="update" :options="[...defaultOptions, ...options]" :optionLabel="optionLabel" :optionValue="optionValue" filter)
+  prime-dropdown(v-if="editMode" :modelValue="modelValue" @update:modelValue="update" :options="[...defaultOptions, ...options]" :optionLabel="optionLabel" :optionValue="optionValue" filter placeholder="Select Plate Type...")
   .readonly(v-else)
     span.value(v-if="selected") {{ selected.label }}
     span.no-data(v-else) No value specified
@@ -72,6 +76,7 @@ function switchToEditMode() {
 @import "@/assets/styles/includes"
 
 .lookup
+  width: 100%
   &:focus
     border: none
     outline: none
