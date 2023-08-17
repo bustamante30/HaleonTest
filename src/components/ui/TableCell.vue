@@ -2,6 +2,7 @@
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import {computed } from 'vue'
+import SgsLookup from '@/components/ui/Lookup.vue'
 
 const props = defineProps({
   config: {
@@ -12,11 +13,21 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  options: {
+    type: Object,
+    default: () => {}
+  }  
 })
 
 const emit = defineEmits(['update'])
 
 const value = computed(() => get(props.data, props.config.field))
+const isEditable = computed(() => get(props.data, 'isEditable'))
+const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
+const optionKey = computed(() => get(props.config, 'options.key') || null)
+const optionValues = computed(() => optionKey.value ? get(props.options, optionKey.value) : [])
+const optionLabelKey = computed(() => get(props.config, 'options.label') || 'label')
+const optionValueKey = computed(() => get(props.config, 'options.value') || 'value')
 
 function formatDate(date) {
   return DateTime.fromJSDate(date).toFormat('dd LLL, yyyy h:mm a')
@@ -50,7 +61,10 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
-    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :max="10" :disabled="parseInt(value)===0" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :disabled="!value" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
+  span(v-else-if="config.type === 'lookup'")
+    sgs-lookup(:modelValue="value && value.value ? value.value : null" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey" :edit="isEditable")
+  span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
   span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
 
 </template>

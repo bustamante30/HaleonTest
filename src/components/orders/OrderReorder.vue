@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import ColorsTable from './ColorsTable.vue'
+import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
 import ReorderService from "../../services/ReorderService";
@@ -20,7 +20,7 @@ const cartCount = computed(()=>ordersStore.cartCount)
 const colors = computed(() => ordersStore.selectedOrder.colors);
 const disableReorder = computed(()=>{
   const totalSets = (colors.value && colors.value.filter(x => x.sets))
-  return (!totalSets.length)
+  return !(totalSets && totalSets.length)
 })
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
@@ -135,8 +135,8 @@ function updateColor(color) {
   +container
   .container
     +fixed-e
-    width: 60vw
-    min-width: 50rem
+    width: 85vw
+    min-width: 75rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container

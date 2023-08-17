@@ -1,4 +1,5 @@
 import ordersData from "@/data/mock/orders";
+import { plateTypes } from '@/data/mock/plate-types'
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
@@ -25,6 +26,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     options: {
       locations: [] as any[],
       imageCarrierCodeTypes: [] as any[],
+      plateTypeDescription: [] as any[]
     },
     checkout: {
       expectedDate: null,
@@ -142,6 +144,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
+          
         }
         console.log(this.selectedOrder);
         this.loadingOrder = false;
@@ -263,6 +266,9 @@ export const useOrdersStore = defineStore("ordersStore", {
 
       this.resetFilters();
     },
+    async initReorderOptions() {
+      this.options.plateTypeDescription = plateTypes
+    },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
     },
@@ -274,22 +280,22 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     // color update flow
     async updateColor({ id, field, value }: any) {
-      const colors = this.selectedOrder["colors"];
-      const colorIndex = colors.findIndex(
-        (color: any) => color.jobTechSpecColourId == id
-      );
-      (this.selectedOrder.colors[colorIndex] as any)[field] = value;
-      (this.selectedOrder.colors[colorIndex] as any)['originalSets'] = value;
-      if (
-        !isNaN(parseFloat(this.selectedOrder.id)) &&
-        isFinite(this.selectedOrder.id as any) &&
-        parseFloat(this.selectedOrder.id) > 0
-      ) {
-        let result = await ReorderService.updateDraft(this.selectedOrder);
-        if (!result.success) {
-          alert("error updating draft");
-        }
-      }
+      // const colors = this.selectedOrder["colors"];
+      // const colorIndex = colors.findIndex(
+      //   (color: any) => color.jobTechSpecColourId == id
+      // );
+      // (this.selectedOrder.colors[colorIndex] as any)[field] = value;
+      // (this.selectedOrder.colors[colorIndex] as any)['originalSets'] = value;
+      // if (
+      //   !isNaN(parseFloat(this.selectedOrder.id)) &&
+      //   isFinite(this.selectedOrder.id as any) &&
+      //   parseFloat(this.selectedOrder.id) > 0
+      // ) {
+      //   let result = await ReorderService.updateDraft(this.selectedOrder);
+      //   if (!result.success) {
+      //     alert("error updating draft");
+      //   }
+      // }
     },
     // Order Table Actions
     async addToCart(order: any) {
@@ -311,7 +317,19 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.searchHistory = [...history];
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any) {
-      this.selectedOrder.colors = Array.from(details.colors);
+      this.selectedOrder.colors = Array.from(details.colors).map((color: any) => {
+        return {
+          ...color,
+          plateType: color.plateType.map((plateType: any) => {
+            const { plateTypeDescription } = plateType
+            return {
+              ...plateType,
+              plateTypeDescription: { label: plateTypeDescription, value: plateTypeDescription }
+            }
+          })
+        }
+      });
+      // this.selectedOrder.colors.plateType
       this.selectedOrder.colors.map((x) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),

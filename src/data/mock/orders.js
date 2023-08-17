@@ -12,8 +12,17 @@ function generateOrder(i) {
   const refIdSuffix = faker.datatype.boolean()
     ? faker.helpers.arrayElement(['-1', '-2'])
         : ''
+    const plates = [
+      {
+          plateTypeId: 256,
+          plateTypeDescription: "Mixed",
+          plateThicknessId: 16,
+          plateThicknessDescription: "270 (6.85 mm)",
+          sets: 0
+      }
+  ]
     const colour =
-    { clientPlateColourRef: 'CMYK100', colourName: 'Black', imageCarrierId: "992-1" }
+    { clientPlateColourRef: 'CMYK100', colourName: 'Black', imageCarrierId: "992-1", plateType: plates }
     const barcode =
     { barcodeNumber: "12234", barcodeTypeDesc: 'UPC-A'}
     const colours = Array.from([colour])
