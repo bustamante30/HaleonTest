@@ -41,16 +41,21 @@ const selected = computed(() => {
   }
 })
 
-let editMode = ref(props.edit)
+let editMode = ref(false)
 
 function update(event) {
   emit('update:modelValue', event)
-  editMode = false
+  editMode.value = false
 }
 
 function escPressed(event) {
   editMode.value = false
   console.log(event)
+}
+
+function switchToEditMode() {
+  console.log('switching to edit ' + props.modelValue)
+  editMode.value = true
 }
 </script>
 
@@ -60,7 +65,7 @@ function escPressed(event) {
   .readonly(v-else)
     span.value(v-if="selected") {{ selected.label }}
     span.no-data(v-else) No value specified
-    a.change(@click="editMode = true") Change
+    a.change(@click="switchToEditMode()") Change
 </template>
 
 <style lang="sass" scoped>

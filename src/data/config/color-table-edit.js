@@ -1,4 +1,5 @@
 export default {
+  dataKey: 'id',
   cols: [
     {
       header: "Seq #",
@@ -52,6 +53,7 @@ export default {
     },
   ],
   plates: {
+    dataKey: 'plateTypeId',
     cols: [
       {
         header: 'Plate Type',

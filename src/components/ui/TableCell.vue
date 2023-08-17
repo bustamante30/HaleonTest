@@ -13,6 +13,10 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  dataKey: {
+    type: String,
+    default: 'id'
+  },  
   options: {
     type: Object,
     default: () => {}
@@ -22,7 +26,6 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const value = computed(() => get(props.data, props.config.field))
-const isEditable = computed(() => get(props.data, 'isEditable'))
 const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
 const optionKey = computed(() => get(props.config, 'options.key') || null)
 const optionValues = computed(() => optionKey.value ? get(props.options, optionKey.value) : [])
@@ -45,7 +48,7 @@ function resolvePath(config, data) {
 
 function update(value) {
   const { data, config } = props
-  emit('update', { id: data.jobTechSpecColourId, field: config.field, value: value })
+  emit('update', { id: data[props.dataKey], field: config.field, value: value })
 }
 </script>
 
@@ -63,7 +66,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :disabled="!value" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else-if="config.type === 'lookup'")
-    sgs-lookup(:modelValue="value && value.value ? value.value : null" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey" :edit="isEditable")
+    sgs-lookup(:modelValue="value && value.value ? value.value : null" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
   span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
 
