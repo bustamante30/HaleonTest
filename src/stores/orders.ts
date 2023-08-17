@@ -8,7 +8,6 @@ import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 
-
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     pageState: {
@@ -54,6 +53,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         value: 1,
       },
     ],
+    userPrinterName: "",
+    userRoleKey: ""
   }),
   getters: {
     filteredOrders() {},
@@ -67,7 +68,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         undefined,
         undefined,
         this.pageState.page,
-        this.pageState.rows
+        this.pageState.rows,
+        { roleKey: this.userRoleKey, printerName:this.userPrinterName}
       );
       this.loadingOrders = false;
       if (Array.isArray(result)) {
@@ -158,7 +160,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loadingOrders = true;
       let printers = [] as string[]
       let printerIds = [] as number[]
-          
+      //TODO: remove printers and sites unused code
       const authStore = useAuthStore();
       const b2cAuth = useB2CAuthStore();
       if(authStore.currentUser.isLoggedIn){
@@ -170,7 +172,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 printerIds.push(printer.printerId)
               }
           })
-        
+        filters.roleKey = authStore.currentUser.roleKey
       }
       if(b2cAuth.currentB2CUser.isLoggedIn){
         b2cAuth.currentB2CUser.prtLocation.forEach((printer:any) =>{
@@ -178,8 +180,9 @@ export const useOrdersStore = defineStore("ordersStore", {
             printers.push(printer.printerName)
             printerIds.push(printer.printerId)
           }
-      })
-    }
+        })
+        filters.roleKey = authStore.currentUser.roleKey
+      }
       const result = await ReorderService.getRecentReorders(
         filters.status,
         filters.query,
@@ -341,5 +344,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    
   },
 });

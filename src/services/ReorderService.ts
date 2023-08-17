@@ -3,6 +3,7 @@ import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
+
 const httpService = new ApiService(baseUrl)
 
 interface SearchPagedResultDto {
@@ -56,7 +57,6 @@ interface Color {
     newColour?: string;
     commonColourRef: string;
     isActive: boolean;
-    jobTechSpecColourId: string;
 }
 
 interface CustomerContact {
@@ -128,7 +128,6 @@ class ReorderService {
                 isNew: color.isNew,
                 commonColourRef: color.commonColourRef,
                 isActive: isActiveColor,
-                jobTechSpecColourId: color.jobTechSpecColourId
             })
         })
         reorderInfo.customerContacts.forEach((contact: any) => {
@@ -158,7 +157,7 @@ class ReorderService {
         sortOrder?: string,
         page?: number,
         pageSize?: number, advancedSearchParameters?: any, columnFilters? : any, printerNames?:string[], printerIds?:number[]) {
-        let params = {}
+            let params = {}
         if (query=="") {
              params = {
                 "status" :status,
@@ -171,7 +170,8 @@ class ReorderService {
                 "orderStatusId": status,
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
-                "printerName":printerNames?printerNames : []
+                "printerName":printerNames?printerNames : [],
+                "roleKey": advancedSearchParameters.roleKey
             }
         }
        else {
@@ -187,7 +187,8 @@ class ReorderService {
                 "orderStatusId": status,
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
-                "printerName":printerNames?printerNames : []
+                "printerName":printerNames?printerNames : [],
+                "roleKey": advancedSearchParameters.roleKey
             }
         }
 
