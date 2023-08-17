@@ -300,7 +300,7 @@ async function onDeleteClick(name: string) {
                 prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
                 prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
             .f
-              label(for="job_number") SGS Job #
+              label(for="job_number") SGS Reference Number
               prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
         .fields
         .divider
