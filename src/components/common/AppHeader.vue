@@ -28,6 +28,8 @@ onMounted(async () => {
 
 watch(currentUser, (value) => {
   if (authStore.currentUser) {
+    ordersStore.userPrinterName = authStore.currentUser.printerName
+    ordersStore.userRoleKey = authStore.currentUser.roleKey
     if (value.userType === 'INT' && value.roleKey=== 'PMSuperAdminUser') {
       IsExternalAdmin.value = 'PMSuperAdminUser';
     } else if (value.userType === 'INT' && value.roleKey === 'PMUser') {
@@ -39,6 +41,8 @@ watch(currentUser, (value) => {
 
 watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser) {
+    ordersStore.userPrinterName = authb2cStore.currentB2CUser.printerName
+    ordersStore.userRoleKey = authb2cStore.currentB2CUser.roleKey
    if (value.userType === 'EXT' && value.roleKey === 'PrinterAdmin') {
       IsExternalAdmin.value = 'PrinterAdmin';
     } else if (value.userType === 'EXT' && value.roleKey=== 'PrinterUser') {
