@@ -55,6 +55,10 @@ const props = defineProps({
       value: 4;
     },
   },
+  userType:{
+    type: String,
+    default: () => 'INT',
+  }
 });
 const totalRecords = computed(()=>orderStore.totalRecords)
 let selected = ref();
@@ -388,7 +392,7 @@ data-table.p-datatable-sm.orders-table(
       width="6rem"
     )
       template(#body="{ data }")
-        table-actions(:actions="config.actions(data)" :data="data" @action="handleAction" )
+        table-actions(:actions="config.actions(data, userType)" :data="data" @action="handleAction" )
 </template>
 
 <style lang="sass" scoped>
