@@ -223,7 +223,7 @@ async function addToCart(order: any) {
     accept: async () => {
       order.selected = true;
       showMultipleSelection.value = true;
-      document.getElementsByClassName("p-image-preview-indicator")[0].focus();
+      (document.getElementsByClassName("p-image-preview-indicator")[0]as HTMLElement)?.focus();
     },
     reject: async () => {
       ordersStore.loadingOrders=true;
