@@ -9,6 +9,7 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
+    firstLoad: false,
     pageState: {
       first: 1,
       page: 1,
