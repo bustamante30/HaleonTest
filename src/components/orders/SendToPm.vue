@@ -36,6 +36,11 @@ const prntLocation = computed(() => {
   return user?.prtLocation || [];
 });
 
+const isPrinterAdmin = computed(() => {
+  const user = authb2cStore.currentB2CUser;
+  return user?.roleKey === "PrinterAdmin";
+});
+
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
@@ -69,7 +74,13 @@ function updateColors(colors: any) {
 
 async function submit() {
   sendForm.value.printerName = printerName
-  const isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
+  let isPrinterAndLocationEmpty;
+  
+  if (!isPrinterAdmin) {
+    isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
+  } else {
+    isPrinterAndLocationEmpty = sendForm.value.locationName == null || sendForm.value.printerName == null;
+  }
 
   // Check if any other field has a value
   const hasAnyOtherFieldValue =
@@ -103,7 +114,13 @@ async function submit() {
     );
   } else {
     (sendUpload as any).value = [];
-    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location)
+
+    if (!isPrinterAdmin){
+      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location,"")
+    }
+    else{
+      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,0,sendForm.value.locationName)
+    }
     await sendToPmstore.submitorder(sendForm.value)
     emit('submit', sendForm);
   }
@@ -132,6 +149,8 @@ async function getUserId() {
   }
   return userId
 }
+
+
 
 function onDragOver(event: any) {
   event.preventDefault();
@@ -251,7 +270,8 @@ async function onDeleteClick(name: string) {
               strong {{printerName}}
             .f
               label(for="location") Location
-              prime-dropdown(:options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="locationId")
+              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="locationId")
+              prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
         .divider
         h4 Items Details
         .fields
@@ -280,7 +300,7 @@ async function onDeleteClick(name: string) {
                 prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
                 prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
             .f
-              label(for="job_number") SGS Job #
+              label(for="job_number") SGS Reference Number
               prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
         .fields
         .divider

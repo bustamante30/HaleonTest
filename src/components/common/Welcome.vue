@@ -2,7 +2,7 @@ import Message from 'primevue/message';
 
 <template lang="pug">
 .p-message-info
-  message(:closable='true' sticky='' life="3000") Welcome To Image Carrier Reorder
+  message(:closable='true' sticky='' life=3000) Welcome To Image Carrier Reorder
 </template>
 
 <script>
