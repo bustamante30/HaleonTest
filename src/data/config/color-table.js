@@ -19,6 +19,11 @@ export default {
       width: 8,
     },
     {
+      header: "Plate Type",
+      field: "plateTypeDescription.label",
+      width: 8,
+    },
+    {
       header: "Printer Plate Code",
       field: "imageCarrierId",
       freeze: "left",

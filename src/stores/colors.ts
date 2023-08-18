@@ -11,7 +11,7 @@ export const useColorsStore = defineStore("colorsStore", {
     async getColors() {
       const ordersStore = useOrdersStore()
       const colorsData = computed(() => ordersStore.selectedOrder.colors)
-      this.colors = colorsData.value.map((color) => ({ ...color, sets: 0 }));
+      this.colors = colorsData.value.map((color: any) => ({ ...color, sets: 0 }));
     }
   },
 });

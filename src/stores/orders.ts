@@ -1,10 +1,10 @@
-import ordersData from "@/data/mock/orders";
-import { plateTypes } from '@/data/mock/plate-types'
+import {  } from '@/data/mock/plate-types'
 import { faker } from '@faker-js/faker';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import filterStore from "@/stores/filterStore";
+import { useNotificationsStore } from '@/stores/notifications'
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -24,7 +24,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     cartOrders: [] as any[],
     cartCount: 0,
     filters: {} as any,
-    selectedOrder: ordersData[0],
+    selectedOrder: null as any,
     options: {
       locations: [] as any[],
       imageCarrierCodeTypes: [] as any[],
@@ -60,7 +60,27 @@ export const useOrdersStore = defineStore("ordersStore", {
     userRoleKey: ""
   }),
   getters: {
-    filteredOrders() {},
+    flattenedColors: (state) => {
+      const flattenedColors = [] as any[]
+      const colors = state.selectedOrder && state.selectedOrder.colors
+      colors && colors.forEach((color: any) => {
+        color.plateType.forEach((plate: any) => {
+          flattenedColors.push({
+            sequenceNumber: color.sequenceNumber,
+            clientPlateColourRef: color.clientPlateColourRef,
+            colourName: color.colourName,
+            imageCarrierId: color.imageCarrierId,
+            originalSets: color.originalSets,
+            colourTypeDesc: color.colourTypeDesc,
+            newColour: color.newColour,
+            commonColourRef: color.commonColourRef,
+            plateTypeDescription: plate.plateTypeDescription, 
+            sets: plate.sets
+          })
+        })
+      })
+      return flattenedColors
+    },
   },
   actions: {
     async getOrders() {
@@ -84,8 +104,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.totalRecords = totalRecords;
       }
       this.decorateOrders();
-
-      console.log(this.orders);
       this.selectedOrder = this.orders[0];
     },
     async getCartCount() {
@@ -110,7 +128,9 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (id != null && id != undefined) {
         if (!isNaN(parseFloat(id)) && isFinite(id)) {
           let order = this.cartOrders.find((order: any) => order.id === id);
-          if (order != null) this.selectedOrder = order;
+          if (order != null) {
+            this.selectedOrder = order;
+          }
           else {
             this.selectedOrder = this.orders.find(
               (order: any) => order.sgsId === id
@@ -122,7 +142,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                 )
               )
             );
-            this.mapColorAndCustomerDetailsToOrder(details,(this.selectedOrder as any)["statusId"]);
+            const plateTypes = this.mapPlateTypes(details)
+            this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
           }
         } else {
           this.selectedOrder = this.orders.find(
@@ -132,26 +153,23 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(id))
           );
+          const plateTypes = this.mapPlateTypes(details)
+          this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder.description = details.jobDescription;
-          this.mapColorAndCustomerDetailsToOrder(details,(this.selectedOrder as any)["statusId"]);
           this.selectedOrder.barcodes = details.barcode;
           this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
-          this.selectedOrder.printProcess =
-            details.techSpec.printProcessDescription;
+          this.selectedOrder.printProcess = details.techSpec.printProcessDescription;
           this.selectedOrder.substrate = details.techSpec.substrate;
-          this.selectedOrder.surfaceReverseSprint =
-            details.techSpec.surfaceReversePrint;
+          this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint;
           this.selectedOrder.plateRelief = details.techSpec.plateRelief;
           this.selectedOrder.plateThickness = details.techSpec.thicknessDesc;
-          this.selectedOrder.numberAcrossCylinder =
-            details.techSpec.numberAcrossCylinder;
-          this.selectedOrder.numberAroundCylinder =
-            details.techSpec.numberAroundCylinder;
+          this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder;
+          this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
-          
+          this.options.plateTypeDescription = plateTypes
+          this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
-        console.log(this.selectedOrder);
         this.loadingOrder = false;
         return this.selectedOrder;
       }
@@ -273,7 +291,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.resetFilters();
     },
     async initReorderOptions() {
-      this.options.plateTypeDescription = plateTypes
+      // this.options.plateTypeDescription = plateTypes
     },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
@@ -296,6 +314,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             return { ...p, [field]: value }
           })
           this.selectedOrder['colors'][selectedIndex].plateType = [...plateType]
+          this.updateComputedColorFields()
         }
       }
     },
@@ -309,7 +328,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           ...colour,
           plateType: [
             ...colour.plateType,
-            { id: faker.datatype.uuid(), plateTypeId: 0, plateTypeDescription: '', plateThicknessId: 0, plateThicknessDescription: '', sets: 0, isEditable: true } as any
+            { id: faker.datatype.uuid(), plateTypeId: 0, plateTypeDescription: { label: '', value: '' }, plateThicknessId: 0, plateThicknessDescription: '', sets: 0, isEditable: true } as any
           ]
         }
       }
@@ -327,7 +346,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
     },
     updatePlate(params: any) {
-      console.log('updatePlate', params)
+      // console.log('updatePlate', params)
+      const notificationsStore = useNotificationsStore()
       const colours = this.selectedOrder['colors'] as any[]
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
       if (selectedIndex >= 0) {
@@ -335,23 +355,41 @@ export const useOrdersStore = defineStore("ordersStore", {
         if (colour) {
           const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
           let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
-          console.log('plateToReplace', plateToReplace, plateToReplace?.id, params)
+          // console.log('plateToReplace', plateToReplace, plateToReplace?.id, params)
           if (plateToReplace) {
             if (params.field === 'plateTypeDescription') {
-              const value = plateTypes.find(plateType => plateType.value === params.value)
-              plateToReplace = { ...plateToReplace, [params.field]: { ...value }, sets: 1 }
-            } else {
+              const plateType = this.options?.plateTypeDescription?.find(plateType => plateType.value === params.value)
+              const hasPlateType = plateDetails.find(plateType => {
+                console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
+                return plateType.plateTypeDescription.value === params.value
+              }) 
+              if (hasPlateType)
+                notificationsStore.addNotification('Warning', `Plate type ${params.value} already exists for this colour`, { severity: 'warn' })
+              else
+                plateToReplace = { ...plateToReplace, [params.field]: { ...plateType }, sets: 1 }
+            } else if (params.field === 'sets') {
+              // Logic to validate totalSets <= 10
+              // const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))
+              // if (totalSets + parseInt(params?.value) > 10)
+              //   notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn' })
+              // else
               plateToReplace = { ...plateToReplace, [params.field]: params.value }
             }
             const newPlates = plateDetails.map(plate => plate.id === plateToReplace?.id ? plateToReplace : plate)
             this.selectedOrder['colors'][selectedIndex].plateType = [...newPlates] as any[]
-            
-            const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))
-            this.selectedOrder['colors'][selectedIndex].totalSets = totalSets
+
+            this.updateComputedColorFields()
           }
         }
       }
-    },    
+    },
+    updateComputedColorFields() {
+      const { colors } = this.selectedOrder
+      colors.forEach((color:any, index:number) => {
+        const totalSets = color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets))
+        this.selectedOrder['colors'][index].totalSets = totalSets
+      })
+    },
     // Order Table Actions
     async addToCart(order: any) {
       if (await ReorderService.submitReorder(order, 1)) {
@@ -371,27 +409,33 @@ export const useOrdersStore = defineStore("ordersStore", {
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
     },
-    mapColorAndCustomerDetailsToOrder(details: any, statusId: any) {
-      this.selectedOrder.colors = Array.from(details.colors).map((color: any) => {
+    mapPlateTypes(details: any) {
+      return details?.plateTypes?.map((plateType: any) => {
+        const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
+        return { label: plateType?.plateTypeName, value: plateType?.plateTypeId, plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc }
+      })
+    },
+    mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
+      const colors = Array.from(details.colors || [])
+      this.selectedOrder.colors = colors?.map((color: any) => {
         return {
-          id: faker.datatype.uuid(),
           ...color,
+          id: faker.datatype.uuid(),
           totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
           plateTypes: color.plateType && color.plateType.length
             ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
             : '',        
-          plateType: color.plateType.map((plateType: any) => {
-            const { plateTypeDescription } = plateType
+          plateType: color.plateType.map((colorPlateType: any) => {
+            const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
             return {
-              ...plateType,
+              ...colorPlateType,
               id: faker.datatype.uuid(),
-              plateTypeDescription: { label: plateTypeDescription, value: plateTypeDescription }
+              plateTypeDescription: { ...selected }
             }
           })
         }
       });
-      // this.selectedOrder.colors.plateType
-      this.selectedOrder.colors.map((x) => {
+      this.selectedOrder.colors.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
           ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common"),

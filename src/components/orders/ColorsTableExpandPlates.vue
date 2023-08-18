@@ -3,7 +3,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
-import { inject } from 'vue';
+import { inject, computed } from 'vue';
 
 const props = defineProps({
   colourId: {
@@ -23,6 +23,8 @@ const props = defineProps({
 const options = inject('options')
 
 const emit = defineEmits(['update', 'add', 'remove'])
+
+const platesCount = computed(() => props.data && props.data.length)
 
 function stylify(width: any) {
   return width
@@ -44,7 +46,11 @@ function addPlate() {
 
 function removePlate(plate: any) {
   const { id } = plate
-  updatePlate({ id, field: 'sets', value: 0 })
+  const { colourId } = props
+  if (platesCount.value > 1)
+    emit('remove', { colourId, id })
+  else
+    updatePlate({ id, field: 'sets', value: 0 })
 }
 </script>
 

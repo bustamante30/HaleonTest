@@ -44,7 +44,7 @@ function stylify(width) {
 }
 
 watch(selected, (colors, prevColors) => {
-  if (prevColors && prevColors.length) {
+  if (prevColors) {
     console.log(`selected colors ${colors && colors.length}`, colors.length, prevColors.length)
     const prevColorIds = prevColors.map(c => c.id)
     const colorIds = colors.map(c => c.id)

@@ -27,17 +27,18 @@ export default generateColors(8)
 
 
 // totalSets computed
-
 // Select all should populate sets = 1. Select none .... sets = 0
 // Mixed should not appear as a dropdown option
-// Platethickness via API
-// Validation: totalSets 10
 // Validation: do not repeat platetype within colour
-
 // Remove last platetype within colour????
-// column widths??? Table width: 100%
+
+// Validation: totalSets 10
+
+// Platethickness via API
 // Flatten plateTypeDescription for POST, Other screens
 
-// Loading spinner ???
 
-//Reorder and Add to cart button disabled when no rows selected
+// mixed is not showing name
+// column widths??? Table width: 100%
+// Loading spinner ???
+// Reorder and Add to cart button disabled when no rows selected

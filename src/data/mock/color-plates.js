@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker'
-import {  } from 'lodash'
 
 function generatePlates(plateTypes) {
   const count = faker.datatype.number({ min: 1, max: 4 })

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
@@ -33,6 +33,7 @@ async function addToCart() {
     if (await ordersStore.addToCart(ordersStore.selectedOrder))
         isCartMessageVisible.value = true
 }
+
 function updateColor(color) {
   ordersStore.updateColor(color)
 }
@@ -81,7 +82,7 @@ function updateColor(color) {
           .secondary-actions &nbsp;
             sgs-button.default.back(label="Back" @click="router.push(`/dashboard/${selectedId}`)")
           .actions
-            sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart")
+            sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
             sgs-button(label="Re-Order Now" @click="router.push(`/dashboard/${selectedId}/confirm`)" :disabled="disableReorder")

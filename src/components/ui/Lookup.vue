@@ -24,8 +24,8 @@ const props = defineProps({
 })
 
 const defaultOptions = computed(() => {
-  const value = props.modelValue
-  return value ? [{ label: value, value }] : []
+  const { modelValue, options } = props
+  return modelValue && !options.length ? [{ label: modelValue, value: modelValue }] : []
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -34,7 +34,7 @@ const selected = computed(() => {
   const { options, modelValue } = props
   const allOptions = [...defaultOptions.value, ...options]
   if (allOptions && allOptions.length && modelValue) {
-    const option = allOptions.find(option => option.value === modelValue)
+    const option = allOptions.find(option => option?.value === modelValue)
     return option ? option : null
   } else {
     return null
@@ -68,6 +68,7 @@ function switchToEditMode() {
   prime-dropdown(v-if="editMode" :modelValue="modelValue" @update:modelValue="update" :options="[...defaultOptions, ...options]" :optionLabel="optionLabel" :optionValue="optionValue" filter placeholder="Select Plate Type...")
   .readonly(v-else)
     span.value(v-if="selected") {{ selected.label }}
+    span.value(v-else-if="modelValue") {{ modelValue }}
     span.no-data(v-else) No value specified
     a.change(@click="switchToEditMode()") Change
 </template>
