@@ -6,6 +6,44 @@ import filterStore from "@/stores/filterStore";
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import type { ReorderDto } from "@/models/ReorderDto";
+import { sortBy } from "lodash";
+
+const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
+ 
+  // Filter by Date
+ 
+   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
+   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
+ 
+   let filteredresult :any[] =  []   
+     reorderedData.forEach(order => {
+       let date;
+       if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
+         date = DateTime.fromISO(order.submittedDate).toMillis()
+     }else{
+      const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
+       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
+     }
+       if(date >= DateTime.fromJSDate(startDate).toMillis() && 
+       date <= DateTime.fromJSDate(endDate).toMillis() ){
+         filteredresult.push(order)
+       }
+     });
+ 
+   // Filter by Sorting
+ 
+   let resultForCache :any[] = filteredresult ;
+     if(filters.sortBy){
+       if(filters.sortOrder){
+         resultForCache = sortBy(resultForCache , [filters.sortBy])
+       }else{
+         resultForCache = sortBy(resultForCache , [filters.sortBy]).reverse()
+       }
+     }
+ 
+   return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+ }
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -52,7 +90,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       },
     ],
     userPrinterName: "",
-    userRoleKey: ""
+    userRoleKey: "",
+    textSearchData: {
+      query: '',
+      data:  {
+      reorderedData: [] as ReorderDto[],
+      totalRecords: 0
+      }
+    } 
   }),
   getters: {
     filteredOrders() {},
@@ -180,18 +225,71 @@ export const useOrdersStore = defineStore("ordersStore", {
         })
         filters.roleKey = authStore.currentUser.roleKey
       }
-      const result = await ReorderService.getRecentReorders(
-        filters.status,
-        filters.query,
-        filters.sortBy,
-        filters.sortOrder,
-        this.pageState.page,
-        this.pageState.rows,
-        filters,
-        filterStore,
-        printers,
-        printerIds
-      );
+            let result:
+        | {
+            reorderedData: ReorderDto[];
+            totalRecords: number;
+          }
+        | never[];
+      /* 
+        If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
+        And Status should be completed (4)
+    */
+      if (
+        this.textSearchData.query != '' &&
+        this.textSearchData.query === filters.query && filters.status === 4
+      ) {
+        
+        console.log('Showing result from Local Store');
+       const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
+        result =  {
+          reorderedData : reorderedData,
+          totalRecords : reorderedData.length
+        }
+      } else {
+        result = await ReorderService.getRecentReorders(
+          filters.status,
+          filters.query,
+          filters.sortBy,
+          filters.sortOrder,
+          this.pageState.page,
+          this.pageState.rows,
+          filters,
+          filterStore,
+          printers,
+          printerIds
+        );
+
+        if (filters.query != '' && !!filters.query) {
+          console.log('Saving Search Result in Local Store',filters);
+          this.textSearchData.query = filters.query;
+          if (Array.isArray(result)) {
+            this.textSearchData.data = {
+              reorderedData : [],
+              totalRecords:0
+            }
+          }else{
+            this.textSearchData.data =  {
+              reorderedData : result.reorderedData !=null ?result.reorderedData : [],
+              totalRecords:result.reorderedData.length
+            }
+         }
+
+          const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
+          result =  {
+            reorderedData : reorderedData,
+            totalRecords : reorderedData.length
+          }
+
+        } else {
+          console.log('Clearing result from local store .. ');
+          this.textSearchData.query = '';
+          this.textSearchData.data = {
+            reorderedData : [],
+            totalRecords:0
+          }
+        }
+      }
       if (Array.isArray(result)) {
         this.orders = [];
         this.totalRecords = 0;
@@ -236,6 +334,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.orders[i].thumbNailPath
           );
         }
+      if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         this.orders[i].submittedDate = DateTime.fromISO(
           this.orders[i].submittedDate
         ).toLocaleString(DateTime.DATETIME_MED);
