@@ -47,13 +47,13 @@ async function handleFocus(item) {
  // User Id from claims 
  let userId;
  if(authStore.currentUser.isLoggedIn){
-    userId =   authStore.currentUser.userId
+    userId = authStore.currentUser.userId
    }
-  if(b2cAuth.currentB2CUser.isLoggedIn){
-    userId =   b2cAuth.currentB2CUser.userId
+  if(authb2cStore.currentB2CUser.isLoggedIn){
+    userId = authb2cStore.currentB2CUser.userId
   }
   if (userId) {
-    await searchhistoryStore.getSearchHistory(dateRefId.value, false)
+    await searchhistoryStore.getSearchHistory(userId, false)
   }
   filteredSuggestions.value = searchHistory.value.map(x => x.value)
 } 
@@ -87,7 +87,7 @@ async function search(filters) {
 }
 
 async function addToHistory() {
-  // loadingSuggestions.value = true;
+  loadingSuggestions.value = true;
   if (searchedValue.value) {
     console.log('API from addToHistory')
     await searchhistoryStore.setKeywordSearchHistory(searchedValue.value, false);
