@@ -41,6 +41,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         jobNumber: null,
         comments: null,
         location: null,
+        locationName: null,
         colors:[] as any[],
         uploadedFiles: [] as any[],
         pmUsersForPrinter: [] as any[]
@@ -76,7 +77,7 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       this.imageCarrierCodeTypes= await SendToPMService.getCodeTypeList();
      },
 
-     async getPmusersForLocation(printerId: number,printerLocationId: number){
+     async getPmusersForLocation(printerId: number,printerLocationId: number,printerLocationName:string){
       const searchRequest: SearchRequestSendToPmDto = {
         searchText: "",
         pageNumber: 1,
@@ -88,7 +89,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         userId: 0,
         userTypeKey: "INT",
         roleKey:"PMUser",
-        locationId: printerLocationId
+        locationId: printerLocationId,
+        locationName:printerLocationName
       };
       console.log("userSearchReq:" + searchRequest);
       const usersResponse = await UserService.searchUser(searchRequest);
