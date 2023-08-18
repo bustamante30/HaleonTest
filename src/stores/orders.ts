@@ -47,6 +47,7 @@ const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
+    firstLoad: false,
     pageState: {
       first: 1,
       page: 1,

@@ -77,14 +77,16 @@ const searchTags =ref([])
 
 provide("options", options);
 watch(currentUser, (value) => {
-  if (authStore.currentUser) {
+  if (authStore.currentUser && !ordersStore.firstLoad) {
+    ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
   }
 });
 watch(currentB2CUser, (value) => {
-  if (authb2cStore.currentB2CUser) {
+  if (authb2cStore.currentB2CUser && !ordersStore.firstLoad) {
+    ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
@@ -165,6 +167,10 @@ function search(filters: any) {
   searchTags.value = []
   filters.query =  ''
   if (filters) {
+    if(filters.status!==selectedStatus.value.value)
+    {
+      selectedStatus.value = statusList.value.find((x)=>x.value === filters.status)
+    }
     addPrinterFilter()
     ordersStore.setFilters(filters);
   }
@@ -211,14 +217,13 @@ function sendToPm(form: any) {
 
 async function addToCart(order: any) {
   confirm.require({
-    message: "Do you want to add more items to cart?",
-    header: "Add items to Cart",
+    message: "Do you want to add more orders to the cart?",
+    header: "Add more Orders",
     icon: 'pi pi-info-circle',
-    acceptIcon: 'pi pi-check',
-    rejectIcon: 'pi pi-times',
     accept: async () => {
       order.selected = true;
       showMultipleSelection.value = true;
+      document.getElementsByClassName("p-image-preview-indicator")[0].focus();
     },
     reject: async () => {
       ordersStore.loadingOrders=true;
@@ -287,7 +292,7 @@ async function addMultipleToCart(values: any) {
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(:config="config" :data="orders" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
-        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" )
+        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" )
       prime-confirm-dialog
         template(#message="slotProps")
           div.dialogLayout

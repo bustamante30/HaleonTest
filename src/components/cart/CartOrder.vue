@@ -7,6 +7,7 @@ import router from "@/router";
 import { useOrdersStore } from "@/stores/orders";
 import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from '@/stores/notifications'
+import { renderToString } from "@vue/test-utils";
 
 defineProps({
   order: {
@@ -28,14 +29,6 @@ function toggleColors() {
 
 function goto(path) {
   router.push(path);
-}
-function getShippingAddress(order) {
-  if (!order.customerContacts) {
-    return "No printer site provided";
-  }
-  return order.customerContacts[0].shippingAddress
-    ? order.customerContacts[0].shippingAddress
-    : "";
 }
 async function discardOrder(order) {
   confirm.require({
@@ -65,6 +58,21 @@ async function discardOrder(order) {
     },
     reject: () => {},
   });
+}
+function pendingOrderSets(colors){
+  let result = true
+  for(let i=0;i<colors.length;i++)
+    if(colors[i].sets>0)
+      result = false
+  return result
+}
+function getShippingAddress(order) {
+  if (!order.customerContacts) {
+    return "No printer site provided";
+  }
+  return order.customerContacts[0].shippingAddress
+    ? order.customerContacts[0].shippingAddress
+    : "";
 }
 </script>
 <template lang="pug">
@@ -103,7 +111,7 @@ async function discardOrder(order) {
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
           sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)")
+          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)" :disabled="pendingOrderSets(order.colors)")
 </template>
 
 <style lang="sass" scoped>
