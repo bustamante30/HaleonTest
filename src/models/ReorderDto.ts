@@ -21,7 +21,7 @@ export type ReorderDto = {
     itemCode?: string | null;
     packType?: string | null;
     createdAt?: Date | null;
-    submittedDate?: Date | null;
+    submittedDate?: Date | null | string;
     cancelledDate?: Date | null;
     createdBy?: number;
     statusId?: number;

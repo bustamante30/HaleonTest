@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, provide, ref, onUpdated, onMounted } from "vue";
+import { computed, watch, provide, ref, onMounted } from "vue";
 import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
@@ -90,15 +90,7 @@ watch(currentB2CUser, (value) => {
     changeDateFilter(dateFilter.value[0]);
   }
 });
-onUpdated(() => {
-  const statusList:any = document.getElementsByTagName("Ul")[0];
-  if(statusList){
-    statusList.style.display="flex";
-    statusList.style["overflow-y"]="hidden";
-    statusList.style.height="30px";
-    statusList.style["align-items"]="center";
-  }
-});
+
 function getDateFilter() {
   let threeMonthsDate = new Date();
   threeMonthsDate.setMonth(new Date().getMonth() - 3);
