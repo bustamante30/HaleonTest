@@ -63,7 +63,7 @@ export default {
       },
       {
         header: 'Plate Thickness',
-        field: 'plateThicknessDescription',
+        field: 'plateTypeDescription.plateThicknessDescription',
         type: 'number',
         min: 0.25,
         max: 100,

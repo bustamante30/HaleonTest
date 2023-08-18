@@ -19,6 +19,16 @@ export default {
       width: 5,
     },
     {
+      header: "Plate Type",
+      field: "plateTypeDescription",
+      width: 8,
+    },
+    {
+      header: "Plate Thickness",
+      field: "plateThicknessDescription",
+      width: 8,
+    },
+    {
       header: "Printer Plate Code",
       field: "serialNumber",
       freeze: "left",

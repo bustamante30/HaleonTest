@@ -74,7 +74,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             colourTypeDesc: color.colourTypeDesc,
             newColour: color.newColour,
             commonColourRef: color.commonColourRef,
-            plateTypeDescription: plate.plateTypeDescription, 
+            plateTypeDescription: plate.plateTypeDescription.label,
+            plateThicknessDescription: plate.plateTypeDescription.plateThicknessDescription, 
             sets: plate.sets
           })
         })
@@ -104,7 +105,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.totalRecords = totalRecords;
       }
       this.decorateOrders();
-      this.selectedOrder = this.orders[0];
+      // this.selectedOrder = this.orders[0];
     },
     async getCartCount() {
       this.cartCount = await ReorderService.getCartCount();
@@ -226,7 +227,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
       this.loadingOrders = false;
       this.decorateOrders();
-      this.selectedOrder = this.orders[0];
+      // this.selectedOrder = this.orders[0];
     },
     resetFilters() {
       this.filters["status"] = 4;
@@ -355,7 +356,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         if (colour) {
           const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
           let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
-          // console.log('plateToReplace', plateToReplace, plateToReplace?.id, params)
           if (plateToReplace) {
             if (params.field === 'plateTypeDescription') {
               const plateType = this.options?.plateTypeDescription?.find(plateType => plateType.value === params.value)
@@ -363,17 +363,20 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
                 return plateType.plateTypeDescription.value === params.value
               }) 
-              if (hasPlateType)
+              if (hasPlateType) {
                 notificationsStore.addNotification('Warning', `Plate type ${params.value} already exists for this colour`, { severity: 'warn' })
-              else
+                return
+              } else {
                 plateToReplace = { ...plateToReplace, [params.field]: { ...plateType }, sets: 1 }
+              }
             } else if (params.field === 'sets') {
-              // Logic to validate totalSets <= 10
-              // const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))
-              // if (totalSets + parseInt(params?.value) > 10)
-              //   notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn' })
-              // else
-              plateToReplace = { ...plateToReplace, [params.field]: params.value }
+              const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))
+              if (totalSets > 10) {
+                notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn' })
+                return
+              } else {
+                plateToReplace = { ...plateToReplace, [params.field]: params.value }
+              }
             }
             const newPlates = plateDetails.map(plate => plate.id === plateToReplace?.id ? plateToReplace : plate)
             this.selectedOrder['colors'][selectedIndex].plateType = [...newPlates] as any[]

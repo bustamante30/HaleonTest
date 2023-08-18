@@ -20,7 +20,12 @@ export default {
     },
     {
       header: "Plate Type",
-      field: "plateTypeDescription.label",
+      field: "plateTypeDescription",
+      width: 8,
+    },
+    {
+      header: "Plate Thickness",
+      field: "plateThicknessDescription",
       width: 8,
     },
     {

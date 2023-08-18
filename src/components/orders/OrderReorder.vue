@@ -19,7 +19,7 @@ const isCartMessageVisible = ref(false)
 const cartCount = computed(()=>ordersStore.cartCount)
 const colors = computed(() => ordersStore.selectedOrder.colors);
 const disableReorder = computed(()=>{
-  const totalSets = (colors.value && colors.value.filter(x => x.sets))
+  const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
   return !(totalSets && totalSets.length)
 })
 
