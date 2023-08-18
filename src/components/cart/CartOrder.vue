@@ -64,7 +64,6 @@ function pendingOrderSets(colors){
   for(let i=0;i<colors.length;i++)
     if(colors[i].sets>0)
       result = false
-  console.log(result)
   return result
 }
 function getShippingAddress(order) {
