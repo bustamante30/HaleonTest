@@ -177,6 +177,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
+      this.accessTokenUpdatedOn = new Date()
+      this.validateToken()
       const user = await UserService.getUserClaimInfo();
       this.decodedToken = jwt_decode(this.accessToken)
       const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
