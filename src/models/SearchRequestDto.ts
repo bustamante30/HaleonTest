@@ -8,6 +8,7 @@ export type SearchRequestDto = {
     printerId: number;
     userId: number;
     userTypeKey: string;
+    isDashboardPage?: Boolean;
   };
 
   export type SearchRequestSendToPmDto = {

@@ -105,6 +105,11 @@ export const useOrdersStore = defineStore("ordersStore", {
   },
   actions: {
     async getOrders() {
+      const b2cAuth = useB2CAuthStore();
+      let printerUserIds :number []= []
+      if(b2cAuth.currentB2CUser.isLoggedIn){
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds
+      }
       this.loadingOrders = true;
       const result = await ReorderService.getRecentReorders(
         4,
@@ -113,7 +118,10 @@ export const useOrdersStore = defineStore("ordersStore", {
         undefined,
         this.pageState.page,
         this.pageState.rows,
-        { roleKey: this.userRoleKey, printerName:this.userPrinterName}
+        { roleKey: this.userRoleKey, printerName:this.userPrinterName},
+        undefined,
+        undefined,
+        printerUserIds
       );
       this.loadingOrders = false;
       if (Array.isArray(result)) {
@@ -203,6 +211,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loadingOrders = true;
       let printers = [] as string[]
       let printerIds = [] as number[]
+      let  printerUserIds = [] as number []
       //TODO: remove printers and sites unused code
       const authStore = useAuthStore();
       const b2cAuth = useB2CAuthStore();
@@ -214,6 +223,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 printers.push(printer.printerName)
                 printerIds.push(printer.printerId)
               }
+              
           })
         filters.roleKey = authStore.currentUser.roleKey
       }
@@ -223,8 +233,9 @@ export const useOrdersStore = defineStore("ordersStore", {
             printers.push(printer.printerName)
             printerIds.push(printer.printerId)
           }
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds
         })
-        filters.roleKey = authStore.currentUser.roleKey
+        filters.roleKey = b2cAuth.currentB2CUser.roleKey
       }
             let result:
         | {
@@ -258,10 +269,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           filters,
           filterStore,
           printers,
-          printerIds
+          printerUserIds
         );
 
-        if (filters.query != '' && !!filters.query) {
+        if (filters.query != '' && !!filters.query && filters.status === 4) {
           console.log('Saving Search Result in Local Store',filters);
           this.textSearchData.query = filters.query;
           if (Array.isArray(result)) {
