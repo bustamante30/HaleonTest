@@ -291,7 +291,7 @@ async function addMultipleToCart(values: any) {
             .tag(v-if="searchTags.length > 0")
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
-        orders-table(:config="config" :data="orders" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
+        orders-table(:config="config" :data="orders" :userType="userType" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
         @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" )
       prime-confirm-dialog
         template(#message="slotProps")
