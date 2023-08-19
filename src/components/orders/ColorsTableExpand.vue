@@ -25,7 +25,11 @@ const props = defineProps({
   isEditable: {
     type: Boolean,
     default: false
-  }
+  },
+  loading: {
+    type: Boolean,
+    default: () => false
+  },
 })
 
 const emit = defineEmits(['update'])
@@ -85,7 +89,7 @@ function updatePlate(params) {
 </script>
 
 <template lang="pug">
-data-table.colors-table.p-datatable-sm(:value="data" v-model:selection="selected" v-model:expandedRows="expandedRows" scrollable scrollHeight="flex" :rows="30" dataKey="id")
+data-table.colors-table.p-datatable-sm(:value="data" v-model:selection="selected" v-model:expandedRows="expandedRows" scrollable scrollHeight="flex" :rows="30" dataKey="id" :loading="loading" :style="{ minHeight: '25rem'}")
   column(expander headerStyle="width: 3rem")
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")

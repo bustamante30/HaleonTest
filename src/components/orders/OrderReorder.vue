@@ -18,6 +18,7 @@ const props = defineProps({
 const isCartMessageVisible = ref(false)
 const cartCount = computed(()=>ordersStore.cartCount)
 const colors = computed(() => ordersStore.selectedOrder.colors);
+const loadingOrder = computed(() => ordersStore.loadingOrder)
 const disableReorder = computed(()=>{
   const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
   return !(totalSets && totalSets.length)
@@ -91,7 +92,7 @@ function validateReorder() {
             span.separator /
             span {{ selectedOrder.printerLocationName }}
       .card
-        colors-table(:config="config" :data="colors" :isEditable="true" @update="updateColor")
+        colors-table(:config="config" :data="colors" :isEditable="true" :loading="loadingOrder" @update="updateColor")
       template(#footer)
         footer
           .secondary-actions &nbsp;

@@ -125,7 +125,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.selectedOrder = details;
     },
     async getOrderById(id: any) {
-      this.loadingOrder = true;
+      this.loadingOrder = true
+      this.selectedOrder = null
       if (id != null && id != undefined) {
         if (!isNaN(parseFloat(id)) && isFinite(id)) {
           let order = this.cartOrders.find((order: any) => order.id === id);
@@ -385,11 +386,15 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
     },
     validateColour(colour: any) {
+      const notificationsStore = useNotificationsStore()
       const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
       const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
-      console.log(colour.sequenceNumber, colour.colourName, plateTypes, totalSets, hasUniquePlates)
-      return hasUniquePlates && totalSets < 10
+      const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
+      const isValid = hasUniquePlates && totalSets < 10 && !hasMixed
+      if (hasMixed)
+        notificationsStore.addNotification('Warning', `Cannot reorder "Mixed" platetype in ${colour.colourName}`, { severity: 'warn', life: null })
+      return isValid
     },
     updateComputedColorFields() {
       const { colors } = this.selectedOrder
@@ -424,25 +429,25 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
-      // const colors = Array.from(details.colors || [])
-      // this.selectedOrder.colors = colors?.map((color: any) => {
-      //   return {
-      //     ...color,
-      //     id: faker.datatype.uuid(),
-      //     totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
-      //     plateTypes: color.plateType && color.plateType.length
-      //       ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
-      //       : '',        
-      //     plateType: color.plateType.map((colorPlateType: any) => {
-      //       const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
-      //       return {
-      //         ...colorPlateType,
-      //         id: faker.datatype.uuid(),
-      //         plateTypeDescription: { ...selected }
-      //       }
-      //     })
-      //   }
-      // });
+      const colors = Array.from(details.colors || [])
+      this.selectedOrder.colors = colors?.map((color: any) => {
+        return {
+          ...color,
+          id: faker.datatype.uuid(),
+          totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
+          plateTypes: color.plateType && color.plateType.length
+            ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
+            : '',        
+          plateType: color.plateType.map((colorPlateType: any) => {
+            const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
+            return {
+              ...colorPlateType,
+              id: faker.datatype.uuid(),
+              plateTypeDescription: { ...selected }
+            }
+          })
+        }
+      });
       this.selectedOrder.colors.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
