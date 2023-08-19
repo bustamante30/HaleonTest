@@ -83,8 +83,8 @@ function updateColor({ id, field, value }) {
 
 <template lang="pug">
 data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="jobTechSpecColourId" :lazy="true" :loading="loading")
-  template(#loading)
-    i.pi.pi-spin.pi-cog.spinning
+  //- template(#loading)
+  //-   i.pi.pi-spin.pi-cog.spinning
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
     template(#body="{ data }")

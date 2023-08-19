@@ -73,6 +73,7 @@ export default {
         header: 'Quantity',
         field: 'sets',
         type: 'edit-sets',
+        max: 10,
         width: 5
       },
     ]

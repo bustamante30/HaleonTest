@@ -103,8 +103,8 @@ function viewPreview() {
   +container
   .container
     +fixed-e
-    width: 80vw
-    min-width: 50rem
+    width: 85vw
+    min-width: 75rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container
@@ -130,6 +130,7 @@ function viewPreview() {
     align-items: flex-start
     .thumbnail
       width: 25rem
+      min-height: 25rem
       > .image
         width: 100%
         margin-bottom: $s
@@ -138,6 +139,7 @@ function viewPreview() {
     .details
       flex: 1
       padding: 0 $s
+      min-height: 25rem
       h2, h3, h4, p
         margin-top: 0
       .printer
