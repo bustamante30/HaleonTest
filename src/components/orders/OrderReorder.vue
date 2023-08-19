@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
@@ -25,18 +25,33 @@ const disableReorder = computed(()=>{
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 
+onBeforeMount(async () => {
+  await ordersStore.getOrderById(props.selectedId)
+})
+
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
 async function addToCart() {
-    if (await ordersStore.addToCart(ordersStore.selectedOrder))
-        isCartMessageVisible.value = true
+  if (await ordersStore.addToCart(ordersStore.selectedOrder))
+    isCartMessageVisible.value = true
 }
 
 function updateColor(color) {
   ordersStore.updateColor(color)
 }
+
+function validateReorder() {
+  let valid = true
+  colors?.value.forEach(color => {
+    if (!ordersStore.validateColour(color)) valid = false
+  })
+  if (valid) {
+    router.push(`/dashboard/${props.selectedId}/confirm`)
+  }
+}
+
 </script>
 
 <template lang="pug">
@@ -85,7 +100,7 @@ function updateColor(color) {
             sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(label="Re-Order Now" @click="router.push(`/dashboard/${selectedId}/confirm`)" :disabled="disableReorder")
+            sgs-button(label="Re-Order Now" @click="validateReorder" :disabled="disableReorder")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" :closable='false')
     .cart-message

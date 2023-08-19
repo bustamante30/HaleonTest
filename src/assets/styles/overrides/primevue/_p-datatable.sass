@@ -1,3 +1,4 @@
+// Compact Table
 .p-datatable.p-datatable-sm
   background: #f6f6f6
   .p-datatable-wrapper
@@ -6,10 +7,8 @@
     .p-datatable-thead > tr > th
       font-size: 0.9rem
       white-space: nowrap
-    .p-datatable-tbody > tr > td
-      span
-        font-size: 0.9rem
 
+// Paginator
 .p-paginator
   .p-paginator-pages
     .p-paginator-page
@@ -18,6 +17,7 @@
         min-width: 2rem
         height: 2rem
 
+// Hack to fix z-index of table header
 .p-datatable.p-datatable-scrollable.lay-low
   > .p-datatable-wrapper
     > .p-datatable-table
@@ -29,37 +29,78 @@
         tr > td.p-frozen-column
           z-index: 0
 
+// Expandable Rows
+.p-datatable.colors-table
+  .p-datatable-table
+    margin-bottom: 0
+    .p-datatable-row-expansion
+      &:hover
+        background: #f6f6f6
+      > td
+        background: #f6f6f6
+        &:hover
+          background: #f6f6f6
+      .p-datatable.plate-details,
+      .p-datatable.plate-details.p-datatable-sm
+        background: #fff
 
+// Row Selection Checkboxes
 .p-datatable-table
-  margin-bottom: $s2
-  background: #fff
-  empty-cells: show
-  &.p-datatable-scrollable-table
-    .p-datatable-thead
-      z-index: 3
-      tr > th.p-frozen-column
-        background: #f8f9fa
+  .p-column-header-content,
+  .p-selection-column
+    .p-checkbox
+      width: 20px
+      height: 20px
+      vertical-align: baseline
+      .p-checkbox-box
+        width: 20px
+        height: 20px
+        border-radius: 3px
+
+
+
+// Scrollable Data Table
+.p-datatable
+  .p-datatable-loading-overlay
+    background-color: rgba($sgs-gray, 0.1)
+    z-index: 4 !important
+  .p-datatable-table
+    margin-bottom: $s2
+    background: #fff
+    empty-cells: show
+    &.p-datatable-scrollable-table
+      .p-datatable-thead
         z-index: 3
-    .p-datatable-tbody
-      > tr:hover
-        outline: none
-        background: lighten($sgs-blue, 60%)
-        > td,  > td.p-frozen-column
+        tr > th.p-frozen-column
+          background: #f8f9fa
+          z-index: 3
+      .p-datatable-tbody
+        > tr:hover
+          outline: none
           background: lighten($sgs-blue, 60%)
-      > tr:focus
-        outline: none
-        background: lighten($sgs-blue, 59%)
-        > td,  > td.p-frozen-column
+          > td,  > td.p-frozen-column
+            background: lighten($sgs-blue, 60%)
+        > tr:focus
+          outline: none
           background: lighten($sgs-blue, 59%)
-      tr > td
-        overflow: hidden
-        white-space: nowrap
-        text-overflow: ellipsis
-        input
-          font-size: 0.8rem
-          margin: 0.2em
-      tr > td.p-frozen-column
-        // background: #fff
-        z-index: 1
-    > .p-datatable-frozen-tbody
-      z-index: 2
+          > td,  > td.p-frozen-column
+            background: lighten($sgs-blue, 59%)
+        tr > td
+          overflow: hidden
+          white-space: nowrap
+          text-overflow: ellipsis
+          input
+            font-size: 0.8rem
+            margin: 0.2em
+          > span
+            font-size: 0.9rem
+            max-width: 100%
+            overflow: hidden
+            text-overflow: ellipsis
+            display: inline-block
+            width: 100%
+        tr > td.p-frozen-column
+          // background: #fff
+          z-index: 1
+      > .p-datatable-frozen-tbody
+        z-index: 2

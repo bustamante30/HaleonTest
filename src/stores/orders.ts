@@ -325,6 +325,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
+        const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))
         this.selectedOrder['colors'][selectedIndex] = {
           ...colour,
           plateType: [
@@ -335,7 +336,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
     },
     removePlate(params: any) {
-      console.log('removePlate', params)
       const colours = this.selectedOrder['colors'] as any[]
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
       if (selectedIndex >= 0) {
@@ -353,6 +353,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
+        const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))        
         if (colour) {
           const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
           let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
@@ -362,17 +363,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               const hasPlateType = plateDetails.find(plateType => {
                 console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
                 return plateType.plateTypeDescription.value === params.value
-              }) 
+              })
               if (hasPlateType) {
-                notificationsStore.addNotification('Warning', `Plate type ${params.value} already exists for this colour`, { severity: 'warn' })
-                return
-              } else {
-                plateToReplace = { ...plateToReplace, [params.field]: { ...plateType }, sets: 1 }
+                notificationsStore.addNotification('Warning', `Plate type ${plateType.label} already exists for this colour`, { severity: 'warn', life: null })
               }
+              plateToReplace = { ...plateToReplace, [params.field]: { ...plateType }, sets: totalSets >= 10 ? 0 : 1 }
             } else if (params.field === 'sets') {
-              const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))
               if (totalSets > 10) {
-                notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn' })
+                notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn', life: null })
                 return
               } else {
                 plateToReplace = { ...plateToReplace, [params.field]: params.value }
@@ -385,6 +383,13 @@ export const useOrdersStore = defineStore("ordersStore", {
           }
         }
       }
+    },
+    validateColour(colour: any) {
+      const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
+      const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
+      const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
+      console.log(colour.sequenceNumber, colour.colourName, plateTypes, totalSets, hasUniquePlates)
+      return hasUniquePlates && totalSets < 10
     },
     updateComputedColorFields() {
       const { colors } = this.selectedOrder
@@ -419,25 +424,25 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
-      const colors = Array.from(details.colors || [])
-      this.selectedOrder.colors = colors?.map((color: any) => {
-        return {
-          ...color,
-          id: faker.datatype.uuid(),
-          totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
-          plateTypes: color.plateType && color.plateType.length
-            ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
-            : '',        
-          plateType: color.plateType.map((colorPlateType: any) => {
-            const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
-            return {
-              ...colorPlateType,
-              id: faker.datatype.uuid(),
-              plateTypeDescription: { ...selected }
-            }
-          })
-        }
-      });
+      // const colors = Array.from(details.colors || [])
+      // this.selectedOrder.colors = colors?.map((color: any) => {
+      //   return {
+      //     ...color,
+      //     id: faker.datatype.uuid(),
+      //     totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
+      //     plateTypes: color.plateType && color.plateType.length
+      //       ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
+      //       : '',        
+      //     plateType: color.plateType.map((colorPlateType: any) => {
+      //       const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
+      //       return {
+      //         ...colorPlateType,
+      //         id: faker.datatype.uuid(),
+      //         plateTypeDescription: { ...selected }
+      //       }
+      //     })
+      //   }
+      // });
       this.selectedOrder.colors.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),

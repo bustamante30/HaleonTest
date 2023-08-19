@@ -11,6 +11,8 @@ import Button from '@/components/ui/Button.vue'
 import Mask from '@/components/ui/Mask.vue'
 import ScrollPanel from '@/components/ui/ScrollPanel.vue'
 import Panel from '@/components/ui/Panel.vue'
+import Spinner from '@/components/ui/Spinner.vue'
+
 // Prime Components
 import AutoComplete from 'primevue/autocomplete'
 import Calendar from 'primevue/calendar'
@@ -49,7 +51,7 @@ app.component('SgsButton', Button)
 app.component('SgsMask', Mask)
 app.component('SgsScrollpanel', ScrollPanel)
 app.component('SgsPanel', Panel)
-
+app.component('SgsSpinner', Spinner)
 // Prime Components & Directives
 app.directive('tooltip', Tooltip)
 app.directive('badge', BadgeDirective)
