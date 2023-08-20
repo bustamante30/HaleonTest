@@ -14,6 +14,7 @@ import type { UserSearchResponseDto } from  '../models/UserSearchResponseDto';
 import type { SearchResponeDto } from  '../models/SearchResponeDto';
 import type { LocationSearchResponseDto } from  '../models/LocationSearchResponseDto';
 import type { PrinterDto } from '../models/PrinterDto';
+import type { UserPrinterLocationDto } from '@/models/UserPrinterLocationDto'
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -407,24 +408,35 @@ export const useUsersStore = defineStore('users', {
       router.push('/users/new')
     },
    async getUser(id: string) {
-   // this.user = null;
       console.log("Getid:"+ id);
       this.user= null;
       //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
       console.log("Getusers:"+ userEditResp);
-      //const user = userEditResp?.find((u: any) => u.id === id)
+
+
 
     if(userEditResp != null)
     {
+
+      const selectedLocations = userEditResp?.printerLoc?.map((location: any) => location.locationName); // Array of selected location names
+
+    this.options.locations = this.options.locations.map((location: any) => ({
+      ...location,
+      selected: selectedLocations?.includes(location.value) // Set selected property based on whether the location is in selectedLocations
+    }));
+
+
        this.user ={
         id: userEditResp.id,
         firstName: userEditResp.firstName,
         lastName: userEditResp.lastName,
         email: userEditResp.email,
-       location : userEditResp.printerLoc?.[0]?.locationName || "N/A",
+       
+       //location : userEditResp.printerLoc  || "N/A",
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
-       isPrimaryPM: userEditResp.isPrimaryPM || false
+       isPrimaryPM: userEditResp.isPrimaryPM || false,
+       location: selectedLocations 
       };
     
 
@@ -474,6 +486,13 @@ export const useUsersStore = defineStore('users', {
     printerIdValue = this.selected.id;
   }
 
+        const printerLoc: UserPrinterLocationDto[] = []
+        userreq.value.location.forEach((location:string)=>{
+          printerLoc.push({
+            locationName : location
+          })
+        });
+
         const userDto: UserDto = {
           id: userreq.value.id,
           firstName: userreq.value.firstName,
@@ -484,11 +503,7 @@ export const useUsersStore = defineStore('users', {
           roles: null, 
           isAdmin: userreq.value.isAdmin,
           isPrimaryPM:userreq.value.isPrimaryPM,
-          printerLoc: [
-            {
-              locationName: userreq.value.location,
-            },
-          ],
+          printerLoc
         };
      await UserService.saveUser(userDto)
       .then((response: any) => {
