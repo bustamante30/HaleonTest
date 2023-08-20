@@ -408,7 +408,6 @@ export const useUsersStore = defineStore('users', {
       router.push('/users/new')
     },
    async getUser(id: string) {
-   debugger;
       console.log("Getid:"+ id);
       this.user= null;
       //const users = this.selected.users
@@ -459,7 +458,6 @@ export const useUsersStore = defineStore('users', {
     router.push(`/users/${this.user.id}`)
     },
     async saveUser(userreq : any) {
-      debugger;
       console.log('Save user', userreq)
       this.user = null;
      let printerIdValue: number | null = null;
@@ -507,7 +505,6 @@ export const useUsersStore = defineStore('users', {
           isPrimaryPM:userreq.value.isPrimaryPM,
           printerLoc
         };
-        debugger;
      await UserService.saveUser(userDto)
       .then((response: any) => {
         this.user = null;
