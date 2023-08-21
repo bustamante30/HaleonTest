@@ -108,7 +108,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const b2cAuth = useB2CAuthStore();
       let printerUserIds :number []= []
       if(b2cAuth.currentB2CUser.isLoggedIn){
-          printerUserIds = b2cAuth.currentB2CUser.printerUserIds
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
       }
       this.loadingOrders = true;
       const result = await ReorderService.getRecentReorders(
@@ -233,7 +233,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             printers.push(printer.printerName)
             printerIds.push(printer.printerId)
           }
-          printerUserIds = b2cAuth.currentB2CUser.printerUserIds
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
         })
         filters.roleKey = b2cAuth.currentB2CUser.roleKey
       }
