@@ -53,7 +53,7 @@ function setDefaultValues(obj, defaultValue) {
 onMounted(() => {
   let colorData = (props.data && props.data.filter(x => x.sets > 0))
 
-  selected.value = [...colorData]
+  // selected.value = [...colorData]
 })
 
 watch(selected, (colors, prevColors) => {

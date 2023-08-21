@@ -25,6 +25,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     cartCount: 0,
     filters: {} as any,
     selectedOrder: null as any,
+    successfullReorder: null as any,
     options: {
       locations: [] as any[],
       imageCarrierCodeTypes: [] as any[],
@@ -60,11 +61,11 @@ export const useOrdersStore = defineStore("ordersStore", {
     userRoleKey: ""
   }),
   getters: {
-    flattenedColors: (state) => {
+    flattenedColors: (state) => (orderType?: string) => {
       const flattenedColors = [] as any[]
-      const colors = state.selectedOrder && state.selectedOrder.colors
-      colors && colors.forEach((color: any) => {
-        color.plateType.forEach((plate: any) => {
+      const colors = orderType === 'success' ? state.successfullReorder?.colors : state.selectedOrder?.colors
+      colors?.length && colors?.forEach((color: any) => {
+        color?.plateType?.forEach((plate: any) => {
           flattenedColors.push({
             sequenceNumber: color.sequenceNumber,
             clientPlateColourRef: color.clientPlateColourRef,
@@ -122,7 +123,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
-      this.selectedOrder = details;
+      this.successfullReorder = details;
     },
     async getOrderById(id: any) {
       this.loadingOrder = true
@@ -354,8 +355,10 @@ export const useOrdersStore = defineStore("ordersStore", {
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
-        const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))        
         if (colour) {
+          const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => {
+            return plate.id === params.id && params.field === 'sets' ? params.value : plate.sets
+          }))        
           const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
           let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
           if (plateToReplace) {
@@ -425,7 +428,12 @@ export const useOrdersStore = defineStore("ordersStore", {
     mapPlateTypes(details: any) {
       return details?.plateTypes?.map((plateType: any) => {
         const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
-        return { label: plateType?.plateTypeName, value: plateType?.plateTypeId, plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc }
+        return {
+          label: plateType?.plateTypeName,
+          value: plateType?.plateTypeId,
+          plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
+          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId
+        }
       })
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {

@@ -18,7 +18,7 @@ const props = defineProps({
 })
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 const loadingOrder = computed(() => ordersStore.loadingOrder)
-const colors = computed(() => ordersStore.flattenedColors)
+const colors = computed(() => ordersStore.flattenedColors())
 
 onMounted(async () => {
   await ordersStore.getOrderById(props.selectedId)

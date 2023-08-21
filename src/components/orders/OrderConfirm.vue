@@ -16,7 +16,7 @@ const props = defineProps({
 })
 
 const selection = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.flattenedColors.filter(color => color.sets))
+const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 
 let isFormVisible = ref(false)
 
