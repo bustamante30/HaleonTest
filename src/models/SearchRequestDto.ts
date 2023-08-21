@@ -8,6 +8,7 @@ export type SearchRequestDto = {
     printerId: number;
     userId: number;
     userTypeKey: string;
+    isDashboardPage?: Boolean;
   };
 
   export type SearchRequestSendToPmDto = {
@@ -22,4 +23,5 @@ export type SearchRequestDto = {
     userTypeKey: string;
     roleKey: string;
     locationId: number;
+    locationName: string;
   };

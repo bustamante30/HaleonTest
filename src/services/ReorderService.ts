@@ -181,7 +181,7 @@ class ReorderService {
     public static getRecentReorders(status: number, query?: string, sortBy?: string,
         sortOrder?: string,
         page?: number,
-        pageSize?: number, advancedSearchParameters?: any, columnFilters? : any, printerNames?:string[], printerIds?:number[]) {
+        pageSize?: number, advancedSearchParameters?: any, columnFilters? : any, printerNames?:string[], printerUserIds?:number[]) {
             let params = {}
         if (query=="") {
              params = {
@@ -196,7 +196,8 @@ class ReorderService {
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
                 "printerName":printerNames?printerNames : [],
-                "roleKey": advancedSearchParameters.roleKey
+                "roleKey": advancedSearchParameters.roleKey,
+                printerUserIds: printerUserIds
             }
         }
        else {
@@ -213,7 +214,8 @@ class ReorderService {
                 "OrderBy":  sortBy!= null?sortBy:null,
                 "OrderByAsc":  sortOrder!= null?sortOrder:true,
                 "printerName":printerNames?printerNames : [],
-                "roleKey": advancedSearchParameters.roleKey
+                "roleKey": advancedSearchParameters.roleKey,
+                printerUserIds: printerUserIds
             }
         }
 

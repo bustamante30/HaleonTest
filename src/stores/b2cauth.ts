@@ -10,6 +10,7 @@ import jwt_decode from 'jwt-decode'
 import { DateTime } from 'luxon'
 import router from "@/router";
 import store from "store";
+import type { SearchRequestDto } from "@/models/SearchRequestDto";
 
 const authB2CConfig = {
   auth: {
@@ -24,6 +25,31 @@ const authB2CConfig = {
 const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
+
+const printerIdSearch = async (currentB2CUser:any) : Promise<Number []> =>{
+
+
+  if(currentB2CUser.userType === 'EXT' && currentB2CUser.roleKey.toLowerCase().includes('admin')){
+    // Make User Search call to get List users
+    const saerchUsers :SearchRequestDto = {
+      "searchText": "",
+      "pageNumber": 1,
+      "pageCount": 1000,
+      "orderBy": "modifiedOn",
+      "orderByAsc": true,
+      "isActive": true,
+      "printerId": parseInt(currentB2CUser.printerId.toString(),10),
+      "userId": 0,
+      "userTypeKey": "EXT",
+      "isDashboardPage":true
+    }
+    
+    const users = await UserService.searchUser(saerchUsers)
+    return users && users.data.map(x=>x.id) || [] 
+  }
+
+  return []
+}
 export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => {
     const userb2cSessionStore = userB2CSessionStore()
@@ -184,8 +210,11 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
       if (user !== null) {
         this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
-        console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
         localStorage.setItem("userType", this.currentB2CUser.userType);
+
+        this.currentB2CUser.printerUserIds = await printerIdSearch(this.currentB2CUser)
+        console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
+
         store.set('currentb2cUser', this.currentB2CUser);
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {

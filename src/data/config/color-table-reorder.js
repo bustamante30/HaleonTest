@@ -30,6 +30,12 @@ export default {
     },
     {
       header: "Printer Plate Code",
+      field: "imageCarrierId",
+      freeze: "left",
+      width: 8,
+    },
+    {
+      header: "Serial Number",
       field: "serialNumber",
       freeze: "left",
       width: 8,

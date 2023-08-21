@@ -61,7 +61,7 @@ export default {
         width: 5
       }
   ],
-  actions: (order) => {
+  actions: (order,userType) => {
     switch(order.statusId){
       case null:
         return [
@@ -69,11 +69,13 @@ export default {
           { icon: 'redo', label: 'Order Again', event: 'reorder' }
         ]
       case 2:
-        return [
-          { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
-        ]
+        if(userType!=='INT')
+          return [
+            { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
+          ]
       default:
         return []
     }
+    return []
   }
 }

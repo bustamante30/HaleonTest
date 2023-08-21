@@ -49,6 +49,16 @@ const props = defineProps({
       value: 0;
     },
   },
+  status:{
+    type: Object,
+    default: () => {
+      value: 4;
+    },
+  },
+  userType:{
+    type: String,
+    default: () => 'INT',
+  }
 });
 const totalRecords = computed(()=>orderStore.totalRecords)
 let selected = ref();
@@ -88,7 +98,6 @@ const dropdownOptions = ref<string[]>([]);
 const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
 
-const selectedStatusFilter = ref(null);
 const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
   description: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -132,6 +141,12 @@ function handleAction(action: any) {
 function onPage(event: any) {
   orderStore.pageState.page = event.page + 1;
   orderStore.setFilters(orderStore.filters);
+}
+function setSgsNumberHeader(){
+  if(props.status && props.status.value == 4)
+    return "SGS Ref #"
+  else
+    return "Order #"
 }
 </script>
 
@@ -366,7 +381,7 @@ function onPage(event: any) {
       //- My SGS # column
       Column(
         field="mySgsNumber"
-        header="My SGS #"
+        :header="setSgsNumberHeader()"
         :sortable="true"
         :headerStyle="stylify(config.cols[9].width)"
         :bodyStyle="stylify(config.cols[9].width)"
@@ -379,7 +394,7 @@ function onPage(event: any) {
         width="6rem"
       )
         template(#body="{ data }")
-          table-actions(:actions="config.actions(data)" :data="data" @action="handleAction" )
+          table-actions(:actions="config.actions(data, userType)" :data="data" @action="handleAction" )
 </template>
 
 <style lang="sass" scoped>

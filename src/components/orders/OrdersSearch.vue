@@ -4,7 +4,9 @@ import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import { debounce } from "lodash";
 import { useNotificationsStore } from '@/stores/notifications'
+import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+
 const props = defineProps({
   config: {
     type: Object,
@@ -22,6 +24,8 @@ const props = defineProps({
   }
 });
 const authb2cStore = useB2CAuthStore();
+const authStore = useAuthStore();
+
 const printerName = computed(()=> authb2cStore.currentB2CUser.isLoggedIn? authb2cStore.currentB2CUser.printerName: "")
 const emit = defineEmits(["search" ,"searchkeyword"]);
 const searchhistoryStore = useSearchhistoryStore()
@@ -40,23 +44,27 @@ const isFiltersVisible = ref(false);
 const loadingSuggestions = ref(false);
 
 async function handleFocus(item) {
-  await searchhistoryStore.getSearchDate(false)
-  await searchhistoryStore.getSearchField();
-  dateRefId.value = searchDate.value?.[0]?.userId;
-  if (dateRefId.value) {
-    await searchhistoryStore.getSearchHistory(dateRefId.value, false)
+ // User Id from claims 
+ let userId;
+ if(authStore.currentUser.isLoggedIn){
+    userId = authStore.currentUser.userId
+   }
+  if(authb2cStore.currentB2CUser.isLoggedIn){
+    userId = authb2cStore.currentB2CUser.userId
+  }
+  if (userId) {
+    await searchhistoryStore.getSearchHistory(userId, false)
   }
   filteredSuggestions.value = searchHistory.value.map(x => x.value)
 } 
 
 const keywordSearch =  debounce(async(event)=> {
-  console.log('API from Search',event?.query)
   loadingSuggestions.value = false;
+  event.query = searchedValue.value !=null && !!searchedValue.value ? searchedValue.value : ''
   isFiltersVisible.value = false;
   if ((event.query && event.query !== "") || (event.value &&event.value !== "")) {
     event.query = event.query? event.query : event.value
     if(validateSearch(event?.query)){
-      console.log('API from Search',event?.query)
       //should be a non blocking add history call 
       searchhistoryStore.setKeywordSearchHistory(event?.query, false);
     emit("searchkeyword", event);
@@ -64,7 +72,7 @@ const keywordSearch =  debounce(async(event)=> {
     // Notify User
     notificationsStore.addNotification(
         `Error`,
-        `Only the following special characters are allowed -, _, /, \, # , ., , +, &, (, ), " ",.  Please correct and try your search again)`,
+        `Only the following special characters are allowed -, _, /, \, # , ., , +, &, (, ), " ",.  Please correct and try your search again`,
         { severity: 'error', position: 'top-right' }
       );
   }
@@ -79,13 +87,11 @@ async function search(filters) {
 }
 
 async function addToHistory() {
-  // loadingSuggestions.value = true;
+  loadingSuggestions.value = true;
   if (searchedValue.value) {
     console.log('API from addToHistory')
     await searchhistoryStore.setKeywordSearchHistory(searchedValue.value, false);
-  } else {
-    handleFocus(searchedValue.value)
-  }
+  } 
   loadingSuggestions.value = false;
 }
 
@@ -105,7 +111,7 @@ function toggleFilters() {
   .search
     .input
       prime-auto-complete.search-input(v-model="searchedValue" :suggestions="filteredSuggestions" 
-      @keyup.enter="keywordSearch($event)" @complete="keywordSearch" completeOnFocus forceSelection @focus="handleFocus" @item-select="keywordSearch"
+      @keyup.enter="keywordSearch($event)" completeOnFocus forceSelection @focus="handleFocus" @item-select="keywordSearch"
       placeholder="Search by plate code, item code, UPC code..." :loading="loadingSuggestions")
       span.material-icons.outline search
     span.separator
