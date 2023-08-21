@@ -70,10 +70,6 @@ async function saveprinter(printerFormRequest) {
   router.push('/users?role=super');
 }
 
-const showSuccess = (summary, severity) => {
-    toast.add({ severity: severity, summary: summary, detail: 'Message Content', life: 3000 });
-}
-
 </script>
 
 <template lang="pug">

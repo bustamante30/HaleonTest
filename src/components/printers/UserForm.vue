@@ -4,7 +4,8 @@ import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from '@/router';
-import { useUsersStore } from '@/stores/users'
+import { useUsersStore } from '@/stores/users';
+import { useNotificationsStore } from '@/stores/notifications';
 
 
 const props = defineProps({
@@ -23,10 +24,10 @@ watch(()=>props.user,()=>{
   userForm.value = { ...props.user }
 })
 const usersStore = useUsersStore()
+const notificationsStore = useNotificationsStore()
 
 
 const emit = defineEmits(['save'])
-
 
 
 //const userForm = computed(()=>usersStore.user)
@@ -61,6 +62,34 @@ function handleClose() {
 }
 
 function save() {
+
+  //Required fields validations.
+  if (!userForm.value.firstName) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'FirstName is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (!userForm.value.lastName) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'LastName is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
+  if (!userForm.value.email) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Email is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
   emit('save', userForm)
 }
 </script>
