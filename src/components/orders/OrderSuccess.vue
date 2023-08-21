@@ -12,7 +12,8 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-let selectedOrder = computed(() => ordersStore.selectedOrder);
+const selectedOrder = computed(() => ordersStore.successfullReorder);
+const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 const expectedDate = ref("");
 onBeforeMount(async () => {
   let x = ordersStore.selectedOrder.expectedDate.toString();
@@ -91,7 +92,7 @@ watch(ordersStore.selectedOrder, (value) => {
         span {{ selectedOrder.customerContacts[0].shippingAddress}}
     .card(v-if="selectedOrder.colors && selectedOrder.colors.length>0")
       h3 Image Carrier Specs
-      colors-table.p-datatable-sm(:config="config" :data="selectedOrder.colors.filter(x => x.sets)")
+      colors-table.p-datatable-sm(:config="config" :data="colors")
     template(#footer)
       footer
         .secondary-actions

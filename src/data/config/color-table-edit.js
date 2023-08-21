@@ -1,53 +1,81 @@
 export default {
+  dataKey: 'id',
   cols: [
     {
-      header: "Sequence #",
+      header: "Seq #",
       field: "sequenceNumber",
       freeze: "left",
-      width: 6,
+      width: 3,
     },
     {
       header: "Client Colour Ref",
       field: "clientPlateColourRef",
       freeze: "left",
-      width: 8,
+      width: 6,
     },
     {
       header: "SGS Colour",
       field: "colourName",
       freeze: "left",
-      width: 12,
+      width: 6,
+    },
+    {
+      header: 'Plate Types',
+      field: 'plateTypes',
+      tooltip: true,
+    },
+    {
+      header: 'Total Quantity',
+      field: 'totalSets',
+      width: 5
     },
     {
       header: "Printer Plate Code",
       field: "imageCarrierId",
-      freeze: "left",
-      width: 8,
+      width: 6,
     },
     {
-      header: "Quantity",
-      field: "sets",
-      type: "edit-sets",
-      freeze: "center",
-      width: 10,
+      header: "New/ Common",
+      field: "isNew",
+      width: 6,
     },
     {
       header: "Colour Type",
       field: "colourTypeDesc",
-      freeze: "center",
-      width: 7,
-    },
-    {
-      header: "New/ Common",
-      field: "newColour",
-      freeze: "center",
+      freeze: "right",
       width: 6,
     },
     {
       header: "Common Ref",
       field: "commonColourRef",
-      freeze: "center",
+      freeze: "right",
       width: 6,
     },
   ],
+  plates: {
+    dataKey: 'id',
+    cols: [
+      {
+        header: 'Plate Type',
+        field: 'plateTypeDescription',
+        type: 'lookup',
+        options: { key: 'plateTypeDescription' },
+      },
+      {
+        header: 'Plate Thickness',
+        field: 'plateTypeDescription.plateThicknessDescription',
+        type: 'number',
+        min: 0.25,
+        max: 100,
+        width: 10
+      },
+      {
+        header: 'Quantity',
+        field: 'sets',
+        type: 'edit-sets',
+        max: 10,
+        width: 5
+      },
+    ]
+  },
 };

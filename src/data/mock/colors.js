@@ -23,3 +23,9 @@ function generateColors(count) {
 }
 
 export default generateColors(8)
+
+
+// column widths??? Table width: 100%
+// Loading spinner ???
+// Validation plate type dropdown should be visible when validation fail
+// Adding new row set to 1 in validation 10

@@ -36,7 +36,8 @@ function back() {
   .container
     +fixed-e
     +container
-    width: 60vw
+    width: 85vw
+    min-width: 75rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     z-index: $z-popup-page

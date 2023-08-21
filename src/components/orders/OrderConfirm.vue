@@ -16,15 +16,9 @@ const props = defineProps({
 })
 
 const selection = computed(() => ordersStore.selectedOrder)
-const colors = computed(() => ordersStore.selectedOrder.colors.filter(color => color.sets))
+const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 
 let isFormVisible = ref(false)
-
-onBeforeMount(async () => {
-  if (ordersStore.selectedOrder.id !== props.selectedId && ordersStore.selectedOrder.sgsId !== props.selectedId)
-    await ordersStore.getOrderById(props.selectedId)
-})
-
 
 function confirm() {
   isFormVisible.value = true

@@ -270,9 +270,9 @@ async function addMultipleToCart(values: any) {
     template(#header)
       app-header
     main
-      welcome(:user="username")
-      sgs-scrollpanel
+      sgs-scrollpanel(:scroll="false")
         template(#header)
+          welcome(:user="username")
           header
             div.leftHeader
               h1 Recent Orders 

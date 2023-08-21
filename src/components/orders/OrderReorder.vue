@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import ColorsTable from './ColorsTable.vue'
+import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
 import ReorderService from "../../services/ReorderService";
@@ -18,24 +18,41 @@ const props = defineProps({
 const isCartMessageVisible = ref(false)
 const cartCount = computed(()=>ordersStore.cartCount)
 const colors = computed(() => ordersStore.selectedOrder.colors);
+const loadingOrder = computed(() => ordersStore.loadingOrder)
 const disableReorder = computed(()=>{
-  const totalSets = (colors.value && colors.value.filter(x => x.sets))
-  return (!totalSets.length)
+  const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
+  return !(totalSets && totalSets.length)
 })
 
 const selectedOrder = computed(() => ordersStore.selectedOrder)
+
+onBeforeMount(async () => {
+  await ordersStore.getOrderById(props.selectedId)
+})
 
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
 async function addToCart() {
-    if (await ordersStore.addToCart(ordersStore.selectedOrder))
-        isCartMessageVisible.value = true
+  if (await ordersStore.addToCart(ordersStore.selectedOrder))
+    isCartMessageVisible.value = true
 }
+
 function updateColor(color) {
   ordersStore.updateColor(color)
 }
+
+function validateReorder() {
+  let valid = true
+  colors?.value.forEach(color => {
+    if (!ordersStore.validateColour(color)) valid = false
+  })
+  if (valid) {
+    router.push(`/dashboard/${props.selectedId}/confirm`)
+  }
+}
+
 </script>
 
 <template lang="pug">
@@ -75,7 +92,7 @@ function updateColor(color) {
             span.separator /
             span {{ selectedOrder.printerLocationName }}
       .card
-        colors-table(:config="config" :data="colors" :isEditable="true" @update="updateColor")
+        colors-table(:config="config" :data="colors" :isEditable="true" :loading="loadingOrder" @update="updateColor")
       template(#footer)
         footer
           .secondary-actions &nbsp;
@@ -84,7 +101,7 @@ function updateColor(color) {
             sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(label="Re-Order Now" @click="router.push(`/dashboard/${selectedId}/confirm`)" :disabled="disableReorder")
+            sgs-button(label="Re-Order Now" @click="validateReorder" :disabled="disableReorder")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" :closable='false')
     .cart-message
@@ -135,8 +152,8 @@ function updateColor(color) {
   +container
   .container
     +fixed-e
-    width: 60vw
-    min-width: 50rem
+    width: 85vw
+    min-width: 75rem
     background: white
     box-shadow: -10px 0 5px 3px rgba(0, 0, 0, 0.1)
     +container

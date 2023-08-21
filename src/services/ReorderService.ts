@@ -37,6 +37,14 @@ interface SubmitReorder {
     colors: Color[];
     CustomerContacts: CustomerContact[];
 }
+
+interface PlateType {
+    plateTypeId: number;
+    plateType: string;
+    plateThicknessId: number;
+    plateThickness: string;
+    sets: number;
+}
 interface Color {
     jobTechSpecColourId: number;
     colourName: string;
@@ -57,6 +65,8 @@ interface Color {
     newColour?: string;
     commonColourRef: string;
     isActive: boolean;
+    totalSets?: number;
+    plateTypes?: PlateType[];
 }
 
 interface CustomerContact {
@@ -109,27 +119,42 @@ class ReorderService {
             CustomerContacts: []
         }
         reorderInfo.colors.forEach((color: any) => {
-            let isActiveColor: boolean = color.sets > 0 ? true : false
-            newReorder.colors.push({
-                clientPlateColourRef: color.clientPlateColourRef,
-                colourName: color.colourName,
-                custCarrierIdNo: color.custCarrierIdNo,
-                custImageIdNo: color.custImageIdNo,
-                imageCarrierId: color.imageCarrierId,
-                jobTechSpecColourId: color.jobTechSpecColourId,
-                plateThicknessDescription: color.plateThicknessDescription,
-                plateThicknessId: color.plateThicknessId,
-                plateTypeDescription: color.plateTypeDescription,
-                plateTypeId: color.plateTypeId,
-                sequenceNumber: color.sequenceNumber,
-                sets: color.sets,
-                originalSets: color.sets,
-                colourType: color.colourType,
-                isNew: color.isNew,
-                commonColourRef: color.commonColourRef,
-                isActive: isActiveColor,
+            let isActiveColor: boolean;
+            color?.plateType?.forEach((plateType: any) => {
+                if (plateType.sets > 0) {
+                    isActiveColor = true
+                    newReorder.colors.push({
+                        clientPlateColourRef: color.clientPlateColourRef,
+                        colourName: color.colourName,
+                        custCarrierIdNo: color.custCarrierIdNo,
+                        custImageIdNo: color.custImageIdNo,
+                        imageCarrierId: color.imageCarrierId,
+                        jobTechSpecColourId: color.jobTechSpecColourId,
+                        plateThicknessDescription: color.plateThicknessDescription,
+                        plateThicknessId: color.plateThicknessId,
+                        plateTypeDescription: color.plateTypeDescription,
+                        plateTypeId: color.plateTypeId,
+                        sets: color.sets,                        
+                        plateTypes: [
+                            {
+                                plateTypeId: plateType?.plateTypeDescription?.value,
+                                plateType: plateType?.plateTypeDescription?.label,
+                                plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
+                                plateThickness: plateType?.plateTypeDescription?.plateThicknessDescription,
+                                sets: plateType.sets
+                            }
+                        ],
+                        sequenceNumber: color.sequenceNumber,
+                        originalSets: color.sets,
+                        colourType: color.colourType,
+                        isNew: color.isNew,
+                        commonColourRef: color.commonColourRef,
+                        isActive: isActiveColor,
+                    })
+                }
             })
         })
+       
         reorderInfo.customerContacts.forEach((contact: any) => {
             newReorder.CustomerContacts.push(
                 {
@@ -146,7 +171,7 @@ class ReorderService {
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
                 this.decorateColours(response.result?.colors)
-                return response.result;                    
+                return response.result;
             })
             .catch((error: any) => {
                 console.log('Error submitting reorder:', error);

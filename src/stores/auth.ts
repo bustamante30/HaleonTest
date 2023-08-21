@@ -139,6 +139,8 @@ export const useAuthStore = defineStore("auth", {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
+      this.accessTokenUpdatedOn = new Date()
+      this.validateToken()
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
         this.currentUser = {...this.currentUser,...user} as any;
