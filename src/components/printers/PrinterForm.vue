@@ -4,13 +4,14 @@ import router from '@/router'
 import { providers, federated } from '@/data/config/identitiy-providers'
 import { useUsersStore } from '@/stores/users'
 import SuggesterService from "@/services/SuggesterService";
-
+import { useNotificationsStore } from '@/stores/notifications';
 
 const toast = ref(null); // Ref to control the toast visibility
 
 const emit = defineEmits(['save', 'close'])
 const usersStore = useUsersStore()
 const printerResults = ref([])
+const notificationsStore = useNotificationsStore()
 
 const printerForm = ref({
   id: null,
@@ -28,6 +29,43 @@ async function searchPrinter(value) {
   }
 
 function save() {
+   // Required fields Validations
+   if (!printerForm.value.name) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Printer Name is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (printerForm.value.provider === null) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Identify Provider is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
+  if (!printerForm.value.admin) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Admin Name is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (!printerForm.value.email) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Email is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
  //emitting to printerlist form
   emit('save', printerForm)
 }
@@ -50,7 +88,7 @@ function save() {
         .card.details
           .f
             label Printer Name
-            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found")
+            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found" :required="true")
           .fields
             .f
              label Identify Provider
