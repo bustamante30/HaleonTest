@@ -259,7 +259,10 @@ async function addMultipleToCart(values: any) {
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
+  if(ordersToAdd.length>0)
+  {
+    notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
+  }
   ordersStore.loadingOrders=false;
 }
 </script>
