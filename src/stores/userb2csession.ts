@@ -40,6 +40,7 @@ export const userB2CSessionStore = defineStore('userb2csession', () => {
     identityProviderName: ref(''),
     identityTypeName: ref(''),
     prtLocation: ref([]),
+    printerUserIds:ref([]),
   })
   return { userB2CSession }
 })
