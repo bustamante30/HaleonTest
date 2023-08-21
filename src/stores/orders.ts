@@ -552,11 +552,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         return {
           ...color,
           id: faker.datatype.uuid(),
-          totalSets: color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets)),
+          totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)),
           plateTypes: color.plateType && color.plateType.length
-            ? color.plateType.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
+            ? color.plateType?.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
             : '',        
-          plateType: color.plateType.map((colorPlateType: any) => {
+          plateType: color.plateType?.map((colorPlateType: any) => {
             const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
             return {
               ...colorPlateType,
@@ -566,7 +566,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           })
         }
       });
-      this.selectedOrder.colors.map((x:any) => {
+      this.selectedOrder.colors?.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
           ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common"),

@@ -12,7 +12,7 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const selectedOrder = computed(() => ordersStore.successfullReorder);
+let selectedOrder = computed(() => ordersStore.successfullReorder);
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 const expectedDate = ref("");
 onBeforeMount(async () => {
