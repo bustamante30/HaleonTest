@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, onBeforeMount, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -34,14 +34,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update'])
 
-const selected = ref([])
+const selected = ref([] as any[])
 const expandedRows = ref([])
 
 onBeforeMount(() => {
-  // if (props.isEditable) selected.value = [...props.data]
+  selected.value = props?.data?.filter((c: any) => c.totalSets)
 })
 
-function stylify(width) {
+function stylify(width: any) {
   return width
     ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: 'none' }
     : { width: 'auto', flex: '1' }
@@ -50,17 +50,17 @@ function stylify(width) {
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
     console.log(`selected colors ${colors && colors.length}`, colors.length, prevColors.length)
-    const prevColorIds = prevColors.map(c => c.id)
-    const colorIds = colors.map(c => c.id)
+    const prevColorIds = (prevColors as any).map((c: { id: any }) => c.id)
+    const colorIds = (colors as any).map((c: { id: any }) => c.id)
     // If color added sets = 1
-    colors.forEach((color) => {
+    colors.forEach((color: any) => {
       const { id } = color
-      if (!prevColorIds.includes(color.id)) {
-        updateColor({ id, field: 'sets', value: 1 })
+      if (!(prevColorIds as any).includes(color.id)) {
+        if (!color.totalSets) updateColor({ id, field: 'sets', value: 1 })
       }
     })
     // If color removed sets = 0
-    prevColors.forEach((color) => {
+    prevColors.forEach((color: any) => {
       const { id } = color
       if (!colorIds.includes(color.id)) {
         updateColor({ id, field: 'sets', value: 0 })
@@ -69,21 +69,30 @@ watch(selected, (colors, prevColors) => {
   }
 })
 
-function updateColor({ id, field, value }) {
+function updateColor({ id, field, value }: any) {
   emit('update', { id, field, value })
 }
 
-function addPlate(params) {
+function addPlate(params: any) {
   ordersStore.addPlate(params)
 }
 
-function removePlate(params) {
+function removePlate(params: any) {
   ordersStore.removePlate(params)
 
 }
 
-function updatePlate(params) {
+async function updatePlate(params: any) {
   ordersStore.updatePlate(params)
+  if (params?.field === 'sets') {
+    const isAlreadySelected = selected?.value.find((c: any) => c.id === params?.colourId)
+    if (params?.value) {
+      const colour = props.data.find((c: any) => c.id === params?.colourId)
+      if (!isAlreadySelected) selected.value = [...selected?.value, colour]
+    } else {
+      if (isAlreadySelected) selected.value = selected?.value?.filter((c: any) => c.id !== params?.colourId)      
+    }
+  }
 }
 
 </script>

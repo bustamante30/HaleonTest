@@ -25,14 +25,15 @@ function generateColors(count) {
 export default generateColors(8)
 
 
-// column widths??? Table width: 100%
-// Loading spinner ???
-// Validation plate type dropdown should be visible when validation fail
-// Adding new row set to 1 in validation 10
-// Add to cart button should be disabled when validation fail
+// Validation plate type dropdown should be visible when validation fail - done
+// Plate thickness changes - done
+// checkbox selection on adding sets +
+// Adding new row set to 1 in validation 10 -
 
-// Plate thickness changes
-// Total quantity changes
-// View cart width
+
+// Add to cart button should be disabled when validation fail
+// View cart width 
 // Plate type and thickness in add to cart
+
 // Updatedraft api check
+// Quantity changes from Api
