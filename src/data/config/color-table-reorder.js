@@ -24,9 +24,9 @@ export default {
       width: 8,
     },
     {
-      header: "Plate Thickness",
+      header: "Plate Thickness (1/1000)",
       field: "plateThicknessDescription",
-      width: 8,
+      width: 12,
     },
     {
       header: "Printer Plate Code",

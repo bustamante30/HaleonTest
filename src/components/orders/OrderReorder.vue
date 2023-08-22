@@ -27,7 +27,7 @@ const disableReorder = computed(()=>{
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 
 onBeforeMount(async () => {
-  await ordersStore.getOrderById(props.selectedId)
+  // await ordersStore.getOrderById(props.selectedId)
 })
 
 function buy() {

@@ -223,7 +223,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
-          this.options.plateTypeDescription = plateTypes
+          this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loadingOrder = false;
@@ -466,6 +466,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
         if (colour) {
+          const colorFirstPlateType = colour.plateType[0]
           const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => {
             return plate.id === params.id && params.field === 'sets' ? params.value : plate.sets
           }))        
@@ -478,10 +479,11 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
                 return plateType.plateTypeDescription.value === params.value
               })
+              const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
               if (hasPlateType) {
                 notificationsStore.addNotification('Warning', `Plate type ${plateType.label} already exists for this colour`, { severity: 'warn', life: null })
               }
-              plateToReplace = { ...plateToReplace, [params.field]: { ...plateType }, sets: totalSets >= 10 ? 0 : 1 }
+              plateToReplace = { ...plateToReplace, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
             } else if (params.field === 'sets') {
               if (totalSets > 10) {
                 notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn', life: null })
@@ -547,8 +549,10 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
+      
       const colors = Array.from(details.colors || [])
       this.selectedOrder.colors = colors?.map((color: any) => {
+        const colorFirstPlateType = color.plateType[0]
         return {
           ...color,
           id: faker.datatype.uuid(),
@@ -558,10 +562,11 @@ export const useOrdersStore = defineStore("ordersStore", {
             : '',        
           plateType: color.plateType?.map((colorPlateType: any) => {
             const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
+            const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
             return {
               ...colorPlateType,
               id: faker.datatype.uuid(),
-              plateTypeDescription: { ...selected }
+              plateTypeDescription: { ...selected, plateThicknessDescription, plateThicknessId }
             }
           })
         }
