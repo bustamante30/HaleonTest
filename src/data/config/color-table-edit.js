@@ -62,12 +62,12 @@ export default {
         options: { key: 'plateTypeDescription' },
       },
       {
-        header: 'Plate Thickness',
+        header: 'Plate Thickness (1/1000)',
         field: 'plateTypeDescription.plateThicknessDescription',
         type: 'number',
         min: 0.25,
         max: 100,
-        width: 10
+        width: 12
       },
       {
         header: 'Quantity',

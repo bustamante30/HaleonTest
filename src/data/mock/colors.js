@@ -29,3 +29,10 @@ export default generateColors(8)
 // Loading spinner ???
 // Validation plate type dropdown should be visible when validation fail
 // Adding new row set to 1 in validation 10
+// Add to cart button should be disabled when validation fail
+
+// Plate thickness changes
+// Total quantity changes
+// View cart width
+// Plate type and thickness in add to cart
+// Updatedraft api check
