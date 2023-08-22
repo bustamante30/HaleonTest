@@ -459,7 +459,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
     },
     updatePlate(params: any) {
-      // console.log('updatePlate', params)
       const notificationsStore = useNotificationsStore()
       const colours = this.selectedOrder['colors'] as any[]
       const selectedIndex = colours.findIndex(c => c.id === params.colourId)
@@ -486,7 +485,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               plateToReplace = { ...plateToReplace, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
             } else if (params.field === 'sets') {
               if (totalSets > 10) {
-                notificationsStore.addNotification('Warning', `Total sets cannot exceed 10 for a colour`, { severity: 'warn', life: null })
+                notificationsStore.addNotification('Warning', `You cannot have more than 10 sets reordered for 1 colour`, { severity: 'warn' })
                 return
               } else {
                 plateToReplace = { ...plateToReplace, [params.field]: params.value }
@@ -506,9 +505,11 @@ export const useOrdersStore = defineStore("ordersStore", {
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
       const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
       const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
-      const isValid = hasUniquePlates && totalSets < 10 && !hasMixed
+      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed
       if (hasMixed)
-        notificationsStore.addNotification('Warning', `Cannot reorder "Mixed" platetype in ${colour.colourName}`, { severity: 'warn', life: null })
+        notificationsStore.addNotification('Warning', `Warning, "Mixed" plate type cannot be used for ${colour.colourName}, please pick a plate type from the available list`, { severity: 'warn' })
+      if (!hasUniquePlates)
+        notificationsStore.addNotification('Warning', `You have selected the same plate type for ${colour.colourName}`, { severity: 'warn'})
       return isValid
     },
     updateComputedColorFields() {

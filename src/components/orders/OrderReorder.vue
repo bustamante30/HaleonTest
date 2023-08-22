@@ -34,10 +34,7 @@ function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
 
-async function addToCart() {
-  if (await ordersStore.addToCart(ordersStore.selectedOrder))
-    isCartMessageVisible.value = true
-}
+
 
 function updateColor(color) {
   ordersStore.updateColor(color)
@@ -48,9 +45,19 @@ function validateReorder() {
   colors?.value.forEach(color => {
     if (!ordersStore.validateColour(color)) valid = false
   })
-  if (valid) {
-    router.push(`/dashboard/${props.selectedId}/confirm`)
-  }
+  return valid
+}
+
+function reorder() {
+  const valid = validateReorder()
+  if (valid) router.push(`/dashboard/${props.selectedId}/confirm`)
+}
+
+async function addToCart() {
+  const valid = validateReorder()
+  if (valid)
+    if (await ordersStore.addToCart(ordersStore.selectedOrder))
+      isCartMessageVisible.value = true
 }
 
 </script>
@@ -101,7 +108,7 @@ function validateReorder() {
             sgs-button.secondary(icon="shopping_cart" label="Add To Cart" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(label="Re-Order Now" @click="validateReorder" :disabled="disableReorder")
+            sgs-button(label="Re-Order Now" @click="reorder" :disabled="disableReorder")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '25rem', height: '10rem' }" modal header="Add to Cart" :closable='false')
     .cart-message
