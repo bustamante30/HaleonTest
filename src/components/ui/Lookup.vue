@@ -68,7 +68,7 @@ function switchToEditMode() {
   prime-dropdown(v-if="editMode" :modelValue="modelValue" @update:modelValue="update" :options="[...defaultOptions, ...options]" :optionLabel="optionLabel" :optionValue="optionValue" filter placeholder="Select Plate Type...")
   .readonly(v-else)
     span.value(v-if="selected") {{ selected.label }}
-    span.value(v-else-if="modelValue") {{ modelValue }}
+    span.value(v-else-if="modelValue === 256") Mixed
     span.no-data(v-else) No value specified
     a.change(@click="switchToEditMode()") Change
 </template>

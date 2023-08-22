@@ -223,7 +223,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
-          this.options.plateTypeDescription = plateTypes
+          this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loadingOrder = false;
