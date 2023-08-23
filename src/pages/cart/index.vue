@@ -20,15 +20,14 @@
 import { computed, onBeforeMount } from 'vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import CartOrder from '@/components/cart/CartOrder.vue'
-import { useOrdersStore } from '@/stores/orders'
-import { useColorsStore } from '@/stores/colors'
+import { useCartStore } from '@/stores/cart'
 import router from '@/router'
 
-const ordersStore = useOrdersStore()
-const cart = computed(() => ordersStore.cartOrders)
+const cartStore = useCartStore()
+const cart = computed(() => cartStore.cartOrders)
 
 onBeforeMount(() => {
-  ordersStore.getCart()
+  cartStore.getCart()
 })
 </script>
 

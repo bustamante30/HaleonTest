@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from "vue";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
-import config from "@/data/config/color-table-edit";
+import config from "@/data/config/color-table";
 import { useColorsStore } from "@/stores/colors";
 import router from "@/router";
-import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from '@/stores/notifications'
 import { renderToString } from "@vue/test-utils";
@@ -19,9 +19,10 @@ defineProps({
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const colorsStore = useColorsStore();
-const colors = computed(() => order.colors);
+const colors = computed(() => order.flattenedColors());
 const isSpecsVisible = ref(false);
-const ordersStore = useOrdersStore();
+const cartStore = useCartStore();
+
 
 function toggleColors() {
   isSpecsVisible.value = !isSpecsVisible.value;
@@ -39,16 +40,16 @@ async function discardOrder(order) {
     acceptIcon: 'pi pi-check',
     rejectIcon: 'pi pi-times',
     accept: async () => {
-      let result = await ordersStore.discardOrder(order.id)
+      let result = await cartStore.discardOrder(order.id)
       if (!result) {
         notificationsStore.addNotification(`Error`, 'Error Discarding the order', { severity: 'error' })
       }
       else {
-          const index = ordersStore.cartOrders.indexOf(order, 0);
+          const index = cartStore.cartOrders.indexOf(order, 0);
           if (index > -1) {
-              ordersStore.cartOrders.splice(index, 1);
-              ordersStore.cartCount = ordersStore.cartCount - 1
-              if(ordersStore.cartCount === 0){
+              cartStore.cartOrders.splice(index, 1);
+              cartStore.cartCount = cartStore.cartCount - 1
+              if(cartStore.cartCount === 0){
                   const form = document.querySelector(".page.cart")
                   form.style.display = "none"
               }
@@ -61,8 +62,8 @@ async function discardOrder(order) {
 }
 function pendingOrderSets(colors){
   let result = true
-  for(let i=0;i<colors.length;i++)
-    if(colors[i].sets>0)
+  for (let i=0; i<colors.length; i++)
+    if (colors[i].sets > 0)
       result = false
   return result
 }
@@ -105,7 +106,7 @@ function getShippingAddress(order) {
         span  {{getShippingAddress(order)}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
-        colors-table.p-datatable-sm(:config="config" :data="order.colors" :isEditable="true")
+        colors-table.p-datatable-sm(:config="config" :data="order.colors")
       footer
         .secondary-actions
         .actions

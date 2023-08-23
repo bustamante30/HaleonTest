@@ -25,15 +25,18 @@ function generateColors(count) {
 export default generateColors(8)
 
 
-// Validation plate type dropdown should be visible when validation fail - done
-// Plate thickness changes - done
-// checkbox selection on adding sets +
-// Adding new row set to 1 in validation 10 -
 
 
-// Add to cart button should be disabled when validation fail
-// View cart width 
-// Plate type and thickness in add to cart
 
 // Updatedraft api check
 // Quantity changes from Api
+
+// GetUserCart Api need to updated to getcart data
+// Reorder button from add to cart
+  // Compare order from dashboard to order form cart
+  // Decorate to match dashboard order 
+  // stores/order - assign decorated cart order to this.selectedOrder
+// Update Cart?
+// Remove from cart on successful reorder?
+// Retrieve data for submitted draft and cancelled
+// Add to cart from table action, table header (multiple)

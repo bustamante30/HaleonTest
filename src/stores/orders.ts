@@ -58,9 +58,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     orders: [] as any[],
     loadingOrders: true,
-    loadingOrder: false,
-    cartOrders: [] as any[],
-    cartCount: 0,
+    loadingOrder: false,    
     filters: {} as any,
     selectedOrder: null as any,
     successfullReorder: null as any,
@@ -161,19 +159,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
       // this.selectedOrder = this.orders[0];
     },
-    async getCartCount() {
-      this.cartCount = await ReorderService.getCartCount();
-      console.log(this.cartCount);
-    },
-    async getCart() {
-      this.cartOrders = await ReorderService.getCart();
-      this.decorateCartOrders();
-      console.log(this.cartOrders);
-    },
-    async discardOrder(id: string) {
-      console.log("order to be discarded" + id);
-      return await ReorderService.discardOrder(id);
-    },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
@@ -183,7 +168,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.selectedOrder = null
       if (id != null && id != undefined) {
         if (!isNaN(parseFloat(id)) && isFinite(id)) {
-          let order = this.cartOrders.find((order: any) => order.id === id);
+          // TODO: refactor this to cart store
+          let order // = this.cartOrders.find((order: any) => order.id === id);
           if (order != null) {
             this.selectedOrder = order;
           }
@@ -194,7 +180,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             let details = JSON.parse(
               JSON.stringify(
                 await ReorderService.getPhotonReorderDetails(
-                  this.selectedOrder.id
+                  this.selectedOrder?.id
                 )
               )
             );
@@ -379,21 +365,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders[i].selected = false;
       }
     },
-    decorateCartOrders() {
-      for (let i = 0; i < this.cartOrders.length; i++) {
-        if (!this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = new URL(
-            "@/assets/images/no_thumbnail.png",
-            import.meta.url
-          );
-        } else if (this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = decodeURIComponent(
-            this.cartOrders[i].thumbNailPath
-          );
-        }
-        ReorderService.decorateColours(this.cartOrders[i].colors);
-      }
-    },
+
     initAdvancedFilters() {
       this.options.locations = [
         { label: "Lancaster", value: 1 },
@@ -520,15 +492,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     // Order Table Actions
-    async addToCart(order: any) {
-      if (await ReorderService.submitReorder(order, 1)) {
-        this.cartCount = this.cartCount + 1;
-        return true;
-      } else {
-        alert(" Error adding order to cart");
-        return false;
-      }
-    },
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
     },

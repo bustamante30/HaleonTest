@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed, watch, onBeforeMount } from "vue";
 import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from '@/stores/cart'
 import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
 import ReorderService from "../../services/ReorderService";
 
 const ordersStore = useOrdersStore()
+const cartStore = useCartStore()
 
 const props = defineProps({
   selectedId: {
@@ -16,7 +18,7 @@ const props = defineProps({
 })
 
 const isCartMessageVisible = ref(false)
-const cartCount = computed(()=>ordersStore.cartCount)
+const cartCount = computed(()=> cartStore.cartCount)
 const colors = computed(() => ordersStore.selectedOrder.colors);
 const loadingOrder = computed(() => ordersStore.loadingOrder)
 const disableReorder = computed(()=>{
@@ -56,7 +58,7 @@ function reorder() {
 async function addToCart() {
   const valid = validateReorder()
   if (valid)
-    if (await ordersStore.addToCart(ordersStore.selectedOrder))
+    if (await cartStore.addToCart(ordersStore.selectedOrder))
       isCartMessageVisible.value = true
 }
 

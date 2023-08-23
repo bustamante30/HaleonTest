@@ -2,6 +2,7 @@
 import Image from 'primevue/image'
 import { ref, computed, reactive, onMounted, onBeforeMount } from 'vue'
 import { useOrdersStore } from '@/stores/orders'
+import { useCartStore } from '@/stores/cart'
 import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
 import config from '@/data/config/color-table-order'
@@ -9,6 +10,7 @@ import OrderConfirmForm from './OrderConfirmForm.vue'
 import ReorderService from "@/services/ReorderService";
 
 const ordersStore = useOrdersStore()
+const cartStore = useCartStore()
 const checkout = computed(() => ordersStore.checkout)
 
 const props = defineProps({
@@ -41,8 +43,8 @@ async function placeOrder() {
       alert('Error updating draft')
     }
     else {
-      let index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder)
-      ordersStore.cartOrders[index] = draftResult.result
+      let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
+      cartStore.cartOrders[index] = draftResult.result
       ordersStore.selectedOrder = draftResult.result
     }
   }
