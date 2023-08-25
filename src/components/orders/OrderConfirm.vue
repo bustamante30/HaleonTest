@@ -36,6 +36,7 @@ async function placeOrder() {
   }
   if (ordersStore.selectedOrder.id > 0) {
     ordersStore.selectedOrder.statusId = 2
+    ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
     let draftResult = await ReorderService.updateDraft(ordersStore.selectedOrder)
     if (!draftResult.success) {
       alert('Error updating draft')
@@ -48,6 +49,7 @@ async function placeOrder() {
   }
   else {
     if (!dateError) {
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
       let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
       ordersStore.setOrderInStore(result)
       console.log(result)
