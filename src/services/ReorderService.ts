@@ -15,6 +15,11 @@ interface SubmitReorderResponse {
     success?: boolean;
     result?: SubmitReorder;
 }
+
+type Reorderdoc = {
+    fileName : string;
+    url: string
+}
 interface SubmitReorder {
     Id?: number;
     OriginalOrderId: string;
@@ -36,6 +41,7 @@ interface SubmitReorder {
     Variety: string;
     colors: Color[];
     CustomerContacts: CustomerContact[];
+    reorderDocs: Reorderdoc[]
 }
 
 interface PlateType {
@@ -116,7 +122,9 @@ class ReorderService {
             Notes: reorderInfo.Notes,
             PlateRelief: reorderInfo.PlateRelief,
             colors: [],
-            CustomerContacts: []
+            CustomerContacts: [],
+            reorderDocs:reorderInfo.reorderDocs
+
         }
         reorderInfo.colors.forEach((color: any) => {
             let isActiveColor: boolean;

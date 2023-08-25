@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, } from "vue";
+import { computed, ref, onMounted,watch } from "vue";
 import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import { debounce } from "lodash";
@@ -38,11 +38,12 @@ const notificationsStore = useNotificationsStore()
 
 
 
-const searchValue = computed(() => props.value);
-
 const isFiltersVisible = ref(false);
 const loadingSuggestions = ref(false);
 
+onMounted(async () => {
+  await searchhistoryStore.getSearchField();
+});
 async function handleFocus(item) {
  // User Id from claims 
  let userId;
@@ -68,6 +69,7 @@ const keywordSearch =  debounce(async(event)=> {
       //should be a non blocking add history call 
       searchhistoryStore.setKeywordSearchHistory(event?.query, false);
     emit("searchkeyword", event);
+    searchedValue.value = ''
   }else{ 
     // Notify User
     notificationsStore.addNotification(
@@ -79,7 +81,6 @@ const keywordSearch =  debounce(async(event)=> {
   }
 
 },350)
-
 
 async function search(filters) {
   isFiltersVisible.value = false;
@@ -110,10 +111,10 @@ function toggleFilters() {
 .orders-search
   .search
     .input
-      prime-auto-complete.search-input(v-model="searchedValue" :suggestions="filteredSuggestions" 
-      @keyup.enter="keywordSearch($event)" completeOnFocus forceSelection @focus="handleFocus" @item-select="keywordSearch"
-      placeholder="Search by plate code, item code, UPC code..." :loading="loadingSuggestions")
-      span.material-icons.outline search
+      prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" 
+      @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @item-select="keywordSearch" :loading="false"
+      placeholder="Search by brand, variety, code, pack type...")
+      span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
@@ -146,4 +147,6 @@ function toggleFilters() {
   .p-autocomplete-input
     padding-left: $s3
     width: 100%
+.search-icon
+  cursor: pointer
 </style>
