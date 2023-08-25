@@ -164,6 +164,7 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
+  ordersStore.pageState.page = 1
   searchTags.value = []
   filters.query =  ''
   if (filters) {
