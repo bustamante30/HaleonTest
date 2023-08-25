@@ -5,7 +5,7 @@
     sgs-scrollpanel
       template(#header)
         header
-          h1.title Shopping Cart
+          h1.title Shopping Cart [{{ cartCount }}]
           a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
       .shopping-cart
@@ -25,6 +25,7 @@ import router from '@/router'
 
 const cartStore = useCartStore()
 const cart = computed(() => cartStore.cartOrders)
+const cartCount = computed(() => cartStore.cartCount)
 
 onBeforeMount(() => {
   cartStore.getCart()

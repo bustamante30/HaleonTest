@@ -40,22 +40,7 @@ async function discardOrder(order) {
     acceptIcon: 'pi pi-check',
     rejectIcon: 'pi pi-times',
     accept: async () => {
-      let result = await cartStore.discardOrder(order.id)
-      if (!result) {
-        notificationsStore.addNotification(`Error`, 'Error Discarding the order', { severity: 'error' })
-      }
-      else {
-          const index = cartStore.cartOrders.indexOf(order, 0);
-          if (index > -1) {
-              cartStore.cartOrders.splice(index, 1);
-              cartStore.cartCount = cartStore.cartCount - 1
-              if(cartStore.cartCount === 0){
-                  const form = document.querySelector(".page.cart")
-                  form.style.display = "none"
-              }
-          }
-          notificationsStore.addNotification(`Sucess`, 'Draft discarded successfully', { severity: 'success' })
-      }
+      await cartStore.discardOrder(order.id)
     },
     reject: () => {},
   });
@@ -75,7 +60,13 @@ function getShippingAddress(order) {
     ? order.customerContacts[0].shippingAddress
     : "";
 }
+
+function reorder(id) {
+  cartStore.reorderFromCart(id)
+  goto(`/dashboard/${id}/reorder`)
+}
 </script>
+
 <template lang="pug">
 .cart-order
   h2
@@ -111,8 +102,9 @@ function getShippingAddress(order) {
         .secondary-actions
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)" :disabled="pendingOrderSets(order.colors)")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.originalOrderId}`)")
+          sgs-button.sm(icon="redo" label="ReOrder" @click="reorder(order.id)")
+          //- :disabled="pendingOrderSets(order.colors)"
 </template>
 
 <style lang="sass" scoped>

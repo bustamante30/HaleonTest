@@ -20,9 +20,9 @@ const colors = computed(() => ordersStore.flattenedColors().filter(color => colo
 const expectedDate = ref("");
 
 onBeforeMount(async () => {
-  let x = ordersStore.selectedOrder.expectedDate.toString();
-  if (ordersStore.selectedOrder.expectedDate instanceof Date)
-    x = ordersStore.selectedOrder.expectedDate.toISOString();
+  let x = ordersStore.selectedOrder?.expectedDate?.toString();
+  if (ordersStore.selectedOrder?.expectedDate instanceof Date)
+    x = ordersStore.selectedOrder?.expectedDate?.toISOString();
   expectedDate.value = DateTime.fromISO(x).toFormat("dd LLL, yyyy hh:mm a");
 });
 
@@ -30,7 +30,7 @@ onMounted(async () => {
   const index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
   if (index > -1) {
     cartStore.cartOrders.splice(index, 1);
-    cartStore.cartCount = cartStore.cartCount - 1;
+    // cartStore.cartCount = cartStore.cartCount - 1;
   }
 });
 
@@ -49,7 +49,7 @@ watch(ordersStore.selectedOrder, (value) => {
 </script>
 
 <template lang="pug">
-.order-success
+.order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
       header

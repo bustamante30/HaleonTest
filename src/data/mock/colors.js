@@ -29,14 +29,15 @@ export default generateColors(8)
 
 
 // Updatedraft api check
-// Quantity changes from Api
-
+// Total Quantity changes from Api
 // GetUserCart Api need to updated to getcart data
-// Reorder button from add to cart
-  // Compare order from dashboard to order form cart
-  // Decorate to match dashboard order 
-  // stores/order - assign decorated cart order to this.selectedOrder
-// Update Cart?
+
+
+// Count need to handled from ui cart length
+// Update Cart? Reorder a draft/ cart order
+// Colors quantity not getting updated
+
 // Remove from cart on successful reorder?
 // Retrieve data for submitted draft and cancelled
+
 // Add to cart from table action, table header (multiple)
