@@ -209,6 +209,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.decodedToken = jwt_decode(this.accessToken)
       const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
       if (user !== null) {
+        localStorage.setItem("Claims", user.claims);
         this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
         localStorage.setItem("userType", this.currentB2CUser.userType);
 
