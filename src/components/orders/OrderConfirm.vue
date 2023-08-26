@@ -37,9 +37,10 @@ async function placeOrder() {
     dateError = false;
   }
   if (ordersStore.selectedOrder.id > 0) {
+    ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
     const selectedOrder = ordersStore.selectedOrder
     const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
-    const order = { ...selectedOrder, statusId: 2, reorderDocs: checkout.value.reorderdocs, colors: [...flattenedColors] }
+    const order = { ...selectedOrder, statusId: 2, colors: [...flattenedColors] }
     let draftResult = await ReorderService.updateDraft(order)
     if (!draftResult.success) {
       alert('Error updating draft')

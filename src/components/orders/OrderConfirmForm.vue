@@ -243,7 +243,7 @@ function handleInput(e: any) {
         //- TODO Prepopulate
         prime-textarea(v-model="checkoutForm.notes")
   aside
-    label.doc-label Attach Documnets
+    label.doc-label Attach Documents
     label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
       input(type="file" multiple @input="handleInput($event)")
       span Drag &amp; Drop files here ...
