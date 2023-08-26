@@ -180,7 +180,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (reorderId != null && reorderId != undefined) {
         if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
           // Cart reorder
-          let order = cartStore.cartOrders.find((order: any) => order.id === reorderId);
+          const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
           if (order != null) {
             const groupedPlates = groupBy(order.colors, 'id')
             const colors = keysIn(groupedPlates).map((id: string) => {
@@ -198,22 +198,26 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes);
-          }
-          else {
+          } else {
             // Dashboard photon reorder
-            this.selectedOrder = this.orders.find(
-              (order: any) => order.sgsId === reorderId
-            );
-            let details = JSON.parse(
-              JSON.stringify(
-                await ReorderService.getPhotonReorderDetails(
-                  this.selectedOrder?.id
-                )
-              )
-            );
+            const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
+            const photonOrderDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonReorderDetails(photonOrder?.id))) : null
+            const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
+            const colors = keysIn(groupedPlates).map((id: string) => {
+              return {
+                ...groupedPlates[id][0],
+                plateType: groupedPlates[id].map((plate: any) => {
+                  const { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                  return { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                })
+              }
+            })
+            const details = { ...photonOrder, ...photonOrderDetails, colors }         
             const plateTypes = this.mapPlateTypes(details)
+            this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
+            this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes);
+            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
           }
         } else {
           // Dashboard SGS reorder

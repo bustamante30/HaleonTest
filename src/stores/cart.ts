@@ -13,9 +13,9 @@ export const useCartStore = defineStore("cartStore", {
       return state.cartOrders.length || state.initialCartCount || 0
     },
     isOrderInCart: (state) => (orderId: string) => {
-      const order = state.cartOrders.find((o: any) => o.id === orderId) 
+      const order = state.cartOrders.find((o: any) => o.id === orderId)
       return !!order
-    },   
+    },
   },
   actions: {
     async getCartCount() {
@@ -24,7 +24,6 @@ export const useCartStore = defineStore("cartStore", {
     async getCart() {
       this.cartOrders = await ReorderService.getCart();
       this.decorateCartOrders();
-      // console.log(this.cartOrders);
     },
     reorderFromCart(id: string) {
       const orderStore = useOrdersStore()
@@ -47,25 +46,28 @@ export const useCartStore = defineStore("cartStore", {
     },
     async addToCart(order: any) {
       try {
-        const orderStore = useOrdersStore()
-        const colors = orderStore.flattenedColors()
+        const ordersStore = useOrdersStore()
+        const cartStore = useCartStore()
         const isOrderInCart = this.isOrderInCart(order.id)
         if (isOrderInCart) {
-          orderStore.selectedOrder.statusId = 1
-          let draftResult = await ReorderService.updateDraft(order) 
-          return true
+          const selectedOrder = ordersStore.selectedOrder
+          const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
+          const order = { ...selectedOrder, statusId: 1, colors: [...flattenedColors] }
+          //let draftResult = await ReorderService.updateDraft(order)
+          let draftResult = await ReorderService.submitReorder(order, 1)
+          this.getCart()          
+          return !!draftResult
         } else {
           const result = await ReorderService.submitReorder(order, 1)
           this.getCart()
-          return true
+          return !!result
         }
-      } catch(error) {
+      } catch (error) {
         console.error(error)
-        return false 
+        return false
       }
-    },  
+    },
     async discardOrder(id: string) {
-      // console.log("order to be discarded" + id);
       const notificationsStore = useNotificationsStore()
       const result = await ReorderService.discardOrder(id);
       if (!result) {
@@ -103,6 +105,6 @@ export const useCartStore = defineStore("cartStore", {
         }
       })
       return flattenedColors
-    }     
+    }
   }
 })
