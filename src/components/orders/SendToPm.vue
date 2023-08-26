@@ -75,11 +75,11 @@ function updateColors(colors: any) {
 async function submit() {
   sendForm.value.printerName = printerName
   let isPrinterAndLocationEmpty;
-  
-  if (!isPrinterAdmin) {
-    isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
-  } else {
+  if (isPrinterAdmin.value) {
     isPrinterAndLocationEmpty = sendForm.value.locationName == null || sendForm.value.printerName == null;
+    
+  } else {
+    isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
   }
 
   // Check if any other field has a value
@@ -95,7 +95,6 @@ async function submit() {
     sendForm.value.comments ||
     (sendUpload.value && sendUpload.value.length > 0);
 
-  console.log("hasAnyOtherFieldValue",hasAnyOtherFieldValue)
 
 
   if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
@@ -115,11 +114,12 @@ async function submit() {
   } else {
     (sendUpload as any).value = [];
 
-    if (!isPrinterAdmin){
-      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location,"")
+    if (isPrinterAdmin.value){
+      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,0,sendForm.value.locationName)
+     
     }
     else{
-      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,0,sendForm.value.locationName)
+      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location,"")
     }
     await sendToPmstore.submitorder(sendForm.value)
     emit('submit', sendForm);

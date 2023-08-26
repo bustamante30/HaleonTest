@@ -73,7 +73,7 @@ const searchHistory = computed(() => ordersStore.searchHistory);
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
-
+const searchExecuted = ref(false);
 // Freetext tags 
 const searchTags =ref([])
 
@@ -151,6 +151,7 @@ function searchByStatus(){
 function searchKeyword(event: any) {
  
   if (event) {
+    searchExecuted.value = true
     searchTags.value = event.query.split(',')
     const fil = {
       ...filters.value,
@@ -163,9 +164,12 @@ function searchKeyword(event: any) {
     searchTags.value = []
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
+    searchExecuted.value = false
   }
 }
 function search(filters: any) {
+  searchExecuted.value = true
+  ordersStore.pageState.page = 1
   searchTags.value = []
   filters.query =  ''
   if (filters) {
@@ -184,6 +188,8 @@ function search(filters: any) {
 
 const clearSearchTags = (index: number) =>{
   searchTags.value.splice(index,1)
+  if(searchTags.value.length === 0)
+    searchExecuted.value = false;
   const fil = {
     ...filters.value,
     query:searchTags.value.join(',')
@@ -201,6 +207,7 @@ const clearAllSearchTags = () =>{
     }
     addPrinterFilter()
     ordersStore.setFilters(fil);
+    searchExecuted.value = false;
 }
 
 function getSearchHistory() {
@@ -261,7 +268,10 @@ async function addMultipleToCart(values: any) {
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
+  if(ordersToAdd.length>0)
+  {
+    notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
+  }
   ordersStore.loadingOrders=false;
 }
 </script>
@@ -276,11 +286,13 @@ async function addMultipleToCart(values: any) {
         template(#header)
           welcome(:user="username")
           header
-            div.leftHeader
+            div.leftHeader(v-if="searchExecuted")
+              h1 Search Results 
+            div.leftHeader(v-if="!searchExecuted")
               h1 Recent Orders 
               prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
-            div
+            div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")

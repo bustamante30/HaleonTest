@@ -20,12 +20,14 @@ class ApiService {
 
     const fullUrl = `${this.baseUrl}${url}`;
     const authType = localStorage.getItem("AuthType");
+    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'get',
       url: fullUrl,   
       headers: {"Authorization" : `Bearer ${localStorage.getItem("token")}`,
-      "Authorization-Scheme": authType
+      "Authorization-Scheme": authType,
+      "Claims" : claims
     }
     };
       if (params) {
@@ -41,13 +43,15 @@ class ApiService {
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
     const authType = localStorage.getItem("AuthType");
+    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'post',
       url: fullUrl,
         data: data,
       headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      "Authorization-Scheme": authType
+      "Authorization-Scheme": authType,
+      "Claims" : claims
      }
     };
 
@@ -61,13 +65,15 @@ class ApiService {
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
     const authType = localStorage.getItem("AuthType");
+    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: 'delete',
       url: fullUrl,
         data: data,
       headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      "Authorization-Scheme": authType
+      "Authorization-Scheme": authType,
+      "Claims" : claims
      }
     };
 
