@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from "vue";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
-import config from "@/data/config/color-table-edit";
+import config from "@/data/config/color-table";
 import { useColorsStore } from "@/stores/colors";
 import router from "@/router";
-import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from '@/stores/notifications'
 import { renderToString } from "@vue/test-utils";
@@ -19,9 +19,10 @@ defineProps({
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const colorsStore = useColorsStore();
-const colors = computed(() => order.colors);
+const colors = computed(() => order.flattenedColors());
 const isSpecsVisible = ref(false);
-const ordersStore = useOrdersStore();
+const cartStore = useCartStore();
+
 
 function toggleColors() {
   isSpecsVisible.value = !isSpecsVisible.value;
@@ -39,30 +40,15 @@ async function discardOrder(order) {
     acceptIcon: 'pi pi-check',
     rejectIcon: 'pi pi-times',
     accept: async () => {
-      let result = await ordersStore.discardOrder(order.id)
-      if (!result) {
-        notificationsStore.addNotification(`Error`, 'Error Discarding the order', { severity: 'error' })
-      }
-      else {
-          const index = ordersStore.cartOrders.indexOf(order, 0);
-          if (index > -1) {
-              ordersStore.cartOrders.splice(index, 1);
-              ordersStore.cartCount = ordersStore.cartCount - 1
-              if(ordersStore.cartCount === 0){
-                  const form = document.querySelector(".page.cart")
-                  form.style.display = "none"
-              }
-          }
-          notificationsStore.addNotification(`Sucess`, 'Draft discarded successfully', { severity: 'success' })
-      }
+      await cartStore.discardOrder(order.id)
     },
     reject: () => {},
   });
 }
 function pendingOrderSets(colors){
   let result = true
-  for(let i=0;i<colors.length;i++)
-    if(colors[i].sets>0)
+  for (let i=0; i<colors.length; i++)
+    if (colors[i].sets > 0)
       result = false
   return result
 }
@@ -74,7 +60,13 @@ function getShippingAddress(order) {
     ? order.customerContacts[0].shippingAddress
     : "";
 }
+
+function reorder(id) {
+  cartStore.reorderFromCart(id)
+  goto(`/dashboard/${id}/reorder`)
+}
 </script>
+
 <template lang="pug">
 .cart-order
   h2
@@ -105,13 +97,14 @@ function getShippingAddress(order) {
         span  {{getShippingAddress(order)}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
-        colors-table.p-datatable-sm(:config="config" :data="order.colors" :isEditable="true")
+        colors-table.p-datatable-sm(:config="config" :data="order.colors")
       footer
         .secondary-actions
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          sgs-button.sm(icon="redo" label="ReOrder" @click="goto(`/dashboard/${order.id}/confirm`)" :disabled="pendingOrderSets(order.colors)")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.originalOrderId}`)")
+          sgs-button.sm(icon="redo" label="ReOrder" @click="reorder(order.id)")
+          //- :disabled="pendingOrderSets(order.colors)"
 </template>
 
 <style lang="sass" scoped>

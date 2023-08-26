@@ -2,6 +2,7 @@
 import Image from 'primevue/image'
 import { ref, computed, reactive, onMounted, onBeforeMount } from 'vue'
 import { useOrdersStore } from '@/stores/orders'
+import { useCartStore } from '@/stores/cart'
 import ColorsTable from './ColorsTable.vue'
 import router from '@/router'
 import config from '@/data/config/color-table-order'
@@ -9,6 +10,7 @@ import OrderConfirmForm from './OrderConfirmForm.vue'
 import ReorderService from "@/services/ReorderService";
 
 const ordersStore = useOrdersStore()
+const cartStore = useCartStore()
 const checkout = computed(() => ordersStore.checkout)
 
 const props = defineProps({
@@ -35,16 +37,18 @@ async function placeOrder() {
     dateError = false;
   }
   if (ordersStore.selectedOrder.id > 0) {
-    ordersStore.selectedOrder.statusId = 2
     ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-    let draftResult = await ReorderService.updateDraft(ordersStore.selectedOrder)
+    const selectedOrder = ordersStore.selectedOrder
+    const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
+    const order = { ...selectedOrder, statusId: 2, colors: [...flattenedColors] }
+    let draftResult = await ReorderService.updateDraft(order)
     if (!draftResult.success) {
       alert('Error updating draft')
     }
     else {
-      let index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder)
-      ordersStore.cartOrders[index] = draftResult.result
-      ordersStore.selectedOrder = draftResult.result
+      let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
+      cartStore.cartOrders[index] = draftResult.result
+      ordersStore.successfullReorder = draftResult.result
     }
   }
   else {
@@ -52,7 +56,6 @@ async function placeOrder() {
       ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
       let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
       ordersStore.setOrderInStore(result)
-      console.log(result)
     }
     else {
       errorMessage.value = "Date and time are mandatory fields";

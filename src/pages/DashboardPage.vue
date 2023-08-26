@@ -9,6 +9,7 @@ import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -19,6 +20,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
+const cartStore = useCartStore()
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
@@ -235,7 +237,7 @@ async function addToCart(order: any) {
     reject: async () => {
       ordersStore.loadingOrders=true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-      if (await ordersStore.addToCart(orderToAdd)) {
+      if (await cartStore.addToCart(orderToAdd)) {
         notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
       }
       ordersStore.loadingOrders=false;
@@ -255,7 +257,7 @@ async function addMultipleToCart(values: any) {
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-    if (!(await ordersStore.addToCart(orderToAdd))) {
+    if (!(await cartStore.addToCart(orderToAdd))) {
       notificationsStore.addNotification(`Error`, 'Error adding some orders to the cart', { severity: 'error' })
       ordersToAdd.forEach((order) => {
         order.selected = false;

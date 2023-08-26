@@ -2,6 +2,7 @@
 import Image from "primevue/image";
 import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from '@/stores/cart'
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
 import router from "@/router";
@@ -10,22 +11,26 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 
 const ordersStore = useOrdersStore();
+const cartStore = useCartStore()
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
+
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 const expectedDate = ref("");
+
 onBeforeMount(async () => {
-  let x = ordersStore.selectedOrder.expectedDate.toString();
-  if (ordersStore.selectedOrder.expectedDate instanceof Date)
-    x = ordersStore.selectedOrder.expectedDate.toISOString();
+  let x = ordersStore.selectedOrder?.expectedDate?.toString();
+  if (ordersStore.selectedOrder?.expectedDate instanceof Date)
+    x = ordersStore.selectedOrder?.expectedDate?.toISOString();
   expectedDate.value = DateTime.fromISO(x).toFormat("dd LLL, yyyy hh:mm a");
 });
+
 onMounted(async () => {
-  const index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
+  const index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
   if (index > -1) {
-    ordersStore.cartOrders.splice(index, 1);
-    ordersStore.cartCount = ordersStore.cartCount - 1;
+    cartStore.cartOrders.splice(index, 1);
+    // cartStore.cartCount = cartStore.cartCount - 1;
   }
 });
 
@@ -44,7 +49,7 @@ watch(ordersStore.selectedOrder, (value) => {
 </script>
 
 <template lang="pug">
-.order-success
+.order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
       header
