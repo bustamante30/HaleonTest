@@ -256,10 +256,7 @@ function cancelOrder(order: any) {
     header: "Cancel Order",
     icon: 'pi pi-info-circle',
     accept: async () => {
-      debugger;
       //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
-      order.selected = true;
-  showMultipleSelection.value = true;
   // api 
   let orderDetails = JSON.parse(
               JSON.stringify(

@@ -9,18 +9,19 @@ import router from "@/router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore()
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
+const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 const expectedDate = ref("");
 
 onBeforeMount(async () => {
-  debugger;
   let x = ordersStore.selectedOrder?.expectedDate?.toString();
   if (ordersStore.selectedOrder?.expectedDate instanceof Date)
     x = ordersStore.selectedOrder?.expectedDate?.toISOString();
@@ -45,13 +46,16 @@ async function handleClose() {
 }
 
 async function handleCancelOrder() {
-  debugger;
   if (selectedOrder) {
-    const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, false);
+    const cancelResult = ordersStore.cancelOrder(selectedOrder.value.id, false);
     if (cancelResult) {
-      console.log("Order canceled successfully.");
+      debugger;
+      notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
+      await router.push(`/dashboard`);
+      await ordersStore.getOrders();
     } else {
-      console.log("Failed to cancel order.");
+      debugger;
+      notificationsStore.addNotification(`Error`, 'Error occured while cancelling order', { severity: 'error' })
       // Handle error or show a notification
     }
   }

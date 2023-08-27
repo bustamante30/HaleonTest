@@ -533,7 +533,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       router.push(`/dashboard/${order.sgsId}`);
     },
     async cancelOrder(orderId: number, isActive: boolean) {
-      debugger;
      const deleteResult=  ReorderService.cancelOrder(orderId, isActive);
      console.log("cancelOrder", deleteResult);
     },

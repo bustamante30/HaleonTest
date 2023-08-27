@@ -324,7 +324,6 @@ class ReorderService {
     }
 
     public static cancelOrder(orderId: number, isActive: boolean){
-        debugger;
         return httpService
           .delete<boolean>('v1/Reorder/cancel?orderId='+ orderId +'&isActive='+ isActive +'')
           .then((response: boolean) => {
