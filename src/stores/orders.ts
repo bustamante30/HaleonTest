@@ -96,6 +96,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     ],
     userPrinterName: "",
     userRoleKey: "",
+    isCancel: false,
     textSearchData: {
       query: '',
       data:  {
@@ -531,13 +532,14 @@ export const useOrdersStore = defineStore("ordersStore", {
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
     },
-    cancelOrder(order: any) {
-      console.log("cancelOrder", order);
+    async cancelOrder(orderId: number, isActive: boolean) {
+     const deleteResult=  ReorderService.cancelOrder(orderId, isActive);
+     console.log("cancelOrder", deleteResult);
     },
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
     },
-    mapPlateTypes(details: any) {
+    mapPlateTypes(details: any) { 
       return details?.plateTypes?.map((plateType: any) => {
         const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
         return {

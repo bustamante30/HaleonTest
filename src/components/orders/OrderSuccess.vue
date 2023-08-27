@@ -9,11 +9,13 @@ import router from "@/router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore()
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
+const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
@@ -27,7 +29,7 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  const index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
+  const index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
   if (index > -1) {
     cartStore.cartOrders.splice(index, 1);
     // cartStore.cartCount = cartStore.cartCount - 1;
@@ -43,6 +45,22 @@ async function handleClose() {
   await ordersStore.getOrders();
 }
 
+async function handleCancelOrder() {
+  if (selectedOrder) {
+    const cancelResult = ordersStore.cancelOrder(selectedOrder.value.id, false);
+    if (cancelResult) {
+      debugger;
+      notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
+      await router.push(`/dashboard`);
+      await ordersStore.getOrders();
+    } else {
+      debugger;
+      notificationsStore.addNotification(`Error`, 'Error occured while cancelling order', { severity: 'error' })
+      // Handle error or show a notification
+    }
+  }
+}
+
 watch(ordersStore.selectedOrder, (value) => {
   selectedOrder = value;
 });
@@ -53,9 +71,10 @@ watch(ordersStore.selectedOrder, (value) => {
   sgs-scrollpanel
     template(#header)
       header
-        h1.title Thank you for your order
+      h1.title {{ ordersStore.isCancel ? 'Order Cancelled' : 'Thank you for your order' }}
     .card.disclaimer
-      h1 Order Number: {{ selectedOrder.id }} 
+      h1 Order Number: {{ selectedOrder.id }}
+      template(v-if="!ordersStore.isCancel")
       p
         | The following plate re-order has been placed. &nbsp;
         br/
@@ -71,6 +90,7 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
+      .f(v-if="!ordersStore.isCancel")
       .f(v-if="selectedOrder.po")
         label Purchase Order #
         span {{ selectedOrder.po }}
@@ -102,6 +122,7 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
+          sgs-button(v-if="ordersStore.isCancel" label="Cancel Order" @click="handleCancelOrder()")
           sgs-button(label="Close" @click="handleClose()")
 </template>
 
