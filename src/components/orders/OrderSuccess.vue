@@ -29,7 +29,7 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  const index = ordersStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
+  const index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder, 0);
   if (index > -1) {
     cartStore.cartOrders.splice(index, 1);
   }
