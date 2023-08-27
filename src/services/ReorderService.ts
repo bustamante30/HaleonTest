@@ -2,7 +2,7 @@ import type { ReorderDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
-
+//import.meta.env.VITE_API_BASE_URL ??
 
 const httpService = new ApiService(baseUrl)
 
@@ -312,6 +312,21 @@ class ReorderService {
             return false
         });
     }
+
+    public static cancelOrder(orderId: number, isActive: boolean){
+        debugger;
+        return httpService
+          .delete<boolean>('v1/Reorder/cancel?orderId='+ orderId +'&isActive='+ isActive +'')
+          .then((response: boolean) => {
+            return response;
+          })
+            .catch((error: any) => {
+                console.log('Error deleting order:', error);
+                return null;
+              });
+    }
+
+    
     public static getColorType(colourType: number){
         switch(colourType){
             case 2: return "Tone"
