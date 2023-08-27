@@ -4,13 +4,14 @@ import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import filterStore from "@/stores/filterStore";
 import { useNotificationsStore } from '@/stores/notifications'
+import { useCartStore } from '@/stores/cart'
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { sum } from 'lodash';
 import { toRaw } from 'vue';
 import type { ReorderDto } from "@/models/ReorderDto";
-import { sortBy } from "lodash";
+import { sortBy, groupBy, keysIn } from "lodash";
 
 const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
  
@@ -58,9 +59,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     orders: [] as any[],
     loadingOrders: true,
-    loadingOrder: false,
-    cartOrders: [] as any[],
-    cartCount: 0,
+    loadingOrder: false,    
     filters: {} as any,
     selectedOrder: null as any,
     successfullReorder: null as any,
@@ -111,24 +110,33 @@ export const useOrdersStore = defineStore("ordersStore", {
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
+        console.log('to-be-flattended-color', color)
         color?.plateType?.forEach((plate: any) => {
           flattenedColors.push({
-            sequenceNumber: color.sequenceNumber,
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
-            imageCarrierId: color.imageCarrierId,
-            originalSets: color.originalSets,
             colourTypeDesc: color.colourTypeDesc,
-            newColour: color.newColour,
             commonColourRef: color.commonColourRef,
-            plateTypeDescription: plate.plateTypeDescription.label,
+            custCarrierIdNo: color.custCarrierIdNo,
+            custImageIdNo: color.custImageIdNo,
+            imageCarrierId: color.imageCarrierId,
+            isActive: color.isActive,
+            isNew: color.isNew,
+            jobTechSpecColourId: color.jobTechSpecColourId,
+            newColour: color.newColour,
+            originalSets: color.originalSets,
+            plateTypeId: plate?.plateTypeId,
+            plateThicknessId: plate?.plateThicknessId,
             plateThicknessDescription: plate.plateTypeDescription.plateThicknessDescription, 
+            plateTypeDescription: plate.plateTypeDescription.label,
+            sequenceNumber: color.sequenceNumber,
             sets: plate.sets
+            
           })
         })
       })
       return flattenedColors
-    },
+    },  
   },
   actions: {
     async getOrders() {
@@ -162,55 +170,68 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
       // this.selectedOrder = this.orders[0];
     },
-    async getCartCount() {
-      this.cartCount = await ReorderService.getCartCount();
-      console.log(this.cartCount);
-    },
-    async getCart() {
-      this.cartOrders = await ReorderService.getCart();
-      this.decorateCartOrders();
-      console.log(this.cartOrders);
-    },
-    async discardOrder(id: string) {
-      console.log("order to be discarded" + id);
-      return await ReorderService.discardOrder(id);
-    },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
-    async getOrderById(id: any) {
+    async getOrderById(reorderId: any) {
+      const cartStore = useCartStore()
       this.loadingOrder = true
       this.selectedOrder = null
-      if (id != null && id != undefined) {
-        if (!isNaN(parseFloat(id)) && isFinite(id)) {
-          let order = this.cartOrders.find((order: any) => order.id === id);
+      if (reorderId != null && reorderId != undefined) {
+        if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
+          // Cart reorder
+          const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
           if (order != null) {
-            this.selectedOrder = order;
-          }
-          else {
-            this.selectedOrder = this.orders.find(
-              (order: any) => order.sgsId === id
-            );
-            let details = JSON.parse(
-              JSON.stringify(
-                await ReorderService.getPhotonReorderDetails(
-                  this.selectedOrder.id
-                )
-              )
-            );
+            const groupedPlates = groupBy(order.colors, 'id')
+            const colors = keysIn(groupedPlates).map((id: string) => {
+              return {
+                ...groupedPlates[id][0],
+                plateType: groupedPlates[id].map((plate: any) => {
+                  const { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                  return { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                })
+              }
+            })
+            const details = { ...order, colors }
             const plateTypes = this.mapPlateTypes(details)
-            this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
+            this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
+            this.selectedOrder = details
+            const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
+            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes);
+          } else {
+            // Dashboard photon reorder
+            const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
+            const photonOrderDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonReorderDetails(photonOrder?.id))) : null
+            const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
+            const colors = keysIn(groupedPlates).map((id: string) => {
+              return {
+                ...groupedPlates[id][0],
+                plateType: groupedPlates[id].map((plate: any) => {
+                  const { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                  return { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                })
+              }
+            })
+            const details = { ...photonOrder, ...photonOrderDetails, colors }         
+            const plateTypes = this.mapPlateTypes(details)
+            this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
+            this.selectedOrder = details
+            const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
+            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
           }
         } else {
+          // Dashboard SGS reorder
           this.selectedOrder = this.orders.find(
-            (order: any) => order.sgsId === id
+            (order: any) => order.sgsId === reorderId
           );
 
           let details = JSON.parse(
-            JSON.stringify(await ReorderService.getOrderDetails(id))
+            JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
           const plateTypes = this.mapPlateTypes(details)
+          this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
+
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder.description = details.jobDescription;
           this.selectedOrder.barcodes = details.barcode;
@@ -224,7 +245,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
-          this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loadingOrder = false;
@@ -380,21 +400,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders[i].selected = false;
       }
     },
-    decorateCartOrders() {
-      for (let i = 0; i < this.cartOrders.length; i++) {
-        if (!this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = new URL(
-            "@/assets/images/no_thumbnail.png",
-            import.meta.url
-          );
-        } else if (this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = decodeURIComponent(
-            this.cartOrders[i].thumbNailPath
-          );
-        }
-        ReorderService.decorateColours(this.cartOrders[i].colors);
-      }
-    },
+
     initAdvancedFilters() {
       this.options.locations = [
         { label: "Lancaster", value: 1 },
@@ -476,15 +482,17 @@ export const useOrdersStore = defineStore("ordersStore", {
             if (params.field === 'plateTypeDescription') {
               const plateType = this.options?.plateTypeDescription?.find(plateType => plateType.value === params.value)
               const hasPlateType = plateDetails.find(plateType => {
-                console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
+                // console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
                 return plateType.plateTypeDescription.value === params.value
               })
               const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
               if (hasPlateType) {
                 notificationsStore.addNotification('Warning', `Plate type ${plateType.label} already exists for this colour`, { severity: 'warn', life: null })
               }
-              plateToReplace = { ...plateToReplace, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
+              plateToReplace = { ...plateToReplace, plateTypeId: plateType.value, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
+              // console.log('plateTypeDescription', plateToReplace, plateType, params.field)
             } else if (params.field === 'sets') {
+              // console.log('sets')
               if (totalSets > 10) {
                 notificationsStore.addNotification('Warning', `You cannot have more than 10 sets reordered for 1 colour`, { severity: 'warn' })
                 return
@@ -521,15 +529,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     // Order Table Actions
-    async addToCart(order: any) {
-      if (await ReorderService.submitReorder(order, 1)) {
-        this.cartCount = this.cartCount + 1;
-        return true;
-      } else {
-        alert(" Error adding order to cart");
-        return false;
-      }
-    },
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
     },
@@ -545,7 +544,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return details?.plateTypes?.map((plateType: any) => {
         const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
         return {
-          label: plateType?.plateTypeName,
+          label: plateType?.plateTypeName || plateType?.plateTypeDescription,
           value: plateType?.plateTypeId,
           plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
           plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId
@@ -553,8 +552,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
-      
-      const colors = Array.from(details.colors || [])
+      const colors = Array.from(details && details.colors || [])
       this.selectedOrder.colors = colors?.map((color: any) => {
         const colorFirstPlateType = color.plateType[0]
         return {

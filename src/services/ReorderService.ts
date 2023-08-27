@@ -15,6 +15,11 @@ interface SubmitReorderResponse {
     success?: boolean;
     result?: SubmitReorder;
 }
+
+type Reorderdoc = {
+    fileName : string;
+    url: string
+}
 interface SubmitReorder {
     Id?: number;
     OriginalOrderId: string;
@@ -36,6 +41,7 @@ interface SubmitReorder {
     Variety: string;
     colors: Color[];
     CustomerContacts: CustomerContact[];
+    reorderDocs: Reorderdoc[]
 }
 
 interface PlateType {
@@ -54,6 +60,7 @@ interface Color {
     custImageIdNo: string;
     imageCarrierId: string;
     sets: number;
+    reorderColourPlateTypeId: number;
     originalSets: number;
     plateTypeId: number;
     plateTypeDescription: string;
@@ -81,7 +88,7 @@ interface CustomerContact {
 class ReorderService {
     public static async updateDraft(reorder: any):Promise<SubmitReorderResponse> {
         reorder.colors.forEach((color: any) => {
-            color.isActive = color.sets > 0 ? true : false
+            color.isActive = color.totalSets > 0 ? true : false
         })
         return await httpService
             .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
@@ -116,7 +123,9 @@ class ReorderService {
             Notes: reorderInfo.Notes,
             PlateRelief: reorderInfo.PlateRelief,
             colors: [],
-            CustomerContacts: []
+            CustomerContacts: [],
+            reorderDocs:reorderInfo.reorderDocs
+
         }
         reorderInfo.colors.forEach((color: any) => {
             let isActiveColor: boolean;
@@ -134,7 +143,8 @@ class ReorderService {
                         plateThicknessId: color.plateThicknessId,
                         plateTypeDescription: color.plateTypeDescription,
                         plateTypeId: color.plateTypeId,
-                        sets: color.sets,                        
+                        sets: color.sets, 
+                        reorderColourPlateTypeId: color.reorderColourPlateTypeId,                       
                         plateTypes: [
                             {
                                 plateTypeId: plateType?.plateTypeDescription?.value,
@@ -341,6 +351,7 @@ class ReorderService {
         if(colors)
             colors.forEach(color =>{
                 color.originalSets = color.sets
+                color.plateTypes = color.plateTypes?.sort((a,b)=> a.plateTypeId - b.plateTypeId)
                 color.colourTypeDesc = this.getColorType(color.colourType)
                 color.newColour = color.isNew? "New":"Common"
             })

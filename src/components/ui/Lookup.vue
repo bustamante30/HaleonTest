@@ -54,11 +54,11 @@ function update(event) {
 
 function escPressed(event) {
   editMode.value = false
-  console.log(event)
+  // console.log(event)
 }
 
 function switchToEditMode() {
-  console.log('switching to edit ' + props.modelValue)
+  // console.log('switching to edit ' + props.modelValue)
   editMode.value = true
 }
 </script>

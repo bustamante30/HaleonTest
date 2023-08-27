@@ -143,6 +143,7 @@ export const useAuthStore = defineStore("auth", {
       this.validateToken()
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
+        localStorage.setItem("Claims", user.claims);
         this.currentUser = {...this.currentUser,...user} as any;
         localStorage.setItem("userType", this.currentUser.userType);
         store.set('currentUser', this.currentUser);

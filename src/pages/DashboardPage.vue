@@ -9,6 +9,7 @@ import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -21,6 +22,7 @@ import ReorderService from "@/services/ReorderService";
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
+const cartStore = useCartStore()
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
@@ -73,7 +75,7 @@ const searchHistory = computed(() => ordersStore.searchHistory);
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
-
+const searchExecuted = ref(false);
 // Freetext tags 
 const searchTags =ref([])
 
@@ -151,6 +153,7 @@ function searchByStatus(){
 function searchKeyword(event: any) {
  
   if (event) {
+    searchExecuted.value = true
     searchTags.value = event.query.split(',')
     const fil = {
       ...filters.value,
@@ -163,9 +166,12 @@ function searchKeyword(event: any) {
     searchTags.value = []
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
+    searchExecuted.value = false
   }
 }
 function search(filters: any) {
+  searchExecuted.value = true
+  ordersStore.pageState.page = 1
   searchTags.value = []
   filters.query =  ''
   if (filters) {
@@ -184,6 +190,8 @@ function search(filters: any) {
 
 const clearSearchTags = (index: number) =>{
   searchTags.value.splice(index,1)
+  if(searchTags.value.length === 0)
+    searchExecuted.value = false;
   const fil = {
     ...filters.value,
     query:searchTags.value.join(',')
@@ -201,6 +209,7 @@ const clearAllSearchTags = () =>{
     }
     addPrinterFilter()
     ordersStore.setFilters(fil);
+    searchExecuted.value = false;
 }
 
 function getSearchHistory() {
@@ -230,7 +239,7 @@ async function addToCart(order: any) {
     reject: async () => {
       ordersStore.loadingOrders=true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-      if (await ordersStore.addToCart(orderToAdd)) {
+      if (await cartStore.addToCart(orderToAdd)) {
         notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
       }
       ordersStore.loadingOrders=false;
@@ -279,7 +288,7 @@ async function addMultipleToCart(values: any) {
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-    if (!(await ordersStore.addToCart(orderToAdd))) {
+    if (!(await cartStore.addToCart(orderToAdd))) {
       notificationsStore.addNotification(`Error`, 'Error adding some orders to the cart', { severity: 'error' })
       ordersToAdd.forEach((order) => {
         order.selected = false;
@@ -308,11 +317,13 @@ async function addMultipleToCart(values: any) {
         template(#header)
           welcome(:user="username")
           header
-            div.leftHeader
+            div.leftHeader(v-if="searchExecuted")
+              h1 Search Results 
+            div.leftHeader(v-if="!searchExecuted")
               h1 Recent Orders 
               prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
-            div
+            div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")

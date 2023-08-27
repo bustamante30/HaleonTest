@@ -34,7 +34,7 @@ function stylify(width: any) {
 
 function updatePlate({ id, field, value }: { id: number, field: string, value: any }) {
   const { colourId } = props
-  console.log('update plate', { colourId, id, field, value })
+  // console.log('update plate', { colourId, id, field, value })
   if (colourId) emit('update', { colourId, id, field, value })
 }
 

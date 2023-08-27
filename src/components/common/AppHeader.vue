@@ -3,15 +3,16 @@ import AppLogo from './AppLogo.vue'
 import UserProfile from './UserProfile.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useCartStore } from "@/stores/cart";
 import { useOrdersStore } from "@/stores/orders";
 import { onMounted, computed, watch, ref } from "vue";
 import store from "store";
 
-const ordersStore = useOrdersStore()
-
+const cartStore = useCartStore();
+const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const cartCount = computed(() => ordersStore.cartCount)
+const cartCount = computed(() => cartStore.cartCount)
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
 const IsExternalAdmin = ref('');
@@ -23,7 +24,7 @@ onMounted(async () => {
   if (store.get('currentb2cUser')) {
     authb2cStore.currentB2CUser = store.get('currentb2cUser');
   }
-  await ordersStore.getCartCount()
+  await cartStore.getCartCount()
 });
 
 watch(currentUser, (value) => {
