@@ -1,5 +1,5 @@
 export default {
-  dataKey: 'id',
+  dataKey: 'checkboxId',
   cols: [
     {
       header: "Seq #",
@@ -53,7 +53,7 @@ export default {
     },
   ],
   plates: {
-    dataKey: 'id',
+    dataKey: 'checkboxId',
     cols: [
       {
         header: 'Plate Type',

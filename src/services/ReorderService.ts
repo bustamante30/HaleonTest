@@ -21,30 +21,32 @@ type Reorderdoc = {
     url: string
 }
 interface SubmitReorder {
-    Id?: number;
-    OriginalOrderId: string;
-    BrandName: string;
-    Description: string;
-    Weight: string;
-    ItemCode: string;
-    PrinterName: string;
-    PrinterId: number;
-    PrinterLocationName: string;
-    PackType: string;
-    StatusId: number;
-    ExpectedDate: Date;
-    Notes: string;
+    id: number;
+    originalOrderId: string;
+    brandName: string;
+    description: string;
+    weight: string;
+    itemCode: string;
+    printerName: string;
+    printerId: number;
+    printerLocationName: string;
+    packType: string;
+    statusId: number;
+    expectedDate: Date;
+    notes: string;
     PO: string;
-    CreatedBy?:number;
-    PlateRelief: string;
-    ThumbNailPath: string;
-    Variety: string;
+    createdBy?:number;
+    plateRelief: string;
+    thumbNailPath: string;
+    variety: string;
     colors: Color[];
-    CustomerContacts: CustomerContact[];
+    customerContacts: CustomerContact[];
     reorderDocs: Reorderdoc[]
 }
 
 interface PlateType {
+    id: number;
+    reorderColourPlateTypeId: number;
     plateTypeId: number;
     plateType: string;
     plateThicknessId: number;
@@ -52,6 +54,7 @@ interface PlateType {
     sets: number;
 }
 interface Color {
+    id: number;
     jobTechSpecColourId: number;
     colourName: string;
     sequenceNumber: number;
@@ -60,7 +63,6 @@ interface Color {
     custImageIdNo: string;
     imageCarrierId: string;
     sets: number;
-    reorderColourPlateTypeId: number;
     originalSets: number;
     plateTypeId: number;
     plateTypeDescription: string;
@@ -77,6 +79,7 @@ interface Color {
 }
 
 interface CustomerContact {
+    id: number;
     alias: string;
     customerContactId: string;
     sgsCustomerId: string;
@@ -86,53 +89,35 @@ interface CustomerContact {
     isActive: boolean;
 }
 class ReorderService {
-    public static async updateDraft(reorder: any):Promise<SubmitReorderResponse> {
-        reorder.colors.forEach((color: any) => {
-            color.isActive = color.totalSets > 0 ? true : false
-        })
-        return await httpService
-            .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
-            .then((response: SubmitReorderResponse) => {
-                console.log('updated Order:')
-                this.decorateColours(response.result?.colors)
-                console.log(response.result);
-                return response;
-            })
-            .catch((error: any) => {
-                console.log('Error submitting reorder:', error);
-                let x: SubmitReorderResponse ={success : false};
-                return x;
-            });
-    }
+    // public static async updateDraft(reorder: any):Promise<SubmitReorderResponse> {
+    //     reorder.colors.forEach((color: any) => {
+    //         color.isActive = color.totalSets > 0 ? true : false
+    //     })
+    //     return await httpService
+    //         .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
+    //         .then((response: SubmitReorderResponse) => {
+    //             console.log('updated Order:')
+    //             this.decorateColours(response.result?.colors)
+    //             console.log(response.result);
+    //             return response;
+    //         })
+    //         .catch((error: any) => {
+    //             console.log('Error submitting reorder:', error);
+    //             let x: SubmitReorderResponse ={success : false};
+    //             return x;
+    //         });
+    // }
     public static submitReorder(reorderInfo: any, statusId: number) {
-        let newReorder: SubmitReorder = {
-            OriginalOrderId: reorderInfo.sgsId,
-            BrandName: reorderInfo.brandName,
-            Description: reorderInfo.description,
-            Weight: reorderInfo.weight,
-            ItemCode: reorderInfo.itemCode,
-            PrinterId: 1,
-            PrinterName: reorderInfo.printerName,
-            PrinterLocationName: reorderInfo.printerLocationName,
-            PackType: reorderInfo.packType,
-            StatusId: statusId,
-            ThumbNailPath: reorderInfo.thumbNailPath,
-            Variety: reorderInfo.variety,
-            PO: reorderInfo.PO,
-            ExpectedDate: reorderInfo.expectedDate? reorderInfo.expectedDate:new Date(),
-            Notes: reorderInfo.Notes,
-            PlateRelief: reorderInfo.PlateRelief,
-            colors: [],
-            CustomerContacts: [],
-            reorderDocs:reorderInfo.reorderDocs
+        const newColors = [] as any[]
+        const newContacts = [] as any[]
 
-        }
         reorderInfo.colors.forEach((color: any) => {
             let isActiveColor: boolean;
             color?.plateType?.forEach((plateType: any) => {
                 if (plateType.sets > 0) {
                     isActiveColor = true
-                    newReorder.colors.push({
+                    newColors.push({
+                        id: 0,
                         clientPlateColourRef: color.clientPlateColourRef,
                         colourName: color.colourName,
                         custCarrierIdNo: color.custCarrierIdNo,
@@ -144,9 +129,10 @@ class ReorderService {
                         plateTypeDescription: color.plateTypeDescription,
                         plateTypeId: color.plateTypeId,
                         sets: color.sets, 
-                        reorderColourPlateTypeId: color.reorderColourPlateTypeId,                       
                         plateTypes: [
                             {
+                                id: 0,
+                                reorderColourPlateTypeId: plateType?.reorderColourPlateTypeId,
                                 plateTypeId: plateType?.plateTypeDescription?.value,
                                 plateType: plateType?.plateTypeDescription?.label,
                                 plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
@@ -164,10 +150,10 @@ class ReorderService {
                 }
             })
         })
-       
         reorderInfo.customerContacts.forEach((contact: any) => {
-            newReorder.CustomerContacts.push(
+            newContacts.push(
                 {
+                    id: 0, 
                     alias: contact.alias,
                     customerContactId: contact.customerContactId,
                     sgsCustomerId: contact.customerId,
@@ -177,11 +163,37 @@ class ReorderService {
                     isActive: contact.isActive
                 })
         })
+
+        let newReorder: SubmitReorder = {
+            id: 0,
+            originalOrderId: reorderInfo.sgsId,
+            brandName: reorderInfo.brandName,
+            description: reorderInfo.description,
+            weight: reorderInfo.weight,
+            itemCode: reorderInfo.itemCode,
+            printerId: 1,
+            printerName: reorderInfo.printerName,
+            printerLocationName: reorderInfo.printerLocationName,
+            packType: reorderInfo.packType,
+            statusId: statusId,
+            thumbNailPath: reorderInfo.thumbNailPath,
+            variety: reorderInfo.variety,
+            PO: reorderInfo.PO,
+            expectedDate: reorderInfo.expectedDate ? reorderInfo.expectedDate : new Date(),
+            notes: reorderInfo.Notes,
+            plateRelief: reorderInfo.PlateRelief,
+            reorderDocs: reorderInfo.reorderDocs,
+            colors: [...newColors],
+            customerContacts: [...newContacts]
+        }
+
+
+        console.log('newReorder',newReorder)
         return httpService
             .post<SubmitReorderResponse>('v1/Reorder/submitReorder', newReorder)
             .then((response: SubmitReorderResponse) => {
                 this.decorateColours(response.result?.colors)
-                return response.result;
+                return response;
             })
             .catch((error: any) => {
                 console.log('Error submitting reorder:', error);

@@ -13,7 +13,7 @@ export const useCartStore = defineStore("cartStore", {
       return state.cartOrders.length || state.initialCartCount || 0
     },
     isOrderInCart: (state) => (orderId: string) => {
-      const order = state.cartOrders.find((o: any) => o.id === orderId)
+      const order = state?.cartOrders?.find((o: any) => o.id === orderId)
       return !!order
     },
   },
@@ -45,27 +45,12 @@ export const useCartStore = defineStore("cartStore", {
       }
     },
     async addToCart(order: any) {
-      try {
-        const ordersStore = useOrdersStore()
-        const cartStore = useCartStore()
-        const isOrderInCart = this.isOrderInCart(order.id)
-        if (isOrderInCart) {
-          const selectedOrder = ordersStore.selectedOrder
-          const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
-          const order = { ...selectedOrder, statusId: 1, colors: [...flattenedColors] }
-          //let draftResult = await ReorderService.updateDraft(order)
-          let draftResult = await ReorderService.submitReorder(order, 1)
-          this.getCart()          
-          return !!draftResult
-        } else {
-          const result = await ReorderService.submitReorder(order, 1)
-          this.getCart()
-          return !!result
-        }
-      } catch (error) {
-        console.error(error)
-        return false
-      }
+      //TO DO: Upldate logic to cart
+      const orderStore = useOrdersStore()
+      const draftResult = await ReorderService.submitReorder(order, 1)
+      orderStore.successfullReorder = draftResult
+      await this.getCart()
+      return !!draftResult
     },
     async discardOrder(id: string) {
       const notificationsStore = useNotificationsStore()
@@ -80,7 +65,7 @@ export const useCartStore = defineStore("cartStore", {
     },
     flattenedColorsArrayDecorator(colors: any) {
       const flattenedColors = toRaw(colors)?.map((color: any) => {
-        const plateTypes = [{
+        const plateType = [{
           plateTypeId: color?.plateTypeId,
           plateType: color?.plateTypeDescription,
           plateThicknessId: color?.plateThicknessId,
@@ -101,7 +86,7 @@ export const useCartStore = defineStore("cartStore", {
           originalSets: color.originalSets,
           sequenceNumber: color.sequenceNumber,
           sets: color.sets,
-          plateTypes: [...plateTypes]
+          plateType: [...plateType]
         }
       })
       return flattenedColors

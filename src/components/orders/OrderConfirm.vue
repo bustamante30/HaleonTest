@@ -36,33 +36,28 @@ async function placeOrder() {
   } else {
     dateError = false;
   }
-  if (ordersStore.selectedOrder.id > 0) {
-    ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-    const selectedOrder = ordersStore.selectedOrder
-    const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
-    const order = { ...selectedOrder, statusId: 2, colors: [...flattenedColors] }
-    let draftResult = await ReorderService.updateDraft(order)
-    if (!draftResult.success) {
-      alert('Error updating draft')
-    }
-    else {
-      let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
-      cartStore.cartOrders[index] = draftResult.result
-      ordersStore.successfullReorder = draftResult.result
-    }
-  }
-  else {
-    if (!dateError) {
-      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-      let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
-      ordersStore.setOrderInStore(result)
-    }
-    else {
-      errorMessage.value = "Date and time are mandatory fields";
-
-    }
-  }
   if (!dateError) {
+    if (ordersStore.selectedOrder.statusId === 1) {
+      // add reorder flow
+      const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
+      let draftResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      if (!draftResult.success) {
+        alert('Error updating draft')
+      }
+      else {
+        let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
+        cartStore.cartOrders[index] = draftResult.result
+        ordersStore.successfullReorder = draftResult.result
+      }
+    }
+    else {
+      // completed reorder flow
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
+      let compResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      ordersStore.setOrderInStore(compResult.result)
+      
+    }
     checkout.value.expectedDate = null
     checkout.value.expectedTime = null
     checkout.value.purchaseOrder = null
