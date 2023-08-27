@@ -15,7 +15,9 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import SendPm from "@/components/orders/SendToPm.vue";
 import { useConfirm } from "primevue/useconfirm";
-import { useNotificationsStore } from '@/stores/notifications'
+import { useNotificationsStore } from '@/stores/notifications';
+import router from "@/router";
+import ReorderService from "@/services/ReorderService";
 
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
@@ -248,7 +250,33 @@ function reorder(order: any) {
   ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
-  ordersStore.cancelOrder(order);
+
+  confirm.require({
+    message: "Do you want to delete this Reorder?",
+    header: "Cancel Order",
+    icon: 'pi pi-info-circle',
+    accept: async () => {
+      //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
+  // api 
+  let orderDetails = JSON.parse(
+              JSON.stringify(
+                await ReorderService.getPhotonReorderDetails(
+                  order.id
+                )
+              )
+            );
+  ordersStore.isCancel = true;
+  ordersStore.setOrderInStore(orderDetails);
+  (document.getElementsByClassName("p-image-preview-indicator")[0]as HTMLElement)?.focus();
+  // Assuming you have a route named "success" for the success page
+  await router.push(`/dashboard/${order.id}/success`);
+    },
+    reject: () => {
+      notificationsStore.addNotification(`Info`, 'Order Cancellation Rejected', { severity: 'error' })
+        }
+  });
+  
+//ordersStore.cancelOrder(order);
 }
 
 async function addMultipleToCart(values: any) {
