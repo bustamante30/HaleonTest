@@ -24,6 +24,7 @@ export const useCartStore = defineStore("cartStore", {
     async getCart() {
       this.cartOrders = await ReorderService.getCart();
       this.decorateCartOrders();
+      await this.getCartCount()
     },
     reorderFromCart(id: string) {
       const orderStore = useOrdersStore()
@@ -45,11 +46,20 @@ export const useCartStore = defineStore("cartStore", {
       }
     },
     async addToCart(order: any) {
-      //TO DO: Upldate logic to cart
       const orderStore = useOrdersStore()
       const draftResult = await ReorderService.submitReorder(order, 1)
       orderStore.successfullReorder = draftResult
       await this.getCart()
+      await this.getCartCount()
+      return !!draftResult
+    },
+    async updateToCart(order: any) {
+      const orderStore = useOrdersStore()
+      const isUpdate = true
+      const draftResult = await ReorderService.submitReorder(order, 1, isUpdate)
+      orderStore.successfullReorder = draftResult
+      await this.getCart()
+      await this.getCartCount()
       return !!draftResult
     },
     async discardOrder(id: string) {
@@ -61,6 +71,7 @@ export const useCartStore = defineStore("cartStore", {
       else {
         notificationsStore.addNotification(`Success`, 'Draft discarded successfully', { severity: 'success' })
         this.getCart()
+        await this.getCartCount()
       }
     },
     flattenedColorsArrayDecorator(colors: any) {

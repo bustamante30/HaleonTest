@@ -107,7 +107,7 @@ class ReorderService {
     //             return x;
     //         });
     // }
-    public static submitReorder(reorderInfo: any, statusId: number) {
+    public static submitReorder(reorderInfo: any, statusId: number, isUpdate?: boolean) {
         const newColors = [] as any[]
         const newContacts = [] as any[]
 
@@ -117,7 +117,7 @@ class ReorderService {
                 if (plateType.sets > 0) {
                     isActiveColor = true
                     newColors.push({
-                        id: 0,
+                        id: isUpdate? color.id : 0,
                         clientPlateColourRef: color.clientPlateColourRef,
                         colourName: color.colourName,
                         custCarrierIdNo: color.custCarrierIdNo,
@@ -131,7 +131,7 @@ class ReorderService {
                         sets: color.sets, 
                         plateTypes: [
                             {
-                                id: 0,
+                                id: isUpdate ? plateType.id : 0,
                                 reorderColourPlateTypeId: plateType?.reorderColourPlateTypeId,
                                 plateTypeId: plateType?.plateTypeDescription?.value,
                                 plateType: plateType?.plateTypeDescription?.label,
@@ -153,7 +153,7 @@ class ReorderService {
         reorderInfo.customerContacts.forEach((contact: any) => {
             newContacts.push(
                 {
-                    id: 0, 
+                    id: isUpdate? contact.id : 0, 
                     alias: contact.alias,
                     customerContactId: contact.customerContactId,
                     sgsCustomerId: contact.customerId,
@@ -165,7 +165,7 @@ class ReorderService {
         })
 
         let newReorder: SubmitReorder = {
-            id: 0,
+            id: isUpdate ? reorderInfo.id : 0,
             originalOrderId: reorderInfo.sgsId,
             brandName: reorderInfo.brandName,
             description: reorderInfo.description,
