@@ -8,7 +8,7 @@ trigger:
   
   paths:
     include:
-    - '/*'
+    - '*'
     exclude:
     - 'pipelines/*'
 
@@ -103,7 +103,7 @@ stages:
         ArtifactName:  '$(ArtifactName)'
         BuildNumber:  '$(STAGE_BuildNumber)'
 
-  - stage: Deploy_QA
+  - stage: Deploy_STAGING
     displayName: 'Deploy to STAGING'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
