@@ -18,6 +18,7 @@ const props = defineProps({
 })
 
 const selection = computed(() => ordersStore.selectedOrder)
+const loading = computed(() => ordersStore.loading)
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 
 let isFormVisible = ref(false)
@@ -29,7 +30,7 @@ function confirm() {
 const errorMessage = ref('');
 
 async function placeOrder() {
-
+  ordersStore.loading.reorder = true
   var dateError;
   if (checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
     dateError = true;
@@ -67,6 +68,7 @@ async function placeOrder() {
     errorMessage.value = "Date and time are mandatory fields";
 
   }
+  ordersStore.loading.reorder = false
 }
 
 function updateCheckout(values) {
@@ -141,7 +143,7 @@ function checkCustomerDetails() {
         .secondary-actions &nbsp;
         .actions
           sgs-button.default.sm(label="Cancel" @click="isFormVisible = false")
-          sgs-button.alert.sm(label="Confirm" @click="placeOrder($event)")
+          sgs-button.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
           
 
 </template>

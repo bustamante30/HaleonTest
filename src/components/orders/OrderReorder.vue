@@ -15,13 +15,17 @@ const props = defineProps({
     type: String,
     default: () => "",
   },
+  loading: {
+    type: Object,
+    default: () => ({ cart: false, reorder: false })
+  }
 })
 
 const isCartMessageVisible = ref(false)
 const cartCount = computed(()=> cartStore.cartCount)
 const isOrderInCart = computed(()=> cartStore.isOrderInCart(props.selectedId))
 const colors = computed(() => ordersStore.selectedOrder.colors);
-const loadingOrder = computed(() => ordersStore.loadingOrder)
+const loading = computed(() => ordersStore.loading)
 const disableReorder = computed(()=>{
   const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
   return !(totalSets && totalSets.length)
@@ -113,16 +117,16 @@ async function updateToCart() {
             span.separator /
             span {{ selectedOrder.printerLocationName }}
       .card
-        colors-table(:config="config" :data="colors" :isEditable="true" :loading="loadingOrder" @update="updateColor")
+        colors-table(:config="config" :data="colors" :isEditable="true" :loading="loading.order" @update="updateColor")
       template(#footer)
         footer
           .secondary-actions &nbsp;
             sgs-button.default.back(label="Back" @click="router.push(`/dashboard/${props.selectedId}`)")
           .actions
-            sgs-button.secondary(icon="shopping_cart" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
+            sgs-button.secondary(:icon="loading.cart ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(label="Re-Order Now" @click="reorder" :disabled="disableReorder")
+            sgs-button(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Re-Order Now" @click="reorder" :disabled="disableReorder")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal header="Add to Cart" :closable='false')
     .cart-message

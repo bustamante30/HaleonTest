@@ -124,10 +124,10 @@ class ReorderService {
                         custImageIdNo: color.custImageIdNo,
                         imageCarrierId: color.imageCarrierId,
                         jobTechSpecColourId: color.jobTechSpecColourId,
-                        plateThicknessDescription: color.plateThicknessDescription,
-                        plateThicknessId: color.plateThicknessId,
-                        plateTypeDescription: color.plateTypeDescription,
-                        plateTypeId: color.plateTypeId,
+                        plateThicknessDescription: plateType?.plateTypeDescription?.plateThicknessDescription,
+                        plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
+                        plateTypeDescription: plateType?.plateTypeDescription?.label,
+                        plateTypeId: plateType?.plateTypeDescription?.value,
                         sets: color.sets, 
                         plateTypes: [
                             {

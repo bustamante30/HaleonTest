@@ -42,6 +42,12 @@ defineProps({
 $button-font-size: 1rem
 $button-font-weight: 500
 
+@keyframes spin
+  0%
+    transform: rotate(0)
+  to
+    transform: rotate(359deg)
+
 button
   +reset
   appearance: none
@@ -156,8 +162,10 @@ button
 i.icon
   font-size: inherit
   display: inline-block
-  + span
+  + span:not(.badge)
     margin-left: $s50
+  &.spin
+    animation: spin 2s linear infinite
 
 span
   display: inline-block

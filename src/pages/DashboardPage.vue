@@ -69,7 +69,7 @@ const isValidIdentityProvider = computed(() => {
   }
 });
 const userFilterConfig = computed(() => filterConfig("user"));
-const loadingOrders = computed(() => ordersStore.loadingOrders)
+const loadingOrders = computed(() => ordersStore.loading.ordersList)
 const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
@@ -237,12 +237,12 @@ async function addToCart(order: any) {
       (document.getElementsByClassName("p-image-preview-indicator")[0]as HTMLElement)?.focus();
     },
     reject: async () => {
-      ordersStore.loadingOrders=true;
+      ordersStore.loading.ordersList=true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       if (await cartStore.addToCart(orderToAdd)) {
         notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
       }
-      ordersStore.loadingOrders=false;
+      ordersStore.loading.ordersList=false;
     },
   });
 }
@@ -280,7 +280,7 @@ function cancelOrder(order: any) {
 }
 
 async function addMultipleToCart(values: any) {
-  ordersStore.loadingOrders=true;
+  ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
@@ -300,7 +300,7 @@ async function addMultipleToCart(values: any) {
   {
     notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
   }
-  ordersStore.loadingOrders=false;
+  ordersStore.loading.ordersList = false;
 }
 </script>
 

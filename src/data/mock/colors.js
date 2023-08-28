@@ -28,15 +28,11 @@ export default generateColors(8)
 
 
 
-// Updatedraft api check
 
-// Count need to handled from ui cart length ?
-// Update Cart? 
-// Colors quantity not getting updated?
-
+// Update Cart delete and update? 
 // Remove from cart on successful reorder?
-// Retrieve data for submitted draft and cancelled?
-// DB photon clearing part
 
 // Add to cart from table action, table header (multiple)
-// View order in cart details not showing
+
+// View order in cart details not showing( thumbnail hide, barcode hide)?
+// Retrieve data for submitted draft and cancelled?

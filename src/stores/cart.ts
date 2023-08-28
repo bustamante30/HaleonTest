@@ -47,19 +47,23 @@ export const useCartStore = defineStore("cartStore", {
     },
     async addToCart(order: any) {
       const orderStore = useOrdersStore()
+      orderStore.loading.cart = true
       const draftResult = await ReorderService.submitReorder(order, 1)
       orderStore.successfullReorder = draftResult
       await this.getCart()
       await this.getCartCount()
+      orderStore.loading.cart = false
       return !!draftResult
     },
     async updateToCart(order: any) {
       const orderStore = useOrdersStore()
+      orderStore.loading.cart = true
       const isUpdate = true
       const draftResult = await ReorderService.submitReorder(order, 1, isUpdate)
       orderStore.successfullReorder = draftResult
       await this.getCart()
       await this.getCartCount()
+      orderStore.loading.cart = false
       return !!draftResult
     },
     async discardOrder(id: string) {
@@ -84,6 +88,7 @@ export const useCartStore = defineStore("cartStore", {
           sets: color?.sets
         }]
         return {
+          id: color.id,
           clientPlateColourRef: color.clientPlateColourRef,
           colourName: color.colourName,
           colourType: color.colourType,

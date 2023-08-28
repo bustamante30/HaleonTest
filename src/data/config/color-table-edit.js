@@ -20,11 +20,6 @@ export default {
       width: 6,
     },
     {
-      header: 'Plate Types',
-      field: 'plateTypes',
-      tooltip: true,
-    },
-    {
       header: 'Total Quantity',
       field: 'totalSets',
       width: 5
