@@ -39,6 +39,7 @@ interface SubmitReorder {
     plateRelief: string;
     thumbNailPath: string;
     variety: string;
+    isActive: boolean;
     colors: Color[];
     customerContacts: CustomerContact[];
     reorderDocs: Reorderdoc[]
@@ -52,6 +53,7 @@ interface PlateType {
     plateThicknessId: number;
     plateThickness: string;
     sets: number;
+    isActive: boolean;
 }
 interface Color {
     id: number;
@@ -89,24 +91,7 @@ interface CustomerContact {
     isActive: boolean;
 }
 class ReorderService {
-    // public static async updateDraft(reorder: any):Promise<SubmitReorderResponse> {
-    //     reorder.colors.forEach((color: any) => {
-    //         color.isActive = color.totalSets > 0 ? true : false
-    //     })
-    //     return await httpService
-    //         .post<SubmitReorderResponse>('v1/Reorder/updateDraft', reorder)
-    //         .then((response: SubmitReorderResponse) => {
-    //             console.log('updated Order:')
-    //             this.decorateColours(response.result?.colors)
-    //             console.log(response.result);
-    //             return response;
-    //         })
-    //         .catch((error: any) => {
-    //             console.log('Error submitting reorder:', error);
-    //             let x: SubmitReorderResponse ={success : false};
-    //             return x;
-    //         });
-    // }
+    
     public static submitReorder(reorderInfo: any, statusId: number, isUpdate?: boolean) {
         const newColors = [] as any[]
         const newContacts = [] as any[]
@@ -128,16 +113,17 @@ class ReorderService {
                         plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
                         plateTypeDescription: plateType?.plateTypeDescription?.label,
                         plateTypeId: plateType?.plateTypeDescription?.value,
-                        sets: color.sets, 
+                        sets: plateType.sets, 
                         plateTypes: [
                             {
-                                id: isUpdate ? plateType.id : 0,
+                                id: isUpdate ? plateType?.reorderColourPlateTypeId : 0,
                                 reorderColourPlateTypeId: plateType?.reorderColourPlateTypeId,
                                 plateTypeId: plateType?.plateTypeDescription?.value,
                                 plateType: plateType?.plateTypeDescription?.label,
                                 plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
                                 plateThickness: plateType?.plateTypeDescription?.plateThicknessDescription,
-                                sets: plateType.sets
+                                sets: plateType.sets,
+                                isActive: isActiveColor,
                             }
                         ],
                         sequenceNumber: color.sequenceNumber,
@@ -145,7 +131,7 @@ class ReorderService {
                         colourType: color.colourType,
                         isNew: color.isNew,
                         commonColourRef: color.commonColourRef,
-                        isActive: isActiveColor,
+                        isActive: true,
                     })
                 }
             })
@@ -183,6 +169,7 @@ class ReorderService {
             notes: reorderInfo.Notes,
             plateRelief: reorderInfo.PlateRelief,
             reorderDocs: reorderInfo.reorderDocs,
+            isActive: reorderInfo.isActive,
             colors: [...newColors],
             customerContacts: [...newContacts]
         }
