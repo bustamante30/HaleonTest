@@ -1,17 +1,22 @@
 trigger:
-  batch: true
   branches:
     include:
     - 'master'
   tags:
     include:
     - 'refs/tags/release-imageCarrier-ui-v*'
-
-pr:
-  branches: 
+  
+  paths:
     include:
-    - 'master'
-    - 'release-imageCarrier-ui-v*'
+    - '/*'
+    exclude:
+    - 'pipelines/*'
+
+# pr:
+#   branches: 
+#     include:
+#     - 'master'
+#     - 'release-imageCarrier-ui-v*'
 
 name: "ImageCarrier-UI"
 
@@ -50,6 +55,7 @@ stages:
           BuildNumber:  '$(DEV_BuildNumber)'
 
   - stage: Build_QA
+    displayName: 'Build QA'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
     - Build_Dev
@@ -79,3 +85,39 @@ stages:
           ArtifactName:  '$(ArtifactName)'
           AzureSubscription:  '$(AzureSubscription)'
           BuildNumber:  '$(QA_BuildNumber)'
+
+  - stage: Build_STAGING
+    displayName: 'Build STAGING'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    dependsOn:
+    - Build_Dev
+    - Deploy_Dev
+    - Build_QA
+    - Deploy_QA
+    variables:
+      - group: 'stage-azure-imgcarrier-ui-static-variable-group'
+    jobs:
+    - template: buildTemplate.yaml
+      parameters:          
+        environment: 'stage'
+        ArtifactName:  '$(ArtifactName)'
+        BuildNumber:  '$(STAGE_BuildNumber)'
+
+  - stage: Deploy_QA
+    displayName: 'Deploy to STAGING'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    dependsOn:
+    - Build_Dev
+    - Deploy_Dev
+    - Build_QA
+    - Deploy_QA
+    - Build_STAGING
+    variables:
+      - group: 'stage-azure-imgcarrier-ui-static-variable-group'
+    jobs:
+      - template: deploymentTemplate.yaml
+        parameters:
+          environment: 'stage'
+          ArtifactName:  '$(ArtifactName)'
+          AzureSubscription:  '$(AzureSubscription)'
+          BuildNumber:  '$(STAGE_BuildNumber)'
