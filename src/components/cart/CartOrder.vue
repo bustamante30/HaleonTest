@@ -74,7 +74,6 @@ function reorder(id) {
     span.separator |
     span {{ order.description }}
   .summary
-    //- | {{ order }}
     .thumbnail
       prime-image.image(:src="order.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
     .details

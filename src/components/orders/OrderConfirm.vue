@@ -18,6 +18,7 @@ const props = defineProps({
 })
 
 const selection = computed(() => ordersStore.selectedOrder)
+const loading = computed(() => ordersStore.loading)
 const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
 
 let isFormVisible = ref(false)
@@ -29,40 +30,35 @@ function confirm() {
 const errorMessage = ref('');
 
 async function placeOrder() {
-
+  ordersStore.loading.reorder = true
   var dateError;
   if (checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
     dateError = true;
   } else {
     dateError = false;
   }
-  if (ordersStore.selectedOrder.id > 0) {
-    ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-    const selectedOrder = ordersStore.selectedOrder
-    const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
-    const order = { ...selectedOrder, statusId: 2, colors: [...flattenedColors] }
-    let draftResult = await ReorderService.updateDraft(order)
-    if (!draftResult.success) {
-      alert('Error updating draft')
-    }
-    else {
-      let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
-      cartStore.cartOrders[index] = draftResult.result
-      ordersStore.successfullReorder = draftResult.result
-    }
-  }
-  else {
-    if (!dateError) {
-      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-      let result = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
-      ordersStore.setOrderInStore(result)
-    }
-    else {
-      errorMessage.value = "Date and time are mandatory fields";
-
-    }
-  }
   if (!dateError) {
+    if (ordersStore.selectedOrder.statusId === 1) {
+      // add reorder flow
+      const flattenedColors = cartStore.flattenedColorsArrayDecorator(ordersStore.flattenedColors().filter(color => color.sets))
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
+      let draftResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      if (!draftResult.success) {
+        alert('Error updating draft')
+      }
+      else {
+        let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
+        cartStore.cartOrders[index] = draftResult.result
+        ordersStore.successfullReorder = draftResult.result
+      }
+    }
+    else {
+      // completed reorder flow
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
+      let compResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
+      ordersStore.setOrderInStore(compResult.result)
+      
+    }
     checkout.value.expectedDate = null
     checkout.value.expectedTime = null
     checkout.value.purchaseOrder = null
@@ -72,6 +68,7 @@ async function placeOrder() {
     errorMessage.value = "Date and time are mandatory fields";
 
   }
+  ordersStore.loading.reorder = false
 }
 
 function updateCheckout(values) {
@@ -146,7 +143,7 @@ function checkCustomerDetails() {
         .secondary-actions &nbsp;
         .actions
           sgs-button.default.sm(label="Cancel" @click="isFormVisible = false")
-          sgs-button.alert.sm(label="Confirm" @click="placeOrder($event)")
+          sgs-button.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
           
 
 </template>

@@ -26,7 +26,7 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const value = computed(() => get(props.data, props.config.field))
-const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
+// const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
 const optionKey = computed(() => get(props.config, 'options.key') || null)
 const optionValues = computed(() => optionKey.value ? get(props.options, optionKey.value) : [])
 const optionLabelKey = computed(() => get(props.config, 'options.label') || 'label')
@@ -48,7 +48,7 @@ function resolvePath(config, data) {
 
 function update(value) {
   const { data, config } = props
-  emit('update', { id: data[props.dataKey], field: config.field, value: value })
+  emit('update', { [props.dataKey]: data[props.dataKey], field: config.field, value: value })
 }
 </script>
 

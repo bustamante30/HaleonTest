@@ -63,20 +63,20 @@ watch(selected, (colors, prevColors) => {
     // If color added sets = 1
     colors.forEach((color) => {
       if (prevColorIds && !prevColorIds.includes(color.jobTechSpecColourId) && color.sets < 1) {
-        updateColor({ id: color.jobTechSpecColourId, field: 'sets', value: 1 })
+        updateColor({ checkboxId: color.jobTechSpecColourId, field: 'sets', value: 1 })
       }
     })
     // If color removed sets = 0
     prevColors && prevColors.forEach((color) => {
       if (!colorIds.includes(color.jobTechSpecColourId)) {
-        updateColor({ id: color.jobTechSpecColourId, field: 'sets', value: 0 })
+        updateColor({ checkboxId: color.jobTechSpecColourId, field: 'sets', value: 0 })
       }
     })
   }
 })
 
-function updateColor({ id, field, value }) {
-  emit('update', { id, field, value })
+function updateColor({ checkboxId, field, value }) {
+  emit('update', { checkboxId, field, value })
 }
 
 </script>

@@ -1,5 +1,5 @@
 export default {
-  dataKey: 'id',
+  dataKey: 'checkboxId',
   cols: [
     {
       header: "Seq #",
@@ -18,11 +18,6 @@ export default {
       field: "colourName",
       freeze: "left",
       width: 6,
-    },
-    {
-      header: 'Plate Types',
-      field: 'plateTypes',
-      tooltip: true,
     },
     {
       header: 'Total Quantity',
@@ -53,7 +48,7 @@ export default {
     },
   ],
   plates: {
-    dataKey: 'id',
+    dataKey: 'checkboxId',
     cols: [
       {
         header: 'Plate Type',
