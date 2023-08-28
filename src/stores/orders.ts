@@ -532,8 +532,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       router.push(`/dashboard/${order.sgsId}`);
     },
     async cancelOrder(orderId: number, isActive: boolean) {
-     const deleteResult=  ReorderService.cancelOrder(orderId, isActive);
-     console.log("cancelOrder", deleteResult);
+         return await ReorderService.cancelOrder(orderId, isActive);
     },
     getSearchHistory(history: any) {
       this.searchHistory = [...history];

@@ -331,7 +331,7 @@ class ReorderService {
           })
             .catch((error: any) => {
                 console.log('Error deleting order:', error);
-                return null;
+                return false;
               });
     }
 
