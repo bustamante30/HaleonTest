@@ -250,7 +250,6 @@ function reorder(order: any) {
   ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
-
   confirm.require({
     message: "Do you want to delete this Reorder?",
     header: "Cancel Order",

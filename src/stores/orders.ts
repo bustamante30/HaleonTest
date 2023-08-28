@@ -108,9 +108,8 @@ export const useOrdersStore = defineStore("ordersStore", {
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
       const flattenedColors = [] as any[]
-      const colors = orderType === 'success' ? state.successfullReorder?.colors : state.selectedOrder?.colors
+      const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
-        console.log('to-be-flattended-color', color)
         color?.plateType?.forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
@@ -127,8 +126,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             originalSets: color.originalSets,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateTypeDescription.plateThicknessDescription, 
-            plateTypeDescription: plate.plateTypeDescription.label,
+            plateThicknessDescription: state.isCancel? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
+            plateTypeDescription: state.isCancel? plate.plateType :plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
             

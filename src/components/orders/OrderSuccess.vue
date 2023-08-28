@@ -49,12 +49,10 @@ async function handleCancelOrder() {
   if (selectedOrder) {
     const cancelResult = ordersStore.cancelOrder(selectedOrder.value.id, false);
     if (cancelResult) {
-      debugger;
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
       await router.push(`/dashboard`);
       await ordersStore.getOrders();
     } else {
-      debugger;
       notificationsStore.addNotification(`Error`, 'Error occured while cancelling order', { severity: 'error' })
       // Handle error or show a notification
     }
@@ -74,8 +72,7 @@ watch(ordersStore.selectedOrder, (value) => {
       h1.title {{ ordersStore.isCancel ? 'Order Cancelled' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
-      template(v-if="!ordersStore.isCancel")
-      p
+      p(v-if="!ordersStore.isCancel")
         | The following plate re-order has been placed. &nbsp;
         br/
         | Your order is expected to be delivered on &nbsp;
