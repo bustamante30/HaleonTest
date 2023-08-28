@@ -58,8 +58,12 @@ export const useOrdersStore = defineStore("ordersStore", {
       rows: 10,
     },
     orders: [] as any[],
-    loadingOrders: true,
-    loadingOrder: false,    
+    loading: {
+      ordersList: true,
+      order: false,
+      cart: false,
+      reorder: false,
+    },
     filters: {} as any,
     selectedOrder: null as any,
     successfullReorder: null as any,
@@ -124,6 +128,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             jobTechSpecColourId: color.jobTechSpecColourId,
             newColour: color.newColour,
             originalSets: color.originalSets,
+            id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
             plateThicknessDescription: state.isCancel? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
@@ -144,7 +149,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       if(b2cAuth.currentB2CUser.isLoggedIn){
           printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
       }
-      this.loadingOrders = true;
+      this.loading.ordersList = true;
       const result = await ReorderService.getRecentReorders(
         4,
         undefined,
@@ -157,7 +162,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         undefined,
         printerUserIds
       );
-      this.loadingOrders = false;
+      this.loading.ordersList = false;
       if (Array.isArray(result)) {
         this.orders = [];
         this.totalRecords = 0;
@@ -175,7 +180,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     async getOrderById(reorderId: any) {
       const cartStore = useCartStore()
-      this.loadingOrder = true
+      this.loading.order = true
       this.selectedOrder = null
       if (reorderId != null && reorderId != undefined) {
         if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
@@ -187,8 +192,8 @@ export const useOrdersStore = defineStore("ordersStore", {
               return {
                 ...groupedPlates[id][0],
                 plateType: groupedPlates[id].map((plate: any) => {
-                  const { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                  return { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                  const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                  return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
                 })
               }
             })
@@ -207,8 +212,8 @@ export const useOrdersStore = defineStore("ordersStore", {
               return {
                 ...groupedPlates[id][0],
                 plateType: groupedPlates[id].map((plate: any) => {
-                  const { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                  return { sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                  const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                  return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
                 })
               }
             })
@@ -246,15 +251,15 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.plateType = details.techSpec.plateType;
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
-        this.loadingOrder = false;
+        this.loading.order = false;
         return this.selectedOrder;
       }
-      this.loadingOrder = false;
+      this.loading.order = false;
     },
 
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };
-      this.loadingOrders = true;
+      this.loading.ordersList = true;
       let printers = [] as string[]
       let printerIds = [] as number[]
       let  printerUserIds = [] as number []
@@ -356,7 +361,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders = reorderedData;
         this.totalRecords = totalRecords;
       }
-      this.loadingOrders = false;
+      this.loading.ordersList = false;
       this.decorateOrders();
       // this.selectedOrder = this.orders[0];
     },
@@ -422,9 +427,9 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any).Notes = this.checkout.notes;
     },
     // color update flow
-    async updateColor({ id, field, value }: any) {
+    async updateColor({ checkboxId, field, value }: any) {
       const colours = this.selectedOrder['colors'] as any[]
-      const selectedIndex = colours.findIndex(c => c.id === id)
+      const selectedIndex = colours.findIndex(c => c.checkboxId === checkboxId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
         if (colour) {
@@ -440,26 +445,26 @@ export const useOrdersStore = defineStore("ordersStore", {
     // Add, Remove & Update Plates
     addPlate(params: any) {
       const colours = this.selectedOrder['colors'] as any[]
-      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
-        const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.id === params.id ? params.value : plate.sets))
+        const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.checkboxId === params.checkboxId ? params.value : plate.sets))
         this.selectedOrder['colors'][selectedIndex] = {
           ...colour,
           plateType: [
             ...colour.plateType,
-            { id: faker.datatype.uuid(), plateTypeId: 0, plateTypeDescription: { label: '', value: '' }, plateThicknessId: 0, plateThicknessDescription: '', sets: 0, isEditable: true } as any
+            { checkboxId: faker.datatype.uuid(), id: 0, plateTypeId: 0, plateTypeDescription: { label: '', value: '' }, plateThicknessId: 0, plateThicknessDescription: '', sets: 0, isEditable: true } as any
           ]
         }
       }
     },
     removePlate(params: any) {
       const colours = this.selectedOrder['colors'] as any[]
-      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
         if (colour) {
-          const plateType = colour.plateType && colour.plateType.filter((plate: any) => plate.id !== params.id)
+          const plateType = colour.plateType && colour.plateType.filter((plate: any) => plate.checkboxId !== params.checkboxId)
           this.selectedOrder['colors'][selectedIndex] = { ...colour, plateType }
         }
       }
@@ -467,16 +472,16 @@ export const useOrdersStore = defineStore("ordersStore", {
     updatePlate(params: any) {
       const notificationsStore = useNotificationsStore()
       const colours = this.selectedOrder['colors'] as any[]
-      const selectedIndex = colours.findIndex(c => c.id === params.colourId)
+      const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder['colors'][selectedIndex]
         if (colour) {
           const colorFirstPlateType = colour.plateType[0]
           const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => {
-            return plate.id === params.id && params.field === 'sets' ? params.value : plate.sets
+            return plate.checkboxId === params.checkboxId && params.field === 'sets' ? params.value : plate.sets
           }))        
           const plateDetails = [...colour.plateType].map(plate => toRaw(plate))
-          let plateToReplace = plateDetails && plateDetails.find(plate => plate.id === params.id)
+          let plateToReplace = plateDetails && plateDetails.find(plate => plate.checkboxId === params.checkboxId)
           if (plateToReplace) {
             if (params.field === 'plateTypeDescription') {
               const plateType = this.options?.plateTypeDescription?.find(plateType => plateType.value === params.value)
@@ -499,7 +504,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 plateToReplace = { ...plateToReplace, [params.field]: params.value }
               }
             }
-            const newPlates = plateDetails.map(plate => plate.id === plateToReplace?.id ? plateToReplace : plate)
+            const newPlates = plateDetails.map(plate => plate.checkboxId === plateToReplace?.checkboxId ? plateToReplace : plate)
             this.selectedOrder['colors'][selectedIndex].plateType = [...newPlates] as any[]
 
             this.updateComputedColorFields()
@@ -554,7 +559,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         const colorFirstPlateType = color.plateType[0]
         return {
           ...color,
-          id: faker.datatype.uuid(),
+          checkboxId: faker.datatype.uuid(),
           totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)),
           plateTypes: color.plateType && color.plateType.length
             ? color.plateType?.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
@@ -564,7 +569,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
             return {
               ...colorPlateType,
-              id: faker.datatype.uuid(),
+              checkboxId: faker.datatype.uuid(),
               plateTypeDescription: { ...selected, plateThicknessDescription, plateThicknessId }
             }
           })
