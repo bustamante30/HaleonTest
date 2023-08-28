@@ -47,7 +47,7 @@ async function handleClose() {
 
 async function handleCancelOrder() {
   if (selectedOrder) {
-    const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, false);
+    const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, true);
     if (cancelResult) {
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
       await router.push(`/dashboard`);
