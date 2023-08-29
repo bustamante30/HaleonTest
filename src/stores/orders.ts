@@ -15,29 +15,8 @@ import { sortBy, groupBy, keysIn } from "lodash";
 
 const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
  
-  // Filter by Date
- 
-   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
-   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
- 
-   let filteredresult :any[] =  []   
-     reorderedData.forEach(order => {
-       let date;
-       if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
-         date = DateTime.fromISO(order.submittedDate).toMillis()
-     }else{
-      const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
-       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
-     }
-       if(date >= DateTime.fromJSDate(startDate).toMillis() && 
-       date <= DateTime.fromJSDate(endDate).toMillis() ){
-         filteredresult.push(order)
-       }
-     });
- 
    // Filter by Sorting
- 
-   let resultForCache :any[] = filteredresult ;
+   let resultForCache :any[] = reorderedData ;
      if(filters.sortBy){
        if(filters.sortOrder){
          resultForCache = sortBy(resultForCache , [filters.sortBy])
