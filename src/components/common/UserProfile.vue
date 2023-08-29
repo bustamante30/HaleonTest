@@ -55,10 +55,10 @@ function togglePopup() {
 }
 
 async function logout() {
-  if (isUserLoggedIn) {
+  if (isUserLoggedIn.value) {
     await authStore.logout();
   }
-  if (isb2cUserLoggedIn) {
+  if (isb2cUserLoggedIn.value) {
     await authb2cStore.logout();
   } 
 }

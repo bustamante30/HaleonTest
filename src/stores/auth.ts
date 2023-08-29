@@ -125,7 +125,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.clear();
       sessionStorage.clear();
       await this.msalInstance
-        .logoutRedirect({ postLogoutRedirectUri: "/" })
+        .logoutRedirect({ postLogoutRedirectUri: "/login" })
         .then(() => {
           console.log("logout successful");
 
