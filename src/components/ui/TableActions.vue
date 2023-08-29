@@ -24,6 +24,8 @@ const items = computed(() => {
     return {
       label: action.label,
       icon: action.icon,
+      validate:action.validate,
+      field:action.field,
       command: () => { emit('action', { event: action.event, data: props.data }) }
     }
   })
@@ -44,7 +46,24 @@ function resolvePath(config, data) {
 }
 
 function toggleMenu(event) {
-  menu.value.toggle(event)
+  const removeIndex =  items.value.findIndex(x=>x.validate)
+  if(removeIndex >= 0){
+
+    const item =items.value[removeIndex]
+    const submittedDate = props.data[item.field]
+    const currentTime = DateTime.fromJSDate(new Date())
+    const subTime = DateTime.fromMillis(new Date(submittedDate).getTime())
+    const diff = currentTime.diff(subTime, ['minutes']).minutes
+   if(diff > 10) {
+    items.value.splice(removeIndex,1)
+   }
+   
+
+  }
+
+
+  if(items.value.length > 0)
+    menu.value.toggle(event)
 }
 </script>
 

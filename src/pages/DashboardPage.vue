@@ -43,14 +43,13 @@ const userType = computed(() => {
 
 const username = computed(
   () =>
-    `${authStore.currentUser.firstName || "John"} ${
-      authStore.currentUser.lastName || "Doe"
+    `${authStore.currentUser.firstName || "John"} ${authStore.currentUser.lastName || "Doe"
     }`
 );
 
 const dateFilter = computed(() => getDateFilter());
 const selectedDate = ref(() => dateFilter.value[0]);
-const statusList = computed(() =>ordersStore.statusList);
+const statusList = computed(() => ordersStore.statusList);
 const selectedStatus = ref();
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
@@ -58,18 +57,18 @@ const filters = computed(() => ordersStore.filters);
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const isValidIdentityProvider = computed(() => {
-  if(isb2cUserLoggedIn.value){
+  if (isb2cUserLoggedIn.value) {
     return authb2cStore.isValidIdentityProvider;
   }
-  else if(isUserLoggedIn.value){
+  else if (isUserLoggedIn.value) {
     return authStore.isValidIdentityProvider;
   }
-  else{
+  else {
     return true;
   }
 });
 const userFilterConfig = computed(() => filterConfig("user"));
-const loadingOrders = computed(() => ordersStore.loadingOrders)
+const loadingOrders = computed(() => ordersStore.loading.ordersList)
 const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
@@ -77,7 +76,7 @@ const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
 const searchExecuted = ref(false);
 // Freetext tags 
-const searchTags =ref([])
+const searchTags = ref([])
 
 provide("options", options);
 watch(currentUser, (value) => {
@@ -114,36 +113,35 @@ function getDateFilter() {
   return filter;
 }
 function getDateRange(filter: string) {
-  switch(filter)
-  {
+  switch (filter) {
     case "last 3 months":
       let threeMonthsDate = new Date();
-      threeMonthsDate.setMonth(new Date().getMonth() - 3); 
-      return [threeMonthsDate, new Date()] 
+      threeMonthsDate.setMonth(new Date().getMonth() - 3);
+      return [threeMonthsDate, new Date()]
     case "last 6 months":
       let sixMonthsFilter = new Date();
       sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-      return [sixMonthsFilter, new Date()] 
+      return [sixMonthsFilter, new Date()]
     default:
       let i = parseInt(filter)
       return [new Date(i, 0, 1), new Date(i + 1, 0, 1)]
   }
 }
 function changeDateFilter(dtFilter: any) {
-  
+
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
 }
-function addPrinterFilter(){
-  console.log('printer: '+authb2cStore.currentB2CUser.printerName)
-  const printerName = authb2cStore.currentB2CUser.isLoggedIn? authb2cStore.currentB2CUser.printerName: null
-  if(printerName && !filters.value.printerName)
-    filters.value.printerName = printerName 
+function addPrinterFilter() {
+  console.log('printer: ' + authb2cStore.currentB2CUser.printerName)
+  const printerName = authb2cStore.currentB2CUser.isLoggedIn ? authb2cStore.currentB2CUser.printerName : null
+  if (printerName && !filters.value.printerName)
+    filters.value.printerName = printerName
 }
-function searchByStatus(){
+function searchByStatus() {
   ordersStore.resetFilters()
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus.value.value;
@@ -151,7 +149,7 @@ function searchByStatus(){
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
- 
+
   if (event) {
     searchExecuted.value = true
     searchTags.value = event.query.split(',')
@@ -174,11 +172,10 @@ function search(filters: any) {
   searchExecuted.value = true
   ordersStore.pageState.page = 1
   searchTags.value = []
-  filters.query =  ''
+  filters.query = ''
   if (filters) {
-    if(filters.status!==selectedStatus.value.value)
-    {
-      selectedStatus.value = statusList.value.find((x)=>x.value === filters.status)
+    if (filters.status !== selectedStatus.value.value) {
+      selectedStatus.value = statusList.value.find((x) => x.value === filters.status)
     }
     addPrinterFilter()
     ordersStore.setFilters(filters);
@@ -189,28 +186,28 @@ function search(filters: any) {
   }
 }
 
-const clearSearchTags = (index: number) =>{
-  searchTags.value.splice(index,1)
-  if(searchTags.value.length === 0)
+const clearSearchTags = (index: number) => {
+  searchTags.value.splice(index, 1)
+  if (searchTags.value.length === 0)
     searchExecuted.value = false;
   const fil = {
     ...filters.value,
-    query:searchTags.value.join(',')
+    query: searchTags.value.join(',')
   }
   addPrinterFilter()
   ordersStore.setFilters(fil);
 
 }
 
-const clearAllSearchTags = () =>{
+const clearAllSearchTags = () => {
   searchTags.value = []
   const fil = {
-      ...filters.value,
-      query:searchTags.value.join(',')
-    }
-    addPrinterFilter()
-    ordersStore.setFilters(fil);
-    searchExecuted.value = false;
+    ...filters.value,
+    query: searchTags.value.join(',')
+  }
+  addPrinterFilter()
+  ordersStore.setFilters(fil);
+  searchExecuted.value = false;
 }
 
 function getSearchHistory() {
@@ -235,15 +232,15 @@ async function addToCart(order: any) {
     accept: async () => {
       order.selected = true;
       showMultipleSelection.value = true;
-      (document.getElementsByClassName("p-image-preview-indicator")[0]as HTMLElement)?.focus();
+      (document.getElementsByClassName("p-image-preview-indicator")[0] as HTMLElement)?.focus();
     },
     reject: async () => {
-      ordersStore.loadingOrders=true;
+      ordersStore.loading.ordersList=true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       if (await cartStore.addToCart(orderToAdd)) {
         notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
       }
-      ordersStore.loadingOrders=false;
+      ordersStore.loading.ordersList=false;
     },
   });
 }
@@ -251,37 +248,42 @@ function reorder(order: any) {
   ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
-
   confirm.require({
     message: "Do you want to delete this Reorder?",
     header: "Cancel Order",
     icon: 'pi pi-info-circle',
     accept: async () => {
       //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
-  // api 
-  let orderDetails = JSON.parse(
-              JSON.stringify(
-                await ReorderService.getPhotonReorderDetails(
-                  order.id
-                )
-              )
-            );
-  ordersStore.isCancel = true;
-  ordersStore.setOrderInStore(orderDetails);
-  (document.getElementsByClassName("p-image-preview-indicator")[0]as HTMLElement)?.focus();
-  // Assuming you have a route named "success" for the success page
-  await router.push(`/dashboard/${order.id}/success`);
+      // api 
+      let orderDetails = JSON.parse(
+        JSON.stringify(
+          await ReorderService.getPhotonReorderDetails(
+            order.id
+          )
+        )
+      );
+      ordersStore.isCancel = true;
+     // const plates = orderDetails.colors.map((x: any) => x.plateTypes)
+      const modifiedColors = orderDetails.colors.map((x: any) => ({
+        ...x,
+        plateType:x.plateTypes
+      }));
+      orderDetails.colors = modifiedColors;
+      ordersStore.setOrderInStore(orderDetails);
+      (document.getElementsByClassName("p-image-preview-indicator")[0] as HTMLElement)?.focus();
+      // Assuming you have a route named "success" for the success page
+      await router.push(`/dashboard/${order.id}/success`);
     },
     reject: () => {
       notificationsStore.addNotification(`Info`, 'Order Cancellation Rejected', { severity: 'error' })
-        }
+    }
   });
-  
-//ordersStore.cancelOrder(order);
+
+  //ordersStore.cancelOrder(order);
 }
 
 async function addMultipleToCart(values: any) {
-  ordersStore.loadingOrders=true;
+  ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
@@ -297,11 +299,10 @@ async function addMultipleToCart(values: any) {
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  if(ordersToAdd.length>0)
-  {
-    notificationsStore.addNotification(`Success`, ordersToAdd.length+' Orders added to the cart successfully', { severity: 'success' });
+  if (ordersToAdd.length > 0) {
+    notificationsStore.addNotification(`Success`, ordersToAdd.length + ' Orders added to the cart successfully', { severity: 'success' });
   }
-  ordersStore.loadingOrders=false;
+  ordersStore.loading.ordersList = false;
 }
 </script>
 

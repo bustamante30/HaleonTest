@@ -71,7 +71,7 @@ export default {
       case 2:
         if(userType!=='INT')
           return [
-            { icon: 'backspace', label: 'Cancel Order', event: 'cancel' },
+            { icon: 'backspace', label: 'Cancel Order', event: 'cancel', validate : true, field:'submittedDate' },
           ]
       default:
         return []
