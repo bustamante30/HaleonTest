@@ -12,6 +12,7 @@ import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
+import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
 const props = defineProps({
   order: {
     type: Object,
@@ -22,6 +23,10 @@ const props = defineProps({
     default: false
   }
 })
+type ValidFiles = {
+  fileName : string,
+  uri:string
+}
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const sendToPmstore = useSendToPmStore();
@@ -51,7 +56,7 @@ const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn)
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
 const toast = useToast()
-let validFiles: any[] = []
+let validFiles = ref<ValidFiles[]>([]);
 
 watch(() => props.order, (order) => {
   sendForm.value = { ...order }
@@ -62,7 +67,7 @@ watch(() => props.order, (order) => {
 })
 
 function init() {
-  validFiles = [];
+  validFiles.value = [];
   (sendUpload as any).value = [];
   emit('create')
 }
@@ -185,8 +190,8 @@ async function onDrop(event: any) {
       return null;
     } else {
       const response = await convertAndSendFile(file);
-      if (response) {
-        validFiles.push(file.name);
+      if (response.status === 'OK') {
+        validFiles.value.push({fileName : file.name as string , uri: response.uri} );
         return response;
       } else {
         notificationsStore.addNotification(
@@ -201,8 +206,8 @@ async function onDrop(event: any) {
   const results = await Promise.all(uploadPromises);
   const successfulUploads = results.filter((response) => response !== null);
   if (successfulUploads.length > 0) {
-    if(validFiles.length>0)
-    await sendToPmstore.uploadData(validFiles as []);
+    if(validFiles.value.length>0)
+    await sendToPmstore.uploadData(validFiles.value as []);
     notificationsStore.addNotification(
       `Uploaded successfully`,
       `Your files were successfully uploaded`,
@@ -212,42 +217,38 @@ async function onDrop(event: any) {
 }
 
 
-async function convertAndSendFile(file: any) {
+async function convertAndSendFile(file: any):Promise<FileUploadResponse> {
+  debugger
   const binaryToBase64 = await blobToBase64(file);
-  const fileName = file.name
+  const fileName = file.name.replace(/[(!$%&[\]{}]/g, '-')
   const id = await getUserId()
 
-  const uploadInfo: UploadFileDto = {
-    FileName: fileName,
-    UserId: id as any,
-    Data: binaryToBase64 as string
-  }
-  return await SendToPMService.uploadFilesToBlobStorage(uploadInfo)
+  const formdata = new FormData();
+  formdata.append('file', file)
+  formdata.append('UserId', id)
+  formdata.append('FileName', fileName)
+  formdata.append('Data', '')
+  formdata.append('isSendToPm', 'yes')
+  return await FileUploadService.uploadFile(formdata)
 }
-const removeItemByProperty = (propName: any, propValue: any) => {
-  const index = sendUpload.value.findIndex((x: any) => x === propValue);
+const removeItemByProperty = (index: number) => {
   if (index !== -1) {
-    sendUpload.value.splice(index, 1);
-  }
-  const validIndex = validFiles.findIndex((x: any) => x === propValue);
-  if (index !== -1) {
-    validFiles.splice(validIndex, 1);
+    validFiles.value.splice(index, 1);
   }
 };
 
-async function onDeleteClick(name: string) {
-  const fullname = name
-  const uploadInfo: DeleteFileDto = {
-    FileName: name,
-    UserId: await getUserId() as any
+async function onDeleteClick(file: ValidFiles,index:number) {
+  const deleteInfo: FileDelete = {
+    isSendToPm : true,
+    uri :file.uri
   }
-  const deleteResponse = await SendToPMService.deleteFilesToBlobStorage(uploadInfo)
+  const deleteResponse = await FileUploadService.deleteFilesToBlobStorage(deleteInfo)
   if (deleteResponse) {
-    removeItemByProperty('name', fullname)
-    notificationsStore.addNotification(`Deleted Successfully`, `Your file ${fullname} was successfully deleted`, { severity: 'success', position: 'top-right' })
+    removeItemByProperty(index)
+    notificationsStore.addNotification(`Deleted Successfully`, `Your file ${file.fileName} was successfully deleted`, { severity: 'success', position: 'top-right' })
   }
   else {
-    notificationsStore.addNotification(`Delete failed`, `Your file ${fullname} was not deleted`, { severity: 'error', position: 'top-right' })
+    notificationsStore.addNotification(`Delete failed`, `Your file ${file.fileName} was not deleted`, { severity: 'error', position: 'top-right' })
   }
 
 }
@@ -317,9 +318,9 @@ async function onDeleteClick(name: string) {
         .upload(v-if="sendUpload && sendUpload.length > 0")
           h4 Uploaded Files:
           ul.files 
-            li(v-for="name in sendUpload" :key="name") 
-              .name {{ name }}
-              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(name)")
+            li(v-for="(file, index) in validFiles" :key="file") 
+              .name {{ file.fileName }}
+              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
     template(#footer)
       .actions
         sgs-button(label="Send" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
