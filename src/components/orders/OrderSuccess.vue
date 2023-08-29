@@ -48,12 +48,10 @@ async function handleCancelOrder() {
   if (selectedOrder) {
     const cancelResult = ordersStore.cancelOrder(selectedOrder.value.id, false);
     if (cancelResult) {
-      debugger;
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
       await router.push(`/dashboard`);
       await ordersStore.getOrders();
     } else {
-      debugger;
       notificationsStore.addNotification(`Error`, 'Error occured while cancelling order', { severity: 'error' })
       // Handle error or show a notification
     }

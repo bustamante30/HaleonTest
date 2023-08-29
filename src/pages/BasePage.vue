@@ -11,12 +11,10 @@ onMounted(() => {
 });
 
 function login() {
-  localStorage.setItem("AuthType", "AzureAd");
   router.push("/login");
 }
 
 function externallogin() {
-  localStorage.setItem("AuthType", "AzureAdB2C");
   router.push("/b2clogin");
 }
 </script>

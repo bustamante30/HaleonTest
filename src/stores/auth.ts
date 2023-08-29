@@ -93,7 +93,7 @@ export const useAuthStore = defineStore("auth", {
           } else {
             this.account = this.msalInstance.getAllAccounts()[0];
           }
-
+          localStorage.setItem("AuthType", "AzureAd");
           if (this.account && tokenResponse) {
             console.log(
               "[Auth Store] successgully obtained valid account and tokenResponse"
@@ -115,7 +115,6 @@ export const useAuthStore = defineStore("auth", {
             );
             await this.msalInstance.loginRedirect(requestScope);
           }
-       
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
       }
@@ -140,7 +139,6 @@ export const useAuthStore = defineStore("auth", {
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       this.accessTokenUpdatedOn = new Date()
-      this.validateToken()
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
         localStorage.setItem("Claims", user.claims);
@@ -150,27 +148,6 @@ export const useAuthStore = defineStore("auth", {
       } else {
         router.push("/error");
       }
-    },
-    validateToken() {
-      console.info(` -- Clearing Interval `)
-      clearInterval(this.accessTokenValidation)
-      this.accessTokenValidation = setInterval(() => {
-        console.log('interval running')
-        const token: any = jwt_decode(this.accessToken)
-        const currentTime = DateTime.fromJSDate(new Date())
-        const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
-        const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
-        if (diff > -5) {
-          console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
-          const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
-          const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
-          if (diffs > 3) {
-            console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
-            location.reload()
-          }
-          this.acquireTokenSilent()
-        }
-      }, 5000)
-    },
+    }
   }
 });

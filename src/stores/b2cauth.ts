@@ -81,7 +81,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     async acquireTokenSilent() {
       await this.getAccount()
       const accessTokenRequest = {
-        scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+        scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
         account: this.msalB2cInstance.getAllAccounts()[0]
       }
       console.info('acquireTokenSilent')
@@ -139,6 +139,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             }
           });
 
+      localStorage.setItem("AuthType", "AzureAdB2C");
         if (this.account && response) {
           console.log(
             "[Auth Store] successfully obtained valid account and tokenResponse"
@@ -204,7 +205,6 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       this.accessTokenUpdatedOn = new Date()
-      this.validateToken()
       const user = await UserService.getUserClaimInfo();
       this.decodedToken = jwt_decode(this.accessToken)
       const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
@@ -255,30 +255,6 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         identityProvider = "Photon"
       }
       return identityProvider
-    },
-    validateToken() {
-      console.info(` -- Clearing Interval `)
-      clearInterval(this.accessTokenValidation)
-      this.accessTokenValidation = setInterval(() => {
-        console.log('interval running')
-        const token: any = jwt_decode(this.accessToken)
-        const currentTime = DateTime.fromJSDate(new Date())
-        const tokenExpTime = DateTime.fromMillis(token.exp * 1000)
-        const diff = currentTime.diff(tokenExpTime, ['minutes']).minutes
-        if (diff > -5) {
-          console.log(` -- Token will expire in few minutes hence refeshning  ${currentTime} ${tokenExpTime}  ${diff}`)
-
-
-          const accessTokenUpdatedOn = DateTime.fromJSDate(this.accessTokenUpdatedOn)
-          const diffs = currentTime.diff(accessTokenUpdatedOn, ['hours']).hours
-
-          if (diffs > 3) {
-            console.log(` -- User Idle for Long Time - ${diffs}  Hence reloading `)
-            location.reload()
-          }
-          this.acquireTokenSilent()
-        }
-      }, 5000)
-    },
+    }
   },
 });
