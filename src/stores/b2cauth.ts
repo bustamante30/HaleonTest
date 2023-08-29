@@ -189,7 +189,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       localStorage.clear();
       sessionStorage.clear();
       this.msalB2cInstance
-        .logoutRedirect({ postLogoutRedirectUri: "/" })
+      .logoutRedirect({ postLogoutRedirectUri: "/b2clogin" })
         .then(() => {
           console.log("logout successful");
         })
