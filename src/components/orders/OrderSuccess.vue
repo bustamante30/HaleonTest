@@ -46,15 +46,13 @@ async function handleClose() {
 
 async function handleCancelOrder() {
   if (selectedOrder) {
-    const cancelResult = ordersStore.cancelOrder(selectedOrder.value.id, false);
+    const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, true);
     if (cancelResult) {
-      debugger;
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
       await router.push(`/dashboard`);
       await ordersStore.getOrders();
     } else {
-      debugger;
-      notificationsStore.addNotification(`Error`, 'Error occured while cancelling order', { severity: 'error' })
+      notificationsStore.addNotification(`Error`, '10 mins windows is closed for Order cancellation', { severity: 'error' })
       // Handle error or show a notification
     }
   }
@@ -69,12 +67,11 @@ watch(ordersStore.selectedOrder, (value) => {
 .order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
-      header
-      h1.title {{ ordersStore.isCancel ? 'Order Cancelled' : 'Thank you for your order' }}
+      header(:class="{'cancelled': ordersStore.isCancel }")
+        h1.title {{ ordersStore.isCancel ? 'Order Cancelled' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
-      template(v-if="!ordersStore.isCancel")
-      p
+      p(v-if="!ordersStore.isCancel")
         | The following plate re-order has been placed. &nbsp;
         br/
         | Your order is expected to be delivered on &nbsp;
@@ -140,7 +137,9 @@ watch(ordersStore.selectedOrder, (value) => {
         color: white
       &:hover
         opacity: 1
-
+  .cancelled
+    background: $red-light-1
+    color: $sgs-white
   .card.context
     h4
       label
