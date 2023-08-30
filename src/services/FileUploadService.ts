@@ -1,4 +1,3 @@
-import type { UploadFileDto } from '@/models/UploadFileDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
@@ -11,7 +10,8 @@ export type FileUploadResponse = {
 };
 
 export type FileDelete = {
-  isRedorder: boolean;
+  isSendToPm?: boolean;
+  isRedorder?: boolean;
   uri: string;
 };
 export class FileUploadService {

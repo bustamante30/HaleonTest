@@ -15,29 +15,8 @@ import { sortBy, groupBy, keysIn } from "lodash";
 
 const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
  
-  // Filter by Date
- 
-   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
-   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
- 
-   let filteredresult :any[] =  []   
-     reorderedData.forEach(order => {
-       let date;
-       if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
-         date = DateTime.fromISO(order.submittedDate).toMillis()
-     }else{
-      const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
-       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
-     }
-       if(date >= DateTime.fromJSDate(startDate).toMillis() && 
-       date <= DateTime.fromJSDate(endDate).toMillis() ){
-         filteredresult.push(order)
-       }
-     });
- 
    // Filter by Sorting
- 
-   let resultForCache :any[] = filteredresult ;
+   let resultForCache :any[] = reorderedData ;
      if(filters.sortBy){
        if(filters.sortOrder){
          resultForCache = sortBy(resultForCache , [filters.sortBy])
@@ -112,9 +91,8 @@ export const useOrdersStore = defineStore("ordersStore", {
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
       const flattenedColors = [] as any[]
-      const colors = orderType === 'success' ? state.successfullReorder?.colors : state.selectedOrder?.colors
+      const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
-        console.log('to-be-flattended-color', color)
         color?.plateType?.forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
@@ -132,8 +110,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateTypeDescription.plateThicknessDescription, 
-            plateTypeDescription: plate.plateTypeDescription.label,
+            plateThicknessDescription: state.isCancel? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
+            plateTypeDescription: state.isCancel? plate.plateType :plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
             
@@ -538,8 +516,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       router.push(`/dashboard/${order.sgsId}`);
     },
     async cancelOrder(orderId: number, isActive: boolean) {
-     const deleteResult=  ReorderService.cancelOrder(orderId, isActive);
-     console.log("cancelOrder", deleteResult);
+         return await ReorderService.cancelOrder(orderId, isActive);
     },
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
