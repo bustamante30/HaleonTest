@@ -527,12 +527,23 @@ export const useUsersStore = defineStore('users', {
    async savePrinter(printerreq : any) {
         const printerDto: PrinterDto = {
           printerName: printerreq.value.name,
-          userData: {
-          firstName: printerreq.value.admin,
-          lastName: printerreq.value.admin,
-          displayName: printerreq.value.admin,
-          email: printerreq.value.email,
+          userData: [{
+          firstName: printerreq.value.adminFirstName,
+          lastName: printerreq.value.adminLastName,
+          displayName: printerreq.value.adminFirstName + printerreq.value.adminLastName,
+          email: printerreq.value.adminEmail,
+          isAdmin: true
           },
+          {
+            firstName: printerreq.value.primaryPMFirstName,
+            lastName: printerreq.value.primaryPMLastName,
+            displayName: printerreq.value.primaryPMFirstName + printerreq.value.primaryPMLastName,
+            email: printerreq.value.primaryPMEmail,
+            isAdmin: false,
+            isPrimaryPM: true
+            },
+        
+        ],
             printerIdentityProv: [
             {
                 identityProviderId: printerreq.value.provider,
