@@ -16,22 +16,21 @@ const authb2cStore = useB2CAuthStore();
 
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const initials = () => {
-  const authType = localStorage.getItem("AuthType");
-  if (authType == "AzureAd")
+const initials = computed(() => {
+  if (isUserLoggedIn.value)
   {
-  if (
-    authStore.currentUser &&
-    authStore.currentUser.firstName &&
-    authStore.currentUser.lastName
-  ) {
-    const firstLetterOfFirstName = authStore.currentUser.firstName.charAt(0);
-    const firstLetterOfLastName = authStore.currentUser.lastName.charAt(0);
+    if (
+      authStore.currentUser &&
+      authStore.currentUser.firstName &&
+      authStore.currentUser.lastName
+    ) {
+      const firstLetterOfFirstName = authStore.currentUser.firstName.charAt(0);
+      const firstLetterOfLastName = authStore.currentUser.lastName.charAt(0);
 
-    return firstLetterOfFirstName + firstLetterOfLastName;
+      return firstLetterOfFirstName + firstLetterOfLastName;
+    }
   }
-}
-else if (authType == "AzureAdB2C")
+else if (isb2cUserLoggedIn.value)
 {
   if (
     authb2cStore.currentB2CUser &&
@@ -46,7 +45,7 @@ else if (authType == "AzureAdB2C")
 }
   // Default value if any of the properties are null
   return 'AB';
-}
+});
 
 const isPopupVisible = ref(false);
 
@@ -68,7 +67,7 @@ watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
 
 <template lang="pug">
 .user-profile
-  span.avatar(@click="togglePopup()") {{ initials() }}
+  span.avatar(@click="togglePopup()") {{ initials }}
   .mask(v-if="isPopupVisible" @click="togglePopup")
   .popup(v-if="isPopupVisible")
    h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}

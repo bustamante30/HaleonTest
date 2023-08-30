@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useNotificationsStore } from '@/stores/notifications'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useIdle, useCounter } from '@vueuse/core'
 import { useAuthStore } from './stores/auth';
 import { useB2CAuthStore } from './stores/b2cauth';
@@ -13,45 +13,46 @@ const toast = useToast()
 const notification = computed(() => notificationsStore.notification)
 
 const { inc, count } = useCounter()
-const { idle, lastActive } = useIdle(15 * 60 * 1000) // 15 min
+const { idle, lastActive } = useIdle(30 * 60 * 1000) // 30 min
 
 const authStore = useAuthStore()
 const b2cAuthStore = useB2CAuthStore()
 const user = authStore.currentUser
 const b2cUser = b2cAuthStore.currentB2CUser
-const lastUserActiveTime = ref()
-
+const refreshTokenTimer = ref()
+onMounted(async() =>
+  {
+    refreshTokenTimer.value = setInterval(
+        () => refreshToken(),
+        10 * 60 * 1000
+      )
+  }
+);
+onUnmounted(async() =>
+{
+  clearInterval(refreshTokenTimer.value)
+});
 watch(notification, (message: any) => {
   toast.add(message)
 })
 
 watch(idle, async (idleValue) => {
   if (idleValue) {
-    // Logout ?
+    console.log(` idle, logout started. `, new Date(lastActive.value))
+    if(user.isLoggedIn)
+      await authStore.logout()
+    if(b2cUser.isLoggedIn)
+      await b2cAuthStore.logout()
     inc()
-    lastUserActiveTime.value = lastActive.value
-    console.log(` -- ${new Date()} -  Triggered ${count.value} times - `, new Date(lastActive.value))
-  } else {
-    // Refresh Token
-    console.log(` --  Tab is Visible${new Date()} -  User Action Detected - `, new Date(lastUserActiveTime.value))
-    if(user)
-      await authStore.acquireTokenSilent()
-    if(b2cUser)
-      await b2cAuthStore.acquireTokenSilent()
   }
 })
 
-document.addEventListener('visibilitychange', async () => {
-  if (document.hidden) {
-    console.log(` --  Tab is hidden at ${new Date()}`)
-    lastUserActiveTime.value = new Date()
-  } else {
-
-    // Refresh Token
-    console.log(` --  Tab is Visible at  ${new Date()}   , User was last active on ${new Date(lastUserActiveTime.value)}`)
+async function refreshToken() {
+  if(user.isLoggedIn)
     await authStore.acquireTokenSilent()
-  }
-})
+  if(b2cUser.isLoggedIn)
+    await b2cAuthStore.acquireTokenSilent()
+}
 </script>
 
 <template lang="pug">
