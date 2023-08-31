@@ -63,7 +63,7 @@ header.app-header
   h3
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
-    a(@click="this.$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+    a(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
     
     router-link(v-show="IsExternalAdmin === 'PrinterAdmin'" :to="'/users'") Manage Users
     router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users
