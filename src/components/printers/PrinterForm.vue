@@ -18,8 +18,14 @@ const printerForm = ref({
   name: null,
   provider: 1,
   federatedProvider: null,
-  admin: null,
-  email: null,
+  //admin: null,
+  adminFirstName: null,
+  adminLastName: null,
+  adminEmail: null,
+  primaryPMFirstName: null,
+  primaryPMLastName: null,
+  primaryPMEmail: null,
+  //email: null,
 })
 
 async function searchPrinter(value) {
@@ -48,19 +54,56 @@ function save() {
     return;
   }
 
-  if (!printerForm.value.admin) {
+  if (!printerForm.value.adminFirstName) {
     notificationsStore.addNotification(
       'Validation Error',
-      'Admin Name is required.',
+      'Admin FirstName is required.',
       { severity: 'error', position: 'top-right' }
     );
     return; 
   }
 
-  if (!printerForm.value.email) {
+  if (!printerForm.value.adminLastName) {
     notificationsStore.addNotification(
       'Validation Error',
-      'Email is required.',
+      'Admin LastName is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (!printerForm.value.adminEmail) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Admin Email is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
+
+  if (!printerForm.value.primaryPMFirstName) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'PrimaryPM FirstName is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (!printerForm.value.primaryPMLastName) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'PrimaryPM LastName is required.',
+      { severity: 'error', position: 'top-right' }
+    );
+    return; 
+  }
+
+  if (!printerForm.value.primaryPMEmail) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'PrimaryPM Email is required.',
       { severity: 'error', position: 'top-right' }
     );
     return;
@@ -99,11 +142,24 @@ function save() {
                 label(:for="platform.value") {{ platform.label }}
           h5 Admin
           .f
-            label Name
-            prime-inputtext(v-model="printerForm.admin")
+            label First Name
+            prime-inputtext(v-model="printerForm.adminFirstName")
+          .f
+            label Last Name
+            prime-inputtext(v-model="printerForm.adminLastName")
           .f
             label Email
-            prime-inputtext(v-model="printerForm.email")
+            prime-inputtext(v-model="printerForm.adminEmail")
+          h5 Primary PM
+          .f
+            label First Name
+            prime-inputtext(v-model="printerForm.primaryPMFirstName")
+          .f
+            label Last Name
+            prime-inputtext(v-model="printerForm.primaryPMLastName")
+          .f
+            label Email
+            prime-inputtext(v-model="printerForm.primaryPMEmail")
       template(#footer)
         footer
           .secondary-actions &nbsp;

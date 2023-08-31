@@ -12,7 +12,6 @@ const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026
 
 const httpService = new ApiService(baseUrl)
 
-
 class UserService {
 
     public static getUserClaimInfo() {
@@ -87,6 +86,13 @@ public static SavePrinter(printerData: PrinterDto) {
       return response;
     })
     .catch((error: any) => {
+      const errorresp = error?.response?.data;
+      if(errorresp)
+      {
+        console.log('Validation Error adding printer:', errorresp.detail);
+        return; 
+
+      }
       console.log('Error adding printer:', error);
       return null;
     });
