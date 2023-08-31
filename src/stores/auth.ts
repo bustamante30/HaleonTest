@@ -23,9 +23,8 @@ const requestScope = {
 
 export const useAuthStore = defineStore("auth", {
   state: () => {
-    const userSessionStore = useUserSessionStore()
     return {
-      currentUser: userSessionStore.userSession,
+      currentUser: store.get('currentUser')? store.get('currentUser') : useUserSessionStore().userSession,
       account: null as AccountInfo | null,
       msalInstance: new PublicClientApplication(authConfig),
       accessToken: "",
