@@ -100,10 +100,10 @@ function getDateFilter() {
   let threeMonthsDate = new Date();
   threeMonthsDate.setMonth(new Date().getMonth() - 3);
   let filter = [];
-  filter.push({ label: "last 3 months", value: "last 3 months" });
+  filter.push({ label: "last 3 days", value: "last 3 days" });
   let sixMonthsFilter = new Date();
   sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-  filter.push({ label: "last 6 months", value: "last 3 months" });
+  filter.push({ label: "last 3 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
       label: i.toString(),
@@ -114,14 +114,12 @@ function getDateFilter() {
 }
 function getDateRange(filter: string) {
   switch (filter) {
+    case "last 3 days":
+      let threeDaysDate = new Date(Date.now()-259200000);
+      return [threeDaysDate, new Date()]
     case "last 3 months":
-      let threeMonthsDate = new Date();
-      threeMonthsDate.setMonth(new Date().getMonth() - 3);
-      return [threeMonthsDate, new Date()]
-    case "last 6 months":
-      let sixMonthsFilter = new Date();
-      sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-      return [sixMonthsFilter, new Date()]
+      let monthFilter = new Date(Date.now()-7776000000);
+      return [monthFilter, new Date()]
     default:
       let i = parseInt(filter)
       return [new Date(i, 0, 1), new Date(i + 1, 0, 1)]
