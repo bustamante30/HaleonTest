@@ -4,6 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
 import router from '@/router'
+import { sum } from 'lodash'
 
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
@@ -82,14 +83,18 @@ function removePlate(params: any) {
 }
 
 async function updatePlate(params: any) {
-  ordersStore.updatePlate(params)
+  await ordersStore.updatePlate(params)
   if (params?.field === 'sets') {
     const isAlreadySelected = selected?.value.find((c: any) => c.checkboxId === params?.colourId)
     if (params?.value) {
       const colour = props.data.find((c: any) => c.checkboxId === params?.colourId)
       if (!isAlreadySelected) selected.value = [...selected?.value, colour]
     } else {
-      if (isAlreadySelected) selected.value = selected?.value?.filter((c: any) => c.checkboxId !== params?.colourId)      
+      if (isAlreadySelected) {
+        const colour = selected?.value?.find((c: any) => c.checkboxId === params?.colourId)
+        const totalSets = sum(colour.plateType.map((plate: any) => plate.sets))
+        if (!totalSets) selected.value = selected?.value?.filter((c: any) => c.checkboxId !== params?.colourId)      
+      }
     }
   }
 }
