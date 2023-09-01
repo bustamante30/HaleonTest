@@ -143,7 +143,7 @@ function addPrinterFilter() {
 function searchByStatus() {
   ordersStore.resetFilters()
   filters.value.startDate = getDateRange(selectedDate.value.toString());
-  filters.value.status = selectedStatus.value.value;
+  filters.value.status = selectedStatus?.value?.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
 }

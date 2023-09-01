@@ -21,11 +21,8 @@ const IsExternalAdmin = ref('');
 const emit = defineEmits(['report', 'demo'])
 
 
-const menu = ref([])
+const menu = computed(() => [...navigation(emit, IsExternalAdmin.value)])
 
-onBeforeMount(() => {
-  menu.value = [...navigation(emit, IsExternalAdmin)]
-});
 
 onMounted(async () => {
   if (store.get('currentUser')) {
