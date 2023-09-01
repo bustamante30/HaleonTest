@@ -102,11 +102,11 @@ async function submit() {
   if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
     const errorMessage = [];
     if (isPrinterAndLocationEmpty) {
-      errorMessage.push("Printer and Location are required.");
+      errorMessage.push("Location is Mandatory.");
 
     }
     if (!hasAnyOtherFieldValue) {
-      errorMessage.push("At least one additional field other than Printer and Location is required");
+      errorMessage.push("At least one additional field other than Location is required");
     }
 
     notificationsStore.addNotification(
@@ -252,16 +252,20 @@ async function onDeleteClick(file: ValidFiles,index:number) {
     small Cannot find your order?&nbsp;
     a(@click="init()")
       small Send to PM
+      
   prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM")
+    .hint
+      h4(style="margin-left: 18px;") Enter at least one field in addition to Printer Location
     .content
       main
         .fields
           .field-group
+              
             .f
               label(for="name") Printer
               strong {{printerName}}
             .f
-              label(for="location") Location
+              label(for="location") Location*
               prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.locationName" optionLabel="locationName" optionValue="locationName")
               prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
         .divider
