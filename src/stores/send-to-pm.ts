@@ -19,7 +19,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     options: {
       locations: [] as any[],
     },
-    imageCarrierCodeTypes: [] as any[]
+    imageCarrierCodeTypes: [] as any[],
+    imageCarrierPackTypes: [] as any[]
 
   }),
   getters: {
@@ -40,7 +41,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         },
         jobNumber: null,
         comments: null,
-        location: null,
         locationName: null,
         colors:[] as any[],
         uploadedFiles: [] as any[],
@@ -77,7 +77,11 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       this.imageCarrierCodeTypes= await SendToPMService.getCodeTypeList();
      },
 
-     async getPmusersForLocation(printerId: number,printerLocationId: number,printerLocationName:string){
+    async getPackTypes(){
+      this.imageCarrierPackTypes= await SendToPMService.getPackTypeList();
+     },
+
+     async getPmusersForLocation(printerId: number,printerLocationName:string){
       const searchRequest: SearchRequestSendToPmDto = {
         searchText: "",
         pageNumber: 1,
@@ -88,16 +92,19 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         printerId: printerId,
         userId: 0,
         userTypeKey: "INT",
-        roleKey:"PMUser",
-        locationId: printerLocationId,
-        locationName:printerLocationName
+        roleKey:"PMUser"
       };
       console.log("userSearchReq:" + searchRequest);
       const usersResponse = await UserService.searchUser(searchRequest);
       if (usersResponse) {
-        this.newOrder.pmUsersForPrinter= usersResponse.data;
+        const normalizedPrinterLocationName = printerLocationName.replace(/\s/g, ''); // Remove spaces
+        this.newOrder.pmUsersForPrinter = usersResponse.data.filter(user => {
+          const normalizedLocationNames = user.locationName.replace(/\s/g, ''); // Remove spaces from user's locationName
+          return normalizedLocationNames.split(",").includes(normalizedPrinterLocationName);
+        });
       } else {
         console.error('Error searching users:', usersResponse);
+        this.newOrder.pmUsersForPrinter = []; // Return an empty array
       }
     }
 

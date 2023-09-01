@@ -80,12 +80,9 @@ function updateColors(colors: any) {
 async function submit() {
   sendForm.value.printerName = printerName
   let isPrinterAndLocationEmpty;
-  if (isPrinterAdmin.value) {
+
     isPrinterAndLocationEmpty = sendForm.value.locationName == null || sendForm.value.printerName == null;
     
-  } else {
-    isPrinterAndLocationEmpty = sendForm.value.location == null || sendForm.value.printerName == null;
-  }
 
   // Check if any other field has a value
   const hasAnyOtherFieldValue =
@@ -105,10 +102,11 @@ async function submit() {
   if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
     const errorMessage = [];
     if (isPrinterAndLocationEmpty) {
-      errorMessage.push("Printer and Location are required");
+      errorMessage.push("Printer and Location are required.");
+
     }
     if (!hasAnyOtherFieldValue) {
-      errorMessage.push("At least one additional field is required");
+      errorMessage.push("At least one additional field other than Printer and Location is required");
     }
 
     notificationsStore.addNotification(
@@ -119,13 +117,7 @@ async function submit() {
   } else {
     (sendUpload as any).value = [];
 
-    if (isPrinterAdmin.value){
-      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,0,sendForm.value.locationName)
-     
-    }
-    else{
-      await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.location,"")
-    }
+    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.locationName)
     await sendToPmstore.submitorder(sendForm.value)
     emit('submit', sendForm);
   }
@@ -218,7 +210,6 @@ async function onDrop(event: any) {
 
 
 async function convertAndSendFile(file: any):Promise<FileUploadResponse> {
-  debugger
   const binaryToBase64 = await blobToBase64(file);
   const fileName = file.name.replace(/[(!$%&[\]{}]/g, '-')
   const id = await getUserId()
@@ -271,7 +262,7 @@ async function onDeleteClick(file: ValidFiles,index:number) {
               strong {{printerName}}
             .f
               label(for="location") Location
-              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.location" optionLabel="locationName" optionValue="locationId")
+              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.locationName" optionLabel="locationName" optionValue="locationName")
               prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
         .divider
         h4 Items Details
@@ -285,7 +276,7 @@ async function onDeleteClick(file: ValidFiles,index:number) {
               prime-inputtext#description(v-model="sendForm.description" name="description")
             .f
               label(for="pack_type") Pack Type
-              prime-inputtext#pack_type(v-model="sendForm.packType" name="pack_type")
+              prime-dropdown#code-type(v-model="sendForm.packType" name="pack_type" :options="sendToPmstore.imageCarrierPackTypes" optionLabel="label" optionValue="value")
             .f
               label(for="purchase_order") Purchase Order #
               prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")

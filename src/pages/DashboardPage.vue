@@ -218,6 +218,7 @@ function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
   sendToPmStore.getCodeTypes()
+  sendToPmStore.getPackTypes()
 }
 
 function sendToPm(form: any) {
