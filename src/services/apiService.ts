@@ -11,7 +11,12 @@ class ApiService {
     try {
       const response: AxiosResponse<T> = await axios(config);
       return response.data;
-    } catch (error) {
+    } catch (error: any) 
+    {
+    if(error?.response?.data)
+    {
+      throw error;
+    }
       throw new Error(`Request failed: ${error}`);
     }
   }

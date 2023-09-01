@@ -71,9 +71,8 @@ watch(currentB2CUser, (value) => {
 header.app-header
   app-logo.logo(:size="1.5")
   .tools
-   
     nav.app-navigation
-      a.dashboard(@click="this.$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+      a(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
       prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")

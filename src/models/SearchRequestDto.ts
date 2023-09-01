@@ -22,6 +22,4 @@ export type SearchRequestDto = {
     userId: number;
     userTypeKey: string;
     roleKey: string;
-    locationId: number;
-    locationName: string;
   };
