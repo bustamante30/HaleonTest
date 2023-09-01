@@ -1,4 +1,6 @@
 import DashboardPage from "@/pages/DashboardPage.vue";
+import FaqPage from "@/pages/FaqPage.vue";
+import HelpPage from "@/pages/HelpPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import authRoutes from "./auth";
 import { useAuthStore } from "@/stores/auth";
@@ -48,6 +50,16 @@ const router = createRouter({
         },
       ],
     },
+     {
+      path: '/faq',
+      name: 'faq',
+      component: FaqPage
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: HelpPage
+    },
     {
       path: "/users",
       name: "users",
@@ -67,7 +79,7 @@ const router = createRouter({
           component: () => import("@/pages/users/UserCreatePage.vue"),
         },
       ],
-    }
+    },
   ],
 });
 

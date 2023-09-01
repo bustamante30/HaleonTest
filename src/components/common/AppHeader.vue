@@ -7,6 +7,8 @@ import { useCartStore } from "@/stores/cart";
 import { useOrdersStore } from "@/stores/orders";
 import { onMounted, computed, watch, ref } from "vue";
 import store from "store";
+import navigation from '@/data/config/app-navigation.js'
+
 
 const cartStore = useCartStore();
 const ordersStore = useOrdersStore();
@@ -16,6 +18,14 @@ const cartCount = computed(() => cartStore.cartCount)
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
 const IsExternalAdmin = ref('');
+const emit = defineEmits(['report', 'demo'])
+
+
+const menu = ref([])
+
+onBeforeMount(() => {
+  menu.value = [...navigation(emit, IsExternalAdmin)]
+});
 
 onMounted(async () => {
   if (store.get('currentUser')) {
@@ -60,18 +70,15 @@ watch(currentB2CUser, (value) => {
 <template lang="pug">
 header.app-header
   app-logo.logo(:size="1.5")
-  h3
-    router-link(to="/dashboard") Image Carrier Re-Order
-  .nav
-    a(@click="this.$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
-    
-    router-link(v-show="IsExternalAdmin === 'PrinterAdmin'" :to="'/users'") Manage Users
-    router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users
-    router-link(to="/dashboard") Help
-  span.separator
   .tools
-    router-link(to="/cart" v-badge.danger="cartCount")
-      span.material-icons.outline shopping_cart
+   
+    nav.app-navigation
+      a.dashboard(@click="this.$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+      prime-menubar(:model="menu")
+      span.separator
+      .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
+        router-link.cart(to="/cart" v-badge.danger="cartCount")
+          span.material-icons.outline shopping_cart      
     user-profile
 </template>
 
@@ -81,7 +88,7 @@ header.app-header
 .app-header
   background: var(--app-header-bg-color)
   color: var(--app-header-text-color) !important
-  padding: $s
+  padding: $s50 0
   +flex-fill
   .logo
     margin: 0 $s 0 0
@@ -92,18 +99,30 @@ header.app-header
 
   nav
     +flex
-    gap: $s150
-  a
-    color: inherit
-    font-weight: 700
-    opacity: 0.8
+    a.dashboard
+      color: inherit
+      font-weight: 700
+      display: inline-block
+      padding: 12px 16px
+      border-radius: 2px
+      line-height: 1
+      font-size: 1rem
+      &:hover
+        background: rgba(#fff, 0.1) !important
+        color: #fff
+
+  a.cart
+    display: inline-block
+    margin-right: $s
+    margin-top: $s50
+    opacity: 0.9 !important
     &:hover
-      opacity: 1
+      opacity: 1 
 
   .tools, .nav
     +flex($h: right)
     > *
       margin: 0 $s
     a span
-      color: #fff
+      color: #fff     
 </style>

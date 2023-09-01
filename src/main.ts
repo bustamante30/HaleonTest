@@ -37,6 +37,7 @@ import RadioButton from 'primevue/radiobutton';
 
 import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Menubar from 'primevue/menubar'
 
 const app = createApp(App)
 
@@ -74,4 +75,5 @@ app.component('PrimeTextarea', Textarea)
 app.component('PrimeToast', Toast)
 app.component('PrimeRadiobutton',RadioButton)
 app.component('PrimeConfirmDialog', ConfirmDialog)
+app.component('PrimeMenubar', Menubar)
 app.mount('#app')

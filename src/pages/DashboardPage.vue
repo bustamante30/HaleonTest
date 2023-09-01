@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch, provide, ref, onMounted } from "vue";
-import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
 import welcome from "../components/common/Welcome.vue";
@@ -99,7 +98,7 @@ watch(currentB2CUser, (value) => {
 function getDateFilter() {
   let threeMonthsDate = new Date();
   threeMonthsDate.setMonth(new Date().getMonth() - 3);
-  let filter = [];
+  let filter = [] as any[];
   filter.push({ label: "last 3 months", value: "last 3 months" });
   let sixMonthsFilter = new Date();
   sixMonthsFilter.setMonth(new Date().getMonth() - 6);
@@ -309,8 +308,6 @@ async function addMultipleToCart(values: any) {
 <template lang="pug">
 .page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
   sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
-    template(#header)
-      app-header
     main
       sgs-scrollpanel(:scroll="false")
         template(#header)
