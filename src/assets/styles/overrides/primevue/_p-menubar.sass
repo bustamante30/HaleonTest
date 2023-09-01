@@ -1,0 +1,34 @@
+.p-menubar
+  background: none
+  border: none
+  color: #fff
+  justify-content: flex-end
+  padding-left: 0
+  a
+    white-space: nowrap
+  .p-menubar-root-list
+    z-index: 10
+    > .p-menuitem
+      > .p-menuitem-content
+        background: none !important
+        .p-menuitem-link, .p-menuitem-text, .p-submenu-icon
+          color: #fff !important
+          font-weight: 600
+        .p-submenu-icon
+          opacity: 0.6
+          transform: translateY(2px)
+    > .p-menuitem:not(.p-highlight):not(.p-disabled)
+      > .p-menuitem-content:hover
+        background: rgba(#fff, 0.1) !important
+        .p-menuitem-link, .p-menuitem-text, .p-submenu-icon
+          color: #fff !important
+    > .p-menuitem.p-highlight > .p-menuitem-content
+        background: rgba(#fff, 0.2) !important
+        .p-menuitem-link, .p-menuitem-text, .p-submenu-icon
+          color: #fff !important
+  .p-submenu-list
+    right: 0
+
+  @media screen and (max-width: 960px)
+    .p-menubar-root-list
+      width: auto

@@ -100,7 +100,7 @@ async function submit() {
 
 
   if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
-    const errorMessage = [];
+    const errorMessage = [] as any[];
     if (isPrinterAndLocationEmpty) {
       errorMessage.push("Printer and Location are required.");
 
