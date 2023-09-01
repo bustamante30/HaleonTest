@@ -72,7 +72,7 @@ header.app-header
   app-logo.logo(:size="1.5")
   .tools
     nav.app-navigation
-      a(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+      a.dashboard(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
       prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
