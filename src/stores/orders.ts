@@ -35,8 +35,8 @@ const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState
 
  const sortBydate = (orders) =>{
   return orders.sort(function compare(a, b) {
-    var dateA = new Date(a.submittedDate);
-    var dateB = new Date(b.submittedDate);
+    var dateA:any = new Date(a.submittedDate);
+    var dateB:any = new Date(b.submittedDate);
     return dateA - dateB;
   });
  }
