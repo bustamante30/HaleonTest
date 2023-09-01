@@ -98,10 +98,8 @@ class ReorderService {
         const newContacts = [] as any[]
 
         reorderInfo.colors.forEach((color: any) => {
-            let isActiveColor: boolean;
             color?.plateType?.forEach((plateType: any) => {
                 if (plateType.sets > 0) {
-                    isActiveColor = true
                     newColors.push({
                         id: isUpdate? color.id : 0,
                         clientPlateColourRef: color.clientPlateColourRef,
@@ -123,8 +121,8 @@ class ReorderService {
                                 plateType: plateType?.plateTypeDescription?.label,
                                 plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
                                 plateThickness: plateType?.plateTypeDescription?.plateThicknessDescription,
-                                sets: plateType.sets,
-                                isActive: isActiveColor,
+                                sets: plateType?.sets,
+                                isActive: plateType?.plateTypeDescription?.isActive,
                             }
                         ],
                         sequenceNumber: color.sequenceNumber,
@@ -132,7 +130,7 @@ class ReorderService {
                         colourType: color.colourType,
                         isNew: color.isNew,
                         commonColourRef: color.commonColourRef,
-                        isActive: true,
+                        isActive: color.isActive,
                     })
                 }
             })

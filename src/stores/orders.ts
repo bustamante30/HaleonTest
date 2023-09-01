@@ -115,7 +115,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
             imageCarrierId: color.imageCarrierId,
-            isActive: color.isActive,
+            isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
             newColour: color.newColour,
@@ -242,6 +242,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
+          this.selectedOrder.isActive = true
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loading.order = false;
@@ -542,7 +543,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           label: plateType?.plateTypeName || plateType?.plateTypeDescription,
           value: plateType?.plateTypeId,
           plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
-          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId
+          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
+          isActive: true
         }
       })
     },
@@ -565,7 +567,8 @@ export const useOrdersStore = defineStore("ordersStore", {
               checkboxId: faker.datatype.uuid(),
               plateTypeDescription: { ...selected, plateThicknessDescription, plateThicknessId }
             }
-          })
+          }),
+          isActive:true
         }
       });
       this.selectedOrder.colors?.map((x:any) => {
