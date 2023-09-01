@@ -448,7 +448,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       }
     },
-    updatePlate(params: any) {
+    async updatePlate(params: any) {
       const notificationsStore = useNotificationsStore()
       const colours = this.selectedOrder['colors'] as any[]
       const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
