@@ -218,6 +218,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder.description = details.jobDescription;
           this.selectedOrder.barcodes = details.barcode;
+          this.selectedOrder.packagingReference = details.jobDetails.packagingReference;
           this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
           this.selectedOrder.printProcess = details.techSpec.printProcessDescription;
           this.selectedOrder.substrate = details.techSpec.substrate;

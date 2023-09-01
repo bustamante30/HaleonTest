@@ -42,7 +42,8 @@ interface SubmitReorder {
     isActive: boolean;
     colors: Color[];
     customerContacts: CustomerContact[];
-    reorderDocs: Reorderdoc[]
+    reorderDocs: Reorderdoc[];
+    packagingReference: string
 }
 
 interface PlateType {
@@ -171,7 +172,8 @@ class ReorderService {
             reorderDocs: reorderInfo.reorderDocs,
             isActive: reorderInfo.isActive,
             colors: [...newColors],
-            customerContacts: [...newContacts]
+            customerContacts: [...newContacts],
+            packagingReference: reorderInfo.packagingReference
         }
 
 
