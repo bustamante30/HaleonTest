@@ -15,17 +15,30 @@ import { sortBy, groupBy, keysIn } from "lodash";
 
 const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
  
+
    // Filter by Sorting
    let resultForCache :any[] = reorderedData ;
      if(filters.sortBy){
-       if(filters.sortOrder){
-         resultForCache = sortBy(resultForCache , [filters.sortBy])
-       }else{
-         resultForCache = sortBy(resultForCache , [filters.sortBy]).reverse()
-       }
+        if(filters?.sortBy?.toLowerCase().includes('date')){
+          resultForCache = sortBydate(resultForCache);
+        }else{
+          resultForCache = sortBy(resultForCache , [filters.sortBy])
+        }
+        
+        if(!filters.sortOrder){
+          resultForCache = resultForCache.reverse()
+        }
      }
- 
+     console.log('totalCount', resultForCache.length)
    return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+ }
+
+ const sortBydate = (orders) =>{
+  return orders.sort(function compare(a, b) {
+    var dateA = new Date(a.submittedDate);
+    var dateB = new Date(b.submittedDate);
+    return dateA - dateB;
+  });
  }
 
 export const useOrdersStore = defineStore("ordersStore", {
@@ -286,7 +299,7 @@ export const useOrdersStore = defineStore("ordersStore", {
        const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
         result =  {
           reorderedData : reorderedData,
-          totalRecords : reorderedData.length
+          totalRecords : this.textSearchData.data.reorderedData.length
         }
       } else {
         result = await ReorderService.getRecentReorders(
@@ -313,14 +326,14 @@ export const useOrdersStore = defineStore("ordersStore", {
           }else{
             this.textSearchData.data =  {
               reorderedData : result.reorderedData !=null ?result.reorderedData : [],
-              totalRecords:result.reorderedData.length
+              totalRecords: result.reorderedData.length
             }
          }
 
           const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
           result =  {
             reorderedData : reorderedData,
-            totalRecords : reorderedData.length
+            totalRecords : this.textSearchData.data.reorderedData.length
           }
 
         } else {
