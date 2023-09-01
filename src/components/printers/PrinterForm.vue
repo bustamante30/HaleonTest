@@ -134,7 +134,7 @@ function save() {
             prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found" :required="true")
           .fields
             .f
-             label Identify Provider
+             label Identity Provider
              prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
             template(v-if="printerForm.provider !== 1")
               .f.radio(v-for="platform in federated")
