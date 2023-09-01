@@ -92,7 +92,7 @@ async function handleReport() {
   sgs-scrollpanel(:scroll="false")
     template(#header)
       app-header(v-if="!isLoginPage" @demo="handleDemo" @report="handleReport")
-    prime-toast(:position="notification && notification.position || 'bottom-left'")
+    prime-toast
     router-view
   prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
     template(#header='')
