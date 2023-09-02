@@ -158,10 +158,11 @@ function resend(user) {
       header.page-title
         h1 Manage Users
     main(:class="{ super: role && role === 'super' }")
-    printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
+      .printers(v-if="role && role === 'super'")
+        printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
       .users-content
         sgs-scrollpanel(v-if="selected")
-          printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" :user="user" :role="role" @searchUser ="searchUser")
+          printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" :user="user" :role="role")
   router-view
 </template>
 
