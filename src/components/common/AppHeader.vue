@@ -54,7 +54,9 @@ watch(currentB2CUser, (value) => {
     }
   }
 });
-
+async function redirect(path){
+  window.location.replace(path)
+}
 </script>
 
 <template lang="pug">
@@ -63,11 +65,11 @@ header.app-header
   h3
     router-link(to="/dashboard") Image Carrier Re-Order
   .nav
-    a(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+    a(@click="redirect('/dashboard')") Dashboard
     
-    router-link(v-show="IsExternalAdmin === 'PrinterAdmin'" :to="'/users'") Manage Users
-    router-link(v-show="IsExternalAdmin === 'PMSuperAdminUser'" :to="'/users?role=super'") Manage Users
-    router-link(to="/dashboard") Help
+    a(v-show="IsExternalAdmin === 'PrinterAdmin'" @click="redirect('/users')") Manage Users
+    a(v-show="IsExternalAdmin === 'PMSuperAdminUser'" @click="redirect('/users?role=super')") Manage Users
+    a(@click="redirect('/dashboard')") Help
   span.separator
   .tools
     router-link(to="/cart" v-badge.danger="cartCount")
