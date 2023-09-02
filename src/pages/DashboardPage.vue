@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch, provide, ref, onMounted } from "vue";
-import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
 import welcome from "../components/common/Welcome.vue";
@@ -97,13 +96,9 @@ watch(currentB2CUser, (value) => {
 });
 
 function getDateFilter() {
-  let threeMonthsDate = new Date();
-  threeMonthsDate.setMonth(new Date().getMonth() - 3);
-  let filter = [];
+  let filter: any = [];
+  filter.push({ label: "last 3 days", value: "last 3 days" });
   filter.push({ label: "last 3 months", value: "last 3 months" });
-  let sixMonthsFilter = new Date();
-  sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-  filter.push({ label: "last 6 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
       label: i.toString(),
@@ -114,14 +109,12 @@ function getDateFilter() {
 }
 function getDateRange(filter: string) {
   switch (filter) {
+    case "last 3 days":
+      let threeDaysDate = new Date(Date.now()-259200000);
+      return [threeDaysDate, new Date()]
     case "last 3 months":
-      let threeMonthsDate = new Date();
-      threeMonthsDate.setMonth(new Date().getMonth() - 3);
-      return [threeMonthsDate, new Date()]
-    case "last 6 months":
-      let sixMonthsFilter = new Date();
-      sixMonthsFilter.setMonth(new Date().getMonth() - 6);
-      return [sixMonthsFilter, new Date()]
+      let monthFilter = new Date(Date.now()-7776000000);
+      return [monthFilter, new Date()]
     default:
       let i = parseInt(filter)
       return [new Date(i, 0, 1), new Date(i + 1, 0, 1)]
@@ -144,7 +137,7 @@ function addPrinterFilter() {
 function searchByStatus() {
   ordersStore.resetFilters()
   filters.value.startDate = getDateRange(selectedDate.value.toString());
-  filters.value.status = selectedStatus.value.value;
+  filters.value.status = selectedStatus?.value?.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
 }
@@ -155,7 +148,8 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(',')
     const fil = {
       ...filters.value,
-      query: event.query
+      status: 4,
+      query:event.query
     }
     addPrinterFilter()
     ordersStore.setFilters(fil);
@@ -217,6 +211,7 @@ function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
   sendToPmStore.getCodeTypes()
+  sendToPmStore.getPackTypes()
 }
 
 function sendToPm(form: any) {
@@ -308,8 +303,6 @@ async function addMultipleToCart(values: any) {
 <template lang="pug">
 .page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
   sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
-    template(#header)
-      app-header
     main
       sgs-scrollpanel(:scroll="false")
         template(#header)
@@ -319,7 +312,7 @@ async function addMultipleToCart(values: any) {
               h1 Search Results 
             div.leftHeader(v-if="!searchExecuted")
               h1 Recent Orders 
-              prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
+              prime-dropdown.sm.rangeFilter(v-if="false" v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
             div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )

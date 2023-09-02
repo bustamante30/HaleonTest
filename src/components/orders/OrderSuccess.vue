@@ -52,7 +52,7 @@ async function handleCancelOrder() {
       await router.push(`/dashboard`);
       await ordersStore.getOrders();
     } else {
-      notificationsStore.addNotification(`Error`, '10 mins windows is closed for Order cancellation', { severity: 'error' })
+      notificationsStore.addNotification(`Error`, '10 mins window closed for Re-Order cancellation', { severity: 'error' })
       // Handle error or show a notification
     }
   }
@@ -68,7 +68,7 @@ watch(ordersStore.selectedOrder, (value) => {
   sgs-scrollpanel
     template(#header)
       header(:class="{'cancelled': ordersStore.isCancel }")
-        h1.title {{ ordersStore.isCancel ? 'Order Cancelled' : 'Thank you for your order' }}
+        h1.title {{ ordersStore.isCancel ? 'Order Cancel' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
       p(v-if="!ordersStore.isCancel")
@@ -117,7 +117,7 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
-          sgs-button(v-if="ordersStore.isCancel" label="Cancel Order" @click="handleCancelOrder()")
+          sgs-button(v-if="ordersStore.isCancel" label="Select if this is correct" @click="handleCancelOrder()")
           sgs-button(label="Close" @click="handleClose()")
 </template>
 

@@ -47,4 +47,17 @@ export class FileUploadService {
         return false;
       });
   }
+
+  public static getDemoVideo() {
+    return httpService
+      .get('v1/GetDemoVideo')
+      .then((response: any) => {
+        console.log('Get Successfully');
+        return response;
+      })
+      .catch((error: any) => {
+        console.log('Error submitting files:', error);
+        return false;
+      });
+  }
 }

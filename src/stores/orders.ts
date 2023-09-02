@@ -15,38 +15,30 @@ import { sortBy, groupBy, keysIn } from "lodash";
 
 const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
  
-  // Filter by Date
- 
-   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
-   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
- 
-   let filteredresult :any[] =  []   
-     reorderedData.forEach(order => {
-       let date;
-       if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
-         date = DateTime.fromISO(order.submittedDate).toMillis()
-     }else{
-      const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
-       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
-     }
-       if(date >= DateTime.fromJSDate(startDate).toMillis() && 
-       date <= DateTime.fromJSDate(endDate).toMillis() ){
-         filteredresult.push(order)
-       }
-     });
- 
+
    // Filter by Sorting
- 
-   let resultForCache :any[] = filteredresult ;
+   let resultForCache :any[] = reorderedData ;
      if(filters.sortBy){
-       if(filters.sortOrder){
-         resultForCache = sortBy(resultForCache , [filters.sortBy])
-       }else{
-         resultForCache = sortBy(resultForCache , [filters.sortBy]).reverse()
-       }
+        if(filters?.sortBy?.toLowerCase().includes('date')){
+          resultForCache = sortBydate(resultForCache);
+        }else{
+          resultForCache = sortBy(resultForCache , [filters.sortBy])
+        }
+        
+        if(!filters.sortOrder){
+          resultForCache = resultForCache.reverse()
+        }
      }
- 
+     console.log('totalCount', resultForCache.length)
    return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+ }
+
+ const sortBydate = (orders) =>{
+  return orders.sort(function compare(a, b) {
+    var dateA:any = new Date(a.submittedDate);
+    var dateB:any = new Date(b.submittedDate);
+    return dateA - dateB;
+  });
  }
 
 export const useOrdersStore = defineStore("ordersStore", {
@@ -123,7 +115,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
             imageCarrierId: color.imageCarrierId,
-            isActive: color.isActive,
+            isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
             newColour: color.newColour,
@@ -239,6 +231,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder.description = details.jobDescription;
           this.selectedOrder.barcodes = details.barcode;
+          this.selectedOrder.packagingReference = details.jobDetails.packagingReference;
           this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
           this.selectedOrder.printProcess = details.techSpec.printProcessDescription;
           this.selectedOrder.substrate = details.techSpec.substrate;
@@ -249,6 +242,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
           this.selectedOrder.dispro = details.techSpec.dispro;
           this.selectedOrder.plateType = details.techSpec.plateType;
+          this.selectedOrder.isActive = true
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loading.order = false;
@@ -307,7 +301,7 @@ export const useOrdersStore = defineStore("ordersStore", {
        const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
         result =  {
           reorderedData : reorderedData,
-          totalRecords : reorderedData.length
+          totalRecords : this.textSearchData.data.reorderedData.length
         }
       } else {
         result = await ReorderService.getRecentReorders(
@@ -334,14 +328,14 @@ export const useOrdersStore = defineStore("ordersStore", {
           }else{
             this.textSearchData.data =  {
               reorderedData : result.reorderedData !=null ?result.reorderedData : [],
-              totalRecords:result.reorderedData.length
+              totalRecords: result.reorderedData.length
             }
          }
 
           const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
           result =  {
             reorderedData : reorderedData,
-            totalRecords : reorderedData.length
+            totalRecords : this.textSearchData.data.reorderedData.length
           }
 
         } else {
@@ -469,7 +463,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       }
     },
-    updatePlate(params: any) {
+    async updatePlate(params: any) {
       const notificationsStore = useNotificationsStore()
       const colours = this.selectedOrder['colors'] as any[]
       const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
@@ -549,7 +543,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           label: plateType?.plateTypeName || plateType?.plateTypeDescription,
           value: plateType?.plateTypeId,
           plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
-          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId
+          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
+          isActive: true
         }
       })
     },
@@ -572,7 +567,8 @@ export const useOrdersStore = defineStore("ordersStore", {
               checkboxId: faker.datatype.uuid(),
               plateTypeDescription: { ...selected, plateThicknessDescription, plateThicknessId }
             }
-          })
+          }),
+          isActive:true
         }
       });
       this.selectedOrder.colors?.map((x:any) => {

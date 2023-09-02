@@ -85,7 +85,8 @@ export const useCartStore = defineStore("cartStore", {
           plateType: color?.plateTypeDescription,
           plateThicknessId: color?.plateThicknessId,
           plateThickness: color?.plateThicknessDescription,
-          sets: color?.sets
+          sets: color?.sets,
+          isActive:true
         }]
         return {
           id: color.id,
@@ -96,7 +97,7 @@ export const useCartStore = defineStore("cartStore", {
           custCarrierIdNo: color.custCarrierIdNo,
           custImageIdNo: color.custImageIdNo,
           imageCarrierId: color.imageCarrierId,
-          isActive: color.isActive,
+          isActive: true,
           isNew: color.isNew,
           jobTechSpecColourId: color.jobTechSpecColourId,
           originalSets: color.originalSets,
