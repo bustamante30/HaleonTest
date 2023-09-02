@@ -61,7 +61,9 @@ watch(currentB2CUser, (value) => {
     }
   }
 });
-
+async function redirect(path){
+  window.location.replace(path)
+}
 </script>
 
 <template lang="pug">
@@ -69,7 +71,7 @@ header.app-header
   app-logo.logo(:size="1.5")
   .tools
     nav.app-navigation
-      a.dashboard(@click="$route.name !=='dashboard'? $router.push('/dashboard'):$router.go()") Dashboard
+      a.dashboardLink(@click="redirect('/dashboard')") Dashboard
       prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
@@ -121,4 +123,7 @@ header.app-header
       margin: 0 $s
     a span
       color: #fff     
+.dashboardLink
+  font-weight: 600
+  color: #FFFFFF
 </style>
