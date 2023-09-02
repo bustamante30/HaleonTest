@@ -144,7 +144,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loading.ordersList = true;
       const result = await ReorderService.getRecentReorders(
         4,
-        undefined,
+        this.filters?.query? this.filters.query : undefined,
         undefined,
         undefined,
         this.pageState.page,
