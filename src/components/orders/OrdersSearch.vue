@@ -103,6 +103,7 @@ const validateSearch = (text) =>{
 }
 
 function toggleFilters() {
+  searchedValue.value = ''
   isFiltersVisible.value = !isFiltersVisible.value;
 }
 </script>

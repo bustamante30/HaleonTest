@@ -10,7 +10,7 @@ export const useNotificationsStore = defineStore('notifications', {
       this.messages.push({ severity, summary, detail, life })
     },
     addNotification(summary: string, detail: string, options?: any) {
-      options = { severity: 'warn', life: 3000, position: 'bottom-left', ...options }
+      options = { severity: 'warn', life: 3000, position: 'top-right', ...options }
       const notification = { summary: summary || 'Summary', detail: detail || 'Detailed message ...', ...options }
       this.notification = { ...notification }
     }

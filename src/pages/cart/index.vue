@@ -18,7 +18,6 @@
 
 <script setup>
 import { computed, onBeforeMount } from 'vue'
-import AppHeader from '@/components/common/AppHeader.vue'
 import CartOrder from '@/components/cart/CartOrder.vue'
 import { useCartStore } from '@/stores/cart'
 import router from '@/router'

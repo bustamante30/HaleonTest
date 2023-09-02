@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch, provide, ref, onMounted } from "vue";
-import AppHeader from "@/components/common/AppHeader.vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
 import welcome from "../components/common/Welcome.vue";
@@ -97,12 +96,8 @@ watch(currentB2CUser, (value) => {
 });
 
 function getDateFilter() {
-  let threeMonthsDate = new Date();
-  threeMonthsDate.setMonth(new Date().getMonth() - 3);
-  let filter = [];
+  let filter: any = [];
   filter.push({ label: "last 3 days", value: "last 3 days" });
-  let sixMonthsFilter = new Date();
-  sixMonthsFilter.setMonth(new Date().getMonth() - 6);
   filter.push({ label: "last 3 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
@@ -142,7 +137,7 @@ function addPrinterFilter() {
 function searchByStatus() {
   ordersStore.resetFilters()
   filters.value.startDate = getDateRange(selectedDate.value.toString());
-  filters.value.status = selectedStatus.value.value;
+  filters.value.status = selectedStatus?.value?.value;
   addPrinterFilter()
   ordersStore.setFilters(filters.value);
 }
@@ -216,6 +211,7 @@ function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
   sendToPmStore.getCodeTypes()
+  sendToPmStore.getPackTypes()
 }
 
 function sendToPm(form: any) {
@@ -307,8 +303,6 @@ async function addMultipleToCart(values: any) {
 <template lang="pug">
 .page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
   sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
-    template(#header)
-      app-header
     main
       sgs-scrollpanel(:scroll="false")
         template(#header)

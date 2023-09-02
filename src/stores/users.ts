@@ -487,7 +487,7 @@ export const useUsersStore = defineStore('users', {
   }
 
         const printerLoc: UserPrinterLocationDto[] = []
-        userreq.value.location.forEach((location:string)=>{
+        userreq.value.location?.forEach((location:string)=>{
           printerLoc.push({
             locationName : location
           })

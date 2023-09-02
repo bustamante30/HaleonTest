@@ -28,7 +28,7 @@ interface SendToPM {
     colors: Color[];
     files?: files[]
     code: string,
-    printerLocationId: number,
+    printerLocation: string,
     pmUsersForPrinter: any[];
    
 }
@@ -65,7 +65,7 @@ class SendToPMService {
             files:exitOrderInfo.files,
             code:exitOrderInfo.carrierCode.code,
             colors: exitOrderInfo.colors,
-            printerLocationId: exitOrderInfo.location,
+            printerLocation: exitOrderInfo.locationName,
             pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter
         }
         if (exitOrderInfo.colors && Array.isArray(exitOrderInfo.colors)) {
@@ -141,6 +141,14 @@ class SendToPMService {
         return httpService.get<string[]>("v1/getCodeTypes").
         then((response: any) => { return response }).catch ((error: any) => {
             console.log("error getting code types", error);
+            return []
+        });
+    }
+
+    public static getPackTypeList() {
+        return httpService.get<string[]>("v1/getPackTypes").
+        then((response: any) => { return response }).catch ((error: any) => {
+            console.log("error getting pack types", error);
             return []
         });
     }
