@@ -69,7 +69,9 @@ const keywordSearch =  debounce(async(event)=> {
       //should be a non blocking add history call 
       searchhistoryStore.setKeywordSearchHistory(event?.query, false);
     emit("searchkeyword", event);
+    // removing focus and value from search filed 
     searchedValue.value = ''
+    document.getElementById('keyword').blur()
   }else{ 
     // Notify User
     notificationsStore.addNotification(
@@ -112,7 +114,7 @@ function toggleFilters() {
 .orders-search
   .search
     .input
-      prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" 
+      prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" inputId='keyword'
       @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @item-select="keywordSearch" :loading="false"
       placeholder="Search by brand, variety, code, pack type...")
       span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
