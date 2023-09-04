@@ -85,8 +85,7 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
-      .f(v-if="!ordersStore.isCancel")
-      .f(v-if="selectedOrder.po")
+      .f(v-if=" !ordersStore.isCancel && selectedOrder.po")
         label Purchase Order #
         span {{ selectedOrder.po }}
       .f(v-if="selectedOrder.itemCode")

@@ -144,7 +144,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loading.ordersList = true;
       const result = await ReorderService.getRecentReorders(
         4,
-        undefined,
+        this.filters?.query? this.filters.query : undefined,
         undefined,
         undefined,
         this.pageState.page,
@@ -282,7 +282,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         })
         filters.roleKey = b2cAuth.currentB2CUser.roleKey
       }
-            let result:
+      
+      let result:
         | {
             reorderedData: ReorderDto[];
             totalRecords: number;
@@ -305,7 +306,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       } else {
         result = await ReorderService.getRecentReorders(
-          filters.status,
+          filters?.query != '' &&  filters.query != null ? 4 : filters.status,
           filters.query,
           filters.sortBy,
           filters.sortOrder,

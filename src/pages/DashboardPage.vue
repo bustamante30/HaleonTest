@@ -145,10 +145,9 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
-      status: 4,
-      query: event.query,
-    };
-    addPrinterFilter();
+      query:event.query
+    }
+    addPrinterFilter()
     ordersStore.setFilters(fil);
   } else {
     searchTags.value = [];
