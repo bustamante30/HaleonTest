@@ -86,12 +86,13 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = store.get("currentUser")
     const b2cUser = store.get("currentb2cUser")
+    console.log('checking user loggedin', user, b2cUser)
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
       next() // go to wherever I'm going
     } else {
-      next({ name: 'loginPage' })
+      window.location.replace('/')
     }
   } else {
     next() // does not require auth, make sure to always call next()!
