@@ -19,6 +19,13 @@ export default {
       width: 5,
     },
     {
+      header: "View Len",
+      field: "lenThumbnail",
+      type: 'image',
+      freeze: "left",
+      width: 6,
+    },
+    {
       header: "Plate Type",
       field: "plateTypeDescription",
       width: 8,
