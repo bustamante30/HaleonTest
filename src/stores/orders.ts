@@ -103,6 +103,7 @@ export const useOrdersStore = defineStore("ordersStore", {
   }),
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
+      debugger;
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
@@ -110,7 +111,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
-            colourTypeDesc: color.colourTypeDesc ==null?color.colourType:color.colourTypeDesc,
+            colourTypeDesc: color.colourTypeDesc === undefined ?color.colourType:color.colourTypeDesc,
             commonColourRef: color.commonColourRef,
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
@@ -118,7 +119,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
-            newColour: color.newColour == null? color.isNew: color.newColour,
+            newColour: color.newColour === undefined ? color.isNew: color.newColour,
             originalSets: color.originalSets,
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
