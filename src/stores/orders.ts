@@ -115,6 +115,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
             imageCarrierId: color.imageCarrierId,
+            serialNumber: color.serialNumber,
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
@@ -123,8 +124,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: state.isCancel? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
-            plateTypeDescription: state.isCancel? plate.plateType :plate.plateTypeDescription.label,
+            plateThicknessDescription: (orderType === 'success' ||state.isCancel )? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
+            plateTypeDescription: (orderType === 'success' || state.isCancel )? plate.plateType :plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
             
@@ -168,12 +169,18 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
+       const modifiedColors = details.colors.map((x: any) => ({
+        ...x,
+        plateType: x.plateTypes,
+      }));
+      details.colors = modifiedColors;
       this.successfullReorder = details;
     },
     async getOrderById(reorderId: any) {
       const cartStore = useCartStore()
       this.loading.order = true
       this.selectedOrder = null
+      this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
       if (reorderId != null && reorderId != undefined) {
         if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
           // Cart reorder

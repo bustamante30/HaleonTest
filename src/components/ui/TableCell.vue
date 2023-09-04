@@ -68,7 +68,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
   span(v-else-if="config.type === 'lookup'")
     sgs-lookup(:modelValue="value && value.value ? value.value : null" :edit="data.isEditable" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
-  span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
+  span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
 
 </template>
 

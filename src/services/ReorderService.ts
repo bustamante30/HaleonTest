@@ -65,6 +65,7 @@ interface Color {
     custCarrierIdNo: string;
     custImageIdNo: string;
     imageCarrierId: string;
+    serialNumber: number;
     sets: number;
     originalSets: number;
     plateTypeId: number;
@@ -107,6 +108,7 @@ class ReorderService {
                         custCarrierIdNo: color.custCarrierIdNo,
                         custImageIdNo: color.custImageIdNo,
                         imageCarrierId: color.imageCarrierId,
+                        serialNumber: color.serialNumber,
                         jobTechSpecColourId: color.jobTechSpecColourId,
                         plateThicknessDescription: plateType?.plateTypeDescription?.plateThicknessDescription,
                         plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,

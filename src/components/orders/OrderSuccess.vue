@@ -18,7 +18,7 @@ const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
-const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
+const colors = computed(() => ordersStore.flattenedColors('success').filter(color => color.sets))
 const expectedDate = ref("");
 
 onBeforeMount(async () => {
@@ -109,7 +109,7 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
         span {{ selectedOrder.customerContacts[0].shippingAddress}}
-    .card(v-if="selectedOrder.colors && selectedOrder.colors.length>0")
+    .card(v-if="colors && colors.length>0")
       h3 Image Carrier Specs
       colors-table.p-datatable-sm(:config="config" :data="colors")
     template(#footer)
