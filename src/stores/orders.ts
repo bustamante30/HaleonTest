@@ -110,7 +110,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
-            colourTypeDesc: color.colourTypeDesc,
+            colourTypeDesc: color.colourTypeDesc === undefined ?color.colourType:color.colourTypeDesc,
             commonColourRef: color.commonColourRef,
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
@@ -118,7 +118,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
-            newColour: color.newColour,
+            newColour: color.newColour === undefined ? color.isNew: color.newColour,
             originalSets: color.originalSets,
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
