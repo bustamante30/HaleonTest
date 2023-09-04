@@ -27,6 +27,24 @@ onMounted(async () => {
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
+function getPDFFileName(pdfUri) {
+    // Split the URI by '/' to separate the parts
+    const uriParts = pdfUri.split('/');
+    
+    // Get the last part, which is the full PDF file name
+    const fullFileName = uriParts[uriParts.length - 1];
+    
+    // Use a regular expression to extract the actual file name
+    const fileNameMatch = fullFileName.match(/([^/?#]+)(\?|$)/);
+    
+    if (fileNameMatch) {
+      // The first capturing group (fileNameMatch[1]) contains the file name
+      return fileNameMatch[1];
+    } else {
+      // If the regular expression didn't match, return the full file name
+      return fullFileName;
+    }
+  }
 
 function viewPreview() {
   preview?.value?.scrollIntoView()
@@ -60,8 +78,15 @@ function viewPreview() {
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder.details")
-      .card
-        iframe#preview.pdf(ref="preview" src="/7167141_2_SG1_PP_34346403_LR.pdf#view=fit")
+      .card#preview(ref="preview")
+        sgs-panel(v-for="(pdfUris, i) in selectedOrder.pdfUris" :header="`${getPDFFileName(pdfUris)}`")
+          //vue-pdf-embed(:source="pdfUris")
+          //embed.pdf(:src="pdfUris" type="application/pdf" width="100%" height="500px")
+          iframe.pdf(:src="pdfUris")
+      
+        //- sgs-panel(v-for="(pdfUris, i) in selectedOrder.pdfUris" :header="`PDF-${i + 1}`")
+        //-   iframe.pdf(:src="pdfUris")
+        //iframe#preview.pdf(ref="preview" :src="selectedOrder.pdfUris[0]")
       template(#footer)
         footer
           .secondary-actions &nbsp;

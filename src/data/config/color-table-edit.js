@@ -20,6 +20,13 @@ export default {
       width: 6,
     },
     {
+      header: "View Colour",
+      field: "lenThumbnail",
+      type: 'image',
+      freeze: "left",
+      width: 6,
+    },
+    {
       header: 'Total Quantity',
       field: 'totalSets',
       width: 5
