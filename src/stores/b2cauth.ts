@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 import {
   EventType,
   PublicClientApplication,
-  type AccountInfo
+  type AccountInfo,
 } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";
-import jwt_decode from 'jwt-decode'
-import { DateTime } from 'luxon'
+import jwt_decode from "jwt-decode";
+import { DateTime } from "luxon";
 import router from "@/router";
 import store from "store";
 import type { SearchRequestDto } from "@/models/SearchRequestDto";
@@ -26,33 +26,34 @@ const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 
-const printerIdSearch = async (currentB2CUser:any) : Promise<Number []> =>{
-
-
-  if(currentB2CUser.userType === 'EXT' && currentB2CUser.roleKey.toLowerCase().includes('admin')){
+const printerIdSearch = async (currentB2CUser: any): Promise<Number[]> => {
+  if (
+    currentB2CUser.userType === "EXT" &&
+    currentB2CUser.roleKey.toLowerCase().includes("admin")
+  ) {
     // Make User Search call to get List users
-    const saerchUsers :SearchRequestDto = {
-      "searchText": "",
-      "pageNumber": 1,
-      "pageCount": 1000,
-      "orderBy": "modifiedOn",
-      "orderByAsc": true,
-      "isActive": true,
-      "printerId": parseInt(currentB2CUser.printerId.toString(),10),
-      "userId": 0,
-      "userTypeKey": "EXT",
-      "isDashboardPage":true
-    }
-    
-    const users = await UserService.searchUser(saerchUsers)
-    return users && users.data.map(x=>x.id) || [] 
+    const saerchUsers: SearchRequestDto = {
+      searchText: "",
+      pageNumber: 1,
+      pageCount: 1000,
+      orderBy: "modifiedOn",
+      orderByAsc: true,
+      isActive: true,
+      printerId: parseInt(currentB2CUser.printerId.toString(), 10),
+      userId: 0,
+      userTypeKey: "EXT",
+      isDashboardPage: true,
+    };
+
+    const users = await UserService.searchUser(saerchUsers);
+    return (users && users.data.map((x) => x.id)) || [];
   }
 
-  return []
-}
+  return [];
+};
 export const useB2CAuthStore = defineStore("b2cauth", {
   state: () => {
-    const userb2cSessionStore = userB2CSessionStore()
+    const userb2cSessionStore = userB2CSessionStore();
     return {
       msalB2cInstance: new PublicClientApplication(authB2CConfig),
       accessToken: "",
@@ -60,10 +61,10 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       account: null as AccountInfo | null,
       accessTokenUpdatedOn: new Date(),
       accessTokenValidation: null as any,
-      redirectAfterLogin: '/dashboard',
+      redirectAfterLogin: "/dashboard",
       decodedToken: {},
       isValidIdentityProvider: false,
-    }
+    };
   },
   actions: {
     async aquireToken() {
@@ -79,20 +80,22 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       }
     },
     async acquireTokenSilent() {
-      await this.getAccount()
+      await this.getAccount();
       const accessTokenRequest = {
         scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
-        account: this.msalB2cInstance.getAllAccounts()[0]
-      }
-      console.info('acquireTokenSilent')
-      const tokenResponse = await this.msalB2cInstance.acquireTokenSilent(accessTokenRequest)
+        account: this.msalB2cInstance.getAllAccounts()[0],
+      };
+      console.info("acquireTokenSilent");
+      const tokenResponse = await this.msalB2cInstance.acquireTokenSilent(
+        accessTokenRequest
+      );
       if (tokenResponse) {
-        this.account = tokenResponse.account
+        this.account = tokenResponse.account;
       } else {
-        this.account = this.msalB2cInstance.getAllAccounts()[0]
+        this.account = this.msalB2cInstance.getAllAccounts()[0];
       }
       if (this.account && tokenResponse) {
-        this.updateUserStore(tokenResponse)
+        this.updateUserStore(tokenResponse);
       }
     },
     async getAccount() {
@@ -131,15 +134,21 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             this.currentB2CUser.isLoggedIn = false;
             localStorage.clear();
             sessionStorage.clear();
-            if (error || typeof error === 'string' && error.includes('The provided token does not contain a valid issuer')) {
-              this.currentB2CUser.isValidDomain = false
+            if (
+              error ||
+              (typeof error === "string" &&
+                error.includes(
+                  "The provided token does not contain a valid issuer"
+                ))
+            ) {
+              this.currentB2CUser.isValidDomain = false;
               router.push("/error");
             } else {
               router.push("/");
             }
           });
 
-      localStorage.setItem("AuthType", "AzureAdB2C");
+        localStorage.setItem("AuthType", "AzureAdB2C");
         if (this.account && response) {
           console.log(
             "[Auth Store] successfully obtained valid account and tokenResponse"
@@ -161,6 +170,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             await this.updateUserStore(response);
           } catch (err) {
             await this.msalB2cInstance.acquireTokenRedirect(requestScope);
+            await this.updateUserStore(response);
           }
         } else {
           console.log(
@@ -176,7 +186,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
                 console.log("Login redirect response" + tokenResponse);
                 response = tokenResponse;
               })
-              .catch((e) => {
+              .catch(async(e) =>  {
                 console.log("login error loginRedirect: ", e);
               });
           }
@@ -190,7 +200,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       localStorage.clear();
       sessionStorage.clear();
       this.msalB2cInstance
-      .logoutRedirect({ postLogoutRedirectUri: "/b2clogin" })
+        .logoutRedirect({ postLogoutRedirectUri: "/b2clogin" })
         .then(() => {
           console.log("logout successful");
         })
@@ -199,62 +209,63 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         });
     },
     async updateUserStore(tokenResponse: any) {
-      this.currentB2CUser.isValidDomain = true
-      this.currentB2CUser.isLoggedIn = true;
+      this.currentB2CUser.isValidDomain = true;
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
-      this.accessTokenUpdatedOn = new Date()
+      this.accessTokenUpdatedOn = new Date();
       const user = await UserService.getUserClaimInfo();
-      this.decodedToken = jwt_decode(this.accessToken)
-      const identityProviderSelected = this.getIdentityUsingToken(this.decodedToken)
+      this.decodedToken = jwt_decode(this.accessToken);
+      const identityProviderSelected = this.getIdentityUsingToken(
+        this.decodedToken
+      );
       if (user !== null) {
         localStorage.setItem("Claims", user.claims);
         this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
         localStorage.setItem("userType", this.currentB2CUser.userType);
-
-        this.currentB2CUser.printerUserIds = await printerIdSearch(this.currentB2CUser)
+        this.currentB2CUser.printerUserIds = await printerIdSearch(
+          this.currentB2CUser
+        );
         console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
-
-        store.set('currentb2cUser', this.currentB2CUser);
+       
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {
-            this.isValidIdentityProvider = true
+            this.isValidIdentityProvider = true;
           } else if (user.identityProviderName === identityProviderSelected) {
-            this.isValidIdentityProvider = true
-          }
-          else {
+            this.isValidIdentityProvider = true;
+          } else {
             router.push("/error");
           }
         } else if (user.identityProviderName === identityProviderSelected) {
-          this.isValidIdentityProvider = true
-        }
-        else {
+          this.isValidIdentityProvider = true;
+        } else {
           router.push("/error");
         }
+        this.currentB2CUser.isLoggedIn = true;
+        store.set("currentb2cUser", this.currentB2CUser);
       } else {
         router.push("/error");
       }
     },
     getIdentityUsingToken(decodedToken: any) {
-      let identityProvider = ""
-      if (decodedToken.hasOwnProperty('idp')) {
-        if (decodedToken.idp.includes('google')) {
-          identityProvider = "Google"
+      let identityProvider = "";
+      if (decodedToken.hasOwnProperty("idp")) {
+        if (decodedToken.idp.includes("google")) {
+          identityProvider = "Google";
         }
-        if (decodedToken.idp.includes('amazon')) {
-          identityProvider = "Amazon"
+        if (decodedToken.idp.includes("amazon")) {
+          identityProvider = "Amazon";
         }
-        if (decodedToken.idp.includes('apple')) {
-          identityProvider = "Apple"
+        if (decodedToken.idp.includes("apple")) {
+          identityProvider = "Apple";
         }
-        if (decodedToken.idp.includes('microsoftonline.com')) {
-          identityProvider = "Microsoft"
+        if (decodedToken.idp.includes("microsoftonline.com")) {
+          identityProvider = "Microsoft";
         }
       } else {
-        identityProvider = "Photon"
+        identityProvider = "Photon";
       }
-      return identityProvider
-    }
+      return identityProvider;
+    },
   },
 });

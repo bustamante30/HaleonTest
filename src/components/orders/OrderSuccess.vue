@@ -40,8 +40,7 @@ async function handleClose() {
   if (form) {
     form.style.display = "none";
   }
-  await router.push(`/dashboard`);
-  await ordersStore.getOrders();
+  window.location.replace('/dashboard')
 }
 
 async function handleCancelOrder() {

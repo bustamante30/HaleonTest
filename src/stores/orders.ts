@@ -51,7 +51,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     orders: [] as any[],
     loading: {
-      ordersList: true,
+      ordersList: false,
       order: false,
       cart: false,
       reorder: false,
