@@ -97,6 +97,7 @@ export const useCartStore = defineStore("cartStore", {
           custCarrierIdNo: color.custCarrierIdNo,
           custImageIdNo: color.custImageIdNo,
           imageCarrierId: color.imageCarrierId,
+          serialNumber: color.serialNumber,
           isActive: true,
           isNew: color.isNew,
           jobTechSpecColourId: color.jobTechSpecColourId,

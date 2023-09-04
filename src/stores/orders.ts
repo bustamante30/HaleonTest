@@ -115,6 +115,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
             imageCarrierId: color.imageCarrierId,
+            serialNumber: color.serialNumber,
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
@@ -174,6 +175,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const cartStore = useCartStore()
       this.loading.order = true
       this.selectedOrder = null
+      this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
       if (reorderId != null && reorderId != undefined) {
         if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
           // Cart reorder

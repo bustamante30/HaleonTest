@@ -44,6 +44,7 @@ export default {
     {
       header: "Serial Number",
       field: "serialNumber",
+      type: "number",
       freeze: "left",
       width: 8,
     },
