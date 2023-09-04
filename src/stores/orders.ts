@@ -225,9 +225,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
+          if(details.printerName!="")
+            this.selectedOrder.printerName = details.printerName
           const plateTypes = this.mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder.description = details.jobDescription;
           this.selectedOrder.barcodes = details.barcode;

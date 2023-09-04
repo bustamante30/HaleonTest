@@ -76,8 +76,14 @@ const searchExecuted = ref(false);
 const searchTags = ref([]);
 
 provide("options", options);
+onMounted(()=>{
+    ordersStore.initAdvancedFilters();
+    selectedStatus.value = statusList.value[0];
+    changeDateFilter(dateFilter.value[0]);
+    ordersStore.firstLoad = true;
+});
 watch(currentUser, (value) => {
-  if (authStore.currentUser && !ordersStore.firstLoad) {
+  if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
@@ -85,7 +91,7 @@ watch(currentUser, (value) => {
   }
 });
 watch(currentB2CUser, (value) => {
-  if (authb2cStore.currentB2CUser && !ordersStore.firstLoad) {
+  if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
