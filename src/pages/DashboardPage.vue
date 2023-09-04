@@ -145,6 +145,7 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
+      status: 4,
       query:event.query
     }
     addPrinterFilter()
