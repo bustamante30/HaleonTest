@@ -103,7 +103,6 @@ export const useOrdersStore = defineStore("ordersStore", {
   }),
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
-      debugger;
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
