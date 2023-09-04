@@ -31,10 +31,9 @@ onMounted(async () => {
   if (store.get('currentb2cUser')) {
     authb2cStore.currentB2CUser = store.get('currentb2cUser');
   }
-  await cartStore.getCartCount()
 });
 
-watch(currentUser, (value) => {
+watch(currentUser, async (value) => {
   if (authStore.currentUser) {
     ordersStore.userPrinterName = authStore.currentUser.printerName
     ordersStore.userRoleKey = authStore.currentUser.roleKey
@@ -43,11 +42,12 @@ watch(currentUser, (value) => {
     } else if (value.userType === 'INT' && value.roleKey === 'PMUser') {
       IsExternalAdmin.value = 'PMUser';
     } 
+    await cartStore.getCartCount();
   }
 });
 
 
-watch(currentB2CUser, (value) => {
+watch(currentB2CUser, async (value) => {
   if (authb2cStore.currentB2CUser) {
     ordersStore.userPrinterName = authb2cStore.currentB2CUser.printerName
     ordersStore.userRoleKey = authb2cStore.currentB2CUser.roleKey
@@ -59,6 +59,7 @@ watch(currentB2CUser, (value) => {
      else {
       IsExternalAdmin.value = '';
     }
+    await cartStore.getCartCount();
   }
 });
 async function redirect(path){

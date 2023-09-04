@@ -45,10 +45,7 @@ export const useAuthStore = defineStore("auth", {
       } else {
         this.account = this.msalInstance.getAllAccounts()[0];
       }
-      // if the the user is logged in
-      if (this.account && tokenResponse) {
-        this.updateUserStore(tokenResponse);
-      }
+      this.updateUserStore(tokenResponse);
     },
     async acquireTokenSilent() {
       // 1. try to obtain token use account detaials
@@ -64,10 +61,7 @@ export const useAuthStore = defineStore("auth", {
       } else {
         this.account = this.msalInstance.getAllAccounts()[0]
       }
-      // if the the user is logged in
-      if (this.account && tokenResponse) {
-        this.updateUserStore(tokenResponse)
-      }
+      this.updateUserStore(tokenResponse)
     },
     async getAccount() {
       const accounts = this.msalInstance.getAllAccounts();
@@ -97,14 +91,12 @@ export const useAuthStore = defineStore("auth", {
             console.log(
               "[Auth Store] successgully obtained valid account and tokenResponse"
             );
-            await this.updateUserStore(tokenResponse);
           } else if (this.account) {
             console.log("[Auth Store] User has logged in, but no tokens.");
             try {
               tokenResponse = await this.msalInstance.acquireTokenSilent(
                 accessTokenRequest
               );
-              await this.updateUserStore(tokenResponse);
             } catch (err) {
               await this.msalInstance.acquireTokenRedirect(requestScope);
             }
@@ -114,6 +106,7 @@ export const useAuthStore = defineStore("auth", {
             );
             await this.msalInstance.loginRedirect(requestScope);
           }
+          await this.updateUserStore(tokenResponse);
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
       }
@@ -133,7 +126,6 @@ export const useAuthStore = defineStore("auth", {
         });
     },
     async updateUserStore(tokenResponse: any) {
-      this.currentUser.isLoggedIn = true;
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
@@ -143,6 +135,7 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("Claims", user.claims);
         this.currentUser = {...this.currentUser,...user} as any;
         localStorage.setItem("userType", this.currentUser.userType);
+        this.currentUser.isLoggedIn = true;
         store.set('currentUser', this.currentUser);
       } else {
         router.push("/error");

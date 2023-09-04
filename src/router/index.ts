@@ -3,9 +3,7 @@ import FaqPage from "@/pages/FaqPage.vue";
 import HelpPage from "@/pages/HelpPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import authRoutes from "./auth";
-import { useAuthStore } from "@/stores/auth";
-import { useB2CAuthStore } from "@/stores/b2cauth";
-
+import store from "store";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -84,14 +82,13 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const authStore = useAuthStore();
-    const authb2cStore = useB2CAuthStore();
-    const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
-    const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
+    const user = store.get("currentUser")
+    const b2cUser = store.get("currentb2cUser")
     // this route requires auth, check if logged in
     // if not, redirect to login page.
-    if (isUserLoggedIn.value ||  isb2cUserLoggedIn.value) {
+    if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
       next() // go to wherever I'm going
     } else {
       next({ name: 'loginPage' })

@@ -8,20 +8,20 @@ import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
 
 import { useOrdersStore } from "@/stores/orders";
-import { useCartStore } from '@/stores/cart'
+import { useCartStore } from "@/stores/cart";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import SendPm from "@/components/orders/SendToPm.vue";
 import { useConfirm } from "primevue/useconfirm";
-import { useNotificationsStore } from '@/stores/notifications';
+import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
 
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
-const cartStore = useCartStore()
+const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
@@ -42,7 +42,8 @@ const userType = computed(() => {
 
 const username = computed(
   () =>
-    `${authStore.currentUser.firstName || "John"} ${authStore.currentUser.lastName || "Doe"
+    `${authStore.currentUser.firstName || "John"} ${
+      authStore.currentUser.lastName || "Doe"
     }`
 );
 
@@ -53,29 +54,26 @@ const selectedStatus = ref();
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
-const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isb2cUserLoggedIn = computed(
+  () => authb2cStore.currentB2CUser.isLoggedIn
+);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const isValidIdentityProvider = computed(() => {
-  if (isb2cUserLoggedIn.value) {
-    return authb2cStore.isValidIdentityProvider;
-  }
-  else if (isUserLoggedIn.value) {
-    return authStore.isValidIdentityProvider;
-  }
-  else {
+  if (isb2cUserLoggedIn.value || isUserLoggedIn.value) {
     return true;
   }
+  return false;
 });
 const userFilterConfig = computed(() => filterConfig("user"));
-const loadingOrders = computed(() => ordersStore.loading.ordersList)
+const loadingOrders = computed(() => ordersStore.loading.ordersList);
 const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const showMultipleSelection = ref(false);
 const searchExecuted = ref(false);
-// Freetext tags 
-const searchTags = ref([])
+// Freetext tags
+const searchTags = ref([]);
 
 provide("options", options);
 watch(currentUser, (value) => {
@@ -95,7 +93,7 @@ watch(currentB2CUser, (value) => {
   }
 });
 
-function getDateFilter() {
+function getDateFilter(): [string, string] {
   let filter: any = [];
   filter.push({ label: "last 3 days", value: "last 3 days" });
   filter.push({ label: "last 3 months", value: "last 3 months" });
@@ -108,99 +106,102 @@ function getDateFilter() {
   return filter;
 }
 function getDateRange(filter: string) {
-  switch (filter) {
-    case "last 3 days":
-      let threeDaysDate = new Date(Date.now()-259200000);
-      return [threeDaysDate, new Date()]
-    case "last 3 months":
-      let monthFilter = new Date(Date.now()-7776000000);
-      return [monthFilter, new Date()]
-    default:
-      let i = parseInt(filter)
-      return [new Date(i, 0, 1), new Date(i + 1, 0, 1)]
+  if (filter === "last 3 months") {
+    let monthFilter = new Date(Date.now() - 7776000000);
+    return [monthFilter, new Date()];
   }
+  if (!isNaN(Number(filter))) {
+    let i = Number(filter);
+    return [new Date(i, 0, 1), new Date(i + 1, 0, 1)];
+  }
+  let threeDaysDate = new Date(Date.now() - 259200000);
+  return [threeDaysDate, new Date()];
 }
 function changeDateFilter(dtFilter: any) {
-
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
-  addPrinterFilter()
+  addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
 function addPrinterFilter() {
-  console.log('printer: ' + authb2cStore.currentB2CUser.printerName)
-  const printerName = authb2cStore.currentB2CUser.isLoggedIn ? authb2cStore.currentB2CUser.printerName : null
+  console.log("printer: " + authb2cStore.currentB2CUser.printerName);
+  const printerName = authb2cStore.currentB2CUser.isLoggedIn
+    ? authb2cStore.currentB2CUser.printerName
+    : null;
   if (printerName && !filters.value.printerName)
-    filters.value.printerName = printerName
+    filters.value.printerName = printerName;
 }
 function searchByStatus() {
-  ordersStore.resetFilters()
+  ordersStore.resetFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
-  addPrinterFilter()
+  addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
-
   if (event) {
-    searchExecuted.value = true
-    searchTags.value = event.query.split(',')
+    searchExecuted.value = true;
+    searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
       query:event.query
     }
     addPrinterFilter()
     ordersStore.setFilters(fil);
-  }
-  else {
-    searchTags.value = []
+  } else {
+    searchTags.value = [];
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
-    searchExecuted.value = false
+    searchExecuted.value = false;
   }
 }
 function search(filters: any) {
-  searchExecuted.value = true
-  ordersStore.pageState.page = 1
-  searchTags.value = []
-  filters.query = ''
+  searchExecuted.value = true;
+  ordersStore.pageState.page = 1;
+  searchTags.value = [];
+  filters.query = "";
   if (filters) {
-    if (filters.status !== selectedStatus.value.value) {
-      selectedStatus.value = statusList.value.find((x) => x.value === filters.status)
+    if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
+    else {
+      if (filters.status !== selectedStatus.value.value) {
+        selectedStatus.value = statusList.value.find(
+          (x) => x.value === filters.status
+        );
+      }
     }
-    addPrinterFilter()
+    addPrinterFilter();
     ordersStore.setFilters(filters);
-  }
-  else {
+  } else {
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
   }
 }
 
 const clearSearchTags = (index: number) => {
-  searchTags.value.splice(index, 1)
-  if (searchTags.value.length === 0)
+  searchTags.value.splice(index, 1);
+  if (searchTags.value.length === 0) {
+    filters.value.query = "";
+    selectedStatus.value = statusList.value[0];
+    changeDateFilter(dateFilter.value[0]);
     searchExecuted.value = false;
-  const fil = {
-    ...filters.value,
-    query: searchTags.value.join(',')
+  } else {
+    const fil = {
+      ...filters.value,
+      query: searchTags.value.join(","),
+    };
+    addPrinterFilter();
+    ordersStore.setFilters(fil);
   }
-  addPrinterFilter()
-  ordersStore.setFilters(fil);
-
-}
+};
 
 const clearAllSearchTags = () => {
-  searchTags.value = []
-  const fil = {
-    ...filters.value,
-    query: searchTags.value.join(',')
-  }
-  addPrinterFilter()
-  ordersStore.setFilters(fil);
+  searchTags.value = [];
+  filters.value.query = "";
+  selectedStatus.value = statusList.value[0];
+  changeDateFilter(dateFilter.value[0]);
   searchExecuted.value = false;
-}
+};
 
 function getSearchHistory() {
   ordersStore.getSearchHistory(history);
@@ -209,8 +210,8 @@ function getSearchHistory() {
 function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
-  sendToPmStore.getCodeTypes()
-  sendToPmStore.getPackTypes()
+  sendToPmStore.getCodeTypes();
+  sendToPmStore.getPackTypes();
 }
 
 function sendToPm(form: any) {
@@ -221,19 +222,27 @@ async function addToCart(order: any) {
   confirm.require({
     message: "Do you want to add more orders to the cart?",
     header: "Add more Orders",
-    icon: 'pi pi-info-circle',
+    icon: "pi pi-info-circle",
     accept: async () => {
       order.selected = true;
       showMultipleSelection.value = true;
-      (document.getElementsByClassName("p-image-preview-indicator")[0] as HTMLElement)?.focus();
+      (
+        document.getElementsByClassName(
+          "p-image-preview-indicator"
+        )[0] as HTMLElement
+      )?.focus();
     },
     reject: async () => {
-      ordersStore.loading.ordersList=true;
+      ordersStore.loading.ordersList = true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       if (await cartStore.addToCart(orderToAdd)) {
-        notificationsStore.addNotification(`Success`, 'Order added to the cart successfully', { severity: 'success' })
+        notificationsStore.addNotification(
+          `Success`,
+          "Order added to the cart successfully",
+          { severity: "success" }
+        );
       }
-      ordersStore.loading.ordersList=false;
+      ordersStore.loading.ordersList = false;
     },
   });
 }
@@ -244,32 +253,36 @@ function cancelOrder(order: any) {
   confirm.require({
     message: "Do you want to delete this Reorder?",
     header: "Cancel Order",
-    icon: 'pi pi-info-circle',
+    icon: "pi pi-info-circle",
     accept: async () => {
       //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
-      // api 
+      // api
       let orderDetails = JSON.parse(
-        JSON.stringify(
-          await ReorderService.getPhotonReorderDetails(
-            order.id
-          )
-        )
+        JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id))
       );
       ordersStore.isCancel = true;
-     // const plates = orderDetails.colors.map((x: any) => x.plateTypes)
+      // const plates = orderDetails.colors.map((x: any) => x.plateTypes)
       const modifiedColors = orderDetails.colors.map((x: any) => ({
         ...x,
-        plateType:x.plateTypes
+        plateType: x.plateTypes,
       }));
       orderDetails.colors = modifiedColors;
       ordersStore.setOrderInStore(orderDetails);
-      (document.getElementsByClassName("p-image-preview-indicator")[0] as HTMLElement)?.focus();
+      (
+        document.getElementsByClassName(
+          "p-image-preview-indicator"
+        )[0] as HTMLElement
+      )?.focus();
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
     },
     reject: () => {
-      notificationsStore.addNotification(`Info`, 'Order Cancellation Rejected', { severity: 'error' })
-    }
+      notificationsStore.addNotification(
+        `Info`,
+        "Order Cancellation Rejected",
+        { severity: "error" }
+      );
+    },
   });
 
   //ordersStore.cancelOrder(order);
@@ -282,18 +295,27 @@ async function addMultipleToCart(values: any) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     if (!(await cartStore.addToCart(orderToAdd))) {
-      notificationsStore.addNotification(`Error`, 'Error adding some orders to the cart', { severity: 'error' })
+      notificationsStore.addNotification(
+        `Error`,
+        "Error adding some orders to the cart",
+        { severity: "error" }
+      );
       ordersToAdd.forEach((order) => {
         order.selected = false;
       });
       showMultipleSelection.value = false;
+      ordersStore.loading.ordersList = false;
       return;
     }
     order.selected = false;
   }
   showMultipleSelection.value = false;
   if (ordersToAdd.length > 0) {
-    notificationsStore.addNotification(`Success`, ordersToAdd.length + ' Orders added to the cart successfully', { severity: 'success' });
+    notificationsStore.addNotification(
+      `Success`,
+      ordersToAdd.length + " Orders added to the cart successfully",
+      { severity: "success" }
+    );
   }
   ordersStore.loading.ordersList = false;
 }
@@ -319,7 +341,7 @@ async function addMultipleToCart(values: any) {
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
-          .search-tag
+          .search-tag(v-if="searchTags.length > 0")
             .tag(v-for="(tag ,index) in searchTags" :key="tag")
               span {{tag}}
               span.pi.pi-times.icon(@click="clearSearchTags(index)") 

@@ -2,7 +2,7 @@ import Message from 'primevue/message';
 
 <template lang="pug">
 .p-message-info
-  message(:closable='true' sticky='' life=3000) Welcome To Image Carrier Reorder
+  message.nomargin(:closable='true' sticky='' life=3000) Welcome To Image Carrier Reorder
 </template>
 
 <script>
@@ -16,5 +16,9 @@ export default {
   },
 };
 </script>
-
+<style lang="sass" scoped>
+@import "@/assets/styles/includes"
+.nomargin
+  margin-bottom: 0
+</style>
 
