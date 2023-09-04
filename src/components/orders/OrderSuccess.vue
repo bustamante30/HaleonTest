@@ -110,7 +110,6 @@ watch(ordersStore.selectedOrder, (value) => {
         label Shipping Address
         span {{ selectedOrder.customerContacts[0].shippingAddress}}
     .card(v-if="colors && colors.length>0")
-      span {{ colors }}
       h3 Image Carrier Specs
       colors-table.p-datatable-sm(:config="config" :data="colors")
     template(#footer)
