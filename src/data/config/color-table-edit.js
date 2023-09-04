@@ -20,7 +20,7 @@ export default {
       width: 6,
     },
     {
-      header: "View Len",
+      header: "View Colour",
       field: "lenThumbnail",
       type: 'image',
       freeze: "left",
