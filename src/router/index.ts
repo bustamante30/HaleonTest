@@ -92,7 +92,7 @@ router.beforeEach((to, from, next) => {
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
       next() // go to wherever I'm going
     } else {
-      window.location.replace('/')
+      next({name: 'loginPage', query: { q: Date.now() }})
     }
   } else {
     next() // does not require auth, make sure to always call next()!
