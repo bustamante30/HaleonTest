@@ -30,6 +30,12 @@ const isLoginPage = computed(() => {
   console.log(router?.currentRoute?.value?.path)
   return ((router?.currentRoute as any)?.value?.path) === '/'
 });
+const isB2CLoginPage = computed(() => {
+  return ((router?.currentRoute as any)?.value?.path) === '/b2clogin'
+});
+const isError = computed(() => {
+  return ((router?.currentRoute as any)?.value?.path) === '/error'
+});
 const refreshTokenTimer = ref()
 let isReportFormVisible = ref(false)
 onMounted(async () => {
@@ -91,7 +97,7 @@ async function handleReport() {
 #image-carrier
   sgs-scrollpanel(:scroll="false")
     template(#header)
-      app-header(v-if="!isLoginPage" @demo="handleDemo" @report="handleReport")
+      app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
     prime-toast
     router-view(:key="$route.fullPath")
   prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
