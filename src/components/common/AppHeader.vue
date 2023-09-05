@@ -89,7 +89,7 @@ header.app-header
 .app-header
   background: var(--app-header-bg-color)
   color: var(--app-header-text-color) !important
-  padding: $s50 0
+  padding: $s50
   +flex-fill
   .logo
     margin: 0 $s 0 0
