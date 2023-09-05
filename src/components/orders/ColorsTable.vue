@@ -39,7 +39,6 @@ const selected = ref([])
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
 
-
 function stylify(width) {
   return width
     ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: 'none' }
