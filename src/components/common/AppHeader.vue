@@ -8,6 +8,8 @@ import { useOrdersStore } from "@/stores/orders";
 import { onMounted, computed, watch, ref } from "vue";
 import store from "store";
 import navigation from '@/data/config/app-navigation.js'
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 
 const cartStore = useCartStore();
@@ -63,7 +65,7 @@ watch(currentB2CUser, async (value) => {
   }
 });
 async function redirect(path){
-  window.location.replace(path)
+  router.push(`${path}?q=${Date.now()}`)
 }
 </script>
 

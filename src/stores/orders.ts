@@ -370,6 +370,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       // this.selectedOrder = this.orders[0];
     },
     resetFilters() {
+      this.filters["query"] = "";
       this.filters["status"] = 4;
       this.filters["itemNumber"] = null;
       this.filters["orderDate"] = [];

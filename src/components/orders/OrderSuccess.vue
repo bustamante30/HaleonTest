@@ -5,12 +5,12 @@ import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from '@/stores/cart'
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
-import router from "@/router";
+import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from '@/stores/notifications';
-
+const router = useRouter();
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore()
 const authStore = useAuthStore();
@@ -40,7 +40,7 @@ async function handleClose() {
   if (form) {
     form.style.display = "none";
   }
-  window.location.replace('/dashboard')
+  router.push(`/dashboard?q=${Date.now()}`);
 }
 
 async function handleCancelOrder() {
@@ -48,7 +48,7 @@ async function handleCancelOrder() {
     const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, true);
     if (cancelResult) {
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
-      await router.push(`/dashboard`);
+      await router.push(`/dashboard?q=${Date.now()}`);
       await ordersStore.getOrders();
     } else {
       notificationsStore.addNotification(`Error`, '10 mins window closed for Re-Order cancellation', { severity: 'error' })

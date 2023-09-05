@@ -93,7 +93,7 @@ async function handleReport() {
     template(#header)
       app-header(v-if="!isLoginPage" @demo="handleDemo" @report="handleReport")
     prime-toast
-    router-view
+    router-view(:key="$route.fullPath")
   prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
     template(#header='')
       header.videoheader
