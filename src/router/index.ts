@@ -90,11 +90,14 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
+      console.log("Go to wherever I'm going")
       next() // go to wherever I'm going
     } else {
+      console.log('Redirect to Login')
       next({name: 'loginPage', query: { q: Date.now() }})
     }
   } else {
+    console.log('Does not require auth')
     next() // does not require auth, make sure to always call next()!
   }
 })
