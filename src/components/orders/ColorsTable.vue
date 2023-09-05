@@ -4,6 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
 import router from '@/router'
+import { sortBy } from 'lodash'
 
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
@@ -35,6 +36,8 @@ const ordersStore = useOrdersStore();
 const emit = defineEmits(['update'])
 
 const selected = ref([])
+
+const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
 
 
 function stylify(width) {
@@ -82,7 +85,7 @@ function updateColor({ checkboxId, field, value }) {
 </script>
 
 <template lang="pug">
-data-table.colors-table(:value="data" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="jobTechSpecColourId" :lazy="true" :loading="loading" :style="{ minHeight: '25rem'}")
+data-table.colors-table(:value="sortedColors" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="jobTechSpecColourId" :lazy="true" :loading="loading" :style="{ minHeight: '25rem'}")
   //- template(#loading)
   //-   i.pi.pi-spin.pi-cog.spinning
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
