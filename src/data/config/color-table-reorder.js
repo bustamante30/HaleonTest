@@ -1,4 +1,5 @@
 export default {
+  sortBy: ['sequenceNumber'],
   cols: [
     {
       header: "Sequence #",
@@ -17,13 +18,6 @@ export default {
       field: "colourName",
       freeze: "left",
       width: 5,
-    },
-    {
-      header: "View Colour",
-      field: "lenThumbnail",
-      type: 'image',
-      freeze: "left",
-      width: 6,
     },
     {
       header: "Plate Type",

@@ -62,7 +62,6 @@ function handleClose() {
 }
 
 function save() {
-
   //Required fields validations.
   if (!userForm.value.firstName) {
     notificationsStore.addNotification(
@@ -90,6 +89,25 @@ function save() {
     );
     return;
   }
+
+  if (userForm.value.location?.length >0 && userForm.value?.isAdmin === true) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'If User is admin. Location will not be associated',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
+  if (userForm.value.location?.length === 0 && userForm.value?.isAdmin === false ) {
+    notificationsStore.addNotification(
+      'Validation Error',
+      'Either User should be Admin or associated to any printer location',
+      { severity: 'error', position: 'top-right' }
+    );
+    return;
+  }
+
   emit('save', userForm)
 }
 </script>

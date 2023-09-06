@@ -17,6 +17,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
+import { useRoute } from 'vue-router';
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -76,12 +77,24 @@ const searchExecuted = ref(false);
 const searchTags = ref([]);
 
 provide("options", options);
+
+const init = () =>{
+  initClearAllSearchTags()
+  ordersStore.initAdvancedFilters();
+  selectedStatus.value = statusList.value[0];
+  changeDateFilter(dateFilter.value[0]);
+  ordersStore.firstLoad = true;
+  
+}
 onMounted(()=>{
-    ordersStore.initAdvancedFilters();
-    selectedStatus.value = statusList.value[0];
-    changeDateFilter(dateFilter.value[0]);
-    ordersStore.firstLoad = true;
+   init()
 });
+const route = useRoute();
+// Watch for query change and refersh the dashboad thro. init()
+watch(() => route.query['q'],()=>{
+  init()
+})
+
 watch(currentUser, (value) => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
@@ -202,11 +215,16 @@ const clearSearchTags = (index: number) => {
 };
 
 const clearAllSearchTags = () => {
+  initClearAllSearchTags()
+  changeDateFilter(dateFilter.value[0]);
+ 
+};
+
+const initClearAllSearchTags = () => {
   searchTags.value = [];
   filters.value.query = "";
-  selectedStatus.value = statusList.value[0];
-  changeDateFilter(dateFilter.value[0]);
   searchExecuted.value = false;
+  selectedStatus.value = statusList.value[0];
 };
 
 function getSearchHistory() {

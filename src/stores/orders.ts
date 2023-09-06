@@ -106,7 +106,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
-        color?.plateType?.forEach((plate: any) => {
+        (color?.plateType || color?.plateTypes).forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
@@ -124,8 +124,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: (orderType === 'success' ||state.isCancel )? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription, 
-            plateTypeDescription: (orderType === 'success' || state.isCancel )? plate.plateType :plate.plateTypeDescription.label,
+            plateThicknessDescription: (orderType === 'success' || state.isCancel )? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription , 
+            plateTypeDescription: (orderType === 'success' || state.isCancel )? plate.plateType : plate.plateTypeDescription.label || color.plateTypeDescription,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
             
@@ -169,11 +169,6 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
-       const modifiedColors = details.colors.map((x: any) => ({
-        ...x,
-        plateType: x.plateTypes,
-      }));
-      details.colors = modifiedColors;
       this.successfullReorder = details;
     },
     async getOrderById(reorderId: any) {
@@ -397,10 +392,16 @@ export const useOrdersStore = defineStore("ordersStore", {
             "@/assets/images/no_thumbnail.png",
             import.meta.url
           );
-        } else if (this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = decodeURIComponent(
+         } 
+        //else if (this.orders[i].thumbNailPath) {
+        //   this.orders[i].thumbNailPath = decodeURIComponent(
+        //     this.orders[i].thumbNailPath
+        //   );
+        // }
+        else if (this.orders[i].thumbNailPath) {
+          this.orders[i].thumbNailPath = 
             this.orders[i].thumbNailPath
-          );
+          ;
         }
       if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         this.orders[i].submittedDate = DateTime.fromISO(

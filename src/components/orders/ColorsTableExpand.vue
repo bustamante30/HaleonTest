@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { DateTime } from 'luxon'
 import router from '@/router'
-import { sum } from 'lodash'
+import { sum, sortBy } from 'lodash'
 
 import TableActions from '@/components/ui/TableActions.vue'
 import TableCell from '@/components/ui/TableCell.vue'
@@ -37,6 +37,8 @@ const emit = defineEmits(['update'])
 
 const selected = ref([] as any[])
 const expandedRows = ref([])
+
+const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
 
 onBeforeMount(() => {
   selected.value = props?.data?.filter((c: any) => c.totalSets)
@@ -102,7 +104,7 @@ async function updatePlate(params: any) {
 </script>
 
 <template lang="pug">
-data-table.colors-table.p-datatable-sm(:value="data" v-model:selection="selected" v-model:expandedRows="expandedRows" scrollable scrollHeight="flex" :rows="30" :dataKey="config.dataKey" :loading="loading" :style="{ minHeight: '25rem'}")
+data-table.colors-table.p-datatable-sm(:value="sortedColors" v-model:selection="selected" v-model:expandedRows="expandedRows" scrollable scrollHeight="flex" :rows="30" :dataKey="config.dataKey" :loading="loading" :style="{ minHeight: '25rem'}")
   column(expander headerStyle="width: 3rem")
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")

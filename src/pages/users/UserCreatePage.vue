@@ -55,7 +55,9 @@ async function saveUser(userRequest) {
         printerId = usersStore.selected.id;
       }
 
- await usersStore.saveUser(userRequest)
+ const userResp= await usersStore.saveUser(userRequest)
+ if(userResp)
+ {
  notificationsStore.addNotification(
         `User Creation`,
         `User Created Successfully`,
@@ -67,6 +69,8 @@ async function saveUser(userRequest) {
   } else if (userType === 'EXT') {
     router.push('/users');
   }
+}
+
 }
 
 </script>
