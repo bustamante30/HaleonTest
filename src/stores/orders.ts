@@ -392,21 +392,14 @@ export const useOrdersStore = defineStore("ordersStore", {
             "@/assets/images/no_thumbnail.png",
             import.meta.url
           );
-         } 
-        //else if (this.orders[i].thumbNailPath) {
-        //   this.orders[i].thumbNailPath = decodeURIComponent(
-        //     this.orders[i].thumbNailPath
-        //   );
-        // }
+         }
         else if (this.orders[i].thumbNailPath) {
           this.orders[i].thumbNailPath = 
             this.orders[i].thumbNailPath
           ;
         }
-      if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
-        this.orders[i].submittedDate = DateTime.fromISO(
-          this.orders[i].submittedDate
-        ).toLocaleString(DateTime.DATETIME_MED);
+        let formattedDate:string = (this.orders[i].submittedDate+'').includes('Z')? this.orders[i].submittedDate : this.orders[i].submittedDate+'Z'
+        this.orders[i].submittedDate = DateTime.fromISO(formattedDate).toLocaleString(DateTime.DATETIME_MED);
         this.orders[i].selected = false;
       }
     },
