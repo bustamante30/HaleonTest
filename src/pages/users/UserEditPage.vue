@@ -56,13 +56,27 @@ async function saveUser(value) {
         printerId = usersStore.selected.id;
       }
       
-  await usersStore.saveUser(value)
+ const userEditResp = await usersStore.saveUser(value)
+
+ if(userEditResp)
+ {
   notificationsStore.addNotification(
         `User Update`,
         `User Updated Successfully`,
         { severity: 'Success', position: 'top-right' }
       );
   await usersStore.getPrinters(0,500,'','',printerId)
+  
+       if(userType ==='EXT')
+        {
+        router.push('/users'); 
+        }
+        else if (userType === 'INT')
+        {
+          router.push('/users?role=super');
+        }
+ }
+
 }
 
 const showSuccess = (summary, severity) => {

@@ -6,7 +6,7 @@ import type { SearchResponeDto} from  '../models/SearchResponeDto';
 import type { PrinterDto} from  '../models/PrinterDto';
 import ApiService  from '../services/apiService';
 import type { ExternalPrinterCountResponseDto } from  '../models/ExternalPrinterCountResponseDto';
-
+import { useNotificationsStore } from "@/stores/notifications";
 
 const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
 
@@ -30,8 +30,25 @@ class UserService {
         return response;
       })
       .catch((error: any) => {
-        console.log('Error saving user:', error);
-        return null;
+        const errorresp = error?.response?.data;
+        const userNotificationsStore = useNotificationsStore();
+        if(errorresp)
+        {
+          console.log('Validation Error while adding User:', errorresp.detail);
+          userNotificationsStore.addNotification(
+            `Error`,
+            errorresp.detail,
+            { severity: "error" }
+          );
+          throw errorresp; 
+        }
+        console.log('unhandled exception while adding user:', error);
+        userNotificationsStore.addNotification(
+          `Error`,
+          "Something went Wrong. Please contact sgs help desk",
+          { severity: "error" }
+        );
+        throw  error; 
       });
   }
 
@@ -87,14 +104,24 @@ public static SavePrinter(printerData: PrinterDto) {
     })
     .catch((error: any) => {
       const errorresp = error?.response?.data;
+      const notificationsStore = useNotificationsStore();
       if(errorresp)
       {
         console.log('Validation Error adding printer:', errorresp.detail);
-        return; 
-
+        notificationsStore.addNotification(
+          `Error`,
+          errorresp.detail,
+          { severity: "error" }
+        );
+        throw errorresp; 
       }
-      console.log('Error adding printer:', error);
-      return null;
+      console.log('Unhandled exception while adding printer:', error);
+      notificationsStore.addNotification(
+        `Error`,
+        "Something went Wrong. Please contact sgs help desk",
+        { severity: "error" }
+      );
+      throw error; 
     });
 }
 
