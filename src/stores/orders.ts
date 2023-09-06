@@ -392,10 +392,16 @@ export const useOrdersStore = defineStore("ordersStore", {
             "@/assets/images/no_thumbnail.png",
             import.meta.url
           );
-        } else if (this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = decodeURIComponent(
+         } 
+        //else if (this.orders[i].thumbNailPath) {
+        //   this.orders[i].thumbNailPath = decodeURIComponent(
+        //     this.orders[i].thumbNailPath
+        //   );
+        // }
+        else if (this.orders[i].thumbNailPath) {
+          this.orders[i].thumbNailPath = 
             this.orders[i].thumbNailPath
-          );
+          ;
         }
       if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         this.orders[i].submittedDate = DateTime.fromISO(
