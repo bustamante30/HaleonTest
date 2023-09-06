@@ -166,7 +166,7 @@ class ReorderService {
             PO: reorderInfo.PO,
             expectedDate: reorderInfo.expectedDate ? reorderInfo.expectedDate : new Date(),
             notes: reorderInfo.Notes,
-            plateRelief: reorderInfo.PlateRelief,
+            plateRelief: reorderInfo.plateRelief,
             reorderDocs: reorderInfo.reorderDocs,
             isActive: reorderInfo.isActive,
             colors: [...newColors],
