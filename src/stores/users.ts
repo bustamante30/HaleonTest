@@ -505,24 +505,8 @@ export const useUsersStore = defineStore('users', {
           isPrimaryPM:userreq.value.isPrimaryPM,
           printerLoc
         };
-     await UserService.saveUser(userDto)
-      .then((response: any) => {
-        this.user = null;
-        if(userType ==='EXT')
-        {
-        router.push('/users'); 
-        }
-        else if (userType === 'INT')
-        {
-          router.push('/users?role=super');
-        }
-      })
-      .catch((error) => {
-        console.error('Error saving user:', error);
-        // Handle error scenario
-      });
 
- 
+    return await UserService.saveUser(userDto)
     },
    async savePrinter(printerreq : any) {
         const printerDto: PrinterDto = {
@@ -551,15 +535,7 @@ export const useUsersStore = defineStore('users', {
             },
           ]
         };
-    await UserService.SavePrinter(printerDto)
-      .then((response: any) => {
-        this.printers.id = response;
-        router.push('/users?role=super');
-      })
-      .catch((error) => {
-        console.error('Error saving printer:', error);
-        // Handle error scenario
-      });
+  return UserService.SavePrinter(printerDto)
     },
     async deleteUser(user: any) {
       console.log("DeleteUser:"+ user);

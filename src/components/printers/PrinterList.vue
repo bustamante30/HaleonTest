@@ -59,15 +59,20 @@ function searchPrinter(query) {
 
 
 async function saveprinter(printerFormRequest) {
-  await  usersStore.savePrinter(printerFormRequest);
+  const printerResp  = await  usersStore.savePrinter(printerFormRequest);
+  if(printerResp)
+  {
   notificationsStore.addNotification(
         `Printer Creation`,
         `Printer Created Successfully`,
         { severity: 'Success', position: 'top-right' }
       );
+  
   await usersStore.getPrinters(0)
   isPrinterFormVisible.value = false;
   router.push('/users?role=super');
+  }
+
 }
 
 </script>
