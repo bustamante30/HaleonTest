@@ -18,6 +18,7 @@ const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
+const isOrderCancel = computed(() => ordersStore.isCancel);
 const colors = computed(() => ordersStore.flattenedColors('success').filter(color => color.sets))
 const expectedDate = ref("");
 
@@ -66,11 +67,11 @@ watch(ordersStore.selectedOrder, (value) => {
 .order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
-      header(:class="{'cancelled': ordersStore.isCancel }")
-        h1.title {{ ordersStore.isCancel ? 'Order Cancel' : 'Thank you for your order' }}
+      header(:class="{'cancelled': isOrderCancel }")
+        h1.title {{ isOrderCancel ? 'Order Cancel' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
-      p(v-if="!ordersStore.isCancel")
+      p(v-if="!isOrderCancel")
         | The following plate re-order has been placed. &nbsp;
         br/
         | Your order is expected to be delivered on &nbsp;
@@ -85,7 +86,7 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
-      .f(v-if=" !ordersStore.isCancel && selectedOrder.po")
+      .f(v-if=" !isOrderCancel && selectedOrder.po")
         label Purchase Order #
         span {{ selectedOrder.po }}
       .f(v-if="selectedOrder.itemCode")
@@ -116,7 +117,7 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
-          sgs-button(v-if="ordersStore.isCancel" label="Select if this is correct" @click="handleCancelOrder()")
+          sgs-button(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
           sgs-button(label="Close" @click="handleClose()")
 </template>
 

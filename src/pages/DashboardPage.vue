@@ -285,12 +285,6 @@ function cancelOrder(order: any) {
         JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id))
       );
       ordersStore.isCancel = true;
-      // const plates = orderDetails.colors.map((x: any) => x.plateTypes)
-      const modifiedColors = orderDetails.colors.map((x: any) => ({
-        ...x,
-        plateType: x.plateTypes,
-      }));
-      orderDetails.colors = modifiedColors;
       ordersStore.setOrderInStore(orderDetails);
       (
         document.getElementsByClassName(

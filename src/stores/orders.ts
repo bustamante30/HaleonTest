@@ -124,8 +124,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: (orderType === 'success' || state.isCancel )? plate.plateThickness:plate.plateTypeDescription.plateThicknessDescription , 
-            plateTypeDescription: (orderType === 'success' || state.isCancel )? plate.plateType : plate.plateTypeDescription.label || color.plateTypeDescription,
+            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
+            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
             
@@ -192,7 +192,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             })
             const details = { ...order, colors }
-            const plateTypes = this.mapPlateTypes(details)
+            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
@@ -211,15 +211,15 @@ export const useOrdersStore = defineStore("ordersStore", {
                 })
               }
             })
-            const details = { ...photonOrder, ...photonOrderDetails, colors }         
-            const plateTypes = this.mapPlateTypes(details)
+            const details = { ...photonOrder, ...photonOrderDetails, colors }
+            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
           }
         } else {
-          // Dashboard SGS reorder
+          // Dashboard SGS reorder (MySGS, Photon)
           this.selectedOrder = this.orders.find(
             (order: any) => order.sgsId === reorderId
           );
@@ -227,7 +227,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
-          const plateTypes = this.mapPlateTypes(details)
+          const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
           this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           if(details.printerName!="")
@@ -521,9 +521,12 @@ export const useOrdersStore = defineStore("ordersStore", {
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
       const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
       const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
-      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed
+      const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
+      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
+      if (hasEmptyPlateDescription)
+        notificationsStore.addNotification('Warning', `Plate type cannot be empty for ${colour.colourName}. Please pick a plate type from the available list`, { severity: 'warn' })
       if (hasMixed)
-        notificationsStore.addNotification('Warning', `Warning, "Mixed" plate type cannot be used for ${colour.colourName}, please pick a plate type from the available list`, { severity: 'warn' })
+        notificationsStore.addNotification('Warning', `Warning, "Mixed" plate type cannot be used for ${colour.colourName}. Please pick a plate type from the available list`, { severity: 'warn' })
       if (!hasUniquePlates)
         notificationsStore.addNotification('Warning', `You have selected the same plate type for ${colour.colourName}`, { severity: 'warn'})
       return isValid
@@ -556,6 +559,22 @@ export const useOrdersStore = defineStore("ordersStore", {
           isActive: true
         }
       })
+    },
+    // For Photon Orders
+    mapColorPlateTypes(colors: any[]) {
+      const plateTypes = [] as any[]
+      colors?.forEach((color: any) => {
+        color?.plateTypes?.forEach((plateType: any) => {
+          plateTypes.push({
+            label: plateType?.plateType,
+            value: plateType?.plateTypeId,
+            plateThicknessDescription: plateType?.plateThickness,
+            plateThicknessId: plateType?.plateThicknessId,
+            isActive: true
+          })
+        })
+      })
+      return plateTypes
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
       const colors = Array.from(details && details.colors || [])
