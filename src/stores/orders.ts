@@ -192,7 +192,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             })
             const details = { ...order, colors }
-            const plateTypes = this.mapPlateTypes(details)
+            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
@@ -227,7 +227,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
-          const plateTypes = this.mapPlateTypes(details)
+          const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
           this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           if(details.printerName!="")
