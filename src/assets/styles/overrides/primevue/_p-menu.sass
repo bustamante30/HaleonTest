@@ -1,9 +1,11 @@
 .p-menu
-    .p-menu-list
-      .p-menuitem
-        &:not(.p-highlight):not(.p-disabled)
-          > .p-menuitem-content:hover
-            background: var(--hover-bg-color)
-        &.p-focus
-          > .p-menuitem-content
-            background: var(--hover-bg-color) !important
+  border-radius: 0
+  padding: 0
+  .p-menu-list
+    .p-menuitem
+      &:not(.p-highlight):not(.p-disabled)
+        > .p-menuitem-content:hover
+          background: var(--hover-bg-color)
+      &.p-focus
+        > .p-menuitem-content
+          background: var(--hover-bg-color) !important

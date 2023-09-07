@@ -20,7 +20,7 @@ function externallogin() {
   app-logo.logo
   h1 Login
   .login.form
-    sgs-button.block(label="Login as SGSCo User" @click="login()")
+    sgs-button.block(label="Login as SGS & Co User" @click="login()")
     .external
       sgs-button.block(label="Login as External User" @click="externallogin()")
 </template>

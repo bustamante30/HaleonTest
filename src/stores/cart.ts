@@ -37,10 +37,15 @@ export const useCartStore = defineStore("cartStore", {
             "@/assets/images/no_thumbnail.png",
             import.meta.url
           );
-        } else if (this.cartOrders[i].thumbNailPath) {
-          this.cartOrders[i].thumbNailPath = decodeURIComponent(
-            this.cartOrders[i].thumbNailPath
-          );
+         } 
+        //else if (this.cartOrders[i].thumbNailPath) {
+        //   this.cartOrders[i].thumbNailPath = decodeURIComponent(
+        //     this.cartOrders[i].thumbNailPath
+        //   );
+        // }
+        else if (this.cartOrders[i].thumbNailPath) {
+          this.cartOrders[i].thumbNailPath = 
+            this.cartOrders[i].thumbNailPath;
         }
         ReorderService.decorateColours(this.cartOrders[i].colors);
       }
@@ -97,6 +102,7 @@ export const useCartStore = defineStore("cartStore", {
           custCarrierIdNo: color.custCarrierIdNo,
           custImageIdNo: color.custImageIdNo,
           imageCarrierId: color.imageCarrierId,
+          serialNumber: color.serialNumber,
           isActive: true,
           isNew: color.isNew,
           jobTechSpecColourId: color.jobTechSpecColourId,

@@ -5,12 +5,12 @@ import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from '@/stores/cart'
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
-import router from "@/router";
+import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from '@/stores/notifications';
-
+const router = useRouter();
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore()
 const authStore = useAuthStore();
@@ -18,7 +18,8 @@ const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
-const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
+const isOrderCancel = computed(() => ordersStore.isCancel);
+const colors = computed(() => ordersStore.flattenedColors('success').filter(color => color.sets))
 const expectedDate = ref("");
 
 onBeforeMount(async () => {
@@ -40,7 +41,7 @@ async function handleClose() {
   if (form) {
     form.style.display = "none";
   }
-  window.location.replace('/dashboard')
+  router.push(`/dashboard?q=${Date.now()}`);
 }
 
 async function handleCancelOrder() {
@@ -48,7 +49,7 @@ async function handleCancelOrder() {
     const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, true);
     if (cancelResult) {
       notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
-      await router.push(`/dashboard`);
+      await router.push(`/dashboard?q=${Date.now()}`);
       await ordersStore.getOrders();
     } else {
       notificationsStore.addNotification(`Error`, '10 mins window closed for Re-Order cancellation', { severity: 'error' })
@@ -66,11 +67,11 @@ watch(ordersStore.selectedOrder, (value) => {
 .order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
-      header(:class="{'cancelled': ordersStore.isCancel }")
-        h1.title {{ ordersStore.isCancel ? 'Order Cancel' : 'Thank you for your order' }}
+      header(:class="{'cancelled': isOrderCancel }")
+        h1.title {{ isOrderCancel ? 'Order Cancel' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
-      p(v-if="!ordersStore.isCancel")
+      p(v-if="!isOrderCancel")
         | The following plate re-order has been placed. &nbsp;
         br/
         | Your order is expected to be delivered on &nbsp;
@@ -85,7 +86,7 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
-      .f(v-if=" !ordersStore.isCancel && selectedOrder.po")
+      .f(v-if=" !isOrderCancel && selectedOrder.po")
         label Purchase Order #
         span {{ selectedOrder.po }}
       .f(v-if="selectedOrder.itemCode")
@@ -109,14 +110,14 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
         span {{ selectedOrder.customerContacts[0].shippingAddress}}
-    .card(v-if="selectedOrder.colors && selectedOrder.colors.length>0")
+    .card(v-if="colors && colors.length>0")
       h3 Image Carrier Specs
       colors-table.p-datatable-sm(:config="config" :data="colors")
     template(#footer)
       footer
         .secondary-actions
         .actions
-          sgs-button(v-if="ordersStore.isCancel" label="Select if this is correct" @click="handleCancelOrder()")
+          sgs-button(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
           sgs-button(label="Close" @click="handleClose()")
 </template>
 

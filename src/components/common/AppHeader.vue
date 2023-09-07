@@ -1,6 +1,7 @@
 <script setup>
 import AppLogo from './AppLogo.vue'
 import UserProfile from './UserProfile.vue'
+import SgsMenu from '@/components/ui/Menu.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from "@/stores/cart";
@@ -8,6 +9,8 @@ import { useOrdersStore } from "@/stores/orders";
 import { onMounted, computed, watch, ref } from "vue";
 import store from "store";
 import navigation from '@/data/config/app-navigation.js'
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 
 const cartStore = useCartStore();
@@ -63,7 +66,7 @@ watch(currentB2CUser, async (value) => {
   }
 });
 async function redirect(path){
-  window.location.replace(path)
+  router.push(`${path}?q=${Date.now()}`)
 }
 </script>
 
@@ -73,7 +76,8 @@ header.app-header
   .tools
     nav.app-navigation
       a.dashboardLink(@click="redirect('/dashboard')") Dashboard
-      prime-menubar(:model="menu")
+      sgs-menu(:menu="menu")
+      //- prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
         router-link.cart(to="/cart" v-badge.danger="cartCount")
@@ -87,7 +91,7 @@ header.app-header
 .app-header
   background: var(--app-header-bg-color)
   color: var(--app-header-text-color) !important
-  padding: $s50 0
+  padding: $s50
   +flex-fill
   .logo
     margin: 0 $s 0 0
@@ -125,6 +129,13 @@ header.app-header
     a span
       color: #fff     
 .dashboardLink
-  font-weight: 600
   color: #FFFFFF
+  display: inline-block
+  border-radius: 2px
+  font-weight: 700
+  padding: $s50 $s
+  color: inherit !important
+  border-color: transparent !important
+  &:hover
+    background: rgba(#fff, 0.1) !important   
 </style>

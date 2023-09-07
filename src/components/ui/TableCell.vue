@@ -61,14 +61,14 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
     span.badge(v-if="get(data, config.field)" :class="get(data, config.field).key") {{ get(data, config.field).label }}
   span(v-else-if="config.type === 'link'")
     router-link(:to="resolvePath(config, data)") {{ get(data, config.field) }}
-  span(v-else-if="config.type === 'image'")
+  span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :max="config.max" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else-if="config.type === 'lookup'")
     sgs-lookup(:modelValue="value && value.value ? value.value : null" :edit="data.isEditable" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
-  span(v-else :class="{ disabled:(value === null || value === '')}") {{ (value === null || value === '') ? 'N/A' : value }}
+  span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
 
 </template>
 
@@ -106,7 +106,19 @@ span.badge
 span.thumb
   display: inline-block
   height: 1.25rem
+  background: #999
+  border: 1px solid #333
   margin-right: $s50
+  img
+    height: 100%
+    width: auto
+
+span.image > *
+  
+  min-height: 1.25rem
+  background: #999
+  border: 1px solid #333
+  
   img
     height: 100%
     width: auto

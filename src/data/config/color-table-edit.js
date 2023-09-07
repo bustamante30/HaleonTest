@@ -1,5 +1,6 @@
 export default {
   dataKey: 'checkboxId',
+  sortBy: ['sequenceNumber'],
   cols: [
     {
       header: "Seq #",

@@ -17,6 +17,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
+import { useRoute } from 'vue-router';
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -76,8 +77,26 @@ const searchExecuted = ref(false);
 const searchTags = ref([]);
 
 provide("options", options);
+
+const init = () =>{
+  initClearAllSearchTags()
+  ordersStore.initAdvancedFilters();
+  selectedStatus.value = statusList.value[0];
+  changeDateFilter(dateFilter.value[0]);
+  ordersStore.firstLoad = true;
+  
+}
+onMounted(()=>{
+   init()
+});
+const route = useRoute();
+// Watch for query change and refersh the dashboad thro. init()
+watch(() => route.query['q'],()=>{
+  init()
+})
+
 watch(currentUser, (value) => {
-  if (authStore.currentUser && !ordersStore.firstLoad) {
+  if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
@@ -85,7 +104,7 @@ watch(currentUser, (value) => {
   }
 });
 watch(currentB2CUser, (value) => {
-  if (authb2cStore.currentB2CUser && !ordersStore.firstLoad) {
+  if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
     selectedStatus.value = statusList.value[0];
@@ -196,11 +215,16 @@ const clearSearchTags = (index: number) => {
 };
 
 const clearAllSearchTags = () => {
+  initClearAllSearchTags()
+  changeDateFilter(dateFilter.value[0]);
+ 
+};
+
+const initClearAllSearchTags = () => {
   searchTags.value = [];
   filters.value.query = "";
-  selectedStatus.value = statusList.value[0];
-  changeDateFilter(dateFilter.value[0]);
   searchExecuted.value = false;
+  selectedStatus.value = statusList.value[0];
 };
 
 function getSearchHistory() {
@@ -261,12 +285,6 @@ function cancelOrder(order: any) {
         JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id))
       );
       ordersStore.isCancel = true;
-      // const plates = orderDetails.colors.map((x: any) => x.plateTypes)
-      const modifiedColors = orderDetails.colors.map((x: any) => ({
-        ...x,
-        plateType: x.plateTypes,
-      }));
-      orderDetails.colors = modifiedColors;
       ordersStore.setOrderInStore(orderDetails);
       (
         document.getElementsByClassName(

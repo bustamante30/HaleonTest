@@ -129,6 +129,7 @@ async function formatDate() {
 
 async function handleDateClick(dateRefId: number): Promise<void> {
   const advanceFilterData = advancedFilters.value as object
+  reset()
   await searchhistoryStore.getSearchField()
   await searchhistoryStore.getSearchHistory(dateRefId, true)
   const columnNames = keysIn(advanceFilterData)
@@ -150,6 +151,7 @@ async function handleDateClick(dateRefId: number): Promise<void> {
       }
     })
   }
+  
 }
 
 
