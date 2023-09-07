@@ -244,6 +244,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.selectedOrder.plateType = details.techSpec.plateType;
           this.selectedOrder.isActive = true;
           this.selectedOrder.pdfUris = details.pdfUris;
+          this.selectedOrder.variety = details.jobDetails.variety;
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
         this.loading.order = false;
