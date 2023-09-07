@@ -97,7 +97,6 @@ class ReorderService {
     public static submitReorder(reorderInfo: any, statusId: number, isUpdate?: boolean) {
         const newColors = [] as any[]
         const newContacts = [] as any[]
-
         reorderInfo.colors.forEach((color: any) => {
             color?.plateType?.forEach((plateType: any) => {
                 if (plateType.sets > 0) {
@@ -129,7 +128,7 @@ class ReorderService {
                         ],
                         sequenceNumber: color.sequenceNumber,
                         originalSets: color.sets,
-                        colourType: color.colourType,
+                        colourType: this.getColorType(color.colourType),
                         isNew: color.isNew,
                         commonColourRef: color.commonColourRef,
                         isActive: color.isActive,
@@ -175,7 +174,6 @@ class ReorderService {
             customerContacts: [...newContacts],
             packagingReference: reorderInfo.packagingReference
         }
-
 
         console.log('newReorder',newReorder)
         return httpService
