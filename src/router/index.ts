@@ -82,7 +82,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-
+  console.log('Navigating from ', from)
+  console.log('Navigating to',to)
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = store.get("currentUser")
     const b2cUser = store.get("currentb2cUser")
@@ -97,7 +98,7 @@ router.beforeEach((to, from, next) => {
       next({name: 'loginPage', query: { q: Date.now() }})
     }
   } else {
-    console.log('Does not require auth')
+    console.log('Does not require auth',to, from)
     next() // does not require auth, make sure to always call next()!
   }
 })
