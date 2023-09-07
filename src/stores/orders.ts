@@ -520,9 +520,12 @@ export const useOrdersStore = defineStore("ordersStore", {
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
       const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
       const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
-      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed
+      const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
+      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
+      if (hasEmptyPlateDescription)
+        notificationsStore.addNotification('Warning', `Plate type cannot be empty for ${colour.colourName}. Please pick a plate type from the available list`, { severity: 'warn' })
       if (hasMixed)
-        notificationsStore.addNotification('Warning', `Warning, "Mixed" plate type cannot be used for ${colour.colourName}, please pick a plate type from the available list`, { severity: 'warn' })
+        notificationsStore.addNotification('Warning', `Warning, "Mixed" plate type cannot be used for ${colour.colourName}. Please pick a plate type from the available list`, { severity: 'warn' })
       if (!hasUniquePlates)
         notificationsStore.addNotification('Warning', `You have selected the same plate type for ${colour.colourName}`, { severity: 'warn'})
       return isValid
