@@ -4,6 +4,9 @@ import HelpPage from "@/pages/HelpPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import authRoutes from "./auth";
 import store from "store";
+import jwt_decode from 'jwt-decode'
+import { DateTime } from 'luxon'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -91,8 +94,16 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
-      console.log("Go to wherever I'm going")
-      next() // go to wherever I'm going
+
+      //validate token 
+      if(validateToken()){
+        console.log("Go to Routes")
+        next() 
+      }else{
+        console.log('Token Invalid - Redirect to Login')
+          next({name: 'loginPage', query: { q: Date.now() }})
+      }
+
     } else {
       console.log('Redirect to Login')
       next({name: 'loginPage', query: { q: Date.now() }})
@@ -102,4 +113,26 @@ router.beforeEach((to, from, next) => {
     next() // does not require auth, make sure to always call next()!
   }
 })
+
+
+const validateToken = () =>{
+  try{
+  const token = store.get("token")
+  const decodedToken : any =  jwt_decode(token)
+  const tokenExpireTime = DateTime.fromMillis(parseInt(decodedToken?.exp+'000',10) )
+  console.log(`Current time ${DateTime.local()}`)
+  console.log(`${tokenExpireTime}`)
+  const  diffInMinutes = tokenExpireTime.diff(DateTime.now(), ["minutes"]).minutes
+  if(diffInMinutes > 0){
+    console.log('Valid Token')
+    return true
+  }
+
+  }catch(e){
+    console.log('Invalid Token - Expection ',e )
+    return false
+  }
+  console.log('Invalid Token')
+  return false
+}
 export default router;

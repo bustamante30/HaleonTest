@@ -16,9 +16,6 @@ export default defineConfig({
     vueJsx(),
     dsv()
   ],
-  build:{
-    sourcemap:true
-  },
   server: {
     host: "localhost",
     port: 3000,
