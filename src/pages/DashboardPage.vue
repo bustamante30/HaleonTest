@@ -275,7 +275,7 @@ function reorder(order: any) {
 }
 function cancelOrder(order: any) {
   confirm.require({
-    message: "Do you want to delete this Reorder?",
+    message: "Do you want to cancel this Reorder?",
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
