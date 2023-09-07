@@ -80,14 +80,13 @@ async function handleDemo() {
 }
 
 async function handleReport() {
-  if (authStore.currentUser.email != "") {
-    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null && authStore.currentUser?.userType != "") {
-      window.open(import.meta.env.VITE_SERVICE_NOW_INTERNAL_URL, '_blank', 'noreferrer');
-    }
-  }
   if (authb2cStore.currentB2CUser.email != "") {
     if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null && authb2cStore.currentB2CUser?.userType != "") {
       isReportFormVisible.value = true
+    }
+  } else {
+    if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null && authStore.currentUser?.userType != "") {
+      window.open(import.meta.env.VITE_SERVICE_NOW_INTERNAL_URL, '_blank', 'noreferrer');
     }
   }
 }
