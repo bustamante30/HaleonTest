@@ -398,8 +398,11 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.orders[i].thumbNailPath
           ;
         }
-        let formattedDate:string = (this.orders[i].submittedDate+'').includes('Z')? this.orders[i].submittedDate : this.orders[i].submittedDate+'Z'
-        this.orders[i].submittedDate = DateTime.fromISO(formattedDate).toLocaleString(DateTime.DATETIME_MED);
+        if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
+        {
+          let formattedDate:string = (this.orders[i].submittedDate+'').includes('Z')? this.orders[i].submittedDate : this.orders[i].submittedDate+'Z'
+          this.orders[i].submittedDate = DateTime.fromISO(formattedDate).toLocaleString(DateTime.DATETIME_MED);
+        }
         this.orders[i].selected = false;
       }
     },
