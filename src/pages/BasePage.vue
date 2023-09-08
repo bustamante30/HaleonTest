@@ -6,6 +6,12 @@ import AppLogo from "@/components/common/AppLogo.vue";
 const router = useRouter();
 
 
+
+onMounted(async () => {
+  // Clear the Storage on Login page  mount - to aviod using previously stored data 
+  localStorage.clear();
+  sessionStorage.clear();
+})
 function login() {
   router.push("/login");
 }
