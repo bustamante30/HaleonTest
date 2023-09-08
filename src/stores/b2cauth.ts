@@ -232,8 +232,10 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
+            this.currentB2CUser.isLoggedIn = true;
           } else if (user.identityProviderName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
+            this.currentB2CUser.isLoggedIn = true;
           } else {
             this.currentB2CUser.isLoggedIn = false;
             router.push("/error");
