@@ -170,6 +170,19 @@
         </DefaultPartnerClaimTypes>
         <UserHelpText />
       </ClaimType>
+
+      <ClaimType Id="identityProviderAccessToken">
+        <DisplayName>Identity Provider Access Token</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <!-- Define the PartnerClaimType for the relevant protocols -->
+          <Protocol Name="OAuth2" PartnerClaimType="idp_access_token" />
+          <Protocol Name="OpenIdConnect" PartnerClaimType="idp_access_token" />
+          <!-- Add more protocols as needed -->
+        </DefaultPartnerClaimTypes>
+        <UserHelpText/>
+      </ClaimType>
+
       <ClaimType Id="displayName">
         <DisplayName>Display Name</DisplayName>
         <DataType>string</DataType>
@@ -1155,6 +1168,9 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" />
             <OutputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" />
+            <OutputClaim ClaimTypeReferenceId="email" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" />
+            <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken"/>
             <!--Requirement:
             Claims that you return in the relying party technical profile output claims
             that are not stored in Azure AD B2C, must be added to the output claims collection here-->
