@@ -1,6 +1,6 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="onSubmit")
-  button.close-button(@click.prevent="closeForm")
+  button.close-button(@click.prevent="closeForm" type="button")
     i.pi.pi-times
   sgs-scrollpanel
     template(#header)
