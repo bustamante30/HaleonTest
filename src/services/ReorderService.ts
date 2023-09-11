@@ -127,7 +127,7 @@ class ReorderService {
                             }
                         ],
                         sequenceNumber: color.sequenceNumber,
-                        originalSets: color.sets,
+                        originalSets: plateType?.sets,
                         colourType: this.getColorType(color.colourType),
                         isNew: color.isNew,
                         commonColourRef: color.commonColourRef,
@@ -348,7 +348,6 @@ class ReorderService {
     public static decorateColours(colors: Color[] | undefined){
         if(colors)
             colors.forEach(color =>{
-                color.originalSets = color.sets
                 color.plateTypes = color.plateTypes?.sort((a,b)=> a.plateTypeId - b.plateTypeId)
                 color.colourTypeDesc = this.getColorType(color.colourType)
                 color.newColour = color.isNew? "New":"Common"

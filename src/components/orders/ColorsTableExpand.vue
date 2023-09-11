@@ -11,6 +11,8 @@ import TableCell from '@/components/ui/TableCell.vue'
 import ColorsTablePlates from './ColorsTableExpandPlates.vue'
 
 import { useOrdersStore } from '@/stores/orders'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
 const ordersStore = useOrdersStore()
 
@@ -41,7 +43,20 @@ const expandedRows = ref([])
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
 
 onBeforeMount(() => {
-  selected.value = props?.data?.filter((c: any) => c.totalSets)
+  // When back from confirmation page, do not reset sets(quantity)
+  const source = route.query && route.query?.source as any
+  if (source !== 'confirm') {
+    props.data?.forEach((color: any) => {
+      const { checkboxId } = color
+      color.plateType?.forEach((plateType: any) => {
+        updatePlate({ colourId: color.checkboxId, checkboxId: plateType.checkboxId, field: 'sets', value: 0 })
+      })
+      updateColor({ checkboxId, field: 'sets', value: 0 })
+    })
+  }
+  selected.value = props?.data?.filter((c: any) => {
+    return c.totalSets
+  })
 })
 
 function stylify(width: any) {
