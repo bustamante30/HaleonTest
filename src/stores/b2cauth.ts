@@ -273,5 +273,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       }
       return identityProvider;
     },
+    resetLogin(){
+      this.currentB2CUser.isLoggedIn = false;
+    }
   },
 });
