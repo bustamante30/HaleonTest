@@ -130,7 +130,7 @@ function checkCustomerDetails() {
     template(#footer)
       footer
         .secondary-actions
-          sgs-button.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder`)")
+          sgs-button.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder?source=${'confirm'}`)")
         .actions
           sgs-button(label="Confirm" @click="confirm()")
 
