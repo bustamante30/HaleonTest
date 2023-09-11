@@ -21,8 +21,13 @@ const props = defineProps({
   value:{
     type:String,
     defulat:null
+  },
+  userType:{
+    type:String,
+    defulat:null
   }
 });
+const isExternalUser = (props.userType == "EXT");
 const authb2cStore = useB2CAuthStore();
 const authStore = useAuthStore();
 
@@ -108,6 +113,10 @@ function toggleFilters() {
   searchedValue.value = ''
   isFiltersVisible.value = !isFiltersVisible.value;
 }
+
+async function resetAdvancedSearchVisible(filters) {
+  isFiltersVisible.value = false;
+}
 </script>
 
 <template lang="pug">
@@ -116,12 +125,12 @@ function toggleFilters() {
     .input
       prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" inputId='keyword'
       @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @item-select="keywordSearch" :loading="false"
-      placeholder="Search by brand, variety, code, pack type...")
+      :placeholder="isExternalUser ? 'Search by item code, barcode, SGS reference number...' : 'Search by printer, code, reference number...'")
       span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
     span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
-    advanced-search(:sections="config.sections" :filters="filters" :printerName="printerName" @search="search")
+    advanced-search(:sections="config.sections" :filters="filters" :printerName="printerName" @search="search" @resetAdvancedSearchVisible="resetAdvancedSearchVisible")
 </template>
 
 <style lang="sass" scoped>
