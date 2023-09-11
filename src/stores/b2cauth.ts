@@ -126,6 +126,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
               this.account = this.msalB2cInstance.getAllAccounts()[0];
             }
             if (this.account && tokenResponse) {
+              localStorage.setItem("AuthType", "AzureAdB2C");
               this.updateUserStore(tokenResponse);
             }
           })
@@ -148,7 +149,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             }
           });
 
-        localStorage.setItem("AuthType", "AzureAdB2C");
+       
         if (this.account && response) {
           console.log(
             "[Auth Store] successfully obtained valid account and tokenResponse"
@@ -231,17 +232,22 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
+            this.currentB2CUser.isLoggedIn = true;
           } else if (user.identityProviderName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
+            this.currentB2CUser.isLoggedIn = true;
           } else {
+            this.currentB2CUser.isLoggedIn = false;
             router.push("/error");
           }
         } else if (user.identityProviderName === identityProviderSelected) {
+          this.currentB2CUser.isLoggedIn = true;
           this.isValidIdentityProvider = true;
         } else {
+          this.currentB2CUser.isLoggedIn = false;
           router.push("/error");
         }
-        this.currentB2CUser.isLoggedIn = true;
+       
         store.set("currentb2cUser", this.currentB2CUser);
       } else {
         router.push("/error");

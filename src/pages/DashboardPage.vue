@@ -275,7 +275,7 @@ function reorder(order: any) {
 }
 function cancelOrder(order: any) {
   confirm.require({
-    message: "Do you want to delete this Reorder?",
+    message: "Do you want to cancel this Reorder?",
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
@@ -356,7 +356,7 @@ async function addMultipleToCart(values: any) {
             div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
-              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")
+              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
           .search-tag(v-if="searchTags.length > 0")
