@@ -13,11 +13,26 @@ import { toRaw } from 'vue';
 import type { ReorderDto } from "@/models/ReorderDto";
 import { sortBy, groupBy, keysIn } from "lodash";
 
-const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any) : ReorderDto[] =>{
- 
-
+const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
+    //Filter by column filters
+    let resultForCache :any[] = reorderedData ;
+    if (columnFilter != null) {
+      if (columnFilter.state.brandNameFilter != null) {
+        const brandNameFilter = columnFilter.state.brandNameFilter.toLowerCase();
+        resultForCache = resultForCache.filter(item => item.brandName && item.brandName.toLowerCase().includes(brandNameFilter));
+      }
+      if (columnFilter.state.descriptionFilter != null) {
+        const productDescriptionFilter = columnFilter.state.descriptionFilter.toLowerCase();
+        resultForCache = resultForCache.filter(item => item.description && item.description.toLowerCase().includes(productDescriptionFilter));
+      }
+      if (columnFilter.state.packTypeFilter != null) {
+        const packTypeFilter = columnFilter.state.packTypeFilter.toLowerCase();
+        resultForCache = resultForCache.filter(item => item.packType && item.packType.toLowerCase().includes(packTypeFilter));
+      }
+    }
+  
    // Filter by Sorting
-   let resultForCache :any[] = reorderedData ;
+   //let resultForCache :any[] = reorderedData ;
      if(filters.sortBy){
         if(filters?.sortBy?.toLowerCase().includes('date')){
           resultForCache = sortBydate(resultForCache);
@@ -312,7 +327,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
+       const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length

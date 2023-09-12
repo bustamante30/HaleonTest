@@ -128,7 +128,9 @@ const clearFilter = async (fieldName: string, filterModel: any) => {
     const mutationName = mutationMap[fieldName];
     filterStore.commit(mutationName, null);
   }
-  orderStore.getOrders();
+  //orderStore.getOrders();
+  orderStore.setFilters(orderStore.filters);
+ // router.push('/dashboard')
 };
 
 function getFormattedValue(value: string | null, matchMode: string): string | null {
