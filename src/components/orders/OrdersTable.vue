@@ -146,7 +146,7 @@ async function customFilter(field: string, filterModel: any, filterMatchMode: st
   const mutation = mutationMap[fieldName];
   filterStore.commit(mutation, columnFilters.value[fieldName].value);
   }
-  orderStore.setFilters(columnFilters);
+  orderStore.setFilters(orderStore.filters);
 }
 
 const sortColumn = async (event: any) => {
@@ -164,6 +164,7 @@ function handleAction(action: any) {
   emit(action.event, action.data);
 }
 function onPage(event: any) {
+  debugger;
   orderStore.pageState.page = event.page + 1;
   orderStore.setFilters(orderStore.filters);
 }
