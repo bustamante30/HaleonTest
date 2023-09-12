@@ -164,7 +164,6 @@ function handleAction(action: any) {
   emit(action.event, action.data);
 }
 function onPage(event: any) {
-  debugger;
   orderStore.pageState.page = event.page + 1;
   orderStore.setFilters(orderStore.filters);
 }
