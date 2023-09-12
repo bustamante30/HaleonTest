@@ -1,5 +1,5 @@
 export default {
-  sortBy: ['sequenceNumber'],
+  sortBy: ["sequenceNumber"],
   cols: [
     {
       header: "Sequence #",
@@ -44,7 +44,7 @@ export default {
     },
     {
       header: "Colour Type",
-      field: "colourTypeDesc",
+      field: "colourType",
       freeze: "center",
       width: 6,
     },

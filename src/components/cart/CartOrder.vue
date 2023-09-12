@@ -9,7 +9,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from '@/stores/notifications'
 import { renderToString } from "@vue/test-utils";
 
-defineProps({
+const props = defineProps({
   order: {
     type: Object,
     default: () => {},
@@ -19,7 +19,7 @@ defineProps({
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const colorsStore = useColorsStore();
-const colors = computed(() => order.flattenedColors());
+const colors = computed(() => props.order.flattenedColors);
 const isSpecsVisible = ref(false);
 const cartStore = useCartStore();
 
@@ -96,12 +96,12 @@ function reorder(id) {
         span  {{getShippingAddress(order)}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
-        colors-table.p-datatable-sm(:config="config" :data="order.colors")
+        colors-table.p-datatable-sm(:config="config" :data="colors")
       footer
         .secondary-actions
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.originalOrderId}`)")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
           sgs-button.sm(icon="redo" label="ReOrder" @click="reorder(order.id)")
           //- :disabled="pendingOrderSets(order.colors)"
 </template>

@@ -110,17 +110,17 @@ export const useOrdersStore = defineStore("ordersStore", {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
-            colourTypeDesc: color.colourTypeDesc === undefined ?color.colourType:color.colourTypeDesc,
+            colourType: color.colourType,
             commonColourRef: color.commonColourRef,
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
-            imageCarrierId: color.imageCarrierId,
+            imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
             serialNumber: color.serialNumber,
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
             newColour: color.newColour === undefined ? color.isNew: color.newColour,
-            originalSets: color.originalSets,
+            originalSets: plate.sets,
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
@@ -128,7 +128,6 @@ export const useOrdersStore = defineStore("ordersStore", {
             plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
-            
           })
         })
       })
@@ -181,22 +180,11 @@ export const useOrdersStore = defineStore("ordersStore", {
           // Cart reorder
           const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
           if (order != null) {
-            const groupedPlates = groupBy(order.colors, 'id')
-            const colors = keysIn(groupedPlates).map((id: string) => {
-              return {
-                ...groupedPlates[id][0],
-                plateType: groupedPlates[id].map((plate: any) => {
-                  const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                  return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
-                })
-              }
-            })
-            const details = { ...order, colors }
-            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
+            const plateTypes = await order?.plateTypes?.length ? this.mapPlateTypes(order) : this.mapColorPlateTypes(order.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-            this.selectedOrder = details
+            this.selectedOrder = order
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes);
+            this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
           } else {
             // Dashboard photon reorder
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
@@ -553,7 +541,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return details?.plateTypes?.map((plateType: any) => {
         const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
         return {
-          label: plateType?.plateTypeName || plateType?.plateTypeDescription,
+          label: plateType?.plateTypeName,
           value: plateType?.plateTypeId,
           plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
           plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
@@ -603,10 +591,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.selectedOrder.colors?.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
-          ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common"),
-          ((x as any)["colourTypeDesc"] = ReorderService.getColorType(
-            (x as any)["colourType"]
-          ));
+          ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common")
       });
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;

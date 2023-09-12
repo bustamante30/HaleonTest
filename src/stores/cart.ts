@@ -48,6 +48,7 @@ export const useCartStore = defineStore("cartStore", {
             this.cartOrders[i].thumbNailPath;
         }
         ReorderService.decorateColours(this.cartOrders[i].colors);
+        this.cartOrders[i].flattenedColors = this.flattenedColorsArrayDecorator(this.cartOrders[i].colors)
       }
     },
     async addToCart(order: any) {
@@ -55,8 +56,6 @@ export const useCartStore = defineStore("cartStore", {
       orderStore.loading.cart = true
       const draftResult = await ReorderService.submitReorder(order, 1)
       orderStore.successfullReorder = draftResult
-      await this.getCart()
-      await this.getCartCount()
       orderStore.loading.cart = false
       return !!draftResult
     },
@@ -66,8 +65,6 @@ export const useCartStore = defineStore("cartStore", {
       const isUpdate = true
       const draftResult = await ReorderService.submitReorder(order, 1, isUpdate)
       orderStore.successfullReorder = draftResult
-      await this.getCart()
-      await this.getCartCount()
       orderStore.loading.cart = false
       return !!draftResult
     },
@@ -84,33 +81,33 @@ export const useCartStore = defineStore("cartStore", {
       }
     },
     flattenedColorsArrayDecorator(colors: any) {
-      const flattenedColors = toRaw(colors)?.map((color: any) => {
-        const plateType = [{
-          plateTypeId: color?.plateTypeId,
-          plateType: color?.plateTypeDescription,
-          plateThicknessId: color?.plateThicknessId,
-          plateThickness: color?.plateThicknessDescription,
-          sets: color?.sets,
-          isActive:true
-        }]
-        return {
-          id: color.id,
-          clientPlateColourRef: color.clientPlateColourRef,
-          colourName: color.colourName,
-          colourType: color.colourType,
-          commonColourRef: color.commonColourRef,
-          custCarrierIdNo: color.custCarrierIdNo,
-          custImageIdNo: color.custImageIdNo,
-          imageCarrierId: color.imageCarrierId,
-          serialNumber: color.serialNumber,
-          isActive: true,
-          isNew: color.isNew,
-          jobTechSpecColourId: color.jobTechSpecColourId,
-          originalSets: color.originalSets,
-          sequenceNumber: color.sequenceNumber,
-          sets: color.sets,
-          plateType: [...plateType]
-        }
+      const flattenedColors = [] as any[]
+      console.log(colors)
+      colors?.length && colors?.forEach((color: any) => {
+        (color?.plateTypes).forEach((plate: any) => {
+          flattenedColors.push({
+            clientPlateColourRef: color.clientPlateColourRef,
+            colourName: color.colourName,
+            colourType: color.colourType,
+            commonColourRef: color.commonColourRef,
+            custCarrierIdNo: color.custCarrierIdNo,
+            custImageIdNo: color.custImageIdNo,
+            imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
+            serialNumber: plate.serialNumber,
+            isActive: true,
+            isNew: color.isNew,
+            jobTechSpecColourId: color.jobTechSpecColourId,
+            newColour: color.newColour,
+            originalSets: plate.sets,
+            id: plate.id,
+            plateTypeId: plate?.plateTypeId,
+            plateThicknessId: plate?.plateThicknessId,
+            plateThicknessDescription: plate.plateThicknessDescription,
+            plateTypeDescription: plate.plateTypeDescription,
+            sequenceNumber: color.sequenceNumber,
+            sets: plate.sets
+          })
+        })
       })
       return flattenedColors
     }

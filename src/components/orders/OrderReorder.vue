@@ -64,7 +64,7 @@ function reorder() {
 async function addToCart() {
   const valid = validateReorder()
   if (valid) {
-    if (isCartOrder) {
+    if (isCartOrder.value) {
       updateToCart()
       return
     }
