@@ -281,8 +281,8 @@ function setSgsNumberHeader(){
         filterField="description"
         freeze="left"
         :sortable="true"
-        :headerStyle="stylify(config.cols[2].width)"
-        :bodyStyle="stylify(config.cols[2].width)"
+        :headerStyle="{ maxWidth: `300px`, flex: 'none' }"
+        :bodyStyle="{ maxWidth: `300px`, flex: 'none' }"
         :showFilterMatchModes="false"
       )
         template(#body="{ data }")
