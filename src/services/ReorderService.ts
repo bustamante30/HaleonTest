@@ -353,6 +353,24 @@ class ReorderService {
                 color.newColour = color.isNew? "New":"Common"
             })
     }
+
+    public static getPhotonBarcode(id: number) {
+        return httpService.get<any>('v1/Reorder/barcode?photonId='+ id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting barcode: ", error);
+            return 0;
+        });
+    }
+
+     public static getPhotonShirttail(id: number) {
+        return httpService.get<any>('v1/Reorder/shirttail?photonId='+ id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting shirttail: ", error);
+            return 0;
+        });
+    }
 }
 
 export default ReorderService;
