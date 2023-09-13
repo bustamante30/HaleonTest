@@ -20,7 +20,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       locations: [] as any[],
     },
     imageCarrierCodeTypes: [] as any[],
-    imageCarrierPackTypes: [] as any[]
+    imageCarrierPackTypes: [] as any[],
+    imageCarrierPlateTypes: [] as any[]
 
   }),
   getters: {
@@ -79,6 +80,9 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
 
     async getPackTypes(){
       this.imageCarrierPackTypes= await SendToPMService.getPackTypeList();
+     },
+     async getPlateTypes(){
+      this.imageCarrierPlateTypes= await SendToPMService.getPlateType();
      },
 
      async getPmusersForLocation(printerId: number,printerLocationName:string){

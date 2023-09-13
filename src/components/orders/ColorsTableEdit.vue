@@ -3,8 +3,12 @@ import { faker } from '@faker-js/faker'
 import { ref, onBeforeMount,watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import { useSendToPmStore } from "@/stores/send-to-pm";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const colours = ref([] as any[])
+const sendToPmstore = useSendToPmStore();
+const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["update"])
 
@@ -23,15 +27,24 @@ onBeforeMount(() => {
 
 
 function addColour() {
-  const newColour: any = { id: faker.datatype.uuid(), name: null, quantity: 0 }
-  colours.value.push(newColour)
-  emit("update",colours.value)
+  if (colours.value.length < 10) {
+    const newColour: any = { id: faker.datatype.uuid(), name: null, quantity: 0, plateType: null };
+    colours.value.push(newColour);
+    emit("update", colours.value);
+  } else {
+    notificationsStore.addNotification(
+      "Add Colours Limit Exceeded",
+      "Cannot add more than 10 colors",
+      { severity: 'error', position: 'top-right' }
+    );
+    
+  }
 }
 
 
 
 
-function removeColour(colour : any = { id: faker.datatype.uuid(), name: null, quantity: 0 }) {
+function removeColour(colour : any = { id: faker.datatype.uuid(), name: null, quantity: 0 ,plateType:null}) {
   const newColours = colours.value.filter(c => c.id !== colour.id)
   colours.value = newColours
   emit("update",colours.value)
@@ -56,6 +69,9 @@ function stylify(width: number) {
     column(header="Colour Name")
       template(#body="{ data }")
         prime-inputtext.sm(v-model="data.name" @change="emit('update',colours)")
+    column(header="Plate Type")
+      template(#body="{ data }")
+        prime-dropdown#plate-type(v-model="data.plateType" name="plate_type" :options="sendToPmstore.imageCarrierPlateTypes" optionLabel="plateTypeName" optionValue="plateTypeName" @change="emit('update',colours)")
     column(header="Quantity" :headerStyle="stylify(5)" :bodyStyle="stylify(5)")
       template(#body="{ data }")
         prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="0" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" @change="emit('update',colours)")
