@@ -35,6 +35,7 @@ interface SendToPM {
 interface Color {
     colourName: string;
     sets: number;
+    plateTypeDescription: string;
 }
 
 interface files{
@@ -76,6 +77,7 @@ class SendToPMService {
                         newColorsArray.push({
                             colourName: color.name,
                             sets: color.quantity,
+                            plateTypeDescription: color.plateType
                         });
                     } else {
                         console.log('Invalid color object:', color);
@@ -150,6 +152,15 @@ class SendToPMService {
         then((response: any) => { return response }).catch ((error: any) => {
             console.log("error getting pack types", error);
             return []
+        });
+    }
+
+    public static getPlateType() {
+        return httpService.get<any>('v1/getPlateTypes').then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting plate types: ", error);
+            return 0;
         });
     }
 }
