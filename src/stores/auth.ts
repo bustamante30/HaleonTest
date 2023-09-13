@@ -140,6 +140,9 @@ export const useAuthStore = defineStore("auth", {
       } else {
         router.push("/error");
       }
+    },
+    resetLogin(){
+      this.currentUser.isLoggedIn = false;
     }
   }
 });

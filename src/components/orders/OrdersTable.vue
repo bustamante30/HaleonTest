@@ -98,6 +98,7 @@ const dropdownOptions = ref<string[]>([]);
 const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
 
+
 const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
   description: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -115,6 +116,12 @@ const mutationMap: { [key: string]: string } = {
 const showCalendar = ref(false);
 const sortFields = ref<string[]>([]);
 
+
+
+const initFilters = () => {
+  columnFilters.value = { ...columnFilters.value };
+};
+
 const clearFilter = async (fieldName: string, filterModel: any) => {
   filterModel.value = null;
   if (mutationMap.hasOwnProperty(fieldName)) {
@@ -123,6 +130,24 @@ const clearFilter = async (fieldName: string, filterModel: any) => {
   }
   orderStore.getOrders();
 };
+
+function getFormattedValue(value: string | null, matchMode: string): string | null {
+  if (value !== null && value !== undefined && value !== '') {
+    return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
+  }
+  return null;
+}
+
+async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
+  const fieldName = field as keyof typeof columnFilters.value;
+ if (mutationMap.hasOwnProperty(fieldName)) {
+  columnFilters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
+  console.log("customFilter:" + columnFilters.value[fieldName].value);
+  const mutation = mutationMap[fieldName];
+  filterStore.commit(mutation, columnFilters.value[fieldName].value);
+  }
+  orderStore.setFilters(orderStore.filters);
+}
 
 const sortColumn = async (event: any) => {
   const { sortField, sortOrder } = event;

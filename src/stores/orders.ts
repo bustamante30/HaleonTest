@@ -189,22 +189,27 @@ export const useOrdersStore = defineStore("ordersStore", {
             // Dashboard photon reorder
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
             const photonOrderDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonReorderDetails(photonOrder?.id))) : null
-            const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
-            const colors = keysIn(groupedPlates).map((id: string) => {
-              return {
-                ...groupedPlates[id][0],
-                plateType: groupedPlates[id].map((plate: any) => {
-                  const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                  return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
-                })
-              }
-            })
-            const details = { ...photonOrder, ...photonOrderDetails, colors }
-            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
+            const details = { ...photonOrder, ...photonOrderDetails }
+            if (details?.plateTypes?.length) {
+              const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
+              const colors = keysIn(groupedPlates).map((id: string) => {
+                return {
+                  ...groupedPlates[id][0],
+                  plateType: groupedPlates[id].map((plate: any) => {
+                    const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
+                    return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
+                  })
+                }
+              })
+            }
+            // const plateTypes =  await this.mapColorPlateTypes(details?.colors) // details?.plateTypes?.length ? await this.mapPlateTypes(details) : await this.mapColorPlateTypes(details.colors)
+           this.mapColorPlateTypes(details?.colors).then((plateTypes: any) => {
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
+            if(statusId && plateTypes.length)
+              this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
+           })
           }
         } else {
           // Dashboard SGS reorder (MySGS, Photon)
@@ -215,12 +220,14 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
+          // details.plateTypes will be there for SGS orders
           const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
           this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           if(details.printerName!="")
             this.selectedOrder.printerName = details.printerName
-          this.selectedOrder.description = details.jobDescription;
+          // Bug -203039 - Get API is not returning full description so using description from Search api as such .
+          // this.selectedOrder.description = details.jobDescription;
           this.selectedOrder.barcodes = details.barcode;
           this.selectedOrder.packagingReference = details.jobDetails.packagingReference;
           this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
@@ -352,7 +359,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
       this.loading.ordersList = false;
       this.decorateOrders();
-      // this.selectedOrder = this.orders[0];
     },
     resetFilters() {
       this.filters["query"] = "";
@@ -550,7 +556,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
     },
     // For Photon Orders
-    mapColorPlateTypes(colors: any[]) {
+    async mapColorPlateTypes(colors: any[]) {
       const plateTypes = [] as any[]
       colors?.forEach((color: any) => {
         color?.plateTypes?.forEach((plateType: any) => {
@@ -565,17 +571,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       })
       return plateTypes
     },
-    mapColorAndCustomerDetailsToOrder(details: any, statusId: any, plateTypes: any[]) {
-      const colors = Array.from(details && details.colors || [])
+    mapColorAndCustomerDetailsToOrder(details: any, statusId: number, plateTypes: any[]) {
+      const colors = Array.from(details && details?.colors || [])
       this.selectedOrder.colors = colors?.map((color: any) => {
-        const colorFirstPlateType = color.plateType[0]
+        const colorFirstPlateType = color?.plateType && color?.plateType[0]
         return {
           ...color,
           checkboxId: faker.datatype.uuid(),
           totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)),
-          plateTypes: color.plateType && color.plateType.length
-            ? color.plateType?.map((plate: any) => (`${plate.plateTypeDescription} [${plate.sets}]`)).join(', ')
-            : '',        
           plateType: color.plateType?.map((colorPlateType: any) => {
             const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
             const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType

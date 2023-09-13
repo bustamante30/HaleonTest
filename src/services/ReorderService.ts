@@ -310,7 +310,6 @@ class ReorderService {
     public static decorateColours(colors: Color[] | undefined){
         if(colors)
             colors.forEach(color =>{
-                color.originalSets = color.sets
                 color.plateTypes = color.plateTypes?.sort((a,b)=> a.plateTypeId - b.plateTypeId)
                 color.newColour = color.isNew? "New":"Common"
             })
