@@ -305,6 +305,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           if(printer.printerId && printer.printerId > 0){
             printers.push(printer.printerName)
             printerIds.push(printer.printerId)
+          }else{
+            printers.push(b2cAuth.currentB2CUser.printerName)
           }
           printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
         })
