@@ -6,7 +6,7 @@ import UserForm from '@/components/printers/UserForm.vue'
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from '@/stores/notifications';
-
+import router from '@/router';
 
 const route = useRoute()
 const usersStore = useUsersStore()
