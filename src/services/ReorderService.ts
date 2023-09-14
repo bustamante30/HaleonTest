@@ -312,6 +312,8 @@ class ReorderService {
             colors.forEach(color =>{
                 color.plateTypes = color.plateTypes?.sort((a,b)=> a.plateTypeId - b.plateTypeId)
                 color.newColour = color.isNew? "New":"Common"
+                color.imageCarrierId = color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId)
+                color.totalSets = color.sets
             })
     }
 }

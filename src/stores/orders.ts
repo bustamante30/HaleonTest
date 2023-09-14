@@ -121,7 +121,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
-        (color?.plateType || color?.plateTypes).forEach((plate: any) => {
+        (orderType === 'success'? color?.plateTypes: (color?.plateType || color?.plateTypes)).forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
@@ -130,7 +130,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
             imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
-            serialNumber: color.serialNumber,
+            serialNumber: plate.serialNumber,
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
@@ -139,8 +139,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
-            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
+            plateThicknessDescription: orderType === 'success'? plate.plateThicknessDescription : plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
+            plateTypeDescription: orderType === 'success'? plate.plateTypeDescription : plate.plateType || plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
           })
