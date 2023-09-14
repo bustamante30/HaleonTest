@@ -56,6 +56,8 @@ export const useCartStore = defineStore("cartStore", {
       const draftResult = await ReorderService.submitReorder(order, 1)
       orderStore.successfullReorder = draftResult
       orderStore.loading.cart = false
+      if(draftResult)
+        this.getCart()
       return !!draftResult
     },
     async updateToCart(order: any) {

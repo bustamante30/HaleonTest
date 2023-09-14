@@ -6,9 +6,11 @@ import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
 import router from '@/router'
 import ReorderService from "../../services/ReorderService";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const ordersStore = useOrdersStore()
 const cartStore = useCartStore()
+const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
   selectedId: {
@@ -75,7 +77,11 @@ async function addToCart() {
 
 async function updateToCart() {
   if (await cartStore.updateToCart(ordersStore.selectedOrder))
-    isCartMessageVisible.value = true
+    notificationsStore.addNotification(
+          `Success`,
+          "Cart updated successfully",
+          { severity: "success" }
+        );
 }
 
 </script>
