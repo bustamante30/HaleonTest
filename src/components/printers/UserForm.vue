@@ -26,7 +26,9 @@ watch(()=>props.user,()=>{
 const usersStore = useUsersStore()
 const notificationsStore = useNotificationsStore()
 
-
+const isPrimaryPMDiv = ref("");
+  
+ 
 const emit = defineEmits(['save'])
 
 
@@ -59,6 +61,14 @@ function handleClose() {
     //usersStore.user.id = null;
     router.push('/users');
   }
+}
+
+//Function is used to verify the email id is external or internal
+//Any email with sgsco.com domain is considered as internal.
+function verifyInternalEmail(){
+  var email = userForm.value.email.trim().toLowerCase();
+  var display = email.endsWith("@sgsco.com") ? 'block' : 'none';
+  isPrimaryPMDiv.value.style.display = display; 
 }
 
 function save() {
@@ -133,7 +143,7 @@ function save() {
             prime-inputtext(v-model="userForm.lastName" name="lastname" id="lastname")
           .f
             label(for="email") Email
-            prime-inputtext(v-model="userForm.email" name="email" id="email")
+            prime-inputtext(v-model="userForm.email" name="email" id="email" @keyup="verifyInternalEmail") 
           .f
             label(for="location") Location
             prime-multi-select.w-full(v-model='userForm.location' :options='options.locations' filter='' optionValue="value" optionLabel="label" placeholder='Select Locations' )
@@ -141,7 +151,7 @@ function save() {
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
           
-          <div v-if="userForm.userType != 'EXT'">
+          <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.includes('sgsco.com'))" ref="isPrimaryPMDiv">
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
             label(for="primaryPM") Is Primary PM?
