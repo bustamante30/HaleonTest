@@ -412,8 +412,7 @@ export const useUsersStore = defineStore('users', {
       this.user= null;
       //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
-      console.log("Getusers:"+ userEditResp);
-
+      console.log("Getusers: "+userEditResp);
 
 
     if(userEditResp != null)
@@ -436,7 +435,8 @@ export const useUsersStore = defineStore('users', {
        //location : userEditResp.printerLoc  || "N/A",
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
        isPrimaryPM: userEditResp.isPrimaryPM || false,
-       location: selectedLocations 
+       location: selectedLocations,
+       isExternalUser: userEditResp.userType == "EXT" 
       };
     
 
@@ -451,7 +451,7 @@ export const useUsersStore = defineStore('users', {
     }
     },
     editUser(user: any) {
-      console.log("EditUser:" +user);
+      console.log("EditUser:" + JSON.stringify(user));
       if (this.selected && user) {
         this.user = { ...user}
       }
