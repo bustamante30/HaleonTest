@@ -550,7 +550,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const notificationsStore = useNotificationsStore()
       const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
-      const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
+      const hasUniquePlates = !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size) // - Check only if totalSets > 0
       const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
       const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
       const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
