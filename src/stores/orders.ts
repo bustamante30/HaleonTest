@@ -140,8 +140,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
-            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
+            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription || plate.plateThicknessDescription,
+            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label || plate.plateTypeDescription,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
           })
