@@ -101,7 +101,7 @@ function reorder(id) {
         .secondary-actions
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}?source=cart`)")
           sgs-button.sm(icon="redo" label="ReOrder" @click="reorder(order.id)")
           //- :disabled="pendingOrderSets(order.colors)"
 </template>
