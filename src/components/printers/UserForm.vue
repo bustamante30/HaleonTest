@@ -154,7 +154,7 @@ function save() {
             label(for="admin") Admin
           
           <div v-if="currentUserType !== 'EXT'">
-            <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.includes('sgsco.com'))" ref="isPrimaryPMDiv">
+            <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref="isPrimaryPMDiv">
             .f.checkbox
               prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
               label(for="primaryPM") Is Primary PM?
