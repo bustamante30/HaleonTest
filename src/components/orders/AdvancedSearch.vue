@@ -67,7 +67,7 @@ const searchhistoryStore = useSearchhistoryStore()
 const ordersStore = useOrdersStore()
 let formattedDates: Ref<{ id: any; date: string; }[]> = ref([])
 
-const emit = defineEmits(["reset", "search","resetAdvancedSearchVisible"]);
+const emit = defineEmits(["reset", "search"]);
 
 const printerResults: Ref<string[]> = ref([])
 const printerSiteResults: Ref<string[]> = ref([])
@@ -100,7 +100,6 @@ const closeForm = () => {
   if (form) {
     form.style.display = "none";
   }
-  emit("resetAdvancedSearchVisible", advancedFilters.value);
 };
 
 onBeforeMount(async () => {
