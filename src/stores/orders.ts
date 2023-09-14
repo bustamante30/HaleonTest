@@ -121,7 +121,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
-        (orderType === 'success'? color?.plateTypes: (color?.plateType || color?.plateTypes)).forEach((plate: any) => {
+        // plateType for MySGS and plateTypes for Photon
+        (color?.plateType || color?.plateTypes).forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
@@ -139,8 +140,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: orderType === 'success'? plate.plateThicknessDescription : plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
-            plateTypeDescription: orderType === 'success'? plate.plateTypeDescription : plate.plateType || plate.plateTypeDescription.label,
+            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
+            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
           })
