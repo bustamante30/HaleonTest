@@ -138,7 +138,7 @@ function goBack() {
       template(#footer)
         footer
           .secondary-actions &nbsp;
-            sgs-button.default.back(:label="source === 'cart' ? 'Back to Cart' : 'Back'" @click="goBack")
+            sgs-button.default.back(:label="source === 'cart' || isCartOrder ? 'Back to Cart' : 'Back'" @click="goBack")
           .actions
             sgs-button.secondary(:icon="loading.cart ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
               template(#badge)
