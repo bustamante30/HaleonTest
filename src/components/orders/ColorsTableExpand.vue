@@ -45,7 +45,7 @@ const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
 onBeforeMount(() => {
   // When back from confirmation page, do not reset sets(quantity)
   const source = route.query && route.query?.source as any
-  if (source !== 'confirm') {
+  if (source !== 'confirm' && source !== 'cart') {
     props.data?.forEach((color: any) => {
       const { checkboxId } = color
       color.plateType?.forEach((plateType: any) => {
