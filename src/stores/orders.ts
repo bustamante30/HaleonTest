@@ -225,6 +225,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             if(statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
            })
+           await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)
           }
         } else {
           // Dashboard SGS reorder (MySGS, Photon)
@@ -237,7 +238,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           );
           // details.plateTypes will be there for SGS orders
           const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
-          this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
+          this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           if(details.printerName!="")
             this.selectedOrder.printerName = details.printerName
@@ -293,6 +294,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           if(printer.printerId && printer.printerId > 0){
             printers.push(printer.printerName)
             printerIds.push(printer.printerId)
+          }else{
+            printers.push(b2cAuth.currentB2CUser.printerName)
           }
           printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
         })
@@ -374,6 +377,24 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
       this.loading.ordersList = false;
       this.decorateOrders();
+    },
+    async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
+      const barcodeDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonBarcode(photonOrder?.id))) : null
+      const shirttailDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonShirttail(photonOrder?.id))) : null
+      this.selectedOrder = this.selectedOrder || {}
+      if (barcodeDetails !== null)
+        this.selectedOrder.barcodes = barcodeDetails;
+      this.selectedOrder.cust1UpDie = shirttailDetails?.cust1UpDie;
+      this.selectedOrder.printProcess = shirttailDetails?.printProcessDescription;
+      this.selectedOrder.substrate = shirttailDetails?.substrate;
+      this.selectedOrder.surfaceReverseSprint = shirttailDetails?.surfaceReversePrint;
+      this.selectedOrder.plateRelief = shirttailDetails?.plateRelief;
+      this.selectedOrder.plateThickness = shirttailDetails?.thicknessDesc;
+      this.selectedOrder.numberAcrossCylinder = shirttailDetails?.numberAcrossCylinder;
+      this.selectedOrder.numberAroundCylinder = shirttailDetails?.numberAroundCylinder;
+      this.selectedOrder.dispro = shirttailDetails?.dispro;
+      this.selectedOrder.plateType = shirttailDetails?.plateType;
+      this.selectedOrder.isActive = true;
     },
     resetFilters() {
       this.filters["query"] = "";
