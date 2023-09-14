@@ -63,7 +63,7 @@ function getShippingAddress(order) {
 
 function reorder(id) {
   cartStore.reorderFromCart(id)
-  goto(`/dashboard/${id}/reorder`)
+  goto(`/dashboard/${id}/reorder?source=cart`)
 }
 </script>
 
