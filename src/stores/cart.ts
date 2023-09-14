@@ -24,7 +24,6 @@ export const useCartStore = defineStore("cartStore", {
     async getCart() {
       this.cartOrders = await ReorderService.getCart();
       this.decorateCartOrders();
-      await this.getCartCount()
     },
     reorderFromCart(id: string) {
       const orderStore = useOrdersStore()
