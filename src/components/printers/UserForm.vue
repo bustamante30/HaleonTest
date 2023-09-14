@@ -141,7 +141,7 @@ function save() {
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
           
-          <div v-if="!userForm.isExternalUser">
+          <div v-if="userForm.userType != 'EXT'">
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
             label(for="primaryPM") Is Primary PM?

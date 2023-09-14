@@ -436,7 +436,7 @@ export const useUsersStore = defineStore('users', {
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
        isPrimaryPM: userEditResp.isPrimaryPM || false,
        location: selectedLocations,
-       isExternalUser: userEditResp.userType == "EXT" 
+       userType: userEditResp.userType 
       };
     
 
