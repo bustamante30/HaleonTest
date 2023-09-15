@@ -244,7 +244,14 @@ function createPmOrder() {
 function sendToPm(form: any) {
   sendToPmStore.sendToPm(form);
 }
-
+function resetSets(orderToAdd: any){
+  orderToAdd.colors.forEach((color)=>{
+    color.sets = 0
+    color.plateType.forEach((plate)=>{
+      plate.sets = 0
+    })
+  })
+}
 async function addToCart(order: any) {
   confirm.require({
     message: "Do you want to add more orders to the cart?",
@@ -262,6 +269,7 @@ async function addToCart(order: any) {
     reject: async () => {
       ordersStore.loading.ordersList = true;
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
+      resetSets(orderToAdd)
       if (await cartStore.addToCart(orderToAdd)) {
         notificationsStore.addNotification(
           `Success`,
@@ -324,29 +332,24 @@ async function addMultipleToCart(values: any) {
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-    if (!(await cartStore.addToCart(orderToAdd))) {
+    resetSets(orderToAdd)
+    if (await cartStore.addToCart(orderToAdd)) {
+      notificationsStore.addNotification(
+        `Sucesss`,
+        "Success adding the order #"+order.sgsId,
+        { severity: "success" }
+      );
+    }
+    else{
       notificationsStore.addNotification(
         `Error`,
-        "Error adding some orders to the cart",
+        "Error adding to the cart #"+order.sgsId,
         { severity: "error" }
       );
-      ordersToAdd.forEach((order) => {
-        order.selected = false;
-      });
-      showMultipleSelection.value = false;
-      ordersStore.loading.ordersList = false;
-      return;
     }
     order.selected = false;
   }
   showMultipleSelection.value = false;
-  if (ordersToAdd.length > 0) {
-    notificationsStore.addNotification(
-      `Success`,
-      ordersToAdd.length + " Orders added to the cart successfully",
-      { severity: "success" }
-    );
-  }
   ordersStore.loading.ordersList = false;
 }
 </script>

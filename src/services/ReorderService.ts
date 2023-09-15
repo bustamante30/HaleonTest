@@ -72,8 +72,7 @@ interface Color {
     plateTypeDescription: string;
     plateThicknessId: number;
     plateThicknessDescription: string;
-    colourType: number;
-    colourTypeDesc?: string;
+    colourType: string;
     isNew: boolean;
     newColour?: string;
     commonColourRef: string;
@@ -95,46 +94,20 @@ interface CustomerContact {
 class ReorderService {
     
     public static submitReorder(reorderInfo: any, statusId: number, isUpdate?: boolean) {
-        const newColors = [] as any[]
+        const newColors = JSON.parse(JSON.stringify(reorderInfo.colors))
         const newContacts = [] as any[]
-        reorderInfo.colors.forEach((color: any) => {
+        ///code added to resolve the iisue with the plate details:
+        newColors.forEach((color: any) => {
             color?.plateType?.forEach((plateType: any) => {
-                if (plateType.sets > 0) {
-                    newColors.push({
-                        id: isUpdate? color.id : 0,
-                        clientPlateColourRef: color.clientPlateColourRef,
-                        colourName: color.colourName,
-                        custCarrierIdNo: color.custCarrierIdNo,
-                        custImageIdNo: color.custImageIdNo,
-                        imageCarrierId: color.imageCarrierId,
-                        serialNumber: color.serialNumber,
-                        jobTechSpecColourId: color.jobTechSpecColourId,
-                        plateThicknessDescription: plateType?.plateTypeDescription?.plateThicknessDescription,
-                        plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
-                        plateTypeDescription: plateType?.plateTypeDescription?.label,
-                        plateTypeId: plateType?.plateTypeDescription?.value,
-                        sets: plateType.sets, 
-                        plateTypes: [
-                            {
-                                id: isUpdate ? plateType?.reorderColourPlateTypeId : 0,
-                                reorderColourPlateTypeId: plateType?.reorderColourPlateTypeId,
-                                plateTypeId: plateType?.plateTypeDescription?.value,
-                                plateType: plateType?.plateTypeDescription?.label,
-                                plateThicknessId: plateType?.plateTypeDescription?.plateThicknessId,
-                                plateThickness: plateType?.plateTypeDescription?.plateThicknessDescription,
-                                sets: plateType?.sets,
-                                isActive: plateType?.plateTypeDescription?.isActive,
-                            }
-                        ],
-                        sequenceNumber: color.sequenceNumber,
-                        originalSets: plateType?.sets,
-                        colourType: this.getColorType(color.colourType),
-                        isNew: color.isNew,
-                        commonColourRef: color.commonColourRef,
-                        isActive: color.isActive,
-                    })
-                }
+                let plateInfo = plateType.plateTypeDescription
+                plateType.plateTypeId = plateInfo.value
+                plateType.plateThicknessDescription = plateInfo.plateThicknessDescription
+                plateType.plateThicknessId = plateInfo.plateThicknessId
+                plateType.plateTypeDescription = plateInfo.label
             })
+            ///api expects plateTypes and sets fields:
+            color.plateTypes = color.plateType
+            color.sets = color.totalSets
         })
         reorderInfo.customerContacts.forEach((contact: any) => {
             newContacts.push(
@@ -149,10 +122,9 @@ class ReorderService {
                     isActive: contact.isActive
                 })
         })
-
         let newReorder: SubmitReorder = {
             id: isUpdate ? reorderInfo.id : 0,
-            originalOrderId: reorderInfo.sgsId,
+            originalOrderId: isUpdate ? reorderInfo.originalOrderId : reorderInfo.sgsId,
             brandName: reorderInfo.brandName,
             description: reorderInfo.description,
             weight: reorderInfo.weight,
@@ -335,22 +307,13 @@ class ReorderService {
     }
 
     
-    public static getColorType(colourType: number){
-        switch(colourType){
-            case 2: return "Tone"
-            case 0: return "Unknown"
-            case 5: return "Combo-L/T"
-            case 1: return "Line"
-            case 11: return "Technical"
-            default: return ""
-        }
-    }
     public static decorateColours(colors: Color[] | undefined){
         if(colors)
             colors.forEach(color =>{
                 color.plateTypes = color.plateTypes?.sort((a,b)=> a.plateTypeId - b.plateTypeId)
-                color.colourTypeDesc = this.getColorType(color.colourType)
                 color.newColour = color.isNew? "New":"Common"
+                color.imageCarrierId = color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId)
+                color.totalSets = color.sets
             })
     }
 

@@ -18,7 +18,8 @@ export default {
         path: '/dashboard/$1',
         pathParams: ['sgsId'],
         freeze: 'left',
-        width: 10
+        width: 10,
+        title: true
       },
       {
         header: 'Order Date',
