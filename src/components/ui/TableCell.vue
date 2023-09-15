@@ -53,13 +53,13 @@ function update(value) {
 </script>
 
 <template lang="pug">
-span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }")
+span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="config.title ? get(data, config.field) : null")
   span.thumb(v-if="config.thumb")
     img(:src="get(data, config.thumb)")
   span(v-if="config.type === 'date'") {{ formatDate(get(data, config.field)) }}
   span(v-else-if="config.type === 'badge'")
     span.badge(v-if="get(data, config.field)" :class="get(data, config.field).key") {{ get(data, config.field).label }}
-  span(v-else-if="config.type === 'link'" :title="get(data, config.field)")
+  span(v-else-if="config.type === 'link'")
     router-link(:to="resolvePath(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
