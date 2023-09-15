@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import ReportIssueService from "@/services/ReportIssueService";
 
 const emit = defineEmits(['close'])
 
@@ -14,6 +15,47 @@ const issue = ref({
   description: null,
   attachments: []
 });
+const error = ref("");
+const showError = ref(false);
+
+function onSubmit() {
+  reportIssue(issue.value)
+  const validationErrors = validateForm();
+  if (validationErrors) {
+    console.log(validationErrors)
+    error.value = validationErrors;
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
+    return;
+  }
+
+  reportIssue(issue.value)
+  closeForm()
+}
+
+const closeForm = () => {
+  const form = document.querySelector(".report-issue") as HTMLFormElement;
+  if (form) {
+    form.style.display = "none";
+  }
+};
+
+function validateForm() {
+
+if (!issue.value?.browser) {
+  return "You must select a browser.";
+}
+if (issue.value?.browserVersion == null) {
+  return "You must select a Shipping location.";
+}
+}
+
+async function reportIssue(advancedSearchParameters?: any) {
+  let draftResult = await ReportIssueService.submitIssue(issue.value);
+      
+}
 </script>
 
 <template lang="pug">
@@ -65,14 +107,7 @@ sgs-scrollpanel.report-issue
     footer
       .actions
         sgs-button.default.sm(label="Cancel" @click="emit('close')")
-        sgs-button.alert.sm(label="Report Issue")
-
-
-
-
-
-
-
+        sgs-button.alert.sm(label="Report Issue" @click="onSubmit()")
 </template>
 
 <style lang="sass" scoped>
