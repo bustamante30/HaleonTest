@@ -1,6 +1,6 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="onSubmit")
-  button.close-button(@click.prevent="closeForm" type="button")
+  button.close-button(@click.prevent="closeForm" type="button" @click="emit('close')")   
     i.pi.pi-times
   sgs-scrollpanel
     template(#header)
@@ -67,7 +67,7 @@ const searchhistoryStore = useSearchhistoryStore()
 const ordersStore = useOrdersStore()
 let formattedDates: Ref<{ id: any; date: string; }[]> = ref([])
 
-const emit = defineEmits(["reset", "search"]);
+const emit = defineEmits(["reset", "search","close"]);
 
 const printerResults: Ref<string[]> = ref([])
 const printerSiteResults: Ref<string[]> = ref([])
