@@ -95,7 +95,7 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
   .content
     user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @deleteUser="deleteUser" @resend="resend" :className="[ user ? 'lay-low' : '']")
     user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
-    location-table(v-else-if="tab === 'locations'" :data="printer.locations" :config="locationConfig")
+    //- location-table(v-else-if="tab === 'locations'" :data="printer.locations" :config="locationConfig")
     printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
 </template>
 

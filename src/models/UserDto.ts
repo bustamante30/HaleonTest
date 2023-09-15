@@ -13,5 +13,5 @@ export type UserDto = {
     isAdmin?: boolean | null;
     isPrimaryPM?: boolean | null;
     roles?: Array<UserRoleDto> | null;
-    printerLoc?: Array<UserPrinterLocationDto> | null;
+    //printerLoc?: Array<UserPrinterLocationDto> | null;
 };

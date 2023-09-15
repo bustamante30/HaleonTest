@@ -19,15 +19,15 @@ import type { UserPrinterLocationDto } from '@/models/UserPrinterLocationDto'
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
-export async function fetchLocations(printerName: string) {
-  try {
-    const locationResult = await SuggesterService.getPrinterSiteList(printerName, "");
-    return locationResult;
-  } catch (error) {
-    console.error("Error fetching locations:", error);
-    return [];
-  }
-}
+// export async function fetchLocations(printerName: string) {
+//   try {
+//     const locationResult = await SuggesterService.getPrinterSiteList(printerName, "");
+//     return locationResult;
+//   } catch (error) {
+//     console.error("Error fetching locations:", error);
+//     return [];
+//   }
+// }
 
 export async function  searchUsers(printerId: number, userIdValue: number, userType: string, searchValue: string) {
   try {
@@ -71,42 +71,42 @@ function IterateUser(userList: [], count: number) {
   return usersSearchResponseArr
 }
 
-export async function  searchLocation(printerIdValue : number, userIdValue : number, userType : string) {
-  try {
-    // Create a SearchRequestDto object with the printerName and other parameters
+// export async function  searchLocation(printerIdValue : number, userIdValue : number, userType : string) {
+//   try {
+//     // Create a SearchRequestDto object with the printerName and other parameters
 
-    const searchRequest: SearchRequestDto = {
-      searchText: "",
-      pageNumber: 1,
-      pageCount: 300,
-      orderBy: "PrinterId",
-      orderByAsc: true,
-      isActive: true,
-      printerId: printerIdValue,
-      userId: 0,
-      userTypeKey: userType,
-    };
+//     const searchRequest: SearchRequestDto = {
+//       searchText: "",
+//       pageNumber: 1,
+//       pageCount: 300,
+//       orderBy: "PrinterId",
+//       orderByAsc: true,
+//       isActive: true,
+//       printerId: printerIdValue,
+//       userId: 0,
+//       userTypeKey: userType,
+//     };
 
-    console.log("searchReq:" + searchRequest);
-    const locationResponse = await UserService.searchLocation(searchRequest);
+//     console.log("searchReq:" + searchRequest);
+//     const locationResponse = await UserService.searchLocation(searchRequest);
 
-    if (locationResponse) {
+//     if (locationResponse) {
       
-      return locationResponse.data.map((location) => ({
-        id: location.locationId,
-        name: location.locationName,
-      }));
+//       return locationResponse.data.map((location) => ({
+//         id: location.locationId,
+//         name: location.locationName,
+//       }));
      
 
-    } else {
-      // Handle error scenario if needed
-      return null;
-    }
-  } catch (error) {
-    // Handle error scenario if needed
-    console.error('Error searching Location:', error);
-  }
-}
+//     } else {
+//       // Handle error scenario if needed
+//       return null;
+//     }
+//   } catch (error) {
+//     // Handle error scenario if needed
+//     console.error('Error searching Location:', error);
+//   }
+// }
 
 function IterateLocation(LocationList: [], count: number) {
   const locSearchResponseArr = [] as LocationSearchResponseDto[]
@@ -150,7 +150,7 @@ export async function  searchPrinter(printerId: number, userIdValue: number, use
         name: printer.printerName,
         //onboardedAt: faker.date.recent(),
         summary: {
-          locations: loginUserType === 'EXT'? externalprinterCountResponse !== undefined? externalprinterCountResponse.extLocationCount:0 :printer.locationCount,
+         //locations: loginUserType === 'EXT'? externalprinterCountResponse !== undefined? externalprinterCountResponse.extLocationCount:0 :printer.locationCount,
           admins: printer.totalUserCount,
           users: loginUserType === 'EXT'? externalprinterCountResponse !== undefined? externalprinterCountResponse.externalUserCount :0 :printer.externalUserCount,
          //users:printer.externalUserCount,
@@ -188,13 +188,13 @@ export const useUsersStore = defineStore('users', {
       printers: false,
       printer: false
     },
-    options: {
-      locations: [] as any[],
-    },
+    // options: {
+    //   locations: [] as any[],
+    // },
     user: null as any,
     userSearchExtResp: null as any,
     userSearchIntResp: null as any,
-    locationSearchResp: null as any,
+    //locationSearchResp: null as any,
     userTypeValue: null as any,
     userRoleValue: null as any,
     identityProviderId: null as any,
@@ -344,14 +344,14 @@ export const useUsersStore = defineStore('users', {
         printerName = printer.name;
         }
       }
-      if (printerName) {
-        const locationResult = await fetchLocations(printerName);
-        // Ensure the locations are in the required format with 'label' and 'value' properties
-        this.options.locations = locationResult.map((location: string, index: string) => ({
-          label: location,
-          value: location, // You can use a unique identifier here if available from the API.
-        }));
-      }
+      // if (printerName) {
+      //   const locationResult = await fetchLocations(printerName);
+      //   // Ensure the locations are in the required format with 'label' and 'value' properties
+      //   this.options.locations = locationResult.map((location: string, index: string) => ({
+      //     label: location,
+      //     value: location, // You can use a unique identifier here if available from the API.
+      //   }));
+      // }
 
        if(userType === 'INT')
        {
@@ -367,12 +367,12 @@ export const useUsersStore = defineStore('users', {
         this.userSearchExtResp = await searchUsers(prtId, userId, 'EXT', searchUserValue);
        }
        this.userSearchIntResp = await searchUsers(prtId, userId, 'INT', searchUserValue);
-       this.locationSearchResp = await searchLocation(prtId,0, '');
+       //this.locationSearchResp = await searchLocation(prtId,0, '');
        
-      const locations = this.locationSearchResp;
+     // const locations = this.locationSearchResp;
       const printerDetails = {
         ...printer,
-        locations,
+       // locations,
         users: [
           //printer.name
         ...IterateUser(this.userSearchExtResp.data,this.userSearchExtResp.totalRecords)
@@ -419,12 +419,12 @@ export const useUsersStore = defineStore('users', {
     if(userEditResp != null)
     {
 
-      const selectedLocations = userEditResp?.printerLoc?.map((location: any) => location.locationName); // Array of selected location names
+    //   const selectedLocations = userEditResp?.printerLoc?.map((location: any) => location.locationName); // Array of selected location names
 
-    this.options.locations = this.options.locations.map((location: any) => ({
-      ...location,
-      selected: selectedLocations?.includes(location.value) // Set selected property based on whether the location is in selectedLocations
-    }));
+    // this.options.locations = this.options.locations.map((location: any) => ({
+    //   ...location,
+    //   selected: selectedLocations?.includes(location.value) // Set selected property based on whether the location is in selectedLocations
+    // }));
 
 
        this.user ={
@@ -436,7 +436,7 @@ export const useUsersStore = defineStore('users', {
        //location : userEditResp.printerLoc  || "N/A",
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
        isPrimaryPM: userEditResp.isPrimaryPM || false,
-       location: selectedLocations 
+       //location: selectedLocations 
       };
     
 
@@ -486,12 +486,12 @@ export const useUsersStore = defineStore('users', {
     printerIdValue = this.selected.id;
   }
 
-        const printerLoc: UserPrinterLocationDto[] = []
-        userreq.value.location?.forEach((location:string)=>{
-          printerLoc.push({
-            locationName : location
-          })
-        });
+        //const printerLoc: UserPrinterLocationDto[] = []
+        // userreq.value.location?.forEach((location:string)=>{
+        //   printerLoc.push({
+        //     locationName : location
+        //   })
+        // });
 
         const userDto: UserDto = {
           id: userreq.value.id,
@@ -503,7 +503,7 @@ export const useUsersStore = defineStore('users', {
           roles: null, 
           isAdmin: userreq.value.isAdmin,
           isPrimaryPM:userreq.value.isPrimaryPM,
-          printerLoc
+          //printerLoc
         };
 
     return await UserService.saveUser(userDto)

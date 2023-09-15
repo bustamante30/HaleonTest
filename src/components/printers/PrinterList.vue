@@ -91,7 +91,7 @@ async function saveprinter(printerFormRequest) {
       span {{ printer.name }}
       span.summary
         small.users {{ printer.summary.admins }} Users
-        small.locations {{ printer.summary.locations }} Locations
+        //- small.locations {{ printer.summary.locations }} Locations
         small.identity-provider {{ printer.summary.identityProvider }}
     template(#footer)
       prime-paginator(
