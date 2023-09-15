@@ -10,8 +10,9 @@ import DemoVideo from './components/common/DemoVideo.vue'
 //@ts-ignore
 import csvFile from './components/common/videos/demo.csv'
 import ReportIssue from './components/common/ReportIssue.vue'
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
+const route = useRoute()
 const notificationsStore = useNotificationsStore()
 const toast = useToast()
 const router = useRouter()
@@ -31,6 +32,13 @@ const isLoginPage = computed(() => {
   return ((router?.currentRoute as any)?.value?.path) === '/'
 });
 const isB2CLoginPage = computed(() => {
+  var encodedStr = route.query["p"];
+  var decodedStr = '';
+  if(typeof(encodedStr) != 'undefined' && encodedStr != null){
+     decodedStr = atob(''+encodedStr); 
+  }
+  console.log('Query param - '+decodedStr);
+  authb2cStore.setUseremail(decodedStr);
   return ((router?.currentRoute as any)?.value?.path) === '/b2clogin'
 });
 const isError = computed(() => {

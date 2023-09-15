@@ -7,6 +7,7 @@ import { DateTime } from 'luxon'
 import store from "store";
 import router from "@/router";
 
+
 const authConfig = {
   auth: {
     clientId: import.meta.env.VITE_AAD_CLIEND_ID,
@@ -18,7 +19,7 @@ const authConfig = {
 };
 
 const requestScope = {
-  scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
+  scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE] 
 };
 
 export const useAuthStore = defineStore("auth", {
