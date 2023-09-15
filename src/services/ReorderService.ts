@@ -371,6 +371,15 @@ class ReorderService {
             return 0;
         });
     }
+
+    public static getReorderAudit(id: number) {
+        return httpService.get<any>('v1/audit/reorder/'+ id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting shirttail: ", error);
+            return 0;
+        });
+    }
 }
 
 export default ReorderService;
