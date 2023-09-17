@@ -30,6 +30,7 @@ const cartCount = computed(()=> cartStore.cartCount)
 const isOrderInCart = computed(()=> cartStore.isOrderInCart(props.selectedId))
 const colors = computed(() => ordersStore.selectedOrder.colors);
 const loading = computed(() => ordersStore.loading)
+const loadingCart = computed(() => cartStore.loading)
 const disableReorder = computed(()=>{
   const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
   return !(totalSets && totalSets.length)
@@ -79,12 +80,9 @@ async function addToCart() {
 }
 
 async function updateToCart() {
-  if (await cartStore.updateToCart(ordersStore.selectedOrder))
-    notificationsStore.addNotification(
-          `Success`,
-          "Cart updated successfully",
-          { severity: "success" }
-        );
+  await cartStore.updateToCart(ordersStore.selectedOrder)
+  isCartMessageVisible.value = true
+  // notificationsStore.addNotification( `Success`, "Cart updated successfully", { severity: "success" } );  
 }
 
 function goBack() {
@@ -140,12 +138,13 @@ function goBack() {
           .secondary-actions &nbsp;
             sgs-button.default.back(:label="source === 'cart' || isCartOrder ? 'Back to Cart' : 'Back'" @click="goBack")
           .actions
-            sgs-button.secondary(:icon="loading.cart ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
+            sgs-button.secondary(:icon="loadingCart.add || loadingCart.update ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
             sgs-button(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Re-Order Now" @click="reorder" :disabled="disableReorder")
 
-  prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal header="Add to Cart" :closable='false')
+  prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal 
+    :header="isCartOrder ? 'Update to Cart' : 'Add to Cart'" :closable='false')
     .cart-message
       .icon
         span.material-icons.outline check_circle
