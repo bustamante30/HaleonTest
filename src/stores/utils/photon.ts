@@ -15,4 +15,21 @@ const mapPhotonOrderDetail = (shirttailDetails: any = {}, barcodeDetails: any = 
   }
 }
 
-export { mapPhotonOrderDetail }
+const mapColorPlateTypes = (colors: any[]) => {
+  const plateTypes = [] as any[]
+      colors?.forEach((color: any) => {
+        color?.plateTypes?.forEach((plateType: any) => {
+          console.log('plateType', plateType)
+          plateTypes.push({
+            label: plateType?.plateTypeDescription,
+            value: plateType?.plateTypeId,
+            plateThicknessDescription: plateType?.plateThicknessDescription,
+            plateThicknessId: plateType?.plateThicknessId,
+            isActive: true
+          })
+        })
+      })
+      return plateTypes
+}
+
+export { mapPhotonOrderDetail, mapColorPlateTypes }

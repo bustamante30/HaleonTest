@@ -1,4 +1,4 @@
-import { colorDecorator, mapSgsOrderDetail, mapPhotonOrderDetail } from './utils';
+import { colorDecorator, mapSgsOrderDetail, mapPhotonOrderDetail, mapPlateTypes, mapColorPlateTypes, validation } from './utils';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
@@ -130,8 +130,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription ,
-            plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label,
+            plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription || plate?.plateThicknessDescription,
+            plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label || plate?.plateTypeDescription,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
           })
@@ -185,7 +185,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           // Cart reorder
           const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
           if (order != null) {
-            const plateTypes = await order?.plateTypes?.length ? this.mapPlateTypes(order) : this.mapColorPlateTypes(order.colors)
+            const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = order
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
@@ -208,7 +208,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 }
               })
             }
-          const plateTypes =  await this.mapColorPlateTypes(details?.colors) 
+          const plateTypes =  await mapColorPlateTypes(details?.colors) 
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
@@ -225,7 +225,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
-          const plateTypes = await this.mapPlateTypes(details)
+          const plateTypes = await mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
@@ -487,7 +487,6 @@ export const useOrdersStore = defineStore("ordersStore", {
               plateToReplace = { ...plateToReplace, plateTypeId: plateType.value, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
               // console.log('plateTypeDescription', plateToReplace, plateType, params.field)
             } else if (params.field === 'sets') {
-              // console.log('sets')
               if (totalSets > 10) {
                 notificationsStore.addNotification('Warning', `You cannot have more than 10 sets reordered for 1 colour`, { severity: 'warn' })
                 return
@@ -505,12 +504,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     validateColour(colour: any) {
       const notificationsStore = useNotificationsStore()
-      const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
-      const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
-      const hasUniquePlates = !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size) // - Check only if totalSets > 0
-      const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
-      const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
-      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
+      const { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates } = validation(colour)
       if (hasEmptyPlateDescription)
         notificationsStore.addNotification('Warning', `Please confirm the plate type for ${colour.colourName} from the available plate list`, { severity: 'warn' })
       if (hasMixed)
@@ -526,7 +520,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.selectedOrder['colors'][index].totalSets = totalSets
       })
     },
-    // Order Table Actions
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
     },
@@ -535,36 +528,6 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
-    },
-    mapPlateTypes(details: any) { 
-      return details?.plateTypes?.map((plateType: any) => {
-        const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
-        return {
-          label: plateType?.plateTypeName,
-          value: plateType?.plateTypeId,
-          plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
-          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
-          isActive: true
-        }
-      })
-    },
-    // For Photon Orders
-    async mapColorPlateTypes(colors: any[]) {
-      const plateTypes = [] as any[]
-      colors?.forEach((color: any) => {
-        color?.plateTypes?.forEach((plateType: any) => {
-          console.log('plateType', plateType)
-          plateTypes.push({
-            label: plateType?.plateTypeDescription,
-            value: plateType?.plateTypeId,
-            plateThicknessDescription: plateType?.plateThicknessDescription,
-            plateThicknessId: plateType?.plateThicknessId,
-            isActive: true
-          })
-        })
-      })
-      console.log('plateTypes', plateTypes)
-      return plateTypes
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: number, plateTypes: any[]) {
       const colors = Array.from(details && details?.colors || [])

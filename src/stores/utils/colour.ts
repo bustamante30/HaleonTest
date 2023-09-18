@@ -23,4 +23,28 @@ const colorDecorator = (colors: any[], masterPlateTypes: any[]) => {
   })
 }
 
-export { colorDecorator }
+const mapPlateTypes = (details: any) => {
+  return details?.plateTypes?.map((plateType: any) => {
+    const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
+    return {
+      label: plateType?.plateTypeName,
+      value: plateType?.plateTypeId,
+      plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
+      plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
+      isActive: true
+    }
+  })
+}
+
+const validation = (colour: any) => {
+  const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
+  const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
+  const hasUniquePlates = !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size) // - Check only if totalSets > 0
+  const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
+  const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
+  const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
+  console.log({ isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates })
+  return { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates }
+}
+
+export { colorDecorator, mapPlateTypes, validation }
