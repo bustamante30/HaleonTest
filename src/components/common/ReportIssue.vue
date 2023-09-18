@@ -27,7 +27,6 @@ const error = ref("");
 const showError = ref(false);
 
 function onSubmit() {
-  reportIssue(issue.value)
   const validationErrors = validateForm();
   if (validationErrors.length > 0) {   
   notificationsStore.addNotification(
@@ -36,17 +35,18 @@ function onSubmit() {
       { severity: 'error', position: 'top-right' }
     );
   }else{
-   reportIssue(issue.value)
-  closeForm()
+   closeForm()
+   const result = reportIssue(issue.value)
+   notificationsStore.addNotification(
+    validationErrors.join("\n"),
+      "Issue submitted successfully",
+      { severity: 'success', position: 'top-right' }
+    );
   }
 }
 
 const closeForm = () => {
-  const form = document.querySelector(".report-issue") as HTMLFormElement;
-  debugger
-  if (form) {
-    form.style.display = "none";
-  }
+  emit('close');
 };
 
 function validateForm() {

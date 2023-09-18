@@ -23,7 +23,7 @@ class ReportIssueService{
         })
         .then((response: ReportIssueResponeDto) => {
           console.log('Issue submitted Successfully.');
-          return response;
+          return response.number;
         })
         .catch((error: any) => {
           console.log('Error submitting issue:', error);
