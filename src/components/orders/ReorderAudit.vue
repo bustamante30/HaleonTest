@@ -7,7 +7,7 @@ data-table(:value="data" ref="dt" paginator :rows="rows" showGridlines)
 <script setup>
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-
+import { DateTime } from 'luxon'
 const rows = ref(10)
 const props = defineProps({
   data: {
@@ -16,7 +16,10 @@ const props = defineProps({
   },
 });
 
-const data = computed(()=> props.data)
+const data = computed(()=> props.data.map(x=>{
+    x.createdAt = DateTime.fromISO(x.createdAt).toLocaleString(DateTime.DATETIME_MED);
+    return x
+}))
 const columns = ref([
   {
     field: 'auditTypeValue',
