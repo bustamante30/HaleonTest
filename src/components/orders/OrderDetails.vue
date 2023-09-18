@@ -56,8 +56,9 @@ function viewPreview() {
 <template lang="pug">
 .page.details
   sgs-mask(@click="router.push('/dashboard')")
-  .container(v-if="selectedOrder")
-    sgs-scrollpanel
+  .container
+    sgs-spinner(v-if="loadingOrder")
+    sgs-scrollpanel(v-else-if="selectedOrder")
       template(#header)
         header
           h1.title
