@@ -5,10 +5,11 @@
     sgs-scrollpanel
       template(#header)
         header
-          h1.title Shopping Cart [{{ cartCount }}]
+          h1.title Shopping Cart [{{ `${loading.count ? '...' : cartCount}` }}]
           a.close(@click="router.push('/dashboard')")
             span.material-icons.outline close
-      .shopping-cart
+      sgs-spinner(v-if="loading.cart")
+      .shopping-cart(v-else-if="cart")
         .orders
           cart-order(v-for="(order, i) in cart" :order="order")
         .checkout
@@ -25,6 +26,7 @@ import router from '@/router'
 const cartStore = useCartStore()
 const cart = computed(() => cartStore.cartOrders)
 const cartCount = computed(() => cartStore.cartCount)
+const loading = computed(() => cartStore.loading)
 
 onBeforeMount(() => {
   cartStore.getCart()
@@ -62,6 +64,7 @@ onBeforeMount(() => {
           opacity: 1
 
 .shopping-cart
+  position: relative
   +flex
   .orders
     flex: 1

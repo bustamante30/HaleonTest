@@ -152,7 +152,7 @@ function addPrinterFilter() {
     filters.value.printerName = printerName;
 }
 function searchByStatus() {
-  ordersStore.resetFilters();
+  ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
   addPrinterFilter();

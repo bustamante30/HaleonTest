@@ -80,7 +80,7 @@ header.app-header
       //- prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
-        router-link.cart(to="/cart" v-badge.danger="cartCount")
+        router-link.cart(to="/cart" v-badge.danger="cartCount || '0'")
           span.material-icons.outline shopping_cart      
     user-profile
 </template>

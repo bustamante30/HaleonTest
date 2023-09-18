@@ -30,13 +30,13 @@ const config = {
     //   type: 'text',
     //   width: 12
     // },
-    {
-      header: 'Location',
-      field: 'locationName',
-      type: 'dropdown',
-      options: { key: 'locations' },
-      width: 10
-    },
+    // {
+    //   header: 'Location',
+    //   field: 'locationName',
+    //   type: 'dropdown',
+    //   options: { key: 'locations' },
+    //   width: 10
+    // },
     {
       header: 'Admin',
       field: 'isAdmin',
