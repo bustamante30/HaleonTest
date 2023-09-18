@@ -103,7 +103,7 @@ const closeForm = () => {
 };
 
 onBeforeMount(async () => {
-  ordersStore.resetFilters();
+  ordersStore.initAdvancedFilters();
   (advancedFilters as any).value = { ...(props.filters) };
   if(props.printerName.length>0){
     advancedFilters.value["printerName"] = props.printerName;
@@ -170,7 +170,7 @@ function reset() {
   advancedFilters.value["printerPlateCode"] = null;
   advancedFilters.value["startDate"] = [];
   searchPrinterSites()
-  ordersStore.resetFilters()
+  ordersStore.initAdvancedFilters()
 }
 
 async function search(advancedSearchParameters?: any) {

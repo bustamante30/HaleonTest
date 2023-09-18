@@ -47,4 +47,36 @@ const validation = (colour: any) => {
   return { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates }
 }
 
-export { colorDecorator, mapPlateTypes, validation }
+const flattenColors = (colors: any[] = []) => {
+  const flattenedColors = [] as any[]
+  colors?.length && colors?.forEach((color: any) => {
+    // plateType for MySGS and plateTypes for Photon
+    (color?.plateType || color?.plateTypes).forEach((plate: any) => {
+      flattenedColors.push({
+        clientPlateColourRef: color.clientPlateColourRef,
+        colourName: color.colourName,
+        colourType: color.colourType,
+        commonColourRef: color.commonColourRef,
+        custCarrierIdNo: color.custCarrierIdNo,
+        custImageIdNo: color.custImageIdNo,
+        imageCarrierId: color.custImageIdNo ? color.custImageIdNo : (color.custCarrierIdNo ? color.custCarrierIdNo : color.imageCarrierId),
+        serialNumber: plate.serialNumber,
+        isActive: true,
+        isNew: color.isNew,
+        jobTechSpecColourId: color.jobTechSpecColourId,
+        newColour: color.newColour === undefined ? color.isNew : color.newColour,
+        originalSets: plate.sets,
+        id: plate.id,
+        plateTypeId: plate?.plateTypeId,
+        plateThicknessId: plate?.plateThicknessId,
+        plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription || plate?.plateThicknessDescription,
+        plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label || plate?.plateTypeDescription,
+        sequenceNumber: color.sequenceNumber,
+        sets: plate.sets
+      })
+    })
+  })
+  return flattenedColors
+}
+
+export { colorDecorator, mapPlateTypes, validation, flattenColors }

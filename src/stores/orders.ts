@@ -1,4 +1,4 @@
-import { colorDecorator, mapSgsOrderDetail, mapPhotonOrderDetail, mapPlateTypes, mapColorPlateTypes, validation } from './utils';
+import { colorDecorator, mapSgsOrderDetail, mapPhotonOrderDetail, mapPlateTypes, mapColorPlateTypes, validation, newFilterProps, flattenColors } from './utils';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
@@ -108,36 +108,9 @@ export const useOrdersStore = defineStore("ordersStore", {
   }),
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
-      const flattenedColors = [] as any[]
-      const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
-      colors?.length && colors?.forEach((color: any) => {
-        // plateType for MySGS and plateTypes for Photon
-        (color?.plateType || color?.plateTypes).forEach((plate: any) => {
-          flattenedColors.push({
-            clientPlateColourRef: color.clientPlateColourRef,
-            colourName: color.colourName,
-            colourType: color.colourType,
-            commonColourRef: color.commonColourRef,
-            custCarrierIdNo: color.custCarrierIdNo,
-            custImageIdNo: color.custImageIdNo,
-            imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
-            serialNumber: plate.serialNumber,
-            isActive: true,
-            isNew: color.isNew,
-            jobTechSpecColourId: color.jobTechSpecColourId,
-            newColour: color.newColour === undefined ? color.isNew: color.newColour,
-            originalSets: plate.sets,
-            id: plate.id,
-            plateTypeId: plate?.plateTypeId,
-            plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription || plate?.plateThicknessDescription,
-            plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label || plate?.plateTypeDescription,
-            sequenceNumber: color.sequenceNumber,
-            sets: plate.sets
-          })
-        })
-      })
-      return flattenedColors
+      const order = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder : state.selectedOrder
+
+      return flattenColors(order?.colors)
     },  
   },
   actions: {
@@ -248,7 +221,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       const b2cAuth = useB2CAuthStore();
       if(authStore.currentUser.isLoggedIn){
           // get printer Name 
-        
           authStore.currentUser.prtLocation.forEach((printer:any) =>{
               if(printer.printerId && printer.printerId > 0){
                 printers.push(printer.printerName)
@@ -277,10 +249,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             totalRecords: number;
           }
         | never[];
-      /* 
-        If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
-        And Status should be completed (4)
-    */
+      /* If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
+        And Status should be completed (4) */
       if (
         this.textSearchData.query != '' &&
         this.textSearchData.query === filters.query && filters.status === 4
@@ -353,27 +323,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.selectedOrder = this.selectedOrder || {}
       this.selectedOrder = { ...this.selectedOrder, ...mapPhotonOrderDetail(shirttailDetails, barcodeDetails) }
     },
-    resetFilters() {
-      this.filters["query"] = "";
-      this.filters["status"] = 4;
-      this.filters["itemNumber"] = null;
-      this.filters["orderDate"] = [];
-      this.filters["printerName"] = null;
-      this.filters["printerSite"] = null;
-      this.filters["printerReference"] = null;
-      this.filters["poNumber"] = null;
-      this.filters["barcodeNumber"] = null;
-      this.filters["sgsReferenceNumberList"] = null;
-      this.filters["imageCarrierId"] = null;
-      this.filters["imageCarrierCode"] = null;
-      this.filters["imageCarrierCode"] = null;
-      this.filters["printerPlateCode"] = null;
-      this.filters["startDate"] = [];
-      filterStore.state.brandNameFilter = null;
-      filterStore.state.descriptionFilter = null;
-      filterStore.state.packTypeFilter = null;
-      filterStore.state.sortFields = null;
-    },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
         if (!this.orders[i].thumbNailPath) {
@@ -395,18 +344,12 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders[i].selected = false;
       }
     },
-
     initAdvancedFilters() {
-      this.options.locations = [
-        { label: "Lancaster", value: 1 },
-        { label: "Concord NH", value: 2 },
-        { label: "Neenah, WI", value: 3 },
-      ];
-
-      this.resetFilters();
-    },
-    async initReorderOptions() {
-      // this.options.plateTypeDescription = plateTypes
+      this.filters = newFilterProps()
+      filterStore.state.brandNameFilter = null;
+      filterStore.state.descriptionFilter = null;
+      filterStore.state.packTypeFilter = null;
+      filterStore.state.sortFields = null;
     },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
@@ -540,6 +483,5 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
-    
   },
 });
