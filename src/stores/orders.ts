@@ -1,21 +1,19 @@
-import { colorDecorator, mapSgsOrderDetail, mapPhotonOrderDetail, mapPlateTypes, mapColorPlateTypes, validation, newFilterProps, flattenColors } from './utils';
+import { colorDecorator, mapPhotonOrderDetail, validation, newFilterProps, flattenColors, mapColorPlateTypes, mapPlateTypes, mapSgsOrderDetail } from './utils';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
-import { sum, sortBy, groupBy, keysIn } from "lodash";
+import { sum, sortBy} from "lodash";
 import { toRaw } from 'vue';
-
-import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from '@/stores/cart'
 import { useNotificationsStore } from '@/stores/notifications'
 import filterStore from "@/stores/filterStore";
-
 import ReorderService from "@/services/ReorderService";
 import router from "@/router";
 import type { ReorderDto } from "@/models/ReorderDto";
+import { useAuthStore } from './auth';
 
-const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
+const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
     //Filter by column filters
     let resultForCache :any[] = reorderedData ;
     if (columnFilter != null) {
@@ -57,6 +55,10 @@ const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState
     return dateA - dateB;
   });
  }
+
+const jsonify = (obj: any) => {
+  return obj ? JSON.parse(JSON.stringify(obj)) : null
+}
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -149,67 +151,55 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.successfullReorder = details;
     },
     async getOrderById(reorderId: any) {
-      const cartStore = useCartStore()
+      /* 1.Reset previously loaded order
+         2.SGS | Photon | Cart?
+         3.Fetch / load order object with direct props
+         4.Fetch / load additional details - shirttail, barcode, len etc
+         5.Decorate for display
+         6.Prepare options for platetype dropdown in Reorder Step */
       this.loading.order = true
       this.selectedOrder = null
       this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
-      if (reorderId != null && reorderId != undefined) {
-        if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
-          // Cart reorder
+
+      if (reorderId) {
+        const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
+        if (isPhotonOrder) {
+          const cartStore = useCartStore()
           const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
-          if (order != null) {
+          const isCartOrder = !!order
+          if (isCartOrder) { // Photon order loaded from cart
             const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = order
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
             await this.getBarcodeAndShirtailForPhotonOrder(order)
-          } else {
-            // Dashboard photon reorder
+          } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
-            const photonOrderDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonReorderDetails(photonOrder?.id))) : null
+            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null)
             const details = { ...photonOrder, ...photonOrderDetails }
-            if (details?.plateTypes?.length) {
-              const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
-              const colors = keysIn(groupedPlates).map((id: string) => {
-                return {
-                  ...groupedPlates[id][0],
-                  plateType: groupedPlates[id].map((plate: any) => {
-                    const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                    return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
-                  })
-                }
-              })
-            }
-          const plateTypes =  await mapColorPlateTypes(details?.colors) 
+            const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            if(statusId && plateTypes.length)
+            if (statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
-           await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)
+            await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)            
           }
-        } else {
-          // Dashboard SGS reorder (MySGS, Photon)
-          this.selectedOrder = this.orders.find(
-            (order: any) => order.sgsId === reorderId
-          );
-
-          let details = JSON.parse(
-            JSON.stringify(await ReorderService.getOrderDetails(reorderId))
-          );
+        } else { // MySGS Order loaded from dashboard
+          this.selectedOrder = this.orders.find( (order: any) => order.sgsId === reorderId );
+          let details = jsonify(await ReorderService.getOrderDetails(reorderId))
           const plateTypes = await mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
-        this.loading.order = false;
-        return this.selectedOrder;
       }
-      this.loading.order = false;
-    },
 
+      this.loading.order = false;
+      return this.selectedOrder;
+    },
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
@@ -257,7 +247,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
+       const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length
@@ -291,7 +281,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
          }
 
-          const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
+          const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState)
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
