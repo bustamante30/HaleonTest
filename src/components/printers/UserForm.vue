@@ -29,10 +29,7 @@ const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(['save'])
 
-
-//const userForm = computed(()=>usersStore.user)
-
-const options = inject('options') || { locations: [] }
+// const options = inject('options') || { locations: [] }
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -134,13 +131,12 @@ function save() {
           .f
             label(for="email") Email
             prime-inputtext(v-model="userForm.email" name="email" id="email")
-          .f
-            label(for="location") Location
-            prime-multi-select.w-full(v-model='userForm.location' :options='options.locations' filter='' optionValue="value" optionLabel="label" placeholder='Select Locations' )
+          //- .f
+          //-   label(for="location") Location
+          //-   prime-multi-select.w-full(v-model='userForm.location' :options='options.locations' filter='' optionValue="value" optionLabel="label" placeholder='Select Locations' )
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
-          //- div(v-if="userForm.userSearchExtResp.userType !== 'EXT'")
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
             label(for="primaryPM") Is Primary PM?
