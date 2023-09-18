@@ -1,11 +1,19 @@
 <script lang="ts" setup>
 import ReportIssueService from "@/services/ReportIssueService";
+import { useNotificationsStore } from '@/stores/notifications';
 
 const emit = defineEmits(['close'])
 
-const issueTypes = ref([])
-const browsers = ref([])
+const issueTypes = ref(["Incorrect visuals (PDF/Thumbnail)","Incorrect Search List","Submission request error","Keyword/Advanced search issue","Timed out","Other"]);
+const browsers = ref(["Firefox","Safari","Chrome","Other"]);
+const notificationsStore = useNotificationsStore()
 
+const props = defineProps({
+  userName: {
+    type: String,
+    default: "" 
+  }
+});
 const issue = ref({
   userId: 'Abraham Lincoln',
   application: 'Image Carrier Reorder',
@@ -21,39 +29,47 @@ const showError = ref(false);
 function onSubmit() {
   reportIssue(issue.value)
   const validationErrors = validateForm();
-  if (validationErrors) {
-    console.log(validationErrors)
-    error.value = validationErrors;
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
-    return;
-  }
-
-  reportIssue(issue.value)
+  if (validationErrors.length > 0) {   
+  notificationsStore.addNotification(
+    validationErrors.join("\n"),
+      "Please ensure you fill all required fields",
+      { severity: 'error', position: 'top-right' }
+    );
+  }else{
+   reportIssue(issue.value)
   closeForm()
+  }
 }
 
 const closeForm = () => {
   const form = document.querySelector(".report-issue") as HTMLFormElement;
+  debugger
   if (form) {
     form.style.display = "none";
   }
 };
 
 function validateForm() {
-
+  const errorMessages = [] as string[];
 if (!issue.value?.browser) {
-  return "You must select a browser.";
+  errorMessages.push("You must select a browser.");
 }
 if (issue.value?.browserVersion == null) {
-  return "You must select a Shipping location.";
+  errorMessages.push("You must select a browser version.");
 }
+if (issue.value?.issueType == null) {
+  errorMessages.push("You must select an issue.");
+}
+if (issue.value?.description == null) {
+  errorMessages.push("You must Briefly describe the issue.");
+}
+return errorMessages;
 }
 
 async function reportIssue(advancedSearchParameters?: any) {
-  let draftResult = await ReportIssueService.submitIssue(issue.value);
+  let result = await ReportIssueService.submitIssue(issue.value);
+  alert(result)
+  debugger
       
 }
 </script>
@@ -86,7 +102,7 @@ sgs-scrollpanel.report-issue
       .f
         label.required
           span Browser
-        prime-dropdown(:options="browsers" v-model="issue.browser" placeholder="-- None --")
+        prime-dropdown(:options="browsers" v-model="issue.browser" placeholder="-- None --"  )
       .f
         label.required
           span Browser Versions
