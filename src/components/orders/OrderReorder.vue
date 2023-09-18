@@ -40,10 +40,6 @@ const source = computed(() => route.query && route.query?.source)
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 const isCartOrder = computed(() => isOrderInCart.value || selectedOrder?.statusId === 1)
 
-onBeforeMount(async () => {
-  // await ordersStore.getOrderById(props.selectedId)
-})
-
 function buy() {
   router.push(`/dashboard/${props.selectedId}/confirm`)
 }
