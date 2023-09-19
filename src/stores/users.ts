@@ -449,7 +449,6 @@ export const useUsersStore = defineStore('users', {
   return UserService.SavePrinter(printerDto)
     },
     async deleteUser(user: any) {
-      debugger;
       let printerIdVal : string ='';
 
       try {
