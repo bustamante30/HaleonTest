@@ -449,14 +449,13 @@ export const useUsersStore = defineStore('users', {
   return UserService.SavePrinter(printerDto)
     },
     async deleteUser(user: any) {
+      debugger;
       let printerIdVal : string ='';
 
       try {
-        if(this.userTypeValue ='EXT')
-        {
-          printerIdVal= this.selected.id;
+        //todo: Need to revisit once the functionality is decided instead of printer location.
+        printerIdVal= this.selected.id;
 
-        }
         await UserService.DeleteUser(user, printerIdVal);
       } catch (error) {
         console.error("Error deleting user:", error);
