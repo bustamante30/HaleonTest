@@ -51,7 +51,7 @@ export default {
     },
     {
       header: "Colour Type",
-      field: "colourTypeDesc",
+      field: "colourType",
       freeze: "center",
       width: 6,
     },

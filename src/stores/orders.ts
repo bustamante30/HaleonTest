@@ -121,16 +121,17 @@ export const useOrdersStore = defineStore("ordersStore", {
       const flattenedColors = [] as any[]
       const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
       colors?.length && colors?.forEach((color: any) => {
+        // plateType for MySGS and plateTypes for Photon
         (color?.plateType || color?.plateTypes).forEach((plate: any) => {
           flattenedColors.push({
             clientPlateColourRef: color.clientPlateColourRef,
             colourName: color.colourName,
-            colourTypeDesc: color.colourTypeDesc === undefined ?color.colourType:color.colourTypeDesc,
+            colourType: color.colourType,
             commonColourRef: color.commonColourRef,
             custCarrierIdNo: color.custCarrierIdNo,
             custImageIdNo: color.custImageIdNo,
-            imageCarrierId: color.imageCarrierId,
-            serialNumber: color.serialNumber,
+            imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
+            serialNumber: plate.serialNumber,
             isActive: true,
             isNew: color.isNew,
             jobTechSpecColourId: color.jobTechSpecColourId,
@@ -139,11 +140,10 @@ export const useOrdersStore = defineStore("ordersStore", {
             id: plate.id,
             plateTypeId: plate?.plateTypeId,
             plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate.plateTypeDescription.plateThicknessDescription,
-            plateTypeDescription: plate.plateType || plate.plateTypeDescription.label,
+            plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription ,
+            plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label,
             sequenceNumber: color.sequenceNumber,
             sets: plate.sets
-            
           })
         })
       })
@@ -196,22 +196,11 @@ export const useOrdersStore = defineStore("ordersStore", {
           // Cart reorder
           const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
           if (order != null) {
-            const groupedPlates = groupBy(order.colors, 'id')
-            const colors = keysIn(groupedPlates).map((id: string) => {
-              return {
-                ...groupedPlates[id][0],
-                plateType: groupedPlates[id].map((plate: any) => {
-                  const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                  return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
-                })
-              }
-            })
-            const details = { ...order, colors }
-            const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
+            const plateTypes = await order?.plateTypes?.length ? this.mapPlateTypes(order) : this.mapColorPlateTypes(order.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-            this.selectedOrder = details
+            this.selectedOrder = order
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes);
+            this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
           } else {
             // Dashboard photon reorder
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
@@ -229,14 +218,14 @@ export const useOrdersStore = defineStore("ordersStore", {
                 }
               })
             }
-            // const plateTypes =  await this.mapColorPlateTypes(details?.colors) // details?.plateTypes?.length ? await this.mapPlateTypes(details) : await this.mapColorPlateTypes(details.colors)
-           this.mapColorPlateTypes(details?.colors).then((plateTypes: any) => {
+          const plateTypes =  await this.mapColorPlateTypes(details?.colors) // details?.plateTypes?.length ? await this.mapPlateTypes(details) : await this.mapColorPlateTypes(details.colors)
+          // this.mapColorPlateTypes(details?.colors).then((plateTypes: any) => {
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             if(statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
-           })
+          // })
            await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)
           }
         } else {
@@ -248,8 +237,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           let details = JSON.parse(
             JSON.stringify(await ReorderService.getOrderDetails(reorderId))
           );
-          // details.plateTypes will be there for SGS orders
-          const plateTypes = await details?.plateTypes?.length ? this.mapPlateTypes(details) : this.mapColorPlateTypes(details.colors)
+          const plateTypes = await this.mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           if(details.printerName!="")
@@ -562,7 +550,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const notificationsStore = useNotificationsStore()
       const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
       const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
-      const hasUniquePlates = plateTypes.length === new Set(plateTypes).size
+      const hasUniquePlates = !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size) // - Check only if totalSets > 0
       const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
       const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
       const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
@@ -595,7 +583,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return details?.plateTypes?.map((plateType: any) => {
         const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
         return {
-          label: plateType?.plateTypeName || plateType?.plateTypeDescription,
+          label: plateType?.plateTypeName,
           value: plateType?.plateTypeId,
           plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
           plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
@@ -608,26 +596,29 @@ export const useOrdersStore = defineStore("ordersStore", {
       const plateTypes = [] as any[]
       colors?.forEach((color: any) => {
         color?.plateTypes?.forEach((plateType: any) => {
+          console.log('plateType', plateType)
           plateTypes.push({
-            label: plateType?.plateType,
+            label: plateType?.plateTypeDescription,
             value: plateType?.plateTypeId,
-            plateThicknessDescription: plateType?.plateThickness,
+            plateThicknessDescription: plateType?.plateThicknessDescription,
             plateThicknessId: plateType?.plateThicknessId,
             isActive: true
           })
         })
       })
+      console.log('plateTypes', plateTypes)
       return plateTypes
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: number, plateTypes: any[]) {
       const colors = Array.from(details && details?.colors || [])
       this.selectedOrder.colors = colors?.map((color: any) => {
-        const colorFirstPlateType = color?.plateType && color?.plateType[0]
+        const colorFirstPlateType = color?.plateType && color?.plateType[0] || color?.plateTypes && color?.plateTypes[0]
         return {
           ...color,
           checkboxId: faker.datatype.uuid(),
-          totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)),
-          plateType: color.plateType?.map((colorPlateType: any) => {
+          totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)) 
+                     || color.plateTypes && color.plateTypes.length && sum(color.plateTypes?.map((plate: any) => plate.sets)) || 0,
+          plateType: (color?.plateType || color?.plateTypes).map((colorPlateType: any) => {
             const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
             const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
             return {
@@ -642,10 +633,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.selectedOrder.colors?.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
-          ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common"),
-          ((x as any)["colourTypeDesc"] = ReorderService.getColorType(
-            (x as any)["colourType"]
-          ));
+          ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common")
       });
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;

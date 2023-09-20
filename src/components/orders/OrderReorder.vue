@@ -1,14 +1,18 @@
 <script setup>
-import { ref, computed, watch, onBeforeMount } from "vue";
-import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from '@/stores/cart'
+import { useNotificationsStore } from '@/stores/notifications'
+import { useOrdersStore } from "@/stores/orders"
+import { useRoute } from 'vue-router'
 import ColorsTable from './ColorsTableExpand.vue'
 import config from '@/data/config/color-table-edit'
+import ReorderService from "../../services/ReorderService"
 import router from '@/router'
-import ReorderService from "../../services/ReorderService";
+
+const route = useRoute()
 
 const ordersStore = useOrdersStore()
 const cartStore = useCartStore()
+const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
   selectedId: {
@@ -31,6 +35,7 @@ const disableReorder = computed(()=>{
   return !(totalSets && totalSets.length)
 })
 
+const source = computed(() => route.query && route.query?.source)
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 const isCartOrder = computed(() => isOrderInCart.value || selectedOrder?.statusId === 1)
 
@@ -64,7 +69,7 @@ function reorder() {
 async function addToCart() {
   const valid = validateReorder()
   if (valid) {
-    if (isCartOrder) {
+    if (isCartOrder.value) {
       updateToCart()
       return
     }
@@ -75,7 +80,19 @@ async function addToCart() {
 
 async function updateToCart() {
   if (await cartStore.updateToCart(ordersStore.selectedOrder))
-    isCartMessageVisible.value = true
+    notificationsStore.addNotification(
+          `Success`,
+          "Cart updated successfully",
+          { severity: "success" }
+        );
+}
+
+function goBack() {
+  
+  if (source.value === 'cart')
+    router.push(`/cart`)
+  else
+    router.push(`/dashboard/${props.selectedId}`)
 }
 
 </script>
@@ -121,7 +138,7 @@ async function updateToCart() {
       template(#footer)
         footer
           .secondary-actions &nbsp;
-            sgs-button.default.back(label="Back" @click="router.push(`/dashboard/${props.selectedId}`)")
+            sgs-button.default.back(:label="source === 'cart' || isCartOrder ? 'Back to Cart' : 'Back'" @click="goBack")
           .actions
             sgs-button.secondary(:icon="loading.cart ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
               template(#badge)
