@@ -125,10 +125,10 @@ public static SavePrinter(printerData: PrinterDto) {
     });
 }
 
-public static DeleteUser(userId: string) {
+public static DeleteUser(userId: string, printerId: string) {
   const params = { userId, isActive: false };
   return httpService
-    .delete<boolean>('v1/user/Delete?userId='+ userId +'&isActive=false')
+    .delete<boolean>('v1/user/Delete?userId='+ userId +'&isActive=false'+ '&printerId=' + printerId )
     .then((response: boolean) => {
       return response;
     })

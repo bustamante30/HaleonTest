@@ -25,7 +25,9 @@ onMounted(async () => {
 })
 
 function buy() {
-  router.push(`/dashboard/${props.selectedId}/confirm`)
+  const confirmRoute = `/dashboard/${props.selectedId}/reorder`+(selectedOrder.value.statusId==1?`?source=cart`:``)
+  console.log(confirmRoute)
+  router.push(confirmRoute)
 }
 function getPDFFileName(pdfUri) {
     // Split the URI by '/' to separate the parts
@@ -54,8 +56,9 @@ function viewPreview() {
 <template lang="pug">
 .page.details
   sgs-mask(@click="router.push('/dashboard')")
-  .container(v-if="selectedOrder")
-    sgs-scrollpanel
+  .container
+    sgs-spinner(v-if="loadingOrder")
+    sgs-scrollpanel(v-else-if="selectedOrder")
       template(#header)
         header
           h1.title
@@ -92,7 +95,7 @@ function viewPreview() {
           .secondary-actions &nbsp;
           .actions
             //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="router.push(`/dashboard/${selectedId}/reorder`)")
+            sgs-button(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
 </template>
 
 <style lang="sass">

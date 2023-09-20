@@ -18,7 +18,8 @@ export default {
         path: '/dashboard/$1',
         pathParams: ['sgsId'],
         freeze: 'left',
-        width: 10
+        width: 10,
+        title: true
       },
       {
         header: 'Order Date',
@@ -61,7 +62,7 @@ export default {
         width: 5
       }
   ],
-  actions: (order,userType) => {
+  actions: (order,userType,role) => {
     switch(order.statusId){
       case null:
         return [
@@ -69,10 +70,21 @@ export default {
           { icon: 'redo', label: 'Order Again', event: 'reorder' }
         ]
       case 2:
+        let actions = []
         if(userType!=='INT')
-          return [
-            { icon: 'backspace', label: 'Cancel Order', event: 'cancel', validate : true, field:'submittedDate' },
-          ]
+          actions.push( { icon: 'backspace', label: 'Cancel Order', event: 'cancel', validate : true, field:'submittedDate' })
+
+        if(userType ==='INT' || (userType ==='EXT' && role === 'PrinterAdmin'))
+          actions.push( { icon: 'visibility', label: 'Audit', event: 'audit' })
+        
+        return actions
+      case 3:
+          if(userType ==='INT' || (userType ==='EXT' && role === 'PrinterAdmin'))
+            return[{ icon: 'visibility', label: 'Audit', event: 'audit' }]
+
+      case 1:
+          if(userType ==='INT' || (userType ==='EXT' && role === 'PrinterAdmin'))
+            return[{ icon: 'visibility', label: 'Audit', event: 'audit' }]
       default:
         return []
     }
