@@ -35,13 +35,8 @@ function onSubmit() {
       { severity: 'error', position: 'top-right' }
     );
   }else{
-   closeForm()
-   const result = reportIssue(issue.value)
-   notificationsStore.addNotification(
-    validationErrors.join("\n"),
-      "Issue submitted successfully",
-      { severity: 'success', position: 'top-right' }
-    );
+  closeForm()
+  reportIssue(issue.value)
   }
 }
 
@@ -66,11 +61,21 @@ if (issue.value?.description == null) {
 return errorMessages;
 }
 
-async function reportIssue(advancedSearchParameters?: any) {
+async function reportIssue(report?: any) {
   let result = await ReportIssueService.submitIssue(issue.value);
-  alert(result)
-  debugger
-      
+  if (result.success) {
+          notificationsStore.addNotification(
+            'Issue submitted Successfully. Reference number.',
+            result.number,
+      { severity: 'success', position: 'top-right' }
+    );
+        } else {
+          notificationsStore.addNotification(
+            'Report issue failed.',
+            result.number,
+      { severity: 'error', position: 'top-right' });
+        }
+  
 }
 </script>
 
