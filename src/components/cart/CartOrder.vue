@@ -60,11 +60,6 @@ function getShippingAddress(order) {
     ? order.customerContacts[0].shippingAddress
     : "";
 }
-
-function reorder(id) {
-  cartStore.reorderFromCart(id)
-  goto(`/dashboard/${id}/reorder?source=cart`)
-}
 </script>
 
 <template lang="pug">
@@ -93,7 +88,7 @@ function reorder(id) {
         span {{ order.printerLocationName }}
       .f
         label Shipping Address
-        span  {{getShippingAddress(order)}}
+        span  {{ getShippingAddress(order)}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
         colors-table.p-datatable-sm(:config="config" :data="colors")
@@ -102,7 +97,6 @@ function reorder(id) {
         .actions
           sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
           sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          sgs-button.sm(icon="redo" label="ReOrder" @click="reorder(order.id)")
           //- :disabled="pendingOrderSets(order.colors)"
 </template>
 

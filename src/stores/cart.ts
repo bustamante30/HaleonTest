@@ -36,10 +36,6 @@ export const useCartStore = defineStore("cartStore", {
       this.decorateCartOrders();
       this.loading.cart = false
     },
-    reorderFromCart(id: string) {
-      const orderStore = useOrdersStore()
-      orderStore.getOrderById(id)
-    },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {
         if (!this.cartOrders[i].thumbNailPath) {
