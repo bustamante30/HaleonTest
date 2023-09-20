@@ -213,7 +213,7 @@ class ReorderService {
             }
         }
        return httpService
-       .post<SearchPagedResultDto>('v1/Reorder/search', params)
+       .post<SearchPagedResultDto>('v1/Reorder/search', params, undefined, true)
        .then((response: SearchPagedResultDto) => {
          const reorderedData: ReorderDto[] = response.data
            ? response.data.map((item: ReorderDto) => ({
