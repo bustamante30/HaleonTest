@@ -1,23 +1,37 @@
-import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse, type CancelTokenSource } from 'axios';
 
 class ApiService {
   private baseUrl: string;
+  private cancelTokenSource: CancelTokenSource | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(config: AxiosRequestConfig): Promise<T> {
+  private async request<T>(config: AxiosRequestConfig, cancelRequest: boolean = false): Promise<T> {
     try {
+      if (cancelRequest) {
+        // Cancel the previous request if it's in progress
+        if (this.cancelTokenSource) {
+          this.cancelTokenSource.cancel('Request canceled by the user');
+        }
+      }
+      // Create a new cancel token source
+      this.cancelTokenSource = axios.CancelToken.source();
+      // Attach the cancel token to the request configuration
+      config.cancelToken = this.cancelTokenSource.token;
+
       const response: AxiosResponse<T> = await axios(config);
       return response.data;
-    } catch (error: any) 
-    {
-    if(error?.response?.data)
-    {
-      throw error;
-    }
-      throw new Error(`Request failed: ${error}`);
+    } catch (error: any) {
+      if (axios.isCancel(error)) {
+        console.log('Request canceled:', error.message);
+        return Promise.reject('Request canceled by the user');
+      } else if (error?.response?.data) {
+        throw error;
+      } else {
+        throw new Error(`Request failed: ${error}`);
+      }
     }
   }
 
@@ -44,7 +58,8 @@ class ApiService {
   public async post<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
+    cancelRequest: boolean = false
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
     const authType = localStorage.getItem("AuthType");
@@ -60,7 +75,7 @@ class ApiService {
      }
     };
 
-    return this.request<T>(requestConfig);
+    return this.request<T>(requestConfig, cancelRequest);
   }
 
   public async delete<T>(
