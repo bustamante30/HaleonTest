@@ -76,9 +76,10 @@ async function addToCart() {
 }
 
 async function updateToCart() {
-  await cartStore.updateToCart(ordersStore.selectedOrder)
-  isCartMessageVisible.value = true
-  // notificationsStore.addNotification( `Success`, "Cart updated successfully", { severity: "success" } );  
+  if(await cartStore.updateToCart(ordersStore.selectedOrder))
+    notificationsStore.addNotification( `Success`, "Cart updated successfully", { severity: "success" } );  
+  else
+    notificationsStore.addNotification( `Error`, "Error updating draft", { severity: "error" } );  
 }
 
 function goBack() {
