@@ -154,6 +154,7 @@ function addPrinterFilter() {
     filters.value.printerName = printerName;
 }
 function searchByStatus() {
+  if(!selectedStatus?.value?.value) return
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
