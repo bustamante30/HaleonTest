@@ -1,21 +1,40 @@
 <script lang="ts" setup>
 import ReportIssueService from "@/services/ReportIssueService";
 import { useNotificationsStore } from '@/stores/notifications';
+import JSZip from 'jszip';
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useSendToPmStore } from "@/stores/send-to-pm";
+import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
 
 const emit = defineEmits(['close'])
 
-const issueTypes = ref(["Incorrect visuals (PDF/Thumbnail)","Incorrect Search List","Submission request error","Keyword/Advanced search issue","Timed out","Other"]);
-const browsers = ref(["Firefox","Safari","Chrome","Other"]);
+const issueTypes = ref(["Incorrect visuals (PDF/Thumbnail)", "Incorrect Search List", "Submission request error", "Keyword/Advanced search issue", "Timed out", "Other"]);
+const browsers = ref(["Firefox", "Safari", "Chrome", "Other"]);
 const notificationsStore = useNotificationsStore()
+const entering = ref()
+let validFiles = ref<ValidFiles[]>([]);
+const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
+const userName = isb2cUserLoggedIn ? computed(() => authb2cStore.currentB2CUser.displayName) : computed(() => authStore.currentUser.displayName);;
+const maxSizeInBytes = 26214400;  //25 MB
+
 
 const props = defineProps({
   userName: {
     type: String,
-    default: "" 
+    default: ""
   }
 });
+type ValidFiles = {
+  filename: string,
+  contentType: string,
+  contents: any
+}
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
 const issue = ref({
-  userId: 'Abraham Lincoln',
+  userId: null,
   application: 'Image Carrier Reorder',
   issueType: null,
   browser: null,
@@ -28,15 +47,15 @@ const showError = ref(false);
 
 function onSubmit() {
   const validationErrors = validateForm();
-  if (validationErrors.length > 0) {   
-  notificationsStore.addNotification(
-    validationErrors.join("\n"),
+  if (validationErrors.length > 0) {
+    notificationsStore.addNotification(
+      validationErrors.join("\n"),
       "Please ensure you fill all required fields",
       { severity: 'error', position: 'top-right' }
     );
-  }else{
-  closeForm()
-  reportIssue(issue.value)
+  } else {
+    closeForm()
+    reportIssue(issue.value)
   }
 }
 
@@ -46,36 +65,137 @@ const closeForm = () => {
 
 function validateForm() {
   const errorMessages = [] as string[];
-if (!issue.value?.browser) {
-  errorMessages.push("You must select a browser.");
-}
-if (issue.value?.browserVersion == null) {
-  errorMessages.push("You must select a browser version.");
-}
-if (issue.value?.issueType == null) {
-  errorMessages.push("You must select an issue.");
-}
-if (issue.value?.description == null) {
-  errorMessages.push("You must Briefly describe the issue.");
-}
-return errorMessages;
+  if (!issue.value?.browser) {
+    errorMessages.push("You must select a browser.");
+  }
+  if (issue.value?.browserVersion == null) {
+    errorMessages.push("You must select a browser version.");
+  }
+  if (issue.value?.issueType == null) {
+    errorMessages.push("You must select an issue.");
+  }
+  if (issue.value?.description == null) {
+    errorMessages.push("You must Briefly describe the issue.");
+  }
+  return errorMessages;
 }
 
 async function reportIssue(report?: any) {
-  let result = await ReportIssueService.submitIssue(issue.value);
+  const id = await getUserId()
+  let result = await ReportIssueService.submitIssue(issue.value, id, validFiles.value);
   if (result.success) {
-          notificationsStore.addNotification(
-            'Issue submitted Successfully. Reference number.',
-            result.number,
+    notificationsStore.addNotification(
+      '',
+      'Your request has been successfully submitted.  Someone will contact you shortly.',
       { severity: 'success', position: 'top-right' }
     );
-        } else {
-          notificationsStore.addNotification(
-            'Report issue failed.',
-            result.number,
+  } else {
+    notificationsStore.addNotification(
+      '',
+      'Sorry, your request was able to be submitted.  Please try again or reach out to your SGS & Co contact',
       { severity: 'error', position: 'top-right' });
-        }
-  
+  }
+}
+
+async function blobToBase64(blob: any) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = (reader.result as any).split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function getUserId() {
+  let userId = '6';
+  if (isUserLoggedIn.value) {
+    userId = (await authStore.currentUser.userId as any);
+  }
+  if (isb2cUserLoggedIn.value) {
+    userId = (await authb2cStore.currentB2CUser.userId as any);
+  }
+  return userId
+}
+
+function onDragOver(event: any) {
+  event.preventDefault();
+}
+function onDragEnter(event: any) {
+  event.preventDefault();
+}
+function onDragLeave(event: any) {
+  event.preventDefault();
+}
+function handleInput(e: any) {
+  const files = Array.from(e.target.files);
+  addFiles(files);
+}
+
+function isValidFileType(file: any) {
+  return file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.bat') || file.name.toLowerCase().endsWith('.com') ||
+    file.name.toLowerCase().endsWith('.cmd') || file.name.toLowerCase().endsWith('.inf') || file.name.toLowerCase().endsWith('.ipa') ||
+    file.name.toLowerCase().endsWith('.osx') || file.name.toLowerCase().endsWith('.pif') || file.name.toLowerCase().endsWith('.run') ||
+    file.name.toLowerCase().endsWith('.wsh')
+}
+
+async function onDrop(event: any) {
+  event.preventDefault();
+  const fileList = Array.from(event.dataTransfer.files);
+  addFiles(fileList);
+}
+
+async function addFiles(files: any) {
+
+  const uploadPromises = files.map(async (file: any) => {
+    if (isValidFileType(file)) {
+      notificationsStore.addNotification(
+        `Invalid file type.`,
+        `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh.)`,
+        { severity: 'error', position: 'top-right' }
+      );
+      return null;
+    } else if (file.size > maxSizeInBytes) {
+      notificationsStore.addNotification(
+        ``,
+        `File size exceeds the limit (25 MB).`,
+        { severity: 'error', position: 'top-right' }
+      );
+      return null;
+
+    } else {
+      const response = await convertToBase64(file);
+      const parts = file.name.split(".");
+      validFiles.value.push({ filename: file.name as string, contentType: parts.length > 1 ? parts[parts.length - 1] : '', contents: response });
+    }
+  });
+  const results = await Promise.all(uploadPromises);
+  const successfulUploads = results.filter((response) => response !== null);
+  if (successfulUploads.length > 0) {
+    if (validFiles.value.length > 0)
+      notificationsStore.addNotification(
+        `Uploaded successfully`,
+        `Your files were successfully uploaded`,
+        { severity: 'success', position: 'top-right' }
+      );
+  }
+}
+
+
+async function convertToBase64(file: any) {
+  return await blobToBase64(file);
+}
+const removeItemByProperty = (index: number) => {
+  if (index !== -1) {
+    validFiles.value.splice(index, 1);
+  }
+};
+
+async function onDeleteClick(file: ValidFiles, index: number) {
+  removeItemByProperty(index)
+  notificationsStore.addNotification(`Deleted Successfully`, `Your file ${file.filename} was successfully deleted`, { severity: 'success', position: 'top-right' })
 }
 </script>
 
@@ -94,7 +214,7 @@ sgs-scrollpanel.report-issue
         span Open on behalf of this user
         span.tip(v-tooltip.right="{ value: 'Individual reporting the issue' }")
           i.material-icons help_outline
-      strong.value {{ issue.userId }}
+      strong.value {{ userName }}
     .f
       label.required
         span Which Photon Application are you reporting an issue on?
@@ -119,16 +239,23 @@ sgs-scrollpanel.report-issue
           i.material-icons help_outline
       prime-textarea(v-model="issue.description")
     .f
-      label.required
+      label
         span Include support material (screen image / recording) if needed
-      label.drop-zone(for="files")
-        input#files(type="file" name="files")
+      label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
+        input#files(type="file" multiple @input="handleInput($event)")
         span Drag &amp; Drop files here ...
+      .upload(v-if="validFiles.length > 0")
+        h4 Uploaded Files:
+        ui.files
+          li(v-for="(file, index) in validFiles" :key="file")
+            .name {{ file.filename }}
+            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+
   template(#footer)
     footer
       .actions
         sgs-button.default.sm(label="Cancel" @click="emit('close')")
-        sgs-button.alert.sm(label="Report Issue" @click="onSubmit()")
+        sgs-button(label="Submit" @click="onSubmit()")
 </template>
 
 <style lang="sass" scoped>
@@ -188,5 +315,29 @@ sgs-scrollpanel.report-issue
 
   .actions
     +flex($h: right)
+
+.upload
+  h4 
+    padding: 0 $s
+  .file
+    +reset
+    li
+      +flex
+      padding: $s25 $s
+      white-space: nowrap
+      border-bottom: 1px solid #eee
+      &:last-child
+        border-bottom: none
+      .name
+        flex: 1
+        overflow: hidden
+        text-overflow: ellipsis
+      .delete
+        visibility: hidden
+        margin-right: $s125
+      &:hover 
+        background: rgba($sgs-blue, 0.1)
+        .delete
+          visibility: visible
 
 </style>
