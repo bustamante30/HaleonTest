@@ -26,35 +26,47 @@ watch(()=>props.user,()=>{
 const usersStore = useUsersStore()
 const notificationsStore = useNotificationsStore()
 
-
+const isPrimaryPMDiv = ref("");
+  
+ 
 const emit = defineEmits(['save'])
 
 // const options = inject('options') || { locations: [] }
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-      let userType ='';
+      let currentUserType ='';
       let userRole ='';
       if(authStore.currentUser.email != '')
       {
       if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-        userType =authStore.currentUser.userType;
+        currentUserType =authStore.currentUser.userType;
       } 
       }
       
      if(authb2cStore.currentB2CUser.email != '')
       {
       if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-        userType =authb2cStore.currentB2CUser.userType;
+        currentUserType =authb2cStore.currentB2CUser.userType;
       }
       }
 
 function handleClose() {
-  if (userType === 'INT') {
+  if (currentUserType === 'INT') {
     router.push('/users?role=super');
-  } else if (userType === 'EXT') {
+  } else if (currentUserType === 'EXT') {
     //usersStore.user.id = null;
     router.push('/users');
+  }
+}
+
+//Function is used to verify the email id is external or internal
+//Any email with sgsco.com domain is considered as internal.
+function verifyInternalEmail(){
+  if(currentUserType !== 'EXT') {
+    var email = userForm.value.email.trim().toLowerCase();
+    var display = email.endsWith("@sgsco.com") ? 'block' : 'none';
+    isPrimaryPMDiv.value.style.display = display; 
   }
 }
 
@@ -137,9 +149,15 @@ function save() {
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
-          .f.checkbox
-            prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
-            label(for="primaryPM") Is Primary PM?
+          
+          <div v-if="currentUserType !== 'EXT'">
+            <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref="isPrimaryPMDiv">
+            .f.checkbox
+              prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
+              label(for="primaryPM") Is Primary PM?
+            </div>
+          </div>
+          
       template(#footer)
         footer
           .secondary-actions &nbsp;

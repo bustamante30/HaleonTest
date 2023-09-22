@@ -357,7 +357,9 @@ export const useUsersStore = defineStore('users', {
         lastName: userEditResp.lastName,
         email: userEditResp.email,
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
-       isPrimaryPM: isPrimaryPMValue || false
+       isPrimaryPM: userEditResp.isPrimaryPM || false,
+       //location: selectedLocations,
+       userType: userEditResp.userType 
       };
 
       if (this.user) {
@@ -370,7 +372,7 @@ export const useUsersStore = defineStore('users', {
     }
     },
     editUser(user: any) {
-      console.log("EditUser:" +user);
+      console.log("EditUser:" + JSON.stringify(user));
       if (this.selected && user) {
         this.user = { ...user}
       }
