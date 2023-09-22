@@ -6,18 +6,20 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
+import * as Constants from '@/services/constants';
+
 
 const emit = defineEmits(['close'])
 
-const issueTypes = ref(["Incorrect visuals (PDF/Thumbnail)", "Incorrect Search List", "Submission request error", "Keyword/Advanced search issue", "Timed out", "Other"]);
-const browsers = ref(["Firefox", "Safari", "Chrome", "Other"]);
+const issueTypes = ref(Constants.ISSUE_TYPE);
+const browsers = ref(Constants.BROWSERS);
 const notificationsStore = useNotificationsStore()
 const entering = ref()
 let validFiles = ref<ValidFiles[]>([]);
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const userName = isb2cUserLoggedIn ? computed(() => authb2cStore.currentB2CUser.displayName) : computed(() => authStore.currentUser.displayName);;
-const maxSizeInBytes = 26214400;  //25 MB
+  //25 MB
 
 
 const props = defineProps({
@@ -50,7 +52,7 @@ function onSubmit() {
   if (validationErrors.length > 0) {
     notificationsStore.addNotification(
       validationErrors.join("\n"),
-      "Please ensure you fill all required fields",
+      Constants.MANADTORY_FIELDS_MSG,
       { severity: 'error', position: 'top-right' }
     );
   } else {
@@ -66,16 +68,16 @@ const closeForm = () => {
 function validateForm() {
   const errorMessages = [] as string[];
   if (!issue.value?.browser) {
-    errorMessages.push("You must select a browser.");
+    errorMessages.push(Constants.SELECT_BROWSER);
   }
   if (issue.value?.browserVersion == null) {
-    errorMessages.push("You must select a browser version.");
+    errorMessages.push(Constants.SELECT_BROWSER_VERSION);
   }
   if (issue.value?.issueType == null) {
-    errorMessages.push("You must select an issue.");
+    errorMessages.push(Constants.SELECT_ISSUE);
   }
   if (issue.value?.description == null) {
-    errorMessages.push("You must Briefly describe the issue.");
+    errorMessages.push(Constants.SELECT_DISCRIPTION);
   }
   return errorMessages;
 }
@@ -86,13 +88,13 @@ async function reportIssue(report?: any) {
   if (result.success) {
     notificationsStore.addNotification(
       '',
-      'Your request has been successfully submitted.  Someone will contact you shortly.',
+      Constants.REPORT_ISSUE_SUCCESS,
       { severity: 'success', position: 'top-right' }
     );
   } else {
     notificationsStore.addNotification(
       '',
-      'Sorry, your request was able to be submitted.  Please try again or reach out to your SGS & Co contact',
+      Constants.REPORT_ISSUE_FAILURE,
       { severity: 'error', position: 'top-right' });
   }
 }
@@ -152,15 +154,15 @@ async function addFiles(files: any) {
   const uploadPromises = files.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
-        `Invalid file type.`,
-        `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh.)`,
+        Constants.INVALID_FILE,
+        Constants.INVALID_FILE_MSG,
         { severity: 'error', position: 'top-right' }
       );
       return null;
-    } else if (file.size > maxSizeInBytes) {
+    } else if (file.size > Constants.MAX_FILE_SIZE) {
       notificationsStore.addNotification(
         ``,
-        `File size exceeds the limit (25 MB).`,
+        Constants.FILE_SIZE_EXCEEDS,
         { severity: 'error', position: 'top-right' }
       );
       return null;
@@ -176,8 +178,8 @@ async function addFiles(files: any) {
   if (successfulUploads.length > 0) {
     if (validFiles.value.length > 0)
       notificationsStore.addNotification(
-        `Uploaded successfully`,
-        `Your files were successfully uploaded`,
+        Constants.UPLOAD_SUCCESSFULL,
+        Constants.UPLOAD_SUCCESSFULL_MSG,
         { severity: 'success', position: 'top-right' }
       );
   }
