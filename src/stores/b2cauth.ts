@@ -9,6 +9,7 @@ import UserService from "@/services/userService";
 import jwt_decode from "jwt-decode";
 import { DateTime } from "luxon";
 import router from "@/router";
+
 import store from "store";
 import type { SearchRequestDto } from "@/models/SearchRequestDto";
 
@@ -64,6 +65,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       redirectAfterLogin: "/dashboard",
       decodedToken: {},
       isValidIdentityProvider: false,
+      userEmail: "",
     };
   },
   actions: {
@@ -182,6 +184,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             this.msalB2cInstance
               .loginRedirect({
                 scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
+                loginHint: this.userEmail
               })
               .then((tokenResponse) => {
                 console.log("Login redirect response" + tokenResponse);
@@ -275,6 +278,9 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     },
     resetLogin(){
       this.currentB2CUser.isLoggedIn = false;
+    },
+    setUseremail(id){
+      this.userEmail = id;
     }
   },
 });
