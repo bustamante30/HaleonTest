@@ -22,6 +22,7 @@ import Dropdown from 'primevue/dropdown'
 import Image from 'primevue/image'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
+import InputSwitch from 'primevue/inputswitch'
 import Listbox from 'primevue/listbox'
 import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
@@ -38,6 +39,8 @@ import RadioButton from 'primevue/radiobutton';
 import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmDialog from 'primevue/confirmdialog';
 import Menubar from 'primevue/menubar'
+import ToggleButton from 'primevue/togglebutton'
+
 
 const app = createApp(App)
 
@@ -63,6 +66,7 @@ app.component('PrimeDialog', Dialog)
 app.component('PrimeDropdown', Dropdown)
 app.component('PrimeListbox', Listbox)
 app.component('PrimeInputtext', InputText)
+app.component('PrimeInputSwitch', InputSwitch)
 app.component('PrimeInputnumber', InputNumber)
 app.component('PrimeMenu', Menu)
 app.component('PrimeMultiSelect', MultiSelect)
@@ -76,4 +80,5 @@ app.component('PrimeToast', Toast)
 app.component('PrimeRadiobutton',RadioButton)
 app.component('PrimeConfirmDialog', ConfirmDialog)
 app.component('PrimeMenubar', Menubar)
+app.component('PrimeToggleButton', ToggleButton)
 app.mount('#app')

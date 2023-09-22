@@ -106,6 +106,11 @@ async function handleReport() {
     template(#header)
       app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
     prime-toast
+    prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple")
+      template(#message="{ message }")
+        .message
+          h4 {{ message.summary }}
+          .detail(v-html="message.detail") 
     router-view
   prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
     template(#header='')

@@ -6,29 +6,27 @@ import Column from 'primevue/column'
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import { useNotificationsStore } from '@/stores/notifications';
 
+const props = defineProps({
+  isMandatory: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const colours = ref([] as any[])
 const sendToPmstore = useSendToPmStore();
 const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["update"])
 
-// watch(
-//   colours,(col)=>
-//   {
-//     console.log(col)
-//     emit("update",col)
-    
-// }
-//   )
-
 onBeforeMount(() => {
-  addColour()
+  // addColour()
 })
 
 
 function addColour() {
   if (colours.value.length < 10) {
-    const newColour: any = { id: faker.datatype.uuid(), name: null, quantity: 0, plateType: null };
+    const newColour: any = { id: faker.datatype.uuid(), name: null, quantity: 1, plateType: null };
     colours.value.push(newColour);
     emit("update", colours.value);
   } else {
@@ -66,15 +64,21 @@ function stylify(width: number) {
         h4 Colours
         .actions
           sgs-button.sm.secondary(@click="addColour" icon="add" label="Add Colour")
-    column(header="Colour Name")
+    column()
+      template(#header)
+        label(:class="{ required: isMandatory }") Colour Name
       template(#body="{ data }")
-        prime-inputtext.sm(v-model="data.name" @change="emit('update',colours)")
-    column(header="Plate Type")
+        prime-inputtext.sm(v-model="data.name" @change="emit('update', colours)" placeholder="Enter color name")
+    column()
+      template(#header)
+        label(:class="{ required: isMandatory }") Plate Type
       template(#body="{ data }")
-        prime-dropdown#plate-type(v-model="data.plateType" name="plate_type" :options="sendToPmstore.imageCarrierPlateTypes" optionLabel="plateTypeName" optionValue="plateTypeName" @change="emit('update',colours)")
-    column(header="Quantity" :headerStyle="stylify(5)" :bodyStyle="stylify(5)")
+        prime-dropdown#plate-type(v-model="data.plateType" name="plate_type" :options="sendToPmstore.imageCarrierPlateTypes" optionLabel="plateTypeName" optionValue="plateTypeName" @change="emit('update', colours)"  placeholder="Select plate type")
+    column( :headerStyle="stylify(5)" :bodyStyle="stylify(5)")
+      template(#header)
+        label(:class="{ required: isMandatory }") Quantity
       template(#body="{ data }")
-        prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="0" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" @change="emit('update',colours)")
+        prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="1" :max="10" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" @change="emit('update', colours)")
     column(:headerStyle="stylify(2)" :bodyStyle="stylify(2)")
       template(#body="{ data }")
         .actions
@@ -93,4 +97,11 @@ function stylify(width: number) {
       margin: 0
   .actions
     +flex($h: right)
+
+.required
+  &:after
+    content: "*"
+    display: inline-block
+    padding: 0 $s25
+    color: $sgs-red    
 </style>
