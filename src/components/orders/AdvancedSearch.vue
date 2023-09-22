@@ -1,6 +1,6 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="onSubmit")
-  button.close-button(@click.prevent="closeForm" type="button")
+  button.close-button(@click.prevent="closeForm" type="button" @click="emit('close')")   
     i.pi.pi-times
   sgs-scrollpanel
     template(#header)
@@ -67,7 +67,7 @@ const searchhistoryStore = useSearchhistoryStore()
 const ordersStore = useOrdersStore()
 let formattedDates: Ref<{ id: any; date: string; }[]> = ref([])
 
-const emit = defineEmits(["reset", "search"]);
+const emit = defineEmits(["reset", "search","close"]);
 
 const printerResults: Ref<string[]> = ref([])
 const printerSiteResults: Ref<string[]> = ref([])
@@ -103,7 +103,7 @@ const closeForm = () => {
 };
 
 onBeforeMount(async () => {
-  ordersStore.resetFilters();
+  ordersStore.initAdvancedFilters();
   (advancedFilters as any).value = { ...(props.filters) };
   if(props.printerName.length>0){
     advancedFilters.value["printerName"] = props.printerName;
@@ -170,7 +170,7 @@ function reset() {
   advancedFilters.value["printerPlateCode"] = null;
   advancedFilters.value["startDate"] = [];
   searchPrinterSites()
-  ordersStore.resetFilters()
+  ordersStore.initAdvancedFilters()
 }
 
 async function search(advancedSearchParameters?: any) {

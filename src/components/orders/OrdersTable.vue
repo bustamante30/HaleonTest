@@ -67,6 +67,7 @@ const emit = defineEmits([
   "add",
   "reorder",
   "cancel",
+  "audit",
   "addMultipleToCart",
 ]);
 const current = ref(0);

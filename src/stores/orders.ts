@@ -1,19 +1,19 @@
-import { faker } from '@faker-js/faker';
+import { colorDecorator, mapPhotonOrderDetail, validation, newFilterProps, flattenColors, mapColorPlateTypes, mapPlateTypes, mapSgsOrderDetail } from './utils';
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
-import ReorderService from "@/services/ReorderService";
-import filterStore from "@/stores/filterStore";
-import { useNotificationsStore } from '@/stores/notifications'
-import { useCartStore } from '@/stores/cart'
-import router from "@/router";
-import { useAuthStore } from "@/stores/auth";
-import { useB2CAuthStore } from "@/stores/b2cauth";
-import { sum } from 'lodash';
+import { faker } from '@faker-js/faker';
+import { sum, sortBy} from "lodash";
 import { toRaw } from 'vue';
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import { useCartStore } from '@/stores/cart'
+import { useNotificationsStore } from '@/stores/notifications'
+import filterStore from "@/stores/filterStore";
+import ReorderService from "@/services/ReorderService";
+import router from "@/router";
 import type { ReorderDto } from "@/models/ReorderDto";
-import { sortBy, groupBy, keysIn } from "lodash";
+import { useAuthStore } from './auth';
 
-const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
+const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
     //Filter by column filters
     let resultForCache :any[] = reorderedData ;
     if (columnFilter != null) {
@@ -56,6 +56,10 @@ const handleSortPagnation = ( reorderedData: ReorderDto[],filters:any, pageState
   });
  }
 
+const jsonify = (obj: any) => {
+  return obj ? JSON.parse(JSON.stringify(obj)) : null
+}
+
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     firstLoad: false,
@@ -88,22 +92,10 @@ export const useOrdersStore = defineStore("ordersStore", {
     totalRecords: 0,
     searchHistory: [] as any[],
     statusList: [
-      {
-        name: "Completed",
-        value: 4,
-      },
-      {
-        name: "Submitted",
-        value: 2,
-      },
-      {
-        name: "Cancelled",
-        value: 3,
-      },
-      {
-        name: "Draft",
-        value: 1,
-      },
+      { name: "Completed", value: 4, },
+      { name: "Submitted", value: 2, },
+      { name: "Cancelled", value: 3, },
+      { name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -118,36 +110,9 @@ export const useOrdersStore = defineStore("ordersStore", {
   }),
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
-      const flattenedColors = [] as any[]
-      const colors = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder?.colors : state.selectedOrder?.colors
-      colors?.length && colors?.forEach((color: any) => {
-        // plateType for MySGS and plateTypes for Photon
-        (color?.plateType || color?.plateTypes).forEach((plate: any) => {
-          flattenedColors.push({
-            clientPlateColourRef: color.clientPlateColourRef,
-            colourName: color.colourName,
-            colourType: color.colourType,
-            commonColourRef: color.commonColourRef,
-            custCarrierIdNo: color.custCarrierIdNo,
-            custImageIdNo: color.custImageIdNo,
-            imageCarrierId: color.custImageIdNo?color.custImageIdNo:(color.custCarrierIdNo?color.custCarrierIdNo:color.imageCarrierId),
-            serialNumber: plate.serialNumber,
-            isActive: true,
-            isNew: color.isNew,
-            jobTechSpecColourId: color.jobTechSpecColourId,
-            newColour: color.newColour === undefined ? color.isNew: color.newColour,
-            originalSets: plate.sets,
-            id: plate.id,
-            plateTypeId: plate?.plateTypeId,
-            plateThicknessId: plate?.plateThicknessId,
-            plateThicknessDescription: plate.plateThickness || plate?.plateTypeDescription?.plateThicknessDescription ,
-            plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label,
-            sequenceNumber: color.sequenceNumber,
-            sets: plate.sets
-          })
-        })
-      })
-      return flattenedColors
+      const order = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder : state.selectedOrder
+
+      return flattenColors(order?.colors)
     },  
   },
   actions: {
@@ -180,94 +145,61 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.totalRecords = totalRecords;
       }
       this.decorateOrders();
-      // this.selectedOrder = this.orders[0];
     },
     async setOrderInStore(result: any) {
       let details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
     async getOrderById(reorderId: any) {
-      const cartStore = useCartStore()
+      /* 1.Reset previously loaded order
+         2.SGS | Photon | Cart?
+         3.Fetch / load order object with direct props
+         4.Fetch / load additional details - shirttail, barcode, len etc
+         5.Decorate for display
+         6.Prepare options for platetype dropdown in Reorder Step */
       this.loading.order = true
       this.selectedOrder = null
       this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
-      if (reorderId != null && reorderId != undefined) {
-        if (!isNaN(parseFloat(reorderId)) && isFinite(reorderId)) {
-          // Cart reorder
+
+      if (reorderId) {
+        const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
+        if (isPhotonOrder) {
+          const cartStore = useCartStore()
           const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
-          if (order != null) {
-            const plateTypes = await order?.plateTypes?.length ? this.mapPlateTypes(order) : this.mapColorPlateTypes(order.colors)
+          const isCartOrder = !!order
+          if (isCartOrder) { // Photon order loaded from cart
+            const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = order
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
-          } else {
-            // Dashboard photon reorder
+            await this.getBarcodeAndShirtailForPhotonOrder(order)
+          } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
-            const photonOrderDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonReorderDetails(photonOrder?.id))) : null
+            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null)
             const details = { ...photonOrder, ...photonOrderDetails }
-            if (details?.plateTypes?.length) {
-              const groupedPlates = groupBy((photonOrderDetails?.colors || []), 'id')
-              const colors = keysIn(groupedPlates).map((id: string) => {
-                return {
-                  ...groupedPlates[id][0],
-                  plateType: groupedPlates[id].map((plate: any) => {
-                    const { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription } = plate
-                    return { id, sets, plateTypeId, plateTypeDescription, plateThicknessId, plateThicknessDescription }
-                  })
-                }
-              })
-            }
-          const plateTypes =  await this.mapColorPlateTypes(details?.colors) // details?.plateTypes?.length ? await this.mapPlateTypes(details) : await this.mapColorPlateTypes(details.colors)
-          // this.mapColorPlateTypes(details?.colors).then((plateTypes: any) => {
+            const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
-            if(statusId && plateTypes.length)
+            if (statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
-          // })
-           await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)
+            await this.getBarcodeAndShirtailForPhotonOrder(photonOrder)            
           }
-        } else {
-          // Dashboard SGS reorder (MySGS, Photon)
-          this.selectedOrder = this.orders.find(
-            (order: any) => order.sgsId === reorderId
-          );
-
-          let details = JSON.parse(
-            JSON.stringify(await ReorderService.getOrderDetails(reorderId))
-          );
-          const plateTypes = await this.mapPlateTypes(details)
+        } else { // MySGS Order loaded from dashboard
+          this.selectedOrder = this.orders.find( (order: any) => order.sgsId === reorderId );
+          let details = jsonify(await ReorderService.getOrderDetails(reorderId))
+          const plateTypes = await mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
-          if(details.printerName!="")
-            this.selectedOrder.printerName = details.printerName
-          // Bug -203039 - Get API is not returning full description so using description from Search api as such .
-          // this.selectedOrder.description = details.jobDescription;
-          this.selectedOrder.barcodes = details.barcode;
-          this.selectedOrder.packagingReference = details.jobDetails.packagingReference;
-          this.selectedOrder.cust1UpDie = details.techSpec.cust1UpDie;
-          this.selectedOrder.printProcess = details.techSpec.printProcessDescription;
-          this.selectedOrder.substrate = details.techSpec.substrate;
-          this.selectedOrder.surfaceReverseSprint = details.techSpec.surfaceReversePrint;
-          this.selectedOrder.plateRelief = details.techSpec.plateRelief;
-          this.selectedOrder.plateThickness = details.techSpec.thicknessDesc;
-          this.selectedOrder.numberAcrossCylinder = details.techSpec.numberAcrossCylinder;
-          this.selectedOrder.numberAroundCylinder = details.techSpec.numberAroundCylinder;
-          this.selectedOrder.dispro = details.techSpec.dispro;
-          this.selectedOrder.plateType = details.techSpec.plateType;
-          this.selectedOrder.isActive = true;
-          this.selectedOrder.pdfUris = details.pdfUris;
-          this.selectedOrder.variety = details.jobDetails.variety;
-          this.selectedOrder.thumbNailPath = details.thumbNailPath;
+          this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
-        this.loading.order = false;
-        return this.selectedOrder;
       }
-      this.loading.order = false;
-    },
 
+      this.loading.order = false;
+      return this.selectedOrder;
+    },
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
@@ -279,7 +211,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       const b2cAuth = useB2CAuthStore();
       if(authStore.currentUser.isLoggedIn){
           // get printer Name 
-        
           authStore.currentUser.prtLocation.forEach((printer:any) =>{
               if(printer.printerId && printer.printerId > 0){
                 printers.push(printer.printerName)
@@ -308,17 +239,15 @@ export const useOrdersStore = defineStore("ordersStore", {
             totalRecords: number;
           }
         | never[];
-      /* 
-        If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
-        And Status should be completed (4)
-    */
+      /* If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
+        And Status should be completed (4) */
       if (
         this.textSearchData.query != '' &&
         this.textSearchData.query === filters.query && filters.status === 4
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
+       const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length
@@ -352,7 +281,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
          }
 
-          const reorderedData =  handleSortPagnation(this.textSearchData.data.reorderedData , filters,this.pageState)
+          const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState)
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
@@ -382,40 +311,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       const barcodeDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonBarcode(photonOrder?.id))) : null
       const shirttailDetails = photonOrder ? JSON.parse(JSON.stringify(await ReorderService.getPhotonShirttail(photonOrder?.id))) : null
       this.selectedOrder = this.selectedOrder || {}
-      if (barcodeDetails !== null)
-        this.selectedOrder.barcodes = barcodeDetails;
-      this.selectedOrder.cust1UpDie = shirttailDetails?.cust1UpDie;
-      this.selectedOrder.printProcess = shirttailDetails?.printProcessDescription;
-      this.selectedOrder.substrate = shirttailDetails?.substrate;
-      this.selectedOrder.surfaceReverseSprint = shirttailDetails?.surfaceReversePrint;
-      this.selectedOrder.plateRelief = shirttailDetails?.plateRelief;
-      this.selectedOrder.plateThickness = shirttailDetails?.thicknessDesc;
-      this.selectedOrder.numberAcrossCylinder = shirttailDetails?.numberAcrossCylinder;
-      this.selectedOrder.numberAroundCylinder = shirttailDetails?.numberAroundCylinder;
-      this.selectedOrder.dispro = shirttailDetails?.dispro;
-      this.selectedOrder.plateType = shirttailDetails?.plateType;
-      this.selectedOrder.isActive = true;
-    },
-    resetFilters() {
-      this.filters["query"] = "";
-      this.filters["status"] = 4;
-      this.filters["itemNumber"] = null;
-      this.filters["orderDate"] = [];
-      this.filters["printerName"] = null;
-      this.filters["printerSite"] = null;
-      this.filters["printerReference"] = null;
-      this.filters["poNumber"] = null;
-      this.filters["barcodeNumber"] = null;
-      this.filters["sgsReferenceNumberList"] = null;
-      this.filters["imageCarrierId"] = null;
-      this.filters["imageCarrierCode"] = null;
-      this.filters["imageCarrierCode"] = null;
-      this.filters["printerPlateCode"] = null;
-      this.filters["startDate"] = [];
-      filterStore.state.brandNameFilter = null;
-      filterStore.state.descriptionFilter = null;
-      filterStore.state.packTypeFilter = null;
-      filterStore.state.sortFields = null;
+      this.selectedOrder = { ...this.selectedOrder, ...mapPhotonOrderDetail(shirttailDetails, barcodeDetails) }
     },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
@@ -438,18 +334,12 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders[i].selected = false;
       }
     },
-
     initAdvancedFilters() {
-      this.options.locations = [
-        { label: "Lancaster", value: 1 },
-        { label: "Concord NH", value: 2 },
-        { label: "Neenah, WI", value: 3 },
-      ];
-
-      this.resetFilters();
-    },
-    async initReorderOptions() {
-      // this.options.plateTypeDescription = plateTypes
+      this.filters = newFilterProps()
+      filterStore.state.brandNameFilter = null;
+      filterStore.state.descriptionFilter = null;
+      filterStore.state.packTypeFilter = null;
+      filterStore.state.sortFields = null;
     },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
@@ -530,7 +420,6 @@ export const useOrdersStore = defineStore("ordersStore", {
               plateToReplace = { ...plateToReplace, plateTypeId: plateType.value, [params.field]: { ...plateType, plateThicknessDescription, plateThicknessId }, sets: totalSets >= 10 ? 0 : 1 }
               // console.log('plateTypeDescription', plateToReplace, plateType, params.field)
             } else if (params.field === 'sets') {
-              // console.log('sets')
               if (totalSets > 10) {
                 notificationsStore.addNotification('Warning', `You cannot have more than 10 sets reordered for 1 colour`, { severity: 'warn' })
                 return
@@ -548,12 +437,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     validateColour(colour: any) {
       const notificationsStore = useNotificationsStore()
-      const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.sets))        
-      const plateTypes = colour.plateType && colour.plateType.map((plate: any) => plate.plateTypeDescription.value) 
-      const hasUniquePlates = !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size) // - Check only if totalSets > 0
-      const hasMixed = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256)  // 256 = Mixed plateTypeId
-      const hasEmptyPlateDescription = colour.plateType && colour.plateType.find((plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value)  // 256 = Mixed plateTypeId
-      const isValid = hasUniquePlates && totalSets <= 10 && !hasMixed && !hasEmptyPlateDescription
+      const { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates } = validation(colour)
       if (hasEmptyPlateDescription)
         notificationsStore.addNotification('Warning', `Please confirm the plate type for ${colour.colourName} from the available plate list`, { severity: 'warn' })
       if (hasMixed)
@@ -569,7 +453,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.selectedOrder['colors'][index].totalSets = totalSets
       })
     },
-    // Order Table Actions
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
     },
@@ -579,57 +462,9 @@ export const useOrdersStore = defineStore("ordersStore", {
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
     },
-    mapPlateTypes(details: any) { 
-      return details?.plateTypes?.map((plateType: any) => {
-        const thickness = details?.plateThicknesses?.find((thickness: any) => thickness?.thicknessId === plateType?.plateTypeId)
-        return {
-          label: plateType?.plateTypeName,
-          value: plateType?.plateTypeId,
-          plateThicknessDescription: thickness?.thicknessDesc ? thickness?.thicknessDesc : details?.techSpec?.thicknessDesc,
-          plateThicknessId: thickness?.thicknessId ? thickness?.thicknessId : details?.techSpec?.thicknessId,
-          isActive: true
-        }
-      })
-    },
-    // For Photon Orders
-    async mapColorPlateTypes(colors: any[]) {
-      const plateTypes = [] as any[]
-      colors?.forEach((color: any) => {
-        color?.plateTypes?.forEach((plateType: any) => {
-          console.log('plateType', plateType)
-          plateTypes.push({
-            label: plateType?.plateTypeDescription,
-            value: plateType?.plateTypeId,
-            plateThicknessDescription: plateType?.plateThicknessDescription,
-            plateThicknessId: plateType?.plateThicknessId,
-            isActive: true
-          })
-        })
-      })
-      console.log('plateTypes', plateTypes)
-      return plateTypes
-    },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: number, plateTypes: any[]) {
       const colors = Array.from(details && details?.colors || [])
-      this.selectedOrder.colors = colors?.map((color: any) => {
-        const colorFirstPlateType = color?.plateType && color?.plateType[0] || color?.plateTypes && color?.plateTypes[0]
-        return {
-          ...color,
-          checkboxId: faker.datatype.uuid(),
-          totalSets: color.plateType && color.plateType.length && sum(color.plateType?.map((plate: any) => plate.sets)) 
-                     || color.plateTypes && color.plateTypes.length && sum(color.plateTypes?.map((plate: any) => plate.sets)) || 0,
-          plateType: (color?.plateType || color?.plateTypes).map((colorPlateType: any) => {
-            const selected = plateTypes?.find(plateType => plateType?.value === colorPlateType?.plateTypeId)
-            const { plateThicknessDescription, plateThicknessId } = colorFirstPlateType
-            return {
-              ...colorPlateType,
-              checkboxId: faker.datatype.uuid(),
-              plateTypeDescription: { ...selected, plateThicknessDescription, plateThicknessId }
-            }
-          }),
-          isActive:true
-        }
-      });
+      this.selectedOrder.colors = colorDecorator(colors, plateTypes)
       this.selectedOrder.colors?.map((x:any) => {
         ((x as any)["originalSets"] = (x as any)["sets"]),
             ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
@@ -638,6 +473,5 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
-    
   },
 });

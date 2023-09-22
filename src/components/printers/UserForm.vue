@@ -31,10 +31,7 @@ const isPrimaryPMDiv = ref("");
  
 const emit = defineEmits(['save'])
 
-
-//const userForm = computed(()=>usersStore.user)
-
-const options = inject('options') || { locations: [] }
+// const options = inject('options') || { locations: [] }
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -145,10 +142,10 @@ function save() {
             prime-inputtext(v-model="userForm.lastName" name="lastname" id="lastname")
           .f
             label(for="email") Email
-            prime-inputtext(v-model="userForm.email" name="email" id="email" @keyup="verifyInternalEmail") 
-          .f
-            label(for="location") Location
-            prime-multi-select.w-full(v-model='userForm.location' :options='options.locations' filter='' optionValue="value" optionLabel="label" placeholder='Select Locations' )
+            prime-inputtext(v-model="userForm.email" name="email" id="email")
+          //- .f
+          //-   label(for="location") Location
+          //-   prime-multi-select.w-full(v-model='userForm.location' :options='options.locations' filter='' optionValue="value" optionLabel="label" placeholder='Select Locations' )
           .f.checkbox
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin

@@ -213,7 +213,7 @@ class ReorderService {
             }
         }
        return httpService
-       .post<SearchPagedResultDto>('v1/Reorder/search', params)
+       .post<SearchPagedResultDto>('v1/Reorder/search', params, undefined, true)
        .then((response: SearchPagedResultDto) => {
          const reorderedData: ReorderDto[] = response.data
            ? response.data.map((item: ReorderDto) => ({
@@ -328,6 +328,15 @@ class ReorderService {
 
      public static getPhotonShirttail(id: number) {
         return httpService.get<any>('v1/Reorder/shirttail?photonId='+ id).then((response: any) => {
+            return response
+        }).catch((error: any) => {
+            console.log("error getting shirttail: ", error);
+            return 0;
+        });
+    }
+
+    public static getReorderAudit(id: number) {
+        return httpService.get<any>('v1/audit/reorder/'+ id).then((response: any) => {
             return response
         }).catch((error: any) => {
             console.log("error getting shirttail: ", error);

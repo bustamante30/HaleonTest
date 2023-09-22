@@ -7,6 +7,13 @@ export const useCartStore = defineStore("cartStore", {
   state: () => ({
     cartOrders: [] as any[],
     initialCartCount: 0,
+    loading: {
+      cart: false,
+      count: false,
+      update: false,
+      add: false,
+      discard: false
+    },    
   }),
   getters: {
     cartCount: (state) => {
@@ -19,15 +26,15 @@ export const useCartStore = defineStore("cartStore", {
   },
   actions: {
     async getCartCount() {
+      this.loading.count = true
       this.initialCartCount = await ReorderService.getCartCount();
+      this.loading.count = false
     },
     async getCart() {
+      this.loading.cart = true
       this.cartOrders = await ReorderService.getCart();
       this.decorateCartOrders();
-    },
-    reorderFromCart(id: string) {
-      const orderStore = useOrdersStore()
-      orderStore.getOrderById(id)
+      this.loading.cart = false
     },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {
@@ -51,34 +58,37 @@ export const useCartStore = defineStore("cartStore", {
       }
     },
     async addToCart(order: any) {
+      this.loading.add = true
       const orderStore = useOrdersStore()
-      orderStore.loading.cart = true
       const draftResult = await ReorderService.submitReorder(order, 1)
       orderStore.successfullReorder = draftResult
-      orderStore.loading.cart = false
-      if(draftResult)
-        this.getCart()
+      if (draftResult) this.getCart()
+      this.loading.add = false
       return !!draftResult
     },
     async updateToCart(order: any) {
+      this.loading.update = true
       const orderStore = useOrdersStore()
-      orderStore.loading.cart = true
       const isUpdate = true
       const draftResult = await ReorderService.submitReorder(order, 1, isUpdate)
       orderStore.successfullReorder = draftResult
-      orderStore.loading.cart = false
+      if (draftResult) this.getCart()
+      this.loading.update = false
       return !!draftResult
     },
     async discardOrder(id: string) {
+      this.loading.discard = true
       const notificationsStore = useNotificationsStore()
       const result = await ReorderService.discardOrder(id);
       if (!result) {
         notificationsStore.addNotification(`Error`, 'Error discarding the order', { severity: 'error' })
+        this.loading.discard = false
       }
       else {
         notificationsStore.addNotification(`Success`, 'Draft discarded successfully', { severity: 'success' })
         this.getCart()
         await this.getCartCount()
+        this.loading.discard = false
       }
     },
     flattenedColorsArrayDecorator(colors: any) {

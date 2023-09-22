@@ -32,7 +32,7 @@ const isLoginPage = computed(() => {
   return ((router?.currentRoute as any)?.value?.path) === '/'
 });
 const isB2CLoginPage = computed(() => {
-  var encodedStr = route.query["p"];
+  var encodedStr = route.query["useremail"];
   var decodedStr = '';
   if(typeof(encodedStr) != 'undefined' && encodedStr != null){
      decodedStr = atob(''+encodedStr); 

@@ -37,7 +37,7 @@ jobs:
               inputs:
                 cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
                 app_location: '/'
-                output_location: 'wwwroot'
+                # output_location: 'wwwroot'
                 config_file_location: '/'
                 skip_app_build: true
                 is_static_export: false #meant to be used with Next.js apps

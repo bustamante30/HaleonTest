@@ -2,11 +2,11 @@
 import { computed, watch, provide, ref, onMounted } from "vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
+import ReorderAudit from "@/components/orders/ReorderAudit.vue";
 import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
 import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
-
 import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from "@/stores/cart";
 import { useAuthStore } from "@/stores/auth";
@@ -47,7 +47,9 @@ const username = computed(
       authStore.currentUser.lastName || "Doe"
     }`
 );
-
+const isAuditVisible = ref(false)
+const auditReorderId = ref()
+const auditData = ref()
 const dateFilter = computed(() => getDateFilter());
 const selectedDate = ref(() => dateFilter.value[0]);
 const statusList = computed(() => ordersStore.statusList);
@@ -152,7 +154,8 @@ function addPrinterFilter() {
     filters.value.printerName = printerName;
 }
 function searchByStatus() {
-  ordersStore.resetFilters();
+  if(!selectedStatus?.value?.value) return
+  ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
   addPrinterFilter();
@@ -315,6 +318,15 @@ function cancelOrder(order: any) {
   //ordersStore.cancelOrder(order);
 }
 
+const auditOrder = async (order)=>{
+ const audit = await ReorderService.getReorderAudit(order.id)
+  isAuditVisible.value = true
+  auditReorderId.value = order.id
+  auditData.value = audit.results
+
+  console.log(audit.result)
+}
+
 async function addMultipleToCart(values: any) {
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
@@ -360,7 +372,7 @@ async function addMultipleToCart(values: any) {
             div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
-              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword")
+              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
           .search-tag(v-if="searchTags.length > 0")
@@ -370,13 +382,18 @@ async function addMultipleToCart(values: any) {
             .tag(v-if="searchTags.length > 0")
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
-        orders-table(:config="config" :data="orders" :userType="userType" @add="addToCart" @reorder="reorder" @cancel="cancelOrder"
+        orders-table(:config="config" :data="orders" :userType="userType" @add="addToCart" @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder"
         @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" )
       prime-confirm-dialog
         template(#message="slotProps")
           div.dialogLayout
             i(:class="slotProps.message.icon" style="font-size: 1.5rem;margin-right:0.5rem;")
             p(:class="pl-2") {{ slotProps.message.message }}
+      prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
+        template(#header)
+          header
+            h4 Reorder Audit - {{auditReorderId}}
+        reorder-audit.audit(:data="auditData")
     router-view
 </template>
 
@@ -433,4 +450,8 @@ async function addMultipleToCart(values: any) {
   display: flex
   align-items: center
   margin: 1rem
+
+.audit
+  margin:15px
+  
 </style>

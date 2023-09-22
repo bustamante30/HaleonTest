@@ -81,8 +81,6 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
           span.f(v-if=printer && printer.summary) Users [{{ printer.summary.users }}]
         a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
           span(v-if=printer && printer.summary) Internal Users [{{ printer.summary.internalUsers }}]
-        a.tab(:class="{ selected: tab === 'locations'}" @click="selectTab('locations')")
-          span(v-if=printer && printer.summary) Locations [{{ printer.summary.locations }} ]
         a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings')")
           span Settings
   .toolbar(v-if="['users', 'internal'].includes(tab)")
@@ -95,7 +93,6 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
   .content
     user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @deleteUser="deleteUser" @resend="resend" :className="[ user ? 'lay-low' : '']")
     user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
-    location-table(v-else-if="tab === 'locations'" :data="printer.locations" :config="locationConfig")
     printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
 </template>
 
