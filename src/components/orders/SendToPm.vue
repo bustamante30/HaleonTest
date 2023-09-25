@@ -36,10 +36,6 @@ const printerName = computed(() => {
   return user?.printerName || '';
 });
 
-const prntLocation = computed(() => {
-  const user = authb2cStore.currentB2CUser;
-  return user?.prtLocation || [];
-});
 
 const isPrinterAdmin = computed(() => {
   const user = authb2cStore.currentB2CUser;
@@ -49,7 +45,6 @@ const isPrinterAdmin = computed(() => {
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
-const options = inject('options') || { locations: [] }
 const sendForm = ref(props.order)
 let isFormVisible = ref(false)
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
@@ -79,11 +74,6 @@ function updateColors(colors: any) {
 
 async function submit() {
   sendForm.value.printerName = printerName
-  let isPrinterAndLocationEmpty;
-
-    isPrinterAndLocationEmpty = sendForm.value.locationName == null || sendForm.value.printerName == null;
-    
-
   // Check if any other field has a value
   const hasAnyOtherFieldValue =
     sendForm.value.brand ||
@@ -99,14 +89,11 @@ async function submit() {
 
 
 
-  if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
+  if (!hasAnyOtherFieldValue) {
     const errorMessage = [] as any[];
-    if (isPrinterAndLocationEmpty) {
-      errorMessage.push("Location is Mandatory.");
 
-    }
     if (!hasAnyOtherFieldValue) {
-      errorMessage.push("At least one additional field other than Location is required");
+      errorMessage.push("At least one field is required");
     }
 
     notificationsStore.addNotification(
@@ -117,12 +104,10 @@ async function submit() {
   } else {
     (sendUpload as any).value = [];
 
-    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.locationName)
     await sendToPmstore.submitorder(sendForm.value)
     emit('submit', sendForm);
   }
 }
-
 
 async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
@@ -255,7 +240,7 @@ async function onDeleteClick(file: ValidFiles,index:number) {
       
   prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM")
     .hint
-      h4(style="margin-left: 18px;") Enter at least one field in addition to Printer Location
+      h4(style="margin-left: 18px;") Enter at least one field
     .content
       main
         .fields
@@ -264,10 +249,6 @@ async function onDeleteClick(file: ValidFiles,index:number) {
             .f
               label(for="name") Printer
               strong {{printerName}}
-            .f
-              label(for="location") Location*
-              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.locationName" optionLabel="locationName" optionValue="locationName")
-              prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
         .divider
         h4 Items Details
         .fields
