@@ -30,7 +30,7 @@ class ReportIssueService{
           return response; 
         })
         .catch((error: any) => {
-          console.log('Error searching user:', error);
+          console.log('Error submitting issue:', error);
           return null;
         });
       }

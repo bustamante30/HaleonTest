@@ -84,8 +84,8 @@ function validateForm() {
 
 async function reportIssue(report?: any) {
   const id = await getUserId()
-  let result = await ReportIssueService.submitIssue(issue.value, id, validFiles.value);
-  if (result.success) {
+  let result = await ReportIssueService.submitIssue(issue.value, parseInt(id), validFiles.value);
+  if (result != null && result.success) {
     notificationsStore.addNotification(
       '',
       Constants.REPORT_ISSUE_SUCCESS,
