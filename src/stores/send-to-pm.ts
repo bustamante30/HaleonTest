@@ -97,8 +97,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     validate(order: any, uploads: any) {
       const notificationsStore = useNotificationsStore();
       const errorMessage = [] as any[];
-      const isPrinterAndLocationEmpty =
-        order.locationName == null || order.printerName == null;
       // Check if any other field has a value
       const hasAnyOtherFieldValue =
         order.brand ||
@@ -143,16 +141,10 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
             `<p>You have selected the same plate type for ${hasDuplicate.join(', ')}</p>`
           );
         }
-        // if (!hasQuantityLessThanOrEqualTo10) {
-        //   errorMessage.push("<p>Quantity must be greater than 10.</p>");
-        // }
       } else {
-        if (isPrinterAndLocationEmpty) {
-          errorMessage.push("Location is Mandatory.");
-        }
         if (!hasAnyOtherFieldValue) {
           errorMessage.push(
-            "At least one additional field other than Location is required"
+            "At least one field is required"
           );
         }
       }

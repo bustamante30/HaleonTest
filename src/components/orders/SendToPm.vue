@@ -37,10 +37,6 @@ const printerName = computed(() => {
   return user?.printerName || '';
 });
 
-const prntLocation = computed(() => {
-  const user = authb2cStore.currentB2CUser;
-  return user?.prtLocation || [];
-});
 
 const isPrinterAdmin = computed(() => {
   const user = authb2cStore.currentB2CUser;
@@ -50,7 +46,6 @@ const isPrinterAdmin = computed(() => {
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
-const options = inject('options') || { locations: [] }
 const sendForm = ref(props.order)
 let isFormVisible = ref(false)
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
@@ -87,10 +82,6 @@ async function submit() {
   if (isValid) {
     (sendUpload as any).value = [];
     sendForm.value.expectedDate = formatExpectedDateTime(sendForm.value)
-    await sendToPmstore.getPmusersForLocation(
-      (await authb2cStore.currentB2CUser.printerId) as any,
-      sendForm.value.locationName
-    );
     await sendToPmstore.submitorder(sendForm.value);
     emit("submit", sendForm);
   }
@@ -256,7 +247,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM")
     .hint
       h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
-      h4(v-else style="margin-left: 18px;") Enter at least one field in addition to Printer Location
+      h4(v-else style="margin-left: 18px;") Enter at least one field
       .urgent
         h5 Urgent Order? (within 3 days)
         .switch
@@ -268,12 +259,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
           .field-group
             .f
               label(for="name") Printer
-              strong {{printerName}}           
-            .f
-              label(for="location") Location*
-              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.locationName" optionLabel="locationName" optionValue="locationName")
-              prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
-
+              strong {{printerName}}
         .divider
         h4 Items Details
         .fields
