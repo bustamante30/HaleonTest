@@ -205,8 +205,8 @@ const removeItemByProperty = (index: number) => {
   }
 };
 
-function formatExpectedDateTime(expectedDate) {
-  let expectedDateTime: Date = expectedDate;
+function formatExpectedDateTime(order) {
+  let expectedDateTime: Date = order.expectedDate;
   if (sendForm.value?.expectedDate) {
     expectedDateTime.setHours(sendForm.value?.expectedDate?.getHours())
     expectedDateTime.setMinutes(sendForm.value?.expectedDate?.getMinutes())
@@ -276,8 +276,8 @@ async function onDeleteClick(file: ValidFiles, index: number) {
               label(for="brand") Brand
               prime-inputtext#brand(v-model="sendForm.brand" name="brand")
             .f
-            label(for="purchase_order") Purchase Order #
-            prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
+              label(for="purchase_order") Purchase Order #
+              prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
             .f
               label(for="pack_type") Pack Type
               prime-dropdown#code-type(v-model="sendForm.packType" name="pack_type" :options="sendToPmstore.imageCarrierPackTypes" optionLabel="label" optionValue="value")

@@ -125,18 +125,18 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         const hasItemCodeorDescriptionorPlateType =
           order.itemCode || order.description || order.plateId;
         if (!hasExpectedDate) {
-          errorMessage.push("<p>Delivery Date and Time is Mandatory.</p>");
+          errorMessage.push("<p>Delivery Date and Time.</p>");
         }
         if (!hasItemCodeorDescriptionorPlateType) {
           errorMessage.push(
-            "<p>Item Code or Description or Plate Type is Mandatory.</p>"
+            "<p>Item Code or Description or Plate ID.</p>"
           );
         }
         if (!hasColors) {
-          errorMessage.push("<p>At least 1 Colour and PlateType is Mandatory.</p>");
+          errorMessage.push("<p>At least 1 Colour and PlateType is required.</p>");
         }
         if (!hasValidColors) {
-          errorMessage.push("<p>Colour Name, PlateType & Quantity is Mandatory.</p>");
+          errorMessage.push("<p>Colour Name, PlateType & Quantity.</p>");
         }
         if (hasDuplicate && hasDuplicate.length) {
           errorMessage.push(
@@ -156,11 +156,12 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
           );
         }
       }
-      notificationsStore.addNotification(
-        "Please ensure you fill all required fields",
-        errorMessage.join("\n"),
-        { severity: "warn", group: "multiple", life: null, position: "top-right", }
-      );
+      if(errorMessage.length > 0)
+        notificationsStore.addNotification(
+          "Please fill the required fields : ",
+          errorMessage.join("\n"),
+          { severity: "warn", group: "multiple", life: null, position: "top-right", }
+        );
       return errorMessage?.length <= 0;
     },
     async getCodeTypes() {
@@ -192,8 +193,8 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       if (usersResponse) {
         const normalizedPrinterLocationName = printerLocationName.replace(/\s/g, ''); // Remove spaces
         this.newOrder.pmUsersForPrinter = usersResponse.data.filter(user => {
-          const normalizedLocationNames = user.locationName.replace(/\s/g, ''); // Remove spaces from user's locationName
-          return normalizedLocationNames.split(",").includes(normalizedPrinterLocationName);
+          const normalizedLocationNames = user?.locationName?.replace(/\s/g, ''); // Remove spaces from user's locationName
+          return normalizedLocationNames?.split(",").includes(normalizedPrinterLocationName);
         });
       } else {
         console.error('Error searching users:', usersResponse);
