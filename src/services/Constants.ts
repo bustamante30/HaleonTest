@@ -14,4 +14,4 @@ export const UPLOAD_SUCCESSFULL = `Uploaded successfully`;
 export const UPLOAD_SUCCESSFULL_MSG = 'Your files were successfully uploaded';
 export const MAX_FILE_SIZE =  26214400;
 
-export * from './constants'; 
+export * from './Constants'; 
