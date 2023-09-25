@@ -215,12 +215,18 @@ function formatExpectedDateTime(order) {
 }
 
 function updateUrgent(date) {
-  const selectedDate = DateTime.fromJSDate(date)
-  const today = DateTime.now()
-  const diff = Interval.fromDateTimes(today, selectedDate)
-  const diffHours = diff.length('hours')
-  sendForm.value.isUrgent = Math.ceil(diffHours) <= 72
+  const selectedDate = DateTime.fromJSDate(date);
+  const today = DateTime.now();
+  const diff = Interval.fromDateTimes(today, selectedDate);
+  const diffHours = diff.length('hours');
+  const isSameDay = today.hasSame(selectedDate, 'day');
+  if (Math.ceil(diffHours) <= 72 || isSameDay) {
+    sendForm.value.isUrgent = true;
+  } else {
+    sendForm.value.isUrgent = false;
+  }
 }
+
 
 async function onDeleteClick(file: ValidFiles, index: number) {
   const deleteInfo: FileDelete = {

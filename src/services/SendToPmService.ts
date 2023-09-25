@@ -29,7 +29,7 @@ interface SendToPM {
     printerLocation: string,
     pmUsersForPrinter: any[];
     expectedDate: Date;
-   
+    isRushOrder: boolean;
 }
 interface Color {
     colourName: string;
@@ -50,7 +50,6 @@ class SendToPMService {
     public static submitExitOrder(exitOrderInfo: any) {
         let newColorsArray: Color[] = [];
 
-        console.log("service",exitOrderInfo)
         let newExitOrder: SendToPM = {
             printerName: exitOrderInfo.printerName,
             brand: exitOrderInfo.brand,
@@ -68,6 +67,7 @@ class SendToPMService {
             printerLocation: exitOrderInfo.locationName,
             pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter,
             expectedDate: exitOrderInfo.expectedDate,
+            isRushOrder: exitOrderInfo.isUrgent
         }
         if (exitOrderInfo.colors && Array.isArray(exitOrderInfo.colors)) {
             exitOrderInfo.colors.forEach((color: any) => {
