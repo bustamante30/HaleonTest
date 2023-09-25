@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
-import * as Constants from '@/services/constants';
+import * as Constants from '@/services/Constants';
 
 
 const emit = defineEmits(['close'])
@@ -19,7 +19,7 @@ let validFiles = ref<ValidFiles[]>([]);
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const userName = isb2cUserLoggedIn ? computed(() => authb2cStore.currentB2CUser.displayName) : computed(() => authStore.currentUser.displayName);;
-  //25 MB
+ 
 
 
 const props = defineProps({

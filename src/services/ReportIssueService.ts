@@ -1,5 +1,5 @@
 import {  type ReportIssueRequestDto } from '../models/ReportIssueRequestDto';
-import type {   ReportIssueResponeDto } from '../models/ReportIssueResponeDto';
+import type {    ReportIssueResponseDto } from '../models/ReportIssueResponseDto';
 import {  type AttachmentDto } from '../models/AttachmentDto';
 import ApiService from '../services/apiService';
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
@@ -7,7 +7,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReportIssueService{
-    public static submitIssue(reportData: any, id: int, files: any) {
+    public static submitIssue(reportData: any, id: number, files: any) {
       const newattachments = [] as AttachmentDto[]
       files.forEach(file => {
         newattachments.push({
@@ -25,22 +25,13 @@ class ReportIssueService{
             briefly_describe_the_issue: reportData.description,
             attachments: newattachments
         }
-        return httpService
-        .post<ReportIssueRequestDto>('v1/ReportIssue', request, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        .then((response: ReportIssueResponeDto) => {
-          console.log('Issue submitted Successfully.');
-          return response;
+        return httpService.post<ReportIssueResponseDto>('v1/ReportIssue', request)
+        .then((response: ReportIssueResponseDto) => {
+          return response; 
         })
         .catch((error: any) => {
-          console.log('Error submitting issue:', error);
-          return {
-            status: 'Failed',
-            uri: '',
-          };
+          console.log('Error searching user:', error);
+          return null;
         });
       }
 }
