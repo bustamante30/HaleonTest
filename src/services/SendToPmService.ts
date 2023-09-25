@@ -1,8 +1,6 @@
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
 import ApiService from '../services/apiService';
-import { useB2CAuthStore } from "@/stores/b2cauth";
-import { inject, ref, computed, watch, onBeforeMount, reactive } from 'vue'
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
 
@@ -30,7 +28,8 @@ interface SendToPM {
     code: string,
     printerLocation: string,
     pmUsersForPrinter: any[];
-   
+    expectedDate: Date;
+    isRushOrder: boolean;
 }
 interface Color {
     colourName: string;
@@ -51,7 +50,6 @@ class SendToPMService {
     public static submitExitOrder(exitOrderInfo: any) {
         let newColorsArray: Color[] = [];
 
-        console.log("service",exitOrderInfo)
         let newExitOrder: SendToPM = {
             printerName: exitOrderInfo.printerName,
             brand: exitOrderInfo.brand,
@@ -67,7 +65,9 @@ class SendToPMService {
             code:exitOrderInfo.carrierCode.code,
             colors: exitOrderInfo.colors,
             printerLocation: exitOrderInfo.locationName,
-            pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter
+            pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter,
+            expectedDate: exitOrderInfo.expectedDate,
+            isRushOrder: exitOrderInfo.isUrgent
         }
         if (exitOrderInfo.colors && Array.isArray(exitOrderInfo.colors)) {
             exitOrderInfo.colors.forEach((color: any) => {
