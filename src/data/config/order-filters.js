@@ -28,13 +28,13 @@ function filterConfig(role) {
             type: 'printerSuggester'
             ///disabled: role === 'user'
           },
-          {
-            name: 'printerSite',
-            label: 'Shipping Location',
-              short: 'Printer',
-              type: 'printerSiteSuggester'
-            ///disabled: role === 'user'
-          },
+          // {
+          //   name: 'printerSite',
+          //   label: 'Shipping Location',
+          //     short: 'Printer',
+          //     type: 'printerSiteSuggester'
+          //   ///disabled: role === 'user'
+          // },
           {
             name: 'printerReference',
             label: 'Printer Reference Number',

@@ -116,7 +116,7 @@ watch(currentB2CUser, (value) => {
 
 function getDateFilter(): [string, string] {
   let filter: any = [];
-  filter.push({ label: "last 3 days", value: "last 3 days" });
+  // filter.push({ label: "last 3 days", value: "last 3 days" });
   filter.push({ label: "last 3 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
@@ -367,7 +367,7 @@ async function addMultipleToCart(values: any) {
               h1 Search Results 
             div.leftHeader(v-if="!searchExecuted")
               h1 Recent Orders 
-              prime-dropdown.sm.rangeFilter(v-if="false" v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
+              prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
             div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
