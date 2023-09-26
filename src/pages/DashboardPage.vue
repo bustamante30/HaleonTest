@@ -242,9 +242,6 @@ function createPmOrder() {
   sendToPmStore.getPlateTypes();
 }
 
-function sendToPm(form: any) {
-  sendToPmStore.sendToPm(form);
-}
 function resetSets(orderToAdd: any){
   orderToAdd.colors.forEach((color)=>{
     color.sets = 0
@@ -374,7 +371,7 @@ async function addMultipleToCart(values: any) {
             div.rightHeader
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
               template(v-if="userType === 'EXT'")
-                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
+                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
           .search-tag(v-if="searchTags.length > 0")
             .tag(v-for="(tag ,index) in searchTags" :key="tag")
               span {{tag}}

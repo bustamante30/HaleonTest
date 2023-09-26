@@ -82,8 +82,17 @@ async function submit() {
   if (isValid) {
     (sendUpload as any).value = [];
     sendForm.value.expectedDate = formatExpectedDateTime(sendForm.value)
-    await sendToPmstore.submitorder(sendForm.value);
-    emit("submit", sendForm);
+    const submitResponse = await sendToPmstore.submitorder(sendForm.value);
+    if (submitResponse) {
+      notificationsStore.addNotification(`Order Sent`,
+        'Your order is successfully sent to a project manager', { severity: 'success', life: 3000, position: "top-right" })
+      return;
+    } else {
+      notificationsStore.addNotification(`Order Not Sent`,
+        'Your order is not sent to a project manager', { severity: 'error', life: 3000, position: "top-right" })
+      return;
+    }
+    
   }
 }
 
@@ -235,6 +244,10 @@ async function onDeleteClick(file: ValidFiles, index: number) {
 
 }
 
+function clearForm() {
+  sendToPmstore.clearForm()
+}
+
 </script>
 
 <template lang="pug">
@@ -244,7 +257,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
     a(@click.prevent="initForm()")
       small Send to PM
 
-  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM")
+  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM" @hide="clearForm")
     .hint
       h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
       h4(v-else style="margin-left: 18px;") Enter at least one field
@@ -260,10 +273,6 @@ async function onDeleteClick(file: ValidFiles, index: number) {
             .f
               label(for="name") Printer
               strong {{printerName}}
-        .divider
-        h4 Items Details
-        .fields
-          .field-group
             .f
               label(for="brand") Brand
               prime-inputtext#brand(v-model="sendForm.brand" name="brand")
@@ -334,6 +343,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   +flex-fill
   h4
     flex: 1
+  border-bottom: 1px solid rgba($sgs-gray, 0.1)
 
 .urgent
   +flex-fill
@@ -351,17 +361,18 @@ async function onDeleteClick(file: ValidFiles, index: number) {
     margin: 0
 
 .content
-  padding: $s2
+  padding: 0 $s2
   min-height: 80vh
   +flex-fill
   align-items: stretch
   main
     flex: 1
+    padding: $s2 0
   aside
     width: 25rem
-    padding: 0 $s
     margin-left: $s
     border-left: 1px solid rgba($sgs-gray, 0.1)
+    padding: $s2 $s
 
 .cta
   +flex
