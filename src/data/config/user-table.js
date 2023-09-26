@@ -24,19 +24,6 @@ const config = {
       path: '/users/$1',
       pathParams: ['id'],
     },
-    // {
-    //   header: 'Designation',
-    //   field: 'designation',
-    //   type: 'text',
-    //   width: 12
-    // },
-    // {
-    //   header: 'Location',
-    //   field: 'locationName',
-    //   type: 'dropdown',
-    //   options: { key: 'locations' },
-    //   width: 10
-    // },
     {
       header: 'Admin',
       field: 'isAdmin',
