@@ -15,9 +15,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     showForm: false,
     newOrder: null as any,
     loading: false,
-    options: {
-      locations: [] as any[],
-    },
     imageCarrierCodeTypes: [] as any[],
     imageCarrierPackTypes: [] as any[],
     imageCarrierPlateTypes: [] as any[]
@@ -43,7 +40,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         },
         jobNumber: null,
         comments: null,
-        locationName: null,
         colors: [] as any[],
         uploadedFiles: [] as any[],
         pmUsersForPrinter: [] as any[]
@@ -56,9 +52,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
       notificationsStore.addNotification(`Order Sent`, 'Your order is successfully sent to a project manager', { severity: 'success' })
       this.newOrder = null
       this.loading = false
-    },
-    async getPrinterLocations(printerName: string) {
-      this.options.locations = await SuggesterService.getPrinterSiteList(printerName, "");
     },
     async submitorder(order: any) {
       order.colors = this.newOrder.colors;
@@ -165,33 +158,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     },
     async getPlateTypes() {
       this.imageCarrierPlateTypes = await SendToPMService.getPlateType();
-    },
-
-    async getPmusersForLocation(printerId: number, printerLocationName: string) {
-      const searchRequest: SearchRequestSendToPmDto = {
-        searchText: "",
-        pageNumber: 1,
-        pageCount: 100,
-        orderBy: "ModifiedOn",
-        orderByAsc: true,
-        isActive: true,
-        printerId: printerId,
-        userId: 0,
-        userTypeKey: "INT",
-        roleKey: "PMUser"
-      };
-      console.log("userSearchReq:" + searchRequest);
-      const usersResponse = await UserService.searchUser(searchRequest);
-      if (usersResponse) {
-        const normalizedPrinterLocationName = printerLocationName.replace(/\s/g, ''); // Remove spaces
-        this.newOrder.pmUsersForPrinter = usersResponse.data.filter(user => {
-          const normalizedLocationNames = user?.locationName?.replace(/\s/g, ''); // Remove spaces from user's locationName
-          return normalizedLocationNames?.split(",").includes(normalizedPrinterLocationName);
-        });
-      } else {
-        console.error('Error searching users:', usersResponse);
-        this.newOrder.pmUsersForPrinter = []; // Return an empty array
-      }
     }
 
   }

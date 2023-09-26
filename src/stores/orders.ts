@@ -79,7 +79,6 @@ export const useOrdersStore = defineStore("ordersStore", {
     selectedOrder: null as any,
     successfullReorder: null as any,
     options: {
-      locations: [] as any[],
       imageCarrierCodeTypes: [] as any[],
       plateTypeDescription: [] as any[]
     },

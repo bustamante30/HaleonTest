@@ -72,7 +72,7 @@ function viewPreview() {
             span.separator |
             span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
             span.separator |
-            span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }}, {{ selectedOrder.printerLocationName ? selectedOrder.printerLocationName : 'N/A' }}
+            span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")

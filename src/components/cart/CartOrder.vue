@@ -84,8 +84,6 @@ function getShippingAddress(order) {
       .f
         label Printer
         span {{ order.printerName }}
-        span.separator /
-        span {{ order.printerLocationName }}
       .f
         label Shipping Address
         span  {{ getShippingAddress(order)}}

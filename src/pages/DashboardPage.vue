@@ -236,7 +236,6 @@ function getSearchHistory() {
 
 function createPmOrder() {
   sendToPmStore.initNewOrder();
-  sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
   sendToPmStore.getCodeTypes();
   sendToPmStore.getPackTypes();
   sendToPmStore.getPlateTypes();

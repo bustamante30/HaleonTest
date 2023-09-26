@@ -3,7 +3,6 @@ export interface PrinterSearchResponseDto {
     PrinterName: string;
     ExternalUserCount?: number | null;
     InternalUserCount?: number | null;
-    LocationCount?: number | null;
     TotalUserCount?: number | null;
     identityProviderId?: number  | null;
     identityTypeId?: number  | null;

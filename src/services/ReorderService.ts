@@ -2,7 +2,6 @@ import type { ReorderDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
-//import.meta.env.VITE_API_BASE_URL ??
 
 const httpService = new ApiService(baseUrl)
 
@@ -29,7 +28,6 @@ interface SubmitReorder {
     itemCode: string;
     printerName: string;
     printerId: number;
-    printerLocationName: string;
     packType: string;
     statusId: number;
     expectedDate: Date;
@@ -131,7 +129,6 @@ class ReorderService {
             itemCode: reorderInfo.itemCode,
             printerId: 1,
             printerName: reorderInfo.printerName,
-            printerLocationName: reorderInfo.printerLocationName,
             packType: reorderInfo.packType,
             statusId: statusId,
             thumbNailPath: reorderInfo.thumbNailPath,
@@ -224,8 +221,6 @@ class ReorderService {
                weight: item.weight,
                printerId: item.printerId,
                printerName: item.printerName,
-               printerLocationId: item.printerLocationId,
-               printerLocationName: item.printerLocationName,
                packType: item.packType, // Renamed to packStatus to match DTO
                createdAt: item.createdAt ? item.createdAt : null,
                submittedDate: item.submittedDate ? item.submittedDate : null,
