@@ -162,8 +162,9 @@ class ReorderService {
     public static getRecentReorders(status: number, query?: string, sortBy?: string,
         sortOrder?: string,
         page?: number,
-        pageSize?: number, advancedSearchParameters?: any, columnFilters? : any, printerNames?:string[], printerUserIds?:number[]) {
-            let params = {}
+        pageSize?: number, filters?: any, columnFilters? : any, printerNames?:string[], printerUserIds?:number[]) {
+        let params = {}
+        const advancedSearchParameters = JSON.parse(JSON.stringify(filters))
         if (query=="") {
              params = {
                 "status" :status,
