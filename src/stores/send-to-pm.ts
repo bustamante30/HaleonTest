@@ -45,9 +45,6 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         pmUsersForPrinter: [] as any[]
       }
     },
-    async getPrinterLocations(printerName: string) {
-      this.options.locations = await SuggesterService.getPrinterSiteList(printerName, "");
-    },
     clearForm() {
       this.newOrder = null;
       this.loading = false;
