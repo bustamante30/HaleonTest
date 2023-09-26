@@ -94,8 +94,7 @@ class SendToPMService {
         return httpService
             .post<boolean>('v1/pmexit/addexitorders', newExitOrder)
             .then((response: boolean) => {
-                console.log('submitted Exit  Order:')
-
+                console.log('submitted Exit  Order:', response)
                 return response;                    
             })
             .catch((error: any) => {
