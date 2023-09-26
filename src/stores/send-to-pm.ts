@@ -45,21 +45,26 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
         pmUsersForPrinter: [] as any[]
       }
     },
-    async sendToPm(form: any) {
-      this.loading = true
-      await timeout(2000)
-      const notificationsStore = useNotificationsStore()
-      notificationsStore.addNotification(`Order Sent`, 'Your order is successfully sent to a project manager', { severity: 'success' })
-      this.newOrder = null
-      this.loading = false
+    async getPrinterLocations(printerName: string) {
+      this.options.locations = await SuggesterService.getPrinterSiteList(printerName, "");
+    },
+    clearForm() {
+      this.newOrder = null;
+      this.loading = false;
     },
     async submitorder(order: any) {
+      this.loading = true
       order.colors = this.newOrder.colors;
       order.files = this.newOrder.uploadedFiles;
       order.pmUsersForPrinter = this.newOrder.pmUsersForPrinter;
-      await SendToPMService.submitExitOrder(order)
-
-      this.newOrder = null
+      const sendToPmResponse =await SendToPMService.submitExitOrder(order)
+      if(sendToPmResponse){
+        this.clearForm()
+        return true
+      } else {
+        return false
+      }
+     
     },
     async updateColors(colors: any[]) {
       this.newOrder.colors = [...colors]

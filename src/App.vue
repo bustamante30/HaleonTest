@@ -61,8 +61,16 @@ let chapters = ref(csvFile)
 let isDemoVisible = ref(false)
 let showChapters = ref(false)
 
-watch(notification, (message: any) => {
-  toast.add(message)
+watch(notification, (notification: any) => {
+  if (notification) {
+    toast.add(notification)
+    if (notification.life)
+      notification.group 
+        ? setTimeout(() => toast.removeGroup(notification.group), notification.life)
+        : setTimeout(() => toast.removeAllGroups(), notification.life)
+  }
+  else
+    toast.removeAllGroups()
 })
 
 watch(idle, async (idleValue) => {
