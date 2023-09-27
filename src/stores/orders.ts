@@ -73,7 +73,7 @@ const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageStat
         }
      }
      console.log('totalCount', resultForCache.length)
-   return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+   return resultForCache.slice((pageState.page -1) * pageState.rows, (pageState.page * pageState.rows ))
  }
 
  const sortBydate = (orders) =>{
@@ -290,7 +290,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
+        const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore);
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length
@@ -317,14 +317,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               reorderedData : [],
               totalRecords:0
             }
-          }else{
+          } else {
             this.textSearchData.data =  {
               reorderedData : result.reorderedData !=null ?result.reorderedData : [],
               totalRecords: result.reorderedData.length
             }
-         }
+          }
 
-          const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState)
+          const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
