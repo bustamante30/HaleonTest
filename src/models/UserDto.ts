@@ -1,5 +1,4 @@
 import { type UserRoleDto } from "./UserRoleDto";
-import { type UserPrinterLocationDto } from "./UserPrinterLocationDto";
 import type { UserPrinterDto } from "./UserPrinterDto";
  
 export type UserDto = {
@@ -15,5 +14,4 @@ export type UserDto = {
     isPrimaryPM?: boolean | null;
     roles?: Array<UserRoleDto> | null;
     userPrinter?: Array<UserPrinterDto> | null;
-    //printerLoc?: Array<UserPrinterLocationDto> | null;
 };

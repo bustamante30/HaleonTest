@@ -63,18 +63,6 @@ class UserService {
       });
   }
 
-  public static searchLocation(searchRequest: SearchRequestDto) {
-    console.log("locationSearch:" + searchRequest);
-    return httpService.post<SearchResponeDto>('v1/printer/locationsearch', searchRequest)
-      .then((response: SearchResponeDto) => {
-        return response; 
-      })
-      .catch((error: any) => {
-        console.log('Error searching Location:', error);
-        return null;
-      });
-  }
-
 
   public static searchPrinter(searchRequest: SearchRequestDto) {
     return httpService.post<SearchResponeDto>('v1/printer/printersearch', searchRequest)

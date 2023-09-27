@@ -16,8 +16,6 @@ export type ReorderDto = {
     weight?: string | null;
     printerId?: number;
     printerName?: string | null;
-    printerLocationId?: number;
-    printerLocationName?: string | null;
     itemCode?: string | null;
     packType?: string | null;
     createdAt?: Date | null;

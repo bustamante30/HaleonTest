@@ -2,7 +2,7 @@ import type { UploadFileDto } from '@/models/UploadFileDto';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
 import ApiService from '../services/apiService';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5208/';
+const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
 const httpService = new ApiService(baseUrl)
 
@@ -26,7 +26,6 @@ interface SendToPM {
     colors: Color[];
     files?: files[]
     code: string,
-    printerLocation: string,
     pmUsersForPrinter: any[];
     expectedDate: Date;
     isRushOrder: boolean;
@@ -64,7 +63,6 @@ class SendToPMService {
             files:exitOrderInfo.files,
             code:exitOrderInfo.carrierCode.code,
             colors: exitOrderInfo.colors,
-            printerLocation: exitOrderInfo.locationName,
             pmUsersForPrinter : exitOrderInfo.pmUsersForPrinter,
             expectedDate: exitOrderInfo.expectedDate,
             isRushOrder: exitOrderInfo.isUrgent

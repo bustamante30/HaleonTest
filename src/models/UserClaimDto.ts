@@ -12,6 +12,5 @@ export type UserClaimDto = {
     identityProviderId?: number;
     identityProviderName?: string;
     identityTypeName?: string;
-    //prtLocation: Array<string>;
     claims: string;
 };
