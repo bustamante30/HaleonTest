@@ -16,8 +16,34 @@ import * as Constants from "@/services/constants";
 
 
 const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
+
+   // Filter by Date
+
+   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
+   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
+ 
+   let filteredresult :any[] =  []   
+   if(filters.query === '' ||filters.query === null ){
+     reorderedData.forEach(order => {
+       let date;
+       if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
+         date = DateTime.fromISO(order.submittedDate).toMillis()
+     }else{
+      const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
+       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
+     }
+       if(date >= DateTime.fromJSDate(startDate).toMillis() && 
+       date <= DateTime.fromJSDate(endDate).toMillis() ){
+         filteredresult.push(order)
+       }
+     });
+    }else{
+      filteredresult = reorderedData
+    }
+
+
     //Filter by column filters
-    let resultForCache :any[] = reorderedData ;
+    let resultForCache :any[] = filteredresult ;
     if (columnFilter != null) {
       if (columnFilter.state.brandNameFilter != null) {
         const brandNameFilter = columnFilter.state.brandNameFilter.toLowerCase();
@@ -62,6 +88,14 @@ const jsonify = (obj: any) => {
   return obj ? JSON.parse(JSON.stringify(obj)) : null
 }
 
+const getSearchParamsAsString = (search) =>{
+  const filters = jsonify(search)
+  delete filters['sortBy']
+  delete filters['sortOrder']
+
+  return JSON.stringify(filters)
+}
+
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     firstLoad: false,
@@ -81,7 +115,6 @@ export const useOrdersStore = defineStore("ordersStore", {
     selectedOrder: null as any,
     successfullReorder: null as any,
     options: {
-      locations: [] as any[],
       imageCarrierCodeTypes: [] as any[],
       plateTypeDescription: [] as any[]
     },
@@ -234,7 +267,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         })
         filters.roleKey = b2cAuth.currentB2CUser.roleKey
       }
-      
       let result:
         | {
             reorderedData: ReorderDto[];
@@ -245,7 +277,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         And Status should be completed (4) */
       if (
         this.textSearchData.query != '' &&
-        this.textSearchData.query === filters.query && filters.status === 4
+        this.textSearchData.query === getSearchParamsAsString(filters) && filters.status === 4
       ) {
         
         console.log('Showing result from Local Store');
@@ -268,9 +300,9 @@ export const useOrdersStore = defineStore("ordersStore", {
           printerUserIds
         );
 
-        if (filters.query != '' && !!filters.query && filters.status === 4) {
+        if (filters.status === 4) {
           console.log('Saving Search Result in Local Store',filters);
-          this.textSearchData.query = filters.query;
+          this.textSearchData.query =getSearchParamsAsString(filters);
           if (Array.isArray(result)) {
             this.textSearchData.data = {
               reorderedData : [],
@@ -296,6 +328,15 @@ export const useOrdersStore = defineStore("ordersStore", {
             reorderedData : [],
             totalRecords:0
           }
+
+          if('reorderedData' in result && Array.isArray(result.reorderedData) && result.reorderedData.length > 0 ){
+              const reorderedData =  handleSortPagination(result.reorderedData , filters,this.pageState)
+              result =  {
+                reorderedData : reorderedData,
+                totalRecords : result.reorderedData.length
+              }
+          }
+         
         }
       }
       if (Array.isArray(result)) {

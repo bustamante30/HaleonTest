@@ -236,7 +236,8 @@ function handleInput(e: any) {
     .f
       label Delivery Date *
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" showIcon appendTo="body" hourFormat="12" required="true")
+        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" appendTo="body" hourFormat="12" required="true")
+        span.material-icons calendar_month
     .f
       label Delivery time *
       span.input.calendar    
@@ -314,6 +315,7 @@ function handleInput(e: any) {
         right: $s50
         margin: $s25 0
         color: rgba($sgs-gray, 0.4)
+        pointer-events: none
 
       span.warning-message
         color: red

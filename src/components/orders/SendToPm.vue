@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
+import { DateTime, Interval } from 'luxon';
 const props = defineProps({
   order: {
     type: Object,
@@ -24,8 +25,8 @@ const props = defineProps({
   }
 })
 type ValidFiles = {
-  fileName : string,
-  uri:string
+  fileName: string,
+  uri: string
 }
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -36,10 +37,6 @@ const printerName = computed(() => {
   return user?.printerName || '';
 });
 
-const prntLocation = computed(() => {
-  const user = authb2cStore.currentB2CUser;
-  return user?.prtLocation || [];
-});
 
 const isPrinterAdmin = computed(() => {
   const user = authb2cStore.currentB2CUser;
@@ -49,7 +46,6 @@ const isPrinterAdmin = computed(() => {
 
 const emit = defineEmits(['create', 'submit'])
 const entering = ref()
-const options = inject('options') || { locations: [] }
 const sendForm = ref(props.order)
 let isFormVisible = ref(false)
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
@@ -66,63 +62,39 @@ watch(() => props.order, (order) => {
     isFormVisible.value = false
 })
 
-function init() {
+function initForm() {
   validFiles.value = [];
   (sendUpload as any).value = [];
   emit('create')
 }
 
 function updateColors(colors: any) {
+  sendForm.value.colors = [...colors]
   sendToPmstore.updateColors(colors)
 
 }
 
 async function submit() {
-  sendForm.value.printerName = printerName
-  let isPrinterAndLocationEmpty;
+  sendForm.value.printerName = printerName?.value;
+  console.log(sendForm.value)
+  const isValid = sendToPmstore.validate(sendForm.value, sendUpload.value);
 
-    isPrinterAndLocationEmpty = sendForm.value.locationName == null || sendForm.value.printerName == null;
-    
-
-  // Check if any other field has a value
-  const hasAnyOtherFieldValue =
-    sendForm.value.brand ||
-    sendForm.value.description ||
-    sendForm.value.packType ||
-    sendForm.value.purchaseOrder ||
-    sendForm.value.itemCode ||
-    sendForm.value.plateId ||
-    (sendForm.value.carrierCode && sendForm.value.carrierCode.type) ||
-    sendForm.value.jobNumber ||
-    sendForm.value.comments ||
-    (sendUpload.value && sendUpload.value.length > 0);
-
-
-
-  if (isPrinterAndLocationEmpty || !hasAnyOtherFieldValue) {
-    const errorMessage = [] as any[];
-    if (isPrinterAndLocationEmpty) {
-      errorMessage.push("Location is Mandatory.");
-
-    }
-    if (!hasAnyOtherFieldValue) {
-      errorMessage.push("At least one additional field other than Location is required");
-    }
-
-    notificationsStore.addNotification(
-      errorMessage.join("\n"),
-      "Please ensure you fill all required fields",
-      { severity: 'error', position: 'top-right' }
-    );
-  } else {
+  if (isValid) {
     (sendUpload as any).value = [];
-
-    await sendToPmstore.getPmusersForLocation(await authb2cStore.currentB2CUser.printerId as any,sendForm.value.locationName)
-    await sendToPmstore.submitorder(sendForm.value)
-    emit('submit', sendForm);
+    sendForm.value.expectedDate = formatExpectedDateTime(sendForm.value)
+    const submitResponse = await sendToPmstore.submitorder(sendForm.value);
+    if (submitResponse) {
+      notificationsStore.addNotification(`Order Sent`,
+        'Your order is successfully sent to a project manager', { severity: 'success', life: 3000, position: "top-right" })
+      return;
+    } else {
+      notificationsStore.addNotification(`Order Not Sent`,
+        'Your order is not sent to a project manager', { severity: 'error', life: 3000, position: "top-right" })
+      return;
+    }
+    
   }
 }
-
 
 async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
@@ -147,7 +119,13 @@ async function getUserId() {
   return userId
 }
 
+function minSelectableDate() {
+  return DateTime.now().startOf('hour').toJSDate()
+}
 
+function maxSelectableDate() {
+  return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
+}
 
 function onDragOver(event: any) {
   event.preventDefault();
@@ -183,7 +161,7 @@ async function onDrop(event: any) {
     } else {
       const response = await convertAndSendFile(file);
       if (response.status === 'OK') {
-        validFiles.value.push({fileName : file.name as string , uri: response.uri} );
+        validFiles.value.push({ fileName: file.name as string, uri: response.uri });
         return response;
       } else {
         notificationsStore.addNotification(
@@ -198,8 +176,8 @@ async function onDrop(event: any) {
   const results = await Promise.all(uploadPromises);
   const successfulUploads = results.filter((response) => response !== null);
   if (successfulUploads.length > 0) {
-    if(validFiles.value.length>0)
-    await sendToPmstore.uploadData(validFiles.value as []);
+    if (validFiles.value.length > 0)
+      await sendToPmstore.uploadData(validFiles.value as []);
     notificationsStore.addNotification(
       `Uploaded successfully`,
       `Your files were successfully uploaded`,
@@ -208,8 +186,7 @@ async function onDrop(event: any) {
   }
 }
 
-
-async function convertAndSendFile(file: any):Promise<FileUploadResponse> {
+async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
   const binaryToBase64 = await blobToBase64(file);
   const fileName = file.name.replace(/[(!$%&[\]{}]/g, '-')
   const id = await getUserId()
@@ -228,10 +205,33 @@ const removeItemByProperty = (index: number) => {
   }
 };
 
-async function onDeleteClick(file: ValidFiles,index:number) {
+function formatExpectedDateTime(order) {
+  let expectedDateTime: Date = order.expectedDate;
+  if (sendForm.value?.expectedDate) {
+    expectedDateTime.setHours(sendForm.value?.expectedDate?.getHours())
+    expectedDateTime.setMinutes(sendForm.value?.expectedDate?.getMinutes())
+  }
+  return expectedDateTime
+}
+
+function updateUrgent(date) {
+  const selectedDate = DateTime.fromJSDate(date);
+  const today = DateTime.now();
+  const diff = Interval.fromDateTimes(today, selectedDate);
+  const diffHours = diff.length('hours');
+  const isSameDay = today.hasSame(selectedDate, 'day');
+  if (Math.ceil(diffHours) <= 72 || isSameDay) {
+    sendForm.value.isUrgent = true;
+  } else {
+    sendForm.value.isUrgent = false;
+  }
+}
+
+
+async function onDeleteClick(file: ValidFiles, index: number) {
   const deleteInfo: FileDelete = {
-    isSendToPm : true,
-    uri :file.uri
+    isSendToPm: true,
+    uri: file.uri
   }
   const deleteResponse = await FileUploadService.deleteFilesToBlobStorage(deleteInfo)
   if (deleteResponse) {
@@ -244,52 +244,64 @@ async function onDeleteClick(file: ValidFiles,index:number) {
 
 }
 
+function clearForm() {
+  sendToPmstore.clearForm()
+}
+
 </script>
 
 <template lang="pug">
 .send-to-pm
   .cta
-    small Cannot find your order?&nbsp;
-    a(@click="init()")
+    small Urgent/ Missing Order?&nbsp;
+    a(@click.prevent="initForm()")
       small Send to PM
-      
-  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM")
+
+  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM" @hide="clearForm")
     .hint
-      h4(style="margin-left: 18px;") Enter at least one field in addition to Printer Location
-    .content
-      main
-        .fields
+      h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
+      h4(v-else style="margin-left: 18px;") Enter at least one field
+      .urgent
+        h5 Urgent Order? (within 3 days)
+        .switch
+          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
+          span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
+    .content   
+      main      
+        .fields         
           .field-group
-              
             .f
               label(for="name") Printer
               strong {{printerName}}
             .f
-              label(for="location") Location*
-              prime-dropdown(v-if="!isPrinterAdmin" :options="prntLocation" v-model="sendForm.locationName" optionLabel="locationName" optionValue="locationName")
-              prime-dropdown(v-if="isPrinterAdmin" :options="sendToPmstore.options.locations" v-model="sendForm.locationName")
-        .divider
-        h4 Items Details
-        .fields
-          .field-group
-            .f
               label(for="brand") Brand
               prime-inputtext#brand(v-model="sendForm.brand" name="brand")
             .f
-              label(for="description") Product Description
-              prime-inputtext#description(v-model="sendForm.description" name="description")
+              label(for="purchase_order") Purchase Order #
+              prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
             .f
               label(for="pack_type") Pack Type
               prime-dropdown#code-type(v-model="sendForm.packType" name="pack_type" :options="sendToPmstore.imageCarrierPackTypes" optionLabel="label" optionValue="value")
             .f
-              label(for="purchase_order") Purchase Order #
-              prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
+              label(for="description") Product Description
+              prime-inputtext#description(v-model="sendForm.description" name="description")
             .f
               label(for="item_code") Item Code
               prime-inputtext#item_code(v-model="sendForm.itemCode" name="item_code")
             .f
               label(for="plate_id") Plate ID
               prime-inputtext#plate_id(v-model="sendForm.plateId" name="plate_id")
+            .f
+              label(for="date" :class="{ required: sendForm.isUrgent }") 
+                span Delivery Date 
+                span.warn(v-if="sendForm.isUrgent") &nbsp;(Urgent Order)
+              span.input.calendar(name="date")
+                prime-calendar.sm(v-model="sendForm.expectedDate" :minDate="minSelectableDate()" @update:modelValue="updateUrgent" appendTo="body" hourFormat="12" required="true")
+                span.material-icons calendar_month
+            .f
+              label(for="time" :class="{ required: sendForm.isUrgent }") Delivery time
+              span.input.calendar(name="time")
+                prime-calendar(v-model="sendForm.expectedDate" :minDate="minSelectableDate()" @update:modelValue="updateUrgent" timeOnly appendTo="body" hourFormat="12" required="true")
             .f
               label(for="code") Code #
               .field-group
@@ -300,7 +312,7 @@ async function onDeleteClick(file: ValidFiles,index:number) {
               prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
         .fields
         .divider
-        colors-table-edit(@update="updateColors")
+        colors-table-edit(@update="updateColors" :isMandatory="sendForm.isUrgent")
         .divider
         .fields
           .f
@@ -317,26 +329,50 @@ async function onDeleteClick(file: ValidFiles,index:number) {
               .name {{ file.fileName }}
               sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
     template(#footer)
-      .actions
-        sgs-button(label="Send" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
+      .actions(:class="{ disclaimer: sendForm.isUrgent }")
+        span 
+          span(v-if="sendForm.isUrgent") Additional charges may be applicable for urgent orders
+        sgs-button(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
         //sgs-button(label="Close" @click="isFormVisible = false")
 </template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 
+.hint
+  +flex-fill
+  h4
+    flex: 1
+  border-bottom: 1px solid rgba($sgs-gray, 0.1)
+
+.urgent
+  +flex-fill
+  background: $sgs-red
+  color: #FFF
+  padding: $s25 $s
+  margin: $s $s4
+  border-radius: 3px
+  width: 21rem
+  .checkbox
+    margin: $s50
+  .switch
+    +flex
+  h5
+    margin: 0
+
 .content
-  padding: $s2
+  padding: 0 $s2
   min-height: 80vh
   +flex-fill
   align-items: stretch
   main
     flex: 1
+    padding: $s2 0
   aside
     width: 25rem
-    padding: 0 $s
     margin-left: $s
     border-left: 1px solid rgba($sgs-gray, 0.1)
+    padding: $s2 $s
 
 .cta
   +flex
@@ -353,12 +389,31 @@ async function onDeleteClick(file: ValidFiles,index:number) {
         opacity: 0.7
         font-size: 0.9rem
         margin-bottom: $s25
+        span.warn
+          color: $sgs-red
+
+span.input
+  position: relative
+  span.material-icons
+    +absolute-e
+    right: $s50
+    margin: 0
+    color: rgba($sgs-gray, 0.4)
+    pointer-events: none       
 
 .actions
-  +flex($h: right)
-  padding-top: $s50
+  +flex-fill
+  padding: $s50 $s
   margin-top: $s50
   border-top: 1px solid rgba($sgs-gray, 0.2)
+  width: 100%
+  flex: 1
+  &.disclaimer
+    background: $accent-light-3
+    > span
+      display: inline-block
+      text-align: left
+      flex: 1
 
 .drop-zone
   min-height: 20rem
@@ -373,8 +428,15 @@ async function onDeleteClick(file: ValidFiles,index:number) {
   &:hover
     border: 1px dashed rgba($sgs-gray, 1)
 
+.required
+  &:after
+    content: "*"
+    display: inline-block
+    padding: 0 $s25
+    color: $sgs-red    
+
 .upload
-  h4 
+  h4
     padding: 0 $s
   .files
     +reset
@@ -392,7 +454,7 @@ async function onDeleteClick(file: ValidFiles,index:number) {
       .delete
         visibility: hidden
         margin-right: $s125
-      &:hover 
+      &:hover
         background: rgba($sgs-blue, 0.1)
         .delete
           visibility: visible

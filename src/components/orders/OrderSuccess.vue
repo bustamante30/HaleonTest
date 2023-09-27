@@ -104,9 +104,6 @@ watch(ordersStore.selectedOrder, (value) => {
       .f(v-if="selectedOrder.printerName")
         label Printer Name
         span {{ selectedOrder.printerName }}
-      .f(v-if="selectedOrder.printerLocationName")
-        label Printer Location Name
-        span {{ selectedOrder.printerLocationName }}
       .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
         span {{ selectedOrder.customerContacts[0].shippingAddress}}

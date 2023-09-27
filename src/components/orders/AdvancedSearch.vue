@@ -6,8 +6,8 @@ form.advanced-search(@submit.prevent="onSubmit")
     template(#header)
       header
         h3 Advanced Search
-    p.hint(v-if="user.isExternal==false") Enter at least Printer Name, Printer Location and 1 field
-    p.hint(v-if="user.isExternal==true") Enter at least Printer location and 1 field
+    p.hint(v-if="user.isExternal==false") Enter at least Printer Name and 1 field
+    p.hint(v-if="user.isExternal==true") Enter at least 1 field
     .error-message(v-if="showError") {{ error }}
     template(#subheader)
     sgs-panel(v-if="formattedDates && formattedDates.length" :header="`Recent Searches [${formattedDates.length}]`")
@@ -211,12 +211,12 @@ function validateForm() {
   if (!advancedFilters.value?.printerName) {
     return "You must select a printer.";
   }
-  if (advancedFilters.value?.printerSite == null) {
-    return "You must select a Shipping location.";
-  }
+  // if (advancedFilters.value?.printerSite == null) {
+  //   return "You must select a Shipping location.";
+  // }
 
   const errorMessage =
-    "You must enter information into at least 1 field. Printer Name and Location must have an entry";
+    "You must enter information into at least 1 field. Printer Name must have an entry";
   const fields = Object.keys(advancedFilters.value);
   const additionalFields = fields.filter(
     (field) => field !== "printerName" && field !== "printerSite" && field !== "status"

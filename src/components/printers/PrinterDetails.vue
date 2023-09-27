@@ -2,10 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import { config as userConfig } from '@/data/config/user-table'
 import { config as internalUserConfig } from '@/data/config/internal-user-table'
-import { config as locationConfig } from '@/data/config/location-table'
-
 import UserTable from './UserTable.vue'
-import LocationTable from './LocationTable.vue'
 import PrinterProviders from './PrinterProvider.vue'
 import { useUsersStore } from '@/stores/users'
 import router from '@/router'

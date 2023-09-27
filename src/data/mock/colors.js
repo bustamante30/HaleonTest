@@ -29,10 +29,5 @@ export default generateColors(8)
 
 
 
-// Update Cart delete and update? 
-// Remove from cart on successful reorder?
+ 
 
-// Add to cart from table action, table header (multiple)
-
-// View order in cart details not showing( thumbnail hide, barcode hide)?
-// Retrieve data for submitted draft and cancelled?

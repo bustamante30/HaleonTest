@@ -114,8 +114,6 @@ function checkCustomerDetails() {
         .f
           label Printer
           span {{ selection.printerName }}
-          span.separator /
-          span {{ selection.printerLocationName }}
         .f.shipping
           label Shipping Adress
           div(v-if="checkCustomerDetails()")

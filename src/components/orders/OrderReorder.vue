@@ -126,8 +126,6 @@ function goBack() {
           .f
             label Printer
             span {{ selectedOrder.printerName }}
-            span.separator /
-            span {{ selectedOrder.printerLocationName }}
       .card
         colors-table(:config="config" :data="colors" :isEditable="true" :loading="loading.order" @update="updateColor")
       template(#footer)

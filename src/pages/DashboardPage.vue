@@ -116,7 +116,7 @@ watch(currentB2CUser, (value) => {
 
 function getDateFilter(): [string, string] {
   let filter: any = [];
-  filter.push({ label: "last 3 days", value: "last 3 days" });
+  // filter.push({ label: "last 3 days", value: "last 3 days" });
   filter.push({ label: "last 3 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
@@ -236,15 +236,11 @@ function getSearchHistory() {
 
 function createPmOrder() {
   sendToPmStore.initNewOrder();
-  sendToPmStore.getPrinterLocations(authb2cStore.currentB2CUser.printerName);
   sendToPmStore.getCodeTypes();
   sendToPmStore.getPackTypes();
   sendToPmStore.getPlateTypes();
 }
 
-function sendToPm(form: any) {
-  sendToPmStore.sendToPm(form);
-}
 function resetSets(orderToAdd: any){
   orderToAdd.colors.forEach((color)=>{
     color.sets = 0
@@ -367,14 +363,14 @@ async function addMultipleToCart(values: any) {
               h1 Search Results 
             div.leftHeader(v-if="!searchExecuted")
               h1 Recent Orders 
-              prime-dropdown.sm.rangeFilter(v-if="false" v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
+              prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
             div(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             div.rightHeader
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
               template(v-if="userType === 'EXT'")
-                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" @submit="sendToPm")
+                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
           .search-tag(v-if="searchTags.length > 0")
             .tag(v-for="(tag ,index) in searchTags" :key="tag")
               span {{tag}}
