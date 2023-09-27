@@ -480,12 +480,10 @@ export const useOrdersStore = defineStore("ordersStore", {
     validateColour(colour: any) {
       const notificationsStore = useNotificationsStore()
       const { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates } = validation(colour)
-      if (hasEmptyPlateDescription)
-        notificationsStore.addNotification('Warning', `Please confirm the plate type for ${colour.colourName} from the available plate list`, { severity: 'warn' })
-      if (hasMixed)
-        notificationsStore.addNotification('Warning', `Please confirm the plate type for ${colour.colourName} from the available plate list`, { severity: 'warn' })
       if (!hasUniquePlates)
         notificationsStore.addNotification('Warning', `You have selected the same plate type for ${colour.colourName}`, { severity: 'warn'})
+      if (hasEmptyPlateDescription || hasMixed)
+        notificationsStore.addNotification('Warning', `Please confirm the plate type from the available plate list`, { severity: 'warn' })
       return isValid
     },
     updateComputedColorFields() {
