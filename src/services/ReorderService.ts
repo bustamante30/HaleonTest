@@ -229,8 +229,9 @@ class ReorderService {
                orderStatus: item.orderStatus ? item.orderStatus : null,
                createdBy: item.createdBy,
                statusId: item.statusId,
-               thumbNailPath: item.thumbNailPath,
+               thumbNailPath: new URL("@/assets/images/no_thumbnail.png", import.meta.url).pathname,
                itemCode: item.itemCode,
+               originalOrderId: item.originalOrderId,
              }))
            : [];
  
@@ -300,6 +301,18 @@ class ReorderService {
                 console.log('Error deleting order:', error);
                 return false;
               });
+    }
+
+    public static getThumbnail(sgsId: string) {
+        return httpService
+        .get<string>('v1/Reorder/thunmbnail?sgsOrderID='+ sgsId)
+        .then((response: string) => {
+          return response;
+        })
+          .catch((error: any) => {
+              console.log('Error getting thumbnail:', error);
+              return false;
+            });
     }
 
     
