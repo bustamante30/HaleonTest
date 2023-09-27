@@ -367,7 +367,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
-        ReorderService.getThumbnail(this.orders[i].originalOrderId)
+        ReorderService.getThumbnail(this.orders[i].originalOrderId || this.orders[i].sgsId)
           .then((response: string | boolean) => {
             if(response) this.orders[i].thumbNailPath = response;
           });

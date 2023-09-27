@@ -303,9 +303,9 @@ class ReorderService {
               });
     }
 
-    public static getThumbnail(sgsId: string) {
+    public static getThumbnail(sgsId: string) {        
         return httpService
-        .get<string>('v1/Reorder/thunmbnail?sgsOrderID='+ sgsId)
+        .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/thunmbnail`)
         .then((response: string) => {
           return response;
         })
