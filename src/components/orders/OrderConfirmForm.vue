@@ -43,6 +43,15 @@ watch(props.checkout, () => {
   checkoutForm.value = { ...props.checkout }
 })
 
+function addPurchaseOrder() {
+  if (checkoutForm.value?.purchaseOrder?.length < 10) checkoutForm.value?.purchaseOrder.unshift('')
+}
+
+function removePurchaseOrder(index : number) {
+  const po = checkoutForm.value?.purchaseOrder
+  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[]
+}
+
 function updateCheckout() {
   let expectedDateTime: Date = checkoutForm.value.expectedDate;
   if(checkoutForm.value.expectedDate) {
@@ -70,9 +79,10 @@ const errorMessages = {
   invalidCharacters: 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
 };
 
-function validatePurchaseOrder(): string {
-  const purchaseorder = checkoutForm.value.purchaseOrder;  
-  if (purchaseorder === null) {
+function validatePurchaseOrder(index: number): string {
+  const purchaseorder = checkoutForm.value.purchaseOrder[index];  
+  
+  if (purchaseorder == null || purchaseorder.length == 0) {
     return "";
   }
 
@@ -231,11 +241,22 @@ function handleInput(e: any) {
       label Delivery time *
       span.input.calendar    
         prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" timeOnly appendTo="body" hourFormat="12" required="true")
-    .f
-      label Purchase Order #
-      span.input
-        prime-inputtext(v-model="checkoutForm.purchaseOrder" :class="{'invalid': (checkoutForm.purchaseOrder)}")
-        span.warning-message(v-if="validatePurchaseOrder()") {{ validatePurchaseOrder() }}
+    
+
+    .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
+      label
+        span(v-if="i === 0") Purchase Order #
+      span.input.po
+        .input-text
+          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" @update:modelValue="updateCheckout" maxlength="26")
+          span.error(v-if="validatePurchaseOrder(i)") {{ validatePurchaseOrder(i) }}
+        a(v-if="i === 0" @click="addPurchaseOrder()" :class="{ disabled: checkoutForm.purchaseOrder.length >= 10 }")
+          span Add&nbsp;
+          i.material-icons add
+        a.remove(v-else @click="removePurchaseOrder(i)")
+          i.material-icons delete_outline
+
+
   .notes(v-if="showNotes()")
     .f
       label Notes
@@ -298,6 +319,29 @@ function handleInput(e: any) {
         color: red
         font-weight: bolder
         font-size: 14px
+      
+      span.error
+        color: $sgs-red
+        display: block
+        padding: $s25 0
+        font-size: 0.9rem
+        font-weight: 500
+
+    span.input.po
+      +flex
+      width: auto
+      max-width: none
+      .po-number
+        width: 18rem
+      a
+        +flex
+        font-size: 0.9rem
+        margin: 0 $s50
+        font-weight: 700
+        .material-icons
+          font-size: 0.7rem
+      a.remove .material-icons
+        color: $sgs-red
 .doc-label
   padding: 1rem
 .drop-zone

@@ -57,11 +57,11 @@ async function placeOrder() {
       ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
       let compResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
       ordersStore.setOrderInStore(compResult.result)
-      
     }
+    
     checkout.value.expectedDate = null
     checkout.value.expectedTime = null
-    checkout.value.purchaseOrder = null
+    checkout.value.purchaseOrder = ['']
     router.push(`/dashboard/${props.selectedId}/success`);
   }
   else {
