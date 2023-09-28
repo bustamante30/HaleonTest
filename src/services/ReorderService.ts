@@ -339,6 +339,19 @@ class ReorderService {
             return 0;
         });
     }
+
+    public static async validateOrder(jobNo: string){
+        return httpService
+          .post<boolean>('v1/Reorder/info/ValidateOrder?jobnumber='+ jobNo)
+          .then((response: boolean) => {
+            return response;
+          })
+            .catch((error: any) => {
+                console.log('Error while validate order service:', error);
+                return false;
+              });
+    }
+
 }
 
 export default ReorderService;

@@ -278,7 +278,19 @@ async function addToCart(order: any) {
     },
   });
 }
-function reorder(order: any) {
+async function reorder(order: any) {
+  debugger;
+  const result=  await ReorderService.validateOrder(order.sgsId);
+
+  if(result === false)
+  {
+    notificationsStore.addNotification(
+        `Info`,
+        "Flexo Plate not available so this order cannot be reordered again",
+        { severity: "error" }
+      );
+      return;
+  }
   ordersStore.reorder(order);
 }
 function cancelOrder(order: any) {
