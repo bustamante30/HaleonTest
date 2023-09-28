@@ -29,6 +29,17 @@ function confirm() {
 
 const errorMessage = ref('');
 
+async function cancelPOForm(){
+  isFormVisible.value = false;
+  resetPOForm();
+}
+
+async function resetPOForm(){
+  checkout.value.expectedDate = null
+  checkout.value.expectedTime = null
+  checkout.value.purchaseOrder = ['']
+}
+
 async function placeOrder() {
   ordersStore.loading.reorder = true
   var dateError;
@@ -37,7 +48,8 @@ async function placeOrder() {
   } else {
     dateError = false;
   }
-  if (!dateError) {
+
+  if (!dateError ) {
     if (ordersStore.selectedOrder.statusId === 1) {
       // add reorder flow
       ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
@@ -59,9 +71,8 @@ async function placeOrder() {
       ordersStore.setOrderInStore(compResult.result)
     }
     
-    checkout.value.expectedDate = null
-    checkout.value.expectedTime = null
-    checkout.value.purchaseOrder = ['']
+  
+    resetPOForm();
     router.push(`/dashboard/${props.selectedId}/success`);
   }
   else {
@@ -140,7 +151,7 @@ function checkCustomerDetails() {
       footer
         .secondary-actions &nbsp;
         .actions
-          sgs-button.default.sm(label="Cancel" @click="isFormVisible = false")
+          sgs-button.default.sm(label="Cancel" @click="cancelPOForm")
           sgs-button.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
           
 

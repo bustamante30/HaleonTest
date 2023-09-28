@@ -27,7 +27,7 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 const authb2cStore = useB2CAuthStore();
 const authStore = useAuthStore();
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
@@ -76,6 +76,7 @@ const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(
 const errorMessages = {
   minLength: 'Please enter at least 3 characters in the purchase order field.',
   maxLength: 'The Purchase order field cannot exceed 30 characters.',
+  duplicateValue: 'Duplicate PO number',
   invalidCharacters: 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
 };
 
@@ -93,14 +94,22 @@ function validatePurchaseOrder(index: number): string {
   if (purchaseorder.length > 30) {
     return errorMessages.maxLength;
   }
+
+  for (let i = 0; i < checkoutForm.value.purchaseOrder.length; i++) {
+    if(i != index && purchaseorder === checkoutForm.value.purchaseOrder[i]){
+      return errorMessages.duplicateValue;
+    }
+  }
   
   for (let i = 0; i < purchaseorder.length; i++) {
     if (!validSpecialCharacters.includes(purchaseorder[i]) && !/^[a-zA-Z0-9]$/.test(purchaseorder[i])) {
       return errorMessages.invalidCharacters;
     }
   }
+  
  return "";
 }
+
 function showNotes(): boolean {
   return authb2cStore.currentB2CUser.userType === 'EXT';
 }
