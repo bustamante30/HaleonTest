@@ -9,6 +9,7 @@ export type SearchPagedResultDto= {
 
 
 export type ReorderDto = {
+    originalOrderId?: string;
     id?: number;
     sgsId?: string | number;
     brandName?: string | null;
