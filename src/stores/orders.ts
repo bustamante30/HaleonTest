@@ -12,6 +12,8 @@ import ReorderService from "@/services/ReorderService";
 import router from "@/router";
 import type { ReorderDto } from "@/models/ReorderDto";
 import { useAuthStore } from './auth';
+import * as Constants from "@/services/constants";
+
 
 const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
 
@@ -118,7 +120,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     checkout: {
       expectedDate: null,
-      purchaseOrder: null,
+      purchaseOrder: [''],
       expectedTime: null,
       notes: null,
     },
@@ -192,7 +194,7 @@ export const useOrdersStore = defineStore("ordersStore", {
          6.Prepare options for platetype dropdown in Reorder Step */
       this.loading.order = true
       this.selectedOrder = null
-      this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
+      this.checkout = { expectedDate: null, purchaseOrder: [''], expectedTime: null, notes: null, }
 
       if (reorderId) {
         const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
@@ -385,12 +387,15 @@ export const useOrdersStore = defineStore("ordersStore", {
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
     },
+
     updateCheckout(checkout: any) {
       this.checkout = { ...checkout };
-      (this.selectedOrder as any).PO = this.checkout.purchaseOrder;
+      let POs = this.checkout?.purchaseOrder?.filter(Boolean).join(Constants.TILDE);
+      (this.selectedOrder as any).PO = POs;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
       (this.selectedOrder as any).Notes = this.checkout.notes;
     },
+
     // color update flow
     async updateColor({ checkboxId, field, value }: any) {
       const colours = this.selectedOrder['colors'] as any[]
