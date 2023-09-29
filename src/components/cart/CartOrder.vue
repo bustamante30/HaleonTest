@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
+import ReorderAudit from "@/components/orders/ReorderAudit.vue";
 import config from "@/data/config/color-table";
 import { useColorsStore } from "@/stores/colors";
 import router from "@/router";
@@ -8,6 +9,7 @@ import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from '@/stores/notifications'
 import { renderToString } from "@vue/test-utils";
+import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
   order: {
@@ -23,6 +25,17 @@ const colors = computed(() => props.order.flattenedColors);
 const isSpecsVisible = ref(false);
 const cartStore = useCartStore();
 
+const isAuditVisible = ref(false)
+const auditReorderId = ref()
+const auditData = ref()
+const auditOrder = async (order) => {
+  const audit = await ReorderService.getReorderAudit(order.id)
+  isAuditVisible.value = true
+  auditReorderId.value = order.id
+  auditData.value = audit.results
+
+  console.log(audit.result)
+}
 
 function toggleColors() {
   isSpecsVisible.value = !isSpecsVisible.value;
@@ -93,9 +106,14 @@ function getShippingAddress(order) {
       footer
         .secondary-actions
         .actions
-          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)")
           sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          //- :disabled="pendingOrderSets(order.colors)"
+          sgs-button.sm.secondary(icon="visibility" @click="auditOrder(order)" v-tooltip.bottom="{ value: 'View Audit' }")
+          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)" v-tooltip.bottom="{ value: 'Discard Order' }")
+  prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
+    template(#header)
+      header
+        h4 Reorder Audit - {{auditReorderId}}
+    reorder-audit.audit(:data="auditData")
 </template>
 
 <style lang="sass" scoped>

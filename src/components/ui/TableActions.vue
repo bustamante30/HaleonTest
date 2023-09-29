@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
+import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
   actions: {
@@ -45,7 +46,7 @@ function resolvePath(config, data) {
   return path
 }
 
-function toggleMenu(event) {
+async function toggleMenu(event) {
   const removeIndex =  items.value.findIndex(x=>x.validate)
   if(removeIndex >= 0){
 
@@ -55,10 +56,9 @@ function toggleMenu(event) {
     const subTime = DateTime.fromMillis(new Date(submittedDate).getTime())
     const diff = currentTime.diff(subTime, ['minutes']).minutes
    if(diff > 10) {
-    items.value.splice(removeIndex,1)
+    // items.value.splice(removeIndex,1)
+      const draftResult = await ReorderService.submitReorder(order, 4, true)
    }
-   
-
   }
 
 

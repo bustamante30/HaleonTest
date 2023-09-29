@@ -27,6 +27,7 @@ export type ReorderDto = {
     orderStatus?: string | null;
     thumbNailPath: string | null;
     colors?: Array<ColourDto> | null;
+    myOrdersToggled?: boolean;
 };
 
 

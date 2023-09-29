@@ -130,7 +130,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       { name: "Completed", value: 4, },
       { name: "Submitted", value: 2, },
       { name: "Cancelled", value: 3, },
-      { name: "Draft", value: 1, },
+      //{ name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -245,6 +245,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return this.selectedOrder;
     },
     async setFilters(filters: any) {
+      console.log('My orders', filters)
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       let printers = [] as string[]

@@ -40,21 +40,23 @@ const filteredSuggestions = ref([]);
 const searchedValue = ref();
 const dateRefId = ref("");
 const notificationsStore = useNotificationsStore()
-
-
+const placeholder = computed(() => isExternalUser.value ? 'Search by item code, barcode, SGS reference number...' : 'Search by printer, code, reference number...')
 
 const isFiltersVisible = ref(false);
 const loadingSuggestions = ref(false);
+
+const isSearchFocused = ref(false)
 
 onMounted(async () => {
   await searchhistoryStore.getSearchField();
 });
 async function handleFocus(item) {
- // User Id from claims 
- let userId;
- if(authStore.currentUser.isLoggedIn){
+  isSearchFocused.value = true
+  // User Id from claims 
+  let userId;
+  if(authStore.currentUser.isLoggedIn){
     userId = authStore.currentUser.userId
-   }
+  }
   if(authb2cStore.currentB2CUser.isLoggedIn){
     userId = authb2cStore.currentB2CUser.userId
   }
@@ -63,6 +65,10 @@ async function handleFocus(item) {
   }
   filteredSuggestions.value = searchHistory.value.map(x => x.value)
 } 
+
+function handleBlur() {
+  isSearchFocused.value = false
+}
 
 const keywordSearch =  debounce(async(event)=> {
   loadingSuggestions.value = false;
@@ -113,17 +119,18 @@ function toggleFilters() {
   searchedValue.value = ''
   isFiltersVisible.value = !isFiltersVisible.value;
 }
+
+
 </script>
 
 <template lang="pug">
-.orders-search
+.orders-search(:class="{ focused: isSearchFocused }")
   .search
     .input
       prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" inputId='keyword'
-      @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @item-select="keywordSearch" :loading="false"
-      :placeholder="isExternalUser ? 'Search by item code, barcode, SGS reference number...' : 'Search by printer, code, reference number...'")
+      @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @blur="handleBlur" @item-select="keywordSearch" :loading="false"
+      :placeholder="placeholder")
       span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
-    span.separator
     sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
     advanced-search(@close="isFiltersVisible = false" :sections="config.sections" :filters="filters" :printerName="printerName" @search="search")
@@ -133,10 +140,14 @@ function toggleFilters() {
 @import "@/assets/styles/includes"
 .orders-search
   +flex($h: right)
-  width: 40rem
+  width: 35rem
+  transition: width 0.2s ease-out
+  &.focused
+    width: 35rem
   .search
     +flex
     flex: 1
+    gap: $s50
     .input
       flex: 1
       position: relative
