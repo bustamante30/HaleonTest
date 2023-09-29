@@ -73,7 +73,7 @@ const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageStat
         }
      }
      console.log('totalCount', resultForCache.length)
-   return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+   return resultForCache.slice((pageState.page -1) * pageState.rows, (pageState.page * pageState.rows ))
  }
 
  const sortBydate = (orders) =>{
@@ -211,7 +211,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             await this.getBarcodeAndShirtailForPhotonOrder(order)
           } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
-            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null)
+            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null);
+            ReorderService.getThumbnail(photonOrder?.originalOrderId)
+              .then((response: string | boolean) => {
+                if(response) this.selectedOrder.thumbNailPath = response;
+              });
+            
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -228,6 +233,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
+          ReorderService.getThumbnail(details.jobId)
+              .then((response: string | boolean) => {
+                if(response) this.selectedOrder.thumbNailPath = response;
+              });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -281,7 +290,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
+        const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore);
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length
@@ -308,14 +317,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               reorderedData : [],
               totalRecords:0
             }
-          }else{
+          } else {
             this.textSearchData.data =  {
               reorderedData : result.reorderedData !=null ?result.reorderedData : [],
               totalRecords: result.reorderedData.length
             }
-         }
+          }
 
-          const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState)
+          const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
@@ -358,17 +367,11 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
-        if (!this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = new URL(
-            "@/assets/images/no_thumbnail.png",
-            import.meta.url
-          );
-         }
-        else if (this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = 
-            this.orders[i].thumbNailPath
-          ;
-        }
+        const sgsId = this.orders[i].id === 0 ? this.orders[i].sgsId : this.orders[i].originalOrderId;
+        ReorderService.getThumbnail(sgsId)
+          .then((response: string | boolean) => {
+            if(response) this.orders[i].thumbNailPath = response;
+          });
         if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         {
           let formattedDate:string = (this.orders[i].submittedDate+'').includes('Z')? this.orders[i].submittedDate : this.orders[i].submittedDate+'Z'
