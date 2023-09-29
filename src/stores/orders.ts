@@ -390,7 +390,7 @@ export const useOrdersStore = defineStore("ordersStore", {
 
     updateCheckout(checkout: any) {
       this.checkout = { ...checkout };
-      let POs = this.checkout?.purchaseOrder?.filter(Boolean).join(Constants.TILDE);
+      let POs = this.checkout?.purchaseOrder?.filter(Boolean).join(Constants.PO_DELIMITER);
       (this.selectedOrder as any).PO = POs;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
       (this.selectedOrder as any).Notes = this.checkout.notes;
