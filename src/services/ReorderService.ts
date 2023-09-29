@@ -305,7 +305,7 @@ class ReorderService {
 
     public static getThumbnail(sgsId: string) {        
         return httpService
-        .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/thunmbnail`)
+        .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/thumbnail`)
         .then((response: string) => {
           return response;
         })
