@@ -8,9 +8,12 @@ import router from '@/router'
 import config from '@/data/config/color-table-order'
 import OrderConfirmForm from './OrderConfirmForm.vue'
 import ReorderService from "@/services/ReorderService";
+import { useNotificationsStore } from '@/stores/notifications'
+import * as Constants from '@/services/Constants';
 
 const ordersStore = useOrdersStore()
 const cartStore = useCartStore()
+const notificationsStore = useNotificationsStore()
 const checkout = computed(() => ordersStore.checkout)
 
 const props = defineProps({
@@ -38,18 +41,60 @@ async function resetPOForm(){
   checkout.value.expectedDate = null
   checkout.value.expectedTime = null
   checkout.value.purchaseOrder = ['']
+  ordersStore.loading.reorder = false
+}
+
+function validatePOForm() {
+  
+  if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
+    notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.INVALID_DATE_TIME, 
+        { severity: 'error', position: 'top-right' });
+    return false;
+  }
+
+  checkDuplicatePONumbers();
+  let validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
+
+  for (let i = 0; i < checkout.value.purchaseOrder.length; i++){
+    const poNumber = checkout.value.purchaseOrder[i]?.trim(); 
+    if (poNumber != null && poNumber.length > 0) { 
+      
+      if (poNumber.length < 3) {
+        notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.PO_NUMBER_MIN_LENGTH, 
+        { severity: 'error', position: 'top-right' });
+        return false;
+      }
+
+      for (let i = 0; i < poNumber.length; i++) {
+        if (!validSpecialCharacters.includes(poNumber[i]) && !/^[a-zA-Z0-9]$/.test(poNumber[i])) 
+        {
+            notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.INVALID_PO_NUMBER, 
+            { severity: 'error', position: 'top-right' });
+            return false;
+          }
+        }
+      }
+    }
+  return true;
+}
+
+function checkDuplicatePONumbers(){
+ 
+  const poArray = checkout.value.purchaseOrder;
+  var duplicates = poArray.filter((poNumber, index) => poArray.indexOf(poNumber) !== index);
+
+  duplicates = Array.from(new Set(duplicates));
+
+  if(duplicates != null && duplicates.length > 0){
+    notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.DUPLICATE_PO_NUMBER + ' '+duplicates, 
+    { severity: 'error', position: 'top-right' });
+  }
 }
 
 async function placeOrder() {
-  ordersStore.loading.reorder = true
-  var dateError;
-  if (checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
-    dateError = true;
-  } else {
-    dateError = false;
-  }
-
-  if (!dateError ) {
+  
+  if (validatePOForm()) {
+    ordersStore.loading.reorder = true
     if (ordersStore.selectedOrder.statusId === 1) {
       // add reorder flow
       ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
@@ -75,16 +120,14 @@ async function placeOrder() {
     resetPOForm();
     router.push(`/dashboard/${props.selectedId}/success`);
   }
-  else {
-    errorMessage.value = "Date and time are mandatory fields";
 
-  }
   ordersStore.loading.reorder = false
 }
 
 function updateCheckout(values) {
   ordersStore.updateCheckout(values)
 }
+
 function getShippingAddress() {
 
   if (!ordersStore.selectedOrder.customerContacts) {
