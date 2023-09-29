@@ -265,6 +265,16 @@ async function addToCart(order: any) {
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
+      const result=  await ReorderService.validateOrder(order.sgsId);
+      if(result === false)
+      {
+        notificationsStore.addNotification(
+            `Info`,
+            "Cannot be added to cart.Flexo Plate task not available for this order",
+            { severity: "error" }
+          );
+          return;
+      }
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       resetSets(orderToAdd)
       if (await cartStore.addToCart(orderToAdd)) {
@@ -279,14 +289,13 @@ async function addToCart(order: any) {
   });
 }
 async function reorder(order: any) {
-  debugger;
   const result=  await ReorderService.validateOrder(order.sgsId);
 
   if(result === false)
   {
     notificationsStore.addNotification(
         `Info`,
-        "Flexo Plate not available so this order cannot be reordered again",
+        "Cannot be Reordered. Flexo Plate not available for this order",
         { severity: "error" }
       );
       return;
@@ -340,6 +349,17 @@ async function addMultipleToCart(values: any) {
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
+
+    const result=  await ReorderService.validateOrder(order.sgsId);
+    if (result === false) {
+      // Skip the addToCart step for this order and show a toast message
+      notificationsStore.addNotification(
+        `Error`,
+        `order #${order.sgsId} doesn't have Flexo Plating`,
+        { severity: "error" }
+      );
+    } else 
+    {
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     resetSets(orderToAdd)
     if (await cartStore.addToCart(orderToAdd)) {
@@ -358,6 +378,7 @@ async function addMultipleToCart(values: any) {
     }
     order.selected = false;
   }
+}
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
 }
