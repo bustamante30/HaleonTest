@@ -12,7 +12,8 @@ import ReorderService from "@/services/ReorderService";
 import router from "@/router";
 import type { ReorderDto } from "@/models/ReorderDto";
 import { useAuthStore } from './auth';
-import * as Constants from "@/services/constants";
+
+import * as Constants from '@/services/Constants';
 
 
 const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{

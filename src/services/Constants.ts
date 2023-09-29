@@ -22,4 +22,4 @@ export const PO_NUMBER_MAX_LENGTH = 'The Purchase order field cannot exceed 30 c
 export const DUPLICATE_PO_NUMBER = 'Duplicate purhcase order number(s)';
 export const INVALID_PO_NUMBER = 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'';
 
-export * from './constants'; 
+export * from './Constants'; 
