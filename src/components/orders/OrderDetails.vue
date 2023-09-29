@@ -53,6 +53,7 @@ function viewPreview() {
 }
 </script>
 
+
 <template lang="pug">
 .page.details
   sgs-mask(@click="router.push('/dashboard')")
@@ -82,10 +83,11 @@ function viewPreview() {
       .card
         order-shirttail(:data="selectedOrder.details")
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUris, i) in selectedOrder.pdfUris" :header="`${getPDFFileName(pdfUris)}`")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfUris" :header="`${pdfName}`")
           //vue-pdf-embed(:source="pdfUris")
           //embed.pdf(:src="pdfUris" type="application/pdf" width="100%" height="500px")
-          iframe.pdf(:src="pdfUris")
+          iframe.pdf(:src="pdfUri")
+
       
         //- sgs-panel(v-for="(pdfUris, i) in selectedOrder.pdfUris" :header="`PDF-${i + 1}`")
         //-   iframe.pdf(:src="pdfUris")

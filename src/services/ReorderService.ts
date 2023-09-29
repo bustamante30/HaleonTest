@@ -313,6 +313,30 @@ class ReorderService {
             });
     }
 
+    public static getLenThumbnails(sgsId: string) {
+        return httpService
+        .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/len_thunmbnails`)
+        .then((response: string) => {
+          return response;
+        })
+          .catch((error: any) => {
+              console.log('Error getting len thumbnails:', error);
+              return false;
+            });
+    }
+
+    public static getPdfs(sgsId: string) {
+        return httpService
+        .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/pdfs`)
+        .then((response: string) => {
+          return response;
+        })
+          .catch((error: any) => {
+              console.log('Error getting pdfs:', error);
+              return false;
+            });
+    }
+
     
     public static decorateColours(colors: Color[] | undefined){
         if(colors)

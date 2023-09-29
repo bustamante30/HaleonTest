@@ -2,7 +2,7 @@ import { colorDecorator, mapPhotonOrderDetail, validation, newFilterProps, flatt
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
-import { sum, sortBy} from "lodash";
+import { sum, sortBy, forEach} from "lodash";
 import { toRaw } from 'vue';
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from '@/stores/cart'
@@ -95,6 +95,21 @@ const getSearchParamsAsString = (search) =>{
 
   return JSON.stringify(filters)
 }
+
+const base64toBlob = (data: string) => {
+  // Cut the prefix `data:application/pdf;base64` from the raw base 64
+  const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+
+  const bytes = atob(base64WithoutPrefix);
+  let length = bytes.length;
+  let out = new Uint8Array(length);
+
+  while (length--) {
+      out[length] = bytes.charCodeAt(length);
+  }
+
+  return new Blob([out], { type: 'application/pdf' });
+};
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -216,7 +231,17 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-            
+            ReorderService.getPdfs('7105664')
+              .then((response: Object | boolean) => {
+                if(response) {
+                  for (const pdfName in response) {
+                    const base64String = response[pdfName];
+                    const blob = base64toBlob(base64String);
+                    response[pdfName] = URL.createObjectURL(blob);
+                  }
+                  this.selectedOrder.pdfUris = response;
+                }
+              });
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -233,10 +258,30 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
+          //todo: get len blobs and map
           ReorderService.getThumbnail(details.jobId)
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
+              //debugger;
+          ReorderService.getLenThumbnails('7105664')
+            .then((response: Object | boolean) => {
+              //debugger;
+              if(response){
+                console.log(response);
+              }
+            });
+          ReorderService.getPdfs('7105664')
+            .then((response: Object | boolean) => {
+              if(response) {
+                for (const pdfName in response) {
+                  const base64String = response[pdfName];
+                  const blob = base64toBlob(base64String);
+                  response[pdfName] = URL.createObjectURL(blob);
+                }
+                this.selectedOrder.pdfUris = response;
+              }
+            });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -291,6 +336,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
+        //debugger;
         const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore);
         result =  {
           reorderedData : reorderedData,
@@ -324,14 +370,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               totalRecords: result.reorderedData.length
             }
           }
-
+          //debugger;
           const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
           }
-
         } else {
+          //debugger;
           console.log('Clearing result from local store .. ');
           this.textSearchData.query = '';
           this.textSearchData.data = {

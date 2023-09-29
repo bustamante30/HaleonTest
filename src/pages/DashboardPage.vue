@@ -148,6 +148,7 @@ function getDateRange(filter: string) {
 function changeDateFilter(dtFilter: any) {
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
+  //debugger;
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter(); 
   filters.value.myOrdersToggled = showMyOrders.value;
@@ -173,6 +174,7 @@ function searchByStatus() {
   if(!selectedStatus?.value?.value) return
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
+  debugger;
   filters.value.status = selectedStatus?.value?.value;
   filters.value.myOrdersToggled = showMyOrders.value;
   addPrinterFilter();
@@ -481,6 +483,10 @@ else
 
 </script>
 
+<script type="text\javascript">
+
+
+</script>
 <template lang="pug">
 .page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
   sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
