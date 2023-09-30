@@ -168,6 +168,7 @@ function searchKeyword(event: any) {
     const fil = {
       ...filters.value,
       printerName:null,
+      status:4,
       query:event.query
     }
     ordersStore.setFilters(fil);
