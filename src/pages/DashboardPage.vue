@@ -83,12 +83,10 @@ provide("options", options);
 
 const init = () =>{
   initClearAllSearchTags()
-  addToggleFilter();
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
   ordersStore.firstLoad = true;
-  
 }
 onMounted(()=>{
    init()
@@ -155,14 +153,20 @@ function addPrinterFilter() {
   if (printerName && !filters.value.printerName)
     filters.value.printerName = printerName;
 }
-function addToggleFilter() {
-  filters.value.myOrdersToggled = showMyOrders.value;
+
+function handleOrderToggle() {
+  const toggleFilter = {
+    ...filters.value,
+    myOrdersToggled: showMyOrders.value
+  }
+  ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
   if(!selectedStatus?.value?.value) return
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
+  filters.value.myOrdersToggled = showMyOrders.value;
   addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
@@ -188,7 +192,7 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
-  addToggleFilter();
+ 
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
@@ -389,9 +393,7 @@ async function addMultipleToCart(values: any) {
   ordersStore.loading.ordersList = false;
 }
 
-function handleOrderToggle() {
- init();
-}
+
 </script>
 
 <template lang="pug">
