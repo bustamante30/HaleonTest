@@ -56,9 +56,6 @@ function update(value) {
 }
 
 async function navigate(config,data){
-  debugger;
-  console.log("data SGSJobNumber:", data.sgsId);
-
 const result=  await ReorderService.validateOrder(data.sgsId);
 if(result === false)
 {

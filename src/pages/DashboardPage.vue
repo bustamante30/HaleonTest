@@ -305,7 +305,6 @@ async function addToCart(order: any) {
   });
 }
 async function reorder(order: any) {
-  debugger;
   const result=  await ReorderService.validateOrder(order.sgsId);
   if (result === false) {
     if(userType.value === 'EXT')
@@ -379,11 +378,24 @@ async function addMultipleToCart(values: any) {
 
     const result=  await ReorderService.validateOrder(order.sgsId);
     if (result === false) {
+
+      if(userType.value === 'EXT')
+    {
       notificationsStore.addNotification(
         `Error`,
-        `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to <a href="/SendToPm.vue">SendToPM</a>`,
+        `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
         { severity: "error" }
       );
+    }
+    else
+    {
+      notificationsStore.addNotification(
+        `Info`,
+        "Order cannot be processed.Flexo Plate Task not available for this order",
+        { severity: "error" }
+      );
+
+    }
     } 
     else 
     {
@@ -456,7 +468,7 @@ async function addMultipleToCart(values: any) {
           | Sorry something went wrong on our end.  Please contact a PM directly, or please go to  
           send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
           | to place your request
-      prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
+      prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
         span.sendtoPm 
           | Sorry, something went wrong on our end. {{order.sgsId}} was unable to be  added to your cart.Please contact a PM directly, or please go to 
