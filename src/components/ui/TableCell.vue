@@ -3,6 +3,9 @@ import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import {computed } from 'vue'
 import SgsLookup from '@/components/ui/Lookup.vue'
+import router from '@/router'
+import ReorderService from "@/services/ReorderService";
+import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
   config: {
@@ -24,6 +27,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update'])
+const notificationsStore = useNotificationsStore();
 
 const value = computed(() => get(props.data, props.config.field))
 // const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
@@ -50,6 +54,21 @@ function update(value) {
   const { data, config } = props
   emit('update', { [props.dataKey]: data[props.dataKey], field: config.field, value: value })
 }
+
+async function navigate(config,data){
+const result=  await ReorderService.validateOrder(data.sgsId);
+if(result === false)
+{
+  notificationsStore.addNotification(
+      `Info`,
+      `Sorry something went wrong on our end.  Please contact a PM directly, or please go to SendToPM to place your request`,
+      { severity: "error" }
+    );
+    return;
+}
+const link = resolvePath(config, data)
+  router.push(link)
+}
 </script>
 
 <template lang="pug">
@@ -60,7 +79,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span(v-else-if="config.type === 'badge'")
     span.badge(v-if="get(data, config.field)" :class="get(data, config.field).key") {{ get(data, config.field).label }}
   span(v-else-if="config.type === 'link'")
-    router-link(:to="resolvePath(config, data)") {{ get(data, config.field) }}
+    a(@click="navigate(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
   span(v-else-if="config.type === 'edit-sets'")
