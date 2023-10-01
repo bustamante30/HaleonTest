@@ -174,9 +174,10 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
+      printerName:null,
+      status:4,
       query:event.query
     }
-    addPrinterFilter()
     ordersStore.setFilters(fil);
   } else {
     searchTags.value = [];

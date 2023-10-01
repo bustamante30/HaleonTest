@@ -18,12 +18,11 @@ import * as Constants from '@/services/Constants';
 const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
 
    // Filter by Date
-
-   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
-   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
+   const startDate = filters.startDate[0]?filters.startDate[0] : null
+   const endDate = filters.startDate[1]?filters.startDate[1] : null
  
    let filteredresult :any[] =  []   
-   if(filters.query === '' ||filters.query === null ){
+   if(startDate && endDate && (filters.query === '' ||filters.query === null) ){
      reorderedData.forEach(order => {
        let date;
        if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
@@ -92,6 +91,7 @@ const getSearchParamsAsString = (search) =>{
   const filters = jsonify(search)
   delete filters['sortBy']
   delete filters['sortOrder']
+  delete filters['startDate']
 
   return JSON.stringify(filters)
 }
@@ -386,6 +386,13 @@ export const useOrdersStore = defineStore("ordersStore", {
       filterStore.state.descriptionFilter = null;
       filterStore.state.packTypeFilter = null;
       filterStore.state.sortFields = null;
+      this.textSearchData =  {
+        query: '',
+        data:  {
+        reorderedData: [] as ReorderDto[],
+        totalRecords: 0
+        }
+     } 
     },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
