@@ -35,7 +35,6 @@ interface SubmitReorder {
     PO: string;
     createdBy?:number;
     plateRelief: string;
-    thumbNailPath: string;
     variety: string;
     isActive: boolean;
     colors: Color[];
@@ -131,7 +130,6 @@ class ReorderService {
             printerName: reorderInfo.printerName,
             packType: reorderInfo.packType,
             statusId: statusId,
-            thumbNailPath: reorderInfo.thumbNailPath,
             variety: reorderInfo.variety,
             PO: reorderInfo.PO,
             expectedDate: reorderInfo.expectedDate ? reorderInfo.expectedDate : new Date(),
