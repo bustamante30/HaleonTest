@@ -55,9 +55,9 @@ async function toggleMenu(event) {
     const currentTime = DateTime.fromJSDate(new Date())
     const subTime = DateTime.fromMillis(new Date(submittedDate).getTime())
     const diff = currentTime.diff(subTime, ['minutes']).minutes
-   if(diff > 10) {
-    // items.value.splice(removeIndex,1)
-      const draftResult = await ReorderService.submitReorder(order, 4, true)
+    if(diff > 10) {
+      items.value.splice(removeIndex,1)
+    const result = await ReorderService.submitReorder(order, 4, true)
    }
   }
 
