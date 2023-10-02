@@ -130,7 +130,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       { name: "Completed", value: 4, },
       { name: "Submitted", value: 2, },
       { name: "Cancelled", value: 3, },
-      { name: "Draft", value: 1, },
+      //{ name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -245,6 +245,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return this.selectedOrder;
     },
     async setFilters(filters: any) {
+      console.log('My orders', filters)
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       let printers = [] as string[]
@@ -341,7 +342,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           if('reorderedData' in result && Array.isArray(result.reorderedData) && result.reorderedData.length > 0 ){
               const reorderedData =  handleSortPagination(result.reorderedData , filters,this.pageState)
               result =  {
-                reorderedData : reorderedData,
+                reorderedData : result.reorderedData,
                 totalRecords : result.reorderedData.length
               }
           }
@@ -370,7 +371,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         const sgsId = this.orders[i].id === 0 ? this.orders[i].sgsId : this.orders[i].originalOrderId;
         ReorderService.getThumbnail(sgsId)
           .then((response: string | boolean) => {
-            if(response) this.orders[i].thumbNailPath = response;
+            if(response && this.orders[i]) this.orders[i].thumbNailPath = response;
           });
         if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         {

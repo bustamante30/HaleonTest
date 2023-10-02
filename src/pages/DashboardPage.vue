@@ -57,10 +57,11 @@ const username = computed(
 const isAuditVisible = ref(false)
 const auditReorderId = ref()
 const auditData = ref()
-const dateFilter = computed(() => getDateFilter());
 const selectedDate = ref(() => dateFilter.value[0]);
-const statusList = computed(() => ordersStore.statusList);
 const selectedStatus = ref();
+const showMyOrders = ref(true);
+const dateFilter = computed(() => getDateFilter());
+const statusList = computed(() => ordersStore.statusList);
 const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
@@ -92,8 +93,8 @@ const init = () =>{
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
+  showMyOrders.value = true;
   ordersStore.firstLoad = true;
-  
 }
 onMounted(()=>{
    init()
@@ -108,7 +109,6 @@ watch(currentUser, (value) => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
   }
 });
@@ -116,7 +116,6 @@ watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
   }
 });
@@ -150,6 +149,7 @@ function changeDateFilter(dtFilter: any) {
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter(); 
+  filters.value.myOrdersToggled = showMyOrders.value;
   ordersStore.setFilters(filters.value);
 }
 function addPrinterFilter() {
@@ -160,11 +160,20 @@ function addPrinterFilter() {
   if (printerName && !filters.value.printerName)
     filters.value.printerName = printerName;
 }
+
+function handleOrderToggle() {
+  const toggleFilter = {
+    ...filters.value,
+    myOrdersToggled: showMyOrders.value
+  }
+  ordersStore.setFilters(toggleFilter);
+}
 function searchByStatus() {
   if(!selectedStatus?.value?.value) return
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
+  filters.value.myOrdersToggled = showMyOrders.value;
   addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
@@ -191,6 +200,7 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
+ 
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
@@ -422,6 +432,8 @@ async function addMultipleToCart(values: any) {
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
 }
+
+
 </script>
 
 <template lang="pug">
@@ -432,16 +444,21 @@ async function addMultipleToCart(values: any) {
         template(#header)
           welcome(:user="username")
           header
-            div.leftHeader(v-if="searchExecuted")
-              h1 Search Results 
-            div.leftHeader(v-if="!searchExecuted")
-              h1 Recent Orders 
+            .title 
+              h1(v-if="searchExecuted") Search Results 
+              h1(v-if="!searchExecuted") Recent Orders 
+            .date-range
               prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
-            div(v-if="!searchExecuted")
+            .statuses(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
-            div.rightHeader
+            .my-orders
+              .switch
+                span My Orders
+                prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle")
+            .search
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
+            .send-to-pm
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
           .search-tag(v-if="searchTags.length > 0")
@@ -489,20 +506,22 @@ async function addMultipleToCart(values: any) {
     padding: $s
     header
       +flex-fill
-      h1
-        flex: none
+      gap: $s
+      .switch
+        +flex
+        gap: $s50
+        padding: $s25 $s50
+        background: #ffffff
+        border: 1px solid #ced4da
+        border-radius: 3px
+        span
+          font-size: 0.95rem 
+          width: 4rem
+      .search, .send-to-pm
+        justify-content: flex-end
   &.dark
     background: var(--app-header-bg-color)
-.rangeFilter
-  left:40px
-.leftHeader
-    display: flex
-    align-content: flex-start
-    align-items: center
-.rightHeader
-    display: flex
-    align-content: flex-end
-    align-items: center
+
 .search-tag
   display: flex
   align-items: center
