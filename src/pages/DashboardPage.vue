@@ -184,12 +184,14 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
+      myOrdersToggled: false,
       printerName:null,
       status:4,
       query:event.query
     }
     ordersStore.setFilters(fil);
   } else {
+    filters.value.myOrdersToggled = false
     searchTags.value = [];
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
@@ -497,7 +499,7 @@ else
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             .my-orders(v-if="!searchExecuted")
               .switch
-                span My Orders
+                span Show only my orders
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
@@ -558,7 +560,7 @@ else
         border-radius: 3px
         span
           font-size: 0.95rem 
-          width: 4rem
+          width: 8rem
       .search, .send-to-pm
         justify-content: flex-end
   &.dark
