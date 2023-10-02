@@ -447,12 +447,12 @@ async function addMultipleToCart(values: any) {
             .title 
               h1(v-if="searchExecuted") Search Results 
               h1(v-if="!searchExecuted") Recent Orders 
-            .date-range
+            .date-range(v-if="!searchExecuted")
               prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
             .statuses(v-if="!searchExecuted")
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
-            .my-orders
+            .my-orders(v-if="!searchExecuted")
               .switch
                 span My Orders
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle")
