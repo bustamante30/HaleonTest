@@ -69,6 +69,7 @@ const emit = defineEmits([
   "cancel",
   "audit",
   "addMultipleToCart",
+  "ordervalidation"
 ]);
 const current = ref(0);
 
@@ -175,6 +176,10 @@ function setSgsNumberHeader(){
     return "SGS Ref #"
   else
     return "Order #"
+}
+
+function handleOrderValidation(data: any) {
+  emit("ordervalidation", data);
 }
 </script>
 
@@ -287,7 +292,7 @@ function setSgsNumberHeader(){
         :showFilterMatchModes="false"
       )
         template(#body="{ data }")
-          table-cell(:config="config.cols[2]" :data="data")
+          table-cell(:config="config.cols[2]" :data="data" @ordervalidation ="handleOrderValidation")
         template(#filter="{ filterModel }")
           prime-inputtext.input(
             v-model="filterModel.value"
