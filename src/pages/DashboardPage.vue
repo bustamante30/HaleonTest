@@ -527,12 +527,13 @@ else
         template(#message="slotProps")
         span.sendtoPm 
           | Sorry something went wrong on our end. Please contact a PM directly, or please go to  
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder") | to place your request
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true" ) 
+          | to place your request
       prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
         span.sendtoPm 
           | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder") | to place your request
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true") | to place your request
          
     router-view
 </template>
@@ -598,4 +599,6 @@ else
 
 .sendtoPm
   margin:25px 
+  display: flex
+  align-items: center
 </style>
