@@ -533,7 +533,8 @@ else
         template(#message="slotProps")
         span.sendtoPm 
           | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true") | to place your request
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true") 
+          | to place your request
          
     router-view
 </template>
