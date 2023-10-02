@@ -59,7 +59,7 @@ const auditReorderId = ref()
 const auditData = ref()
 const selectedDate = ref(() => dateFilter.value[0]);
 const selectedStatus = ref();
-const showMyOrders = ref(true)
+const showMyOrders = ref(true);
 const dateFilter = computed(() => getDateFilter());
 const statusList = computed(() => ordersStore.statusList);
 const orders = computed(() => ordersStore.orders);
@@ -93,6 +93,7 @@ const init = () =>{
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
+  showMyOrders.value = true;
   ordersStore.firstLoad = true;
 }
 onMounted(()=>{
@@ -108,7 +109,6 @@ watch(currentUser, (value) => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
   }
 });
@@ -116,7 +116,6 @@ watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    selectedStatus.value = statusList.value[0];
     changeDateFilter(dateFilter.value[0]);
   }
 });
@@ -150,6 +149,7 @@ function changeDateFilter(dtFilter: any) {
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter(); 
+  filters.value.myOrdersToggled = showMyOrders.value;
   ordersStore.setFilters(filters.value);
 }
 function addPrinterFilter() {

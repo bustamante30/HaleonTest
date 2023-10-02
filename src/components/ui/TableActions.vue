@@ -49,16 +49,20 @@ function resolvePath(config, data) {
 async function toggleMenu(event) {
   const removeIndex =  items.value.findIndex(x=>x.validate)
   if(removeIndex >= 0){
-
     const item =items.value[removeIndex]
     const submittedDate = props.data[item.field]
     const currentTime = DateTime.fromJSDate(new Date())
     const subTime = DateTime.fromMillis(new Date(submittedDate).getTime())
     const diff = currentTime.diff(subTime, ['minutes']).minutes
     if(diff > 10) {
-      items.value.splice(removeIndex,1)
-    const result = await ReorderService.submitReorder(order, 4, true)
-   }
+      const result = await ReorderService.submitReorder(item, 4, true)
+      if (!result) {
+        notificationsStore.addNotification(`Error`, 'Error completing the order', { severity: 'error' })
+      }
+      else {
+        items.value.splice(removeIndex, 1)
+      }
+    }
   }
 
 
