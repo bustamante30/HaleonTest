@@ -26,7 +26,7 @@ const props = defineProps({
   }  
 })
 
-const emit = defineEmits(['update'])
+const emit = defineEmits(['update', 'ordervalidation'])
 const notificationsStore = useNotificationsStore();
 
 const value = computed(() => get(props.data, props.config.field))
@@ -56,18 +56,14 @@ function update(value) {
 }
 
 async function navigate(config,data){
-const result=  await ReorderService.validateOrder(data.sgsId);
-if(result === false)
-{
-  notificationsStore.addNotification(
-      `Info`,
-      `Sorry something went wrong on our end.  Please contact a PM directly, or please go to SendToPM to place your request`,
-      { severity: "error" }
-    );
-    return;
-}
-const link = resolvePath(config, data)
-  router.push(link)
+  debugger;
+    if(data.sgsId != undefined)
+  {
+    emit('ordervalidation',{sgsId : data.sgsId,path:resolvePath(config, data)});
+  }else{
+    const link = resolvePath(config, data)
+    router.push(link)
+  }
 }
 </script>
 
