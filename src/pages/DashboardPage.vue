@@ -55,6 +55,7 @@ const username = computed(
     }`
 );
 const isAuditVisible = ref(false)
+const sgsJobId = ref('')
 const auditReorderId = ref()
 const auditData = ref()
 const selectedDate = ref(() => dateFilter.value[0]);
@@ -290,9 +291,10 @@ async function addToCart(order: any) {
       {
         if(userType.value === 'EXT')
     {
-      pmOrder.value.printerName = printerName;
-      // Validation failed, show the confirm dialog
-    showConfirmDialog.value = true;
+      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+      sgsJobId.value = order.sgsId;
+      showCartConfirmDialog.value = true;
+      sendToPmStore.isValidated = true;
     }
     else
     {
@@ -304,6 +306,8 @@ async function addToCart(order: any) {
 
     }
       }
+      else
+      {
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       resetSets(orderToAdd)
       if (await cartStore.addToCart(orderToAdd)) {
@@ -313,9 +317,11 @@ async function addToCart(order: any) {
           { severity: "success" }
         );
       }
+    }
       ordersStore.loading.ordersList = false;
     },
   });
+
 }
 async function reorder(order: any) {
   const result=  await ReorderService.validateOrder(order.sgsId);
@@ -394,17 +400,23 @@ async function addMultipleToCart(values: any) {
 
       if(userType.value === 'EXT')
     {
-      notificationsStore.addNotification(
-        `Error`,
-        `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
-        { severity: "error" }
-      );
+
+      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+      sgsJobId.value = order.sgsId;
+      showCartConfirmDialog.value = true;
+      sendToPmStore.isValidated = true;
+
+      // notificationsStore.addNotification(
+      //   `Error`,
+      //   `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
+      //   { severity: "error" }
+      // );
     }
     else
     {
       notificationsStore.addNotification(
         `Info`,
-        "Order cannot be processed.Flexo Plate Task not available for this order",
+        "Order cannot be processed.Flexo Plate Task isn't available for this order",
         { severity: "error" }
       );
 
@@ -433,6 +445,37 @@ async function addMultipleToCart(values: any) {
 }
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
+}
+
+async function handleOrderValidation(data: any) 
+{
+const result=  await ReorderService.validateOrder(data.originalOrderId);
+if (result === false) 
+{
+    if(userType.value === 'EXT')
+    {
+
+      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+      sgsJobId.value = data.originalOrderId;
+      showCartConfirmDialog.value = true;
+      sendToPmStore.isValidated = true;
+
+    }
+    else
+    {
+      notificationsStore.addNotification(
+        `Info`,
+        "Order cannot be processed.Flexo Plate Task isn't available for this order",
+        { severity: "error" }
+      );
+
+    }
+}
+else
+{
+  router.push(data.path);
+}
+
 }
 
 
@@ -471,7 +514,7 @@ async function addMultipleToCart(values: any) {
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(:config="config" :data="orders" :userType="userType" @add="addToCart" @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder"
-        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" )
+        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" @ordervalidation ="handleOrderValidation")
       prime-confirm-dialog
         template(#message="slotProps")
           div.dialogLayout
@@ -491,9 +534,8 @@ async function addMultipleToCart(values: any) {
       prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
         span.sendtoPm 
-          | Sorry, something went wrong on our end. {{order.sgsId}} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
-          | to place your request
+          | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder") | to place your request
          
     router-view
 </template>
