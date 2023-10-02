@@ -17,7 +17,9 @@ export const useSendToPmStore = defineStore('sendToPmStore', {
     loading: false,
     imageCarrierCodeTypes: [] as any[],
     imageCarrierPackTypes: [] as any[],
-    imageCarrierPlateTypes: [] as any[]
+    imageCarrierPlateTypes: [] as any[],
+    externalPrinterName: "" as string,
+    isValidated: false
 
   }),
   getters: {

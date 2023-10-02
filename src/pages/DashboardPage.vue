@@ -26,6 +26,8 @@ const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
+const showConfirmDialog = ref(false);
+const showCartConfirmDialog = ref(false);
 
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
@@ -39,6 +41,11 @@ const userType = computed(() => {
   if (currentB2CUser.email !== "" && currentB2CUser.userType != null) {
     return currentB2CUser.userType;
   }
+});
+
+const printerName = computed(() => {
+  if(authb2cStore.currentB2CUser.printerName != "" && authb2cStore.currentB2CUser.userType === 'EXT')
+  return authb2cStore.currentB2CUser.printerName ;
 });
 
 const username = computed(
@@ -142,7 +149,7 @@ function changeDateFilter(dtFilter: any) {
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
-  addPrinterFilter();
+  addPrinterFilter(); 
   ordersStore.setFilters(filters.value);
 }
 function addPrinterFilter() {
@@ -176,9 +183,10 @@ function searchKeyword(event: any) {
     searchTags.value = event.query.split(",");
     const fil = {
       ...filters.value,
+      printerName:null,
+      status:4,
       query:event.query
     }
-    addPrinterFilter()
     ordersStore.setFilters(fil);
   } else {
     searchTags.value = [];
@@ -278,12 +286,21 @@ async function addToCart(order: any) {
       const result=  await ReorderService.validateOrder(order.sgsId);
       if(result === false)
       {
-        notificationsStore.addNotification(
-            `Info`,
-            "Cannot be added to cart.Flexo Plate task not available for this order",
-            { severity: "error" }
-          );
-          return;
+        if(userType.value === 'EXT')
+    {
+      pmOrder.value.printerName = printerName;
+      // Validation failed, show the confirm dialog
+    showConfirmDialog.value = true;
+    }
+    else
+    {
+      notificationsStore.addNotification(
+        `Info`,
+        "Order cannot be processed.Flexo Plate Task not available for this order",
+        { severity: "error" }
+      );
+
+    }
       }
       let orderToAdd = await ordersStore.getOrderById(order.sgsId);
       resetSets(orderToAdd)
@@ -300,17 +317,27 @@ async function addToCart(order: any) {
 }
 async function reorder(order: any) {
   const result=  await ReorderService.validateOrder(order.sgsId);
-
-  if(result === false)
-  {
-    notificationsStore.addNotification(
+  if (result === false) {
+    if(userType.value === 'EXT')
+    {
+      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+      // Validation failed, show the confirm  dialog
+    showConfirmDialog.value = true;
+    sendToPmStore.isValidated = true;
+    }
+    else
+    {
+      notificationsStore.addNotification(
         `Info`,
-        "Cannot be Reordered. Flexo Plate not available for this order",
+        "Order cannot be processed.Flexo Plate Task not available for this order",
         { severity: "error" }
       );
-      return;
-  }
+
+    }
+    
+  } else {
   ordersStore.reorder(order);
+  }
 }
 function cancelOrder(order: any) {
   confirm.require({
@@ -362,13 +389,26 @@ async function addMultipleToCart(values: any) {
 
     const result=  await ReorderService.validateOrder(order.sgsId);
     if (result === false) {
-      // Skip the addToCart step for this order and show a toast message
+
+      if(userType.value === 'EXT')
+    {
       notificationsStore.addNotification(
         `Error`,
-        `order #${order.sgsId} doesn't have Flexo Plating`,
+        `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
         { severity: "error" }
       );
-    } else 
+    }
+    else
+    {
+      notificationsStore.addNotification(
+        `Info`,
+        "Order cannot be processed.Flexo Plate Task not available for this order",
+        { severity: "error" }
+      );
+
+    }
+    } 
+    else 
     {
     let orderToAdd = await ordersStore.getOrderById(order.sgsId);
     resetSets(orderToAdd)
@@ -440,6 +480,19 @@ async function addMultipleToCart(values: any) {
           header
             h4 Reorder Audit - {{auditReorderId}}
         reorder-audit.audit(:data="auditData")
+      prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
+        template(#message="slotProps")
+        span.sendtoPm 
+          | Sorry something went wrong on our end.  Please contact a PM directly, or please go to  
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
+          | to place your request
+      prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
+        template(#message="slotProps")
+        span.sendtoPm 
+          | Sorry, something went wrong on our end. {{order.sgsId}} was unable to be  added to your cart.Please contact a PM directly, or please go to 
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
+          | to place your request
+         
     router-view
 </template>
 
@@ -501,5 +554,7 @@ async function addMultipleToCart(values: any) {
 
 .audit
   margin:15px
-  
+
+.sendtoPm
+  margin:25px 
 </style>

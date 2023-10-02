@@ -34,6 +34,7 @@ const sendToPmstore = useSendToPmStore();
 const notificationsStore = useNotificationsStore()
 const printerName = computed(() => {
   const user = authb2cStore.currentB2CUser;
+ sendToPmstore.externalPrinterName =authb2cStore.currentB2CUser.printerName;
   return user?.printerName || '';
 });
 
@@ -253,7 +254,7 @@ function clearForm() {
 <template lang="pug">
 .send-to-pm
   .cta
-    small Urgent/ Missing Order?&nbsp;
+    small(v-if="!sendToPmstore.isValidated") Urgent/ Missing Order?&nbsp;
     a(@click.prevent="initForm()")
       small Send to PM
 
@@ -272,7 +273,7 @@ function clearForm() {
           .field-group
             .f
               label(for="name") Printer
-              strong {{printerName}}
+              strong {{ sendToPmstore.externalPrinterName }}
             .f
               label(for="brand") Brand
               prime-inputtext#brand(v-model="sendForm.brand" name="brand")
