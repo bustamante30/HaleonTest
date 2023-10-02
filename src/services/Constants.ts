@@ -13,5 +13,13 @@ export const FILE_SIZE_EXCEEDS = 'File size exceeds the limit (25 MB).';
 export const UPLOAD_SUCCESSFULL = `Uploaded successfully`;
 export const UPLOAD_SUCCESSFULL_MSG = 'Your files were successfully uploaded';
 export const MAX_FILE_SIZE =  26214400;
+export const PO_DELIMITER = ",";
+
+export const PO_FORM_ERROR = 'Invalid PO Form';
+export const INVALID_DATE_TIME = 'Date and Time can not be empty';
+export const PO_NUMBER_MIN_LENGTH = 'Please enter at least 3 characters in the purchase order field.';
+export const PO_NUMBER_MAX_LENGTH = 'The Purchase order field cannot exceed 30 characters.';
+export const DUPLICATE_PO_NUMBER = 'Duplicate purhcase order number(s)';
+export const INVALID_PO_NUMBER = 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'';
 
 export * from './Constants'; 

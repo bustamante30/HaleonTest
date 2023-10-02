@@ -61,7 +61,7 @@ function validateReorder() {
 function reorder() {
   const valid = validateReorder()
   if (valid) router.push(`/dashboard/${props.selectedId}/confirm`)
-}``
+}
 
 async function addToCart() {
   const valid = validateReorder()

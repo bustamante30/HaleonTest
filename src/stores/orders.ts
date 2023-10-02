@@ -12,16 +12,17 @@ import ReorderService from "@/services/ReorderService";
 import router from "@/router";
 import type { ReorderDto } from "@/models/ReorderDto";
 import { useAuthStore } from './auth';
+import * as Constants from '@/services/Constants';
+
 
 const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageState:any, columnFilter: any = null) : ReorderDto[] =>{
 
    // Filter by Date
-
-   const startDate = filters.startDate[0]?filters.startDate[0] : filters.startDate
-   const endDate = filters.startDate[1]?filters.startDate[1] : filters.endDate
+   const startDate = filters.startDate[0]?filters.startDate[0] : null
+   const endDate = filters.startDate[1]?filters.startDate[1] : null
  
    let filteredresult :any[] =  []   
-   if(filters.query === '' ||filters.query === null ){
+   if(startDate && endDate && (filters.query === '' ||filters.query === null) ){
      reorderedData.forEach(order => {
        let date;
        if(typeof order.submittedDate === 'string' && order.submittedDate?.includes('T')){
@@ -71,7 +72,7 @@ const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageStat
         }
      }
      console.log('totalCount', resultForCache.length)
-   return resultForCache.slice((pageState.page -1), (pageState.page * pageState.rows ))
+   return resultForCache.slice((pageState.page -1) * pageState.rows, (pageState.page * pageState.rows ))
  }
 
  const sortBydate = (orders) =>{
@@ -90,6 +91,7 @@ const getSearchParamsAsString = (search) =>{
   const filters = jsonify(search)
   delete filters['sortBy']
   delete filters['sortOrder']
+  delete filters['startDate']
 
   return JSON.stringify(filters)
 }
@@ -118,7 +120,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     checkout: {
       expectedDate: null,
-      purchaseOrder: null,
+      purchaseOrder: [''],
       expectedTime: null,
       notes: null,
     },
@@ -128,7 +130,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       { name: "Completed", value: 4, },
       { name: "Submitted", value: 2, },
       { name: "Cancelled", value: 3, },
-      { name: "Draft", value: 1, },
+      //{ name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -192,7 +194,7 @@ export const useOrdersStore = defineStore("ordersStore", {
          6.Prepare options for platetype dropdown in Reorder Step */
       this.loading.order = true
       this.selectedOrder = null
-      this.checkout = { expectedDate: null, purchaseOrder: null, expectedTime: null, notes: null, }
+      this.checkout = { expectedDate: null, purchaseOrder: [''], expectedTime: null, notes: null, }
 
       if (reorderId) {
         const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
@@ -209,7 +211,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             await this.getBarcodeAndShirtailForPhotonOrder(order)
           } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
-            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null)
+            const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null);
+            ReorderService.getThumbnail(photonOrder?.originalOrderId)
+              .then((response: string | boolean) => {
+                if(response) this.selectedOrder.thumbNailPath = response;
+              });
+            
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -226,6 +233,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
+          ReorderService.getThumbnail(details.jobId)
+              .then((response: string | boolean) => {
+                if(response) this.selectedOrder.thumbNailPath = response;
+              });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -234,6 +245,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       return this.selectedOrder;
     },
     async setFilters(filters: any) {
+      console.log('My orders', filters)
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       let printers = [] as string[]
@@ -279,7 +291,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-       const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore)
+        const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore);
         result =  {
           reorderedData : reorderedData,
           totalRecords : this.textSearchData.data.reorderedData.length
@@ -306,14 +318,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               reorderedData : [],
               totalRecords:0
             }
-          }else{
+          } else {
             this.textSearchData.data =  {
               reorderedData : result.reorderedData !=null ?result.reorderedData : [],
               totalRecords: result.reorderedData.length
             }
-         }
+          }
 
-          const reorderedData =  handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState)
+          const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
@@ -330,7 +342,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           if('reorderedData' in result && Array.isArray(result.reorderedData) && result.reorderedData.length > 0 ){
               const reorderedData =  handleSortPagination(result.reorderedData , filters,this.pageState)
               result =  {
-                reorderedData : reorderedData,
+                reorderedData : result.reorderedData,
                 totalRecords : result.reorderedData.length
               }
           }
@@ -356,17 +368,11 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
-        if (!this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = new URL(
-            "@/assets/images/no_thumbnail.png",
-            import.meta.url
-          );
-         }
-        else if (this.orders[i].thumbNailPath) {
-          this.orders[i].thumbNailPath = 
-            this.orders[i].thumbNailPath
-          ;
-        }
+        const sgsId = this.orders[i].id === 0 ? this.orders[i].sgsId : this.orders[i].originalOrderId;
+        ReorderService.getThumbnail(sgsId)
+          .then((response: string | boolean) => {
+            if(response && this.orders[i]) this.orders[i].thumbNailPath = response;
+          });
         if( typeof this.orders[i].submittedDate === 'string' && this.orders[i].submittedDate?.includes('T'))
         {
           let formattedDate:string = (this.orders[i].submittedDate+'').includes('Z')? this.orders[i].submittedDate : this.orders[i].submittedDate+'Z'
@@ -381,16 +387,26 @@ export const useOrdersStore = defineStore("ordersStore", {
       filterStore.state.descriptionFilter = null;
       filterStore.state.packTypeFilter = null;
       filterStore.state.sortFields = null;
+      this.textSearchData =  {
+        query: '',
+        data:  {
+        reorderedData: [] as ReorderDto[],
+        totalRecords: 0
+        }
+     } 
     },
     async setFilter(field: any, value: any) {
       this.filters[field] = value;
     },
+
     updateCheckout(checkout: any) {
       this.checkout = { ...checkout };
-      (this.selectedOrder as any).PO = this.checkout.purchaseOrder;
+      let POs = this.checkout?.purchaseOrder?.filter(Boolean).join(Constants.PO_DELIMITER);
+      (this.selectedOrder as any).PO = POs;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
       (this.selectedOrder as any).Notes = this.checkout.notes;
     },
+
     // color update flow
     async updateColor({ checkboxId, field, value }: any) {
       const colours = this.selectedOrder['colors'] as any[]

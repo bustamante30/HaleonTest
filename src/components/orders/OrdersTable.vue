@@ -365,15 +365,15 @@ function handleOrderValidation(data: any) {
           table-cell(:config="config.cols[6]" :data="data")
       
       //- Printer Location column
-      Column(
-        field="printerLocation"
-        header="Printer Location"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[7].width)"
-        :bodyStyle="stylify(config.cols[7].width)"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[7]" :data="data")
+      //- Column(
+      //-   field="printerLocation"
+      //-   header="Printer Location"
+      //-   :sortable="true"
+      //-   :headerStyle="stylify(config.cols[7].width)"
+      //-   :bodyStyle="stylify(config.cols[7].width)"
+      //- )
+      //-   template(#body="{ data }")
+      //-     table-cell(:config="config.cols[7]" :data="data")
       
       //- PackType column
       Column(

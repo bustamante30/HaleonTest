@@ -22,7 +22,7 @@ class ApiService {
       config.cancelToken = this.cancelTokenSource.token;
 
       const response: AxiosResponse<T> = await axios(config);
-      return response.data;
+      return response?.data;
     } catch (error: any) {
       if (axios.isCancel(error)) {
         console.log('Request canceled:', error.message);

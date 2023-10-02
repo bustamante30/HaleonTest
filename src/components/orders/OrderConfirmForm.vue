@@ -9,6 +9,8 @@ import { FileUploadService ,type FileUploadResponse, type FileDelete }from "@/se
 import type { UploadFileDto } from '@/models/UploadFileDto';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
 
+
+
 type ValidFiles = {
   fileName : string,
   uri:string
@@ -27,7 +29,7 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 const authb2cStore = useB2CAuthStore();
 const authStore = useAuthStore();
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 
 const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
@@ -43,12 +45,23 @@ watch(props.checkout, () => {
   checkoutForm.value = { ...props.checkout }
 })
 
+function addPurchaseOrder() {
+  if (checkoutForm.value?.purchaseOrder?.length < 10) checkoutForm.value?.purchaseOrder.unshift('');
+
+}
+
+function removePurchaseOrder(index : number) {
+  const po = checkoutForm.value?.purchaseOrder
+  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[]
+}
+
 function updateCheckout() {
   let expectedDateTime: Date = checkoutForm.value.expectedDate;
   if(checkoutForm.value.expectedDate) {
-  expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
-  expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes())
+    expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
+    expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes())
   }
+
   emit('change', { 
     purchaseOrder:checkoutForm.value.purchaseOrder? checkoutForm.value.purchaseOrder: null,
     expectedDate:expectedDateTime, 
@@ -62,35 +75,7 @@ function updateCheckout() {
 function minSelectableDate() {
   return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
 }
-const validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
 
-const errorMessages = {
-  minLength: 'Please enter at least 3 characters in the purchase order field.',
-  maxLength: 'The Purchase order field cannot exceed 30 characters.',
-  invalidCharacters: 'The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) " : ; < > \'',
-};
-
-function validatePurchaseOrder(): string {
-  const purchaseorder = checkoutForm.value.purchaseOrder;  
-  if (purchaseorder === null) {
-    return "";
-  }
-
-  if (purchaseorder.length < 3) {
-    return errorMessages.minLength;
-  }
-  
-  if (purchaseorder.length > 30) {
-    return errorMessages.maxLength;
-  }
-  
-  for (let i = 0; i < purchaseorder.length; i++) {
-    if (!validSpecialCharacters.includes(purchaseorder[i]) && !/^[a-zA-Z0-9]$/.test(purchaseorder[i])) {
-      return errorMessages.invalidCharacters;
-    }
-  }
- return "";
-}
 function showNotes(): boolean {
   return authb2cStore.currentB2CUser.userType === 'EXT';
 }
@@ -208,12 +193,15 @@ async function onDeleteClick(file: ValidFiles,index:number) {
 function onDragOver(event: any) {
   event.preventDefault();
 }
+
 function onDragEnter(event: any) {
   event.preventDefault();
 }
+
 function onDragLeave(event: any) {
   event.preventDefault();
 }
+
 function handleInput(e: any) {
   const files = e.target.files;
 }
@@ -232,11 +220,22 @@ function handleInput(e: any) {
       label Delivery time *
       span.input.calendar    
         prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" timeOnly appendTo="body" hourFormat="12" required="true")
-    .f
-      label Purchase Order #
-      span.input
-        prime-inputtext(v-model="checkoutForm.purchaseOrder" :class="{'invalid': (checkoutForm.purchaseOrder)}")
-        span.warning-message(v-if="validatePurchaseOrder()") {{ validatePurchaseOrder() }}
+    
+
+    .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
+      label
+        span(v-if="i === 0") Purchase Order #
+      span.input.po
+        .input-text
+          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" @update:modelValue="updateCheckout" maxlength="26")
+          //-span.error(v-if="validatePurchaseOrder(i)") {{ validatePurchaseOrder(i) }}
+        a(v-if="i === 0" @click="addPurchaseOrder()" :class="{ disabled: checkoutForm.purchaseOrder.length >= 10 }")
+          span Add&nbsp;
+          i.material-icons add
+        a.remove(v-else @click="removePurchaseOrder(i)")
+          i.material-icons delete_outline
+
+
   .notes(v-if="showNotes()")
     .f
       label Notes
@@ -300,6 +299,29 @@ function handleInput(e: any) {
         color: red
         font-weight: bolder
         font-size: 14px
+      
+      span.error
+        color: $sgs-red
+        display: block
+        padding: $s25 0
+        font-size: 0.9rem
+        font-weight: 500
+
+    span.input.po
+      +flex
+      width: auto
+      max-width: none
+      .po-number
+        width: 18rem
+      a
+        +flex
+        font-size: 0.9rem
+        margin: 0 $s50
+        font-weight: 700
+        .material-icons
+          font-size: 0.7rem
+      a.remove .material-icons
+        color: $sgs-red
 .doc-label
   padding: 1rem
 .drop-zone

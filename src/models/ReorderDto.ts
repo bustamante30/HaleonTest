@@ -9,6 +9,7 @@ export type SearchPagedResultDto= {
 
 
 export type ReorderDto = {
+    originalOrderId?: string;
     id?: number;
     sgsId?: string | number;
     brandName?: string | null;
@@ -26,6 +27,7 @@ export type ReorderDto = {
     orderStatus?: string | null;
     thumbNailPath: string | null;
     colors?: Array<ColourDto> | null;
+    myOrdersToggled?: boolean;
 };
 
 
