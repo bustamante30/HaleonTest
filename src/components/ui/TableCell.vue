@@ -56,10 +56,19 @@ function update(value) {
 }
 
 async function navigate(config,data){
-  debugger;
-    if(data.sgsId != undefined)
+    if ((data.originalOrderId != undefined || data.sgsId !=undefined) && data.orderStatus === "Completed")
   {
-    emit('ordervalidation',{sgsId : data.sgsId,path:resolvePath(config, data)});
+    let jobNumber ="";
+    if(data.originalOrderId != null)
+    {
+      jobNumber = data.originalOrderId;
+    }
+    else if (data.sgsId != null)
+    {
+      jobNumber = data.sgsId;
+    }
+
+    emit('ordervalidation',{originalOrderId : jobNumber,path:resolvePath(config, data)});
   }else{
     const link = resolvePath(config, data)
     router.push(link)

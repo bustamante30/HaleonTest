@@ -284,7 +284,6 @@ async function addToCart(order: any) {
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
-      debugger;
       const result=  await ReorderService.validateOrder(order.sgsId);
       if(result === false)
       {
@@ -323,7 +322,6 @@ async function addToCart(order: any) {
 
 }
 async function reorder(order: any) {
-  debugger;
   const result=  await ReorderService.validateOrder(order.sgsId);
   if (result === false) {
     if(userType.value === 'EXT')
@@ -390,7 +388,6 @@ const auditOrder = async (order)=>{
 }
 
 async function addMultipleToCart(values: any) {
-  debugger;
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
@@ -450,16 +447,14 @@ async function addMultipleToCart(values: any) {
 
 async function handleOrderValidation(data: any) 
 {
-  debugger;
-const result=  await ReorderService.validateOrder(data.sgsId);
+const result=  await ReorderService.validateOrder(data.originalOrderId);
 if (result === false) 
 {
-
     if(userType.value === 'EXT')
     {
 
       sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
-      sgsJobId.value = data;
+      sgsJobId.value = data.originalOrderId;
       showCartConfirmDialog.value = true;
       sendToPmStore.isValidated = true;
 
