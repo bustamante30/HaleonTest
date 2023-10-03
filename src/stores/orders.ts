@@ -215,15 +215,18 @@ export const useOrdersStore = defineStore("ordersStore", {
         const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
         if (isPhotonOrder) {
           const cartStore = useCartStore()
-          const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
-          const isCartOrder = !!order
+          const cartOrder = cartStore.cartOrders.find((order: any) => order.id === reorderId)
+          const isCartOrder = !!cartOrder
           if (isCartOrder) { // Photon order loaded from cart
-            const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
+            const plateTypes = await cartOrder?.plateTypes?.length ? mapPlateTypes(cartOrder) : mapColorPlateTypes(cartOrder.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-            this.selectedOrder = order
+            this.selectedOrder = cartOrder;
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
-            await this.getBarcodeAndShirtailForPhotonOrder(order)
+            await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
+            this.getPdfData(cartOrder.originalOrderId).then((response: Object) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
           } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
             const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null);
@@ -231,17 +234,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-            ReorderService.getPdfs('7105664')
-              .then((response: Object | boolean) => {
-                if(response) {
-                  for (const pdfName in response) {
-                    const base64String = response[pdfName];
-                    const blob = base64toBlob(base64String);
-                    response[pdfName] = URL.createObjectURL(blob);
-                  }
-                  this.selectedOrder.pdfUris = response;
-                }
-              });
+            this.getPdfData(photonOrder?.originalOrderId).then((response: Object) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -263,25 +258,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-              //debugger;
-          ReorderService.getLenThumbnails('7105664')
-            .then((response: Object | boolean) => {
-              //debugger;
-              if(response){
-                console.log(response);
-              }
-            });
-          ReorderService.getPdfs('7105664')
-            .then((response: Object | boolean) => {
-              if(response) {
-                for (const pdfName in response) {
-                  const base64String = response[pdfName];
-                  const blob = base64toBlob(base64String);
-                  response[pdfName] = URL.createObjectURL(blob);
-                }
-                this.selectedOrder.pdfUris = response;
-              }
-            });
+          this.getPdfData(details.jobId).then((response: Object) => {
+            if(response) this.selectedOrder.pdfData = response;
+          });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -336,7 +315,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       ) {
         
         console.log('Showing result from Local Store');
-        //debugger;
         const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState, filterStore);
         result =  {
           reorderedData : reorderedData,
@@ -370,14 +348,12 @@ export const useOrdersStore = defineStore("ordersStore", {
               totalRecords: result.reorderedData.length
             }
           }
-          //debugger;
           const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
           }
         } else {
-          //debugger;
           console.log('Clearing result from local store .. ');
           this.textSearchData.query = '';
           this.textSearchData.data = {
@@ -574,5 +550,18 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    getPdfData(sgsId: string) {
+      return ReorderService.getPdfs(sgsId)
+      .then((response: Object | boolean) => {
+        if(response) {
+          for (const pdfName in response) {
+            const base64String = response[pdfName];
+            const blob = base64toBlob(base64String);
+            response[pdfName] = URL.createObjectURL(blob);
+          }
+          return response;
+        }
+      });
+    }
   },
 });

@@ -83,7 +83,7 @@ function viewPreview() {
       .card
         order-shirttail(:data="selectedOrder.details")
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfUris" :header="`${pdfName}`")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :header="`${pdfName}`")
           //vue-pdf-embed(:source="pdfUris")
           //embed.pdf(:src="pdfUris" type="application/pdf" width="100%" height="500px")
           iframe.pdf(:src="pdfUri")
