@@ -22,6 +22,10 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  OrderValidation:{
+    type: Boolean,
+    default: false
   }
 })
 type ValidFiles = {
@@ -253,8 +257,8 @@ function clearForm() {
 
 <template lang="pug">
 .send-to-pm
-  .cta
-    small(v-if="!sendToPmstore.isValidated") Urgent/ Missing Order?&nbsp;
+  .cta(:class="{'m-0':props.OrderValidation}")
+    small(v-if="!props.OrderValidation") Urgent/ Missing Order?&nbsp;
     a(@click.prevent="initForm()")
       small Send to PM
 
@@ -378,7 +382,8 @@ function clearForm() {
 .cta
   +flex
   margin: 0 $s
-
+.m-0
+  margin: 0 6px
 .fields
   .field-group
     display: grid

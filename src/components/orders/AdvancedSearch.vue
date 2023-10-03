@@ -21,7 +21,7 @@ form.advanced-search(@submit.prevent="onSubmit")
           label(v-if="filter.label") {{ filter.label }}
           prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
           prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found" @item-select="searchPrinterSites()" )
+          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal == true" emptyMessage="No results found")
           prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults.length ? printerSiteResults : [advancedFilters[filter.name]]" emptyMessage="No results found" )
           prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
     template(#footer)
@@ -105,12 +105,13 @@ const closeForm = () => {
 onBeforeMount(async () => {
   ordersStore.initAdvancedFilters();
   (advancedFilters as any).value = { ...(props.filters) };
-  if(props.printerName.length>0){
-    advancedFilters.value["printerName"] = props.printerName;
-    searchPrinterSites();
-  }
   await searchhistoryStore.getSearchDate(true).then(() => { formatDate() });
   await searchhistoryStore.getSearchField();
+
+  if(props.printerName.length>0){
+    advancedFilters.value["printerName"] = props.printerName;
+    //searchPrinterSites();
+  }
 });
 
 watch(() => props.filters, (value) => {
@@ -169,7 +170,7 @@ function reset() {
   advancedFilters.value["imageCarrierCode"] = null;
   advancedFilters.value["printerPlateCode"] = null;
   advancedFilters.value["startDate"] = [];
-  searchPrinterSites()
+  // searchPrinterSites()
   ordersStore.initAdvancedFilters()
 }
 

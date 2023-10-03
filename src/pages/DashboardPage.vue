@@ -300,7 +300,7 @@ async function addToCart(order: any) {
     {
       notificationsStore.addNotification(
         `Info`,
-        "Order cannot be processed.Flexo Plate Task not available for this order",
+        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
         { severity: "error" }
       );
 
@@ -337,7 +337,7 @@ async function reorder(order: any) {
     {
       notificationsStore.addNotification(
         `Info`,
-        "Order cannot be processed.Flexo Plate Task not available for this order",
+        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
         { severity: "error" }
       );
 
@@ -416,7 +416,7 @@ async function addMultipleToCart(values: any) {
     {
       notificationsStore.addNotification(
         `Info`,
-        "Order cannot be processed.Flexo Plate Task isn't available for this order",
+        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
         { severity: "error" }
       );
 
@@ -456,16 +456,16 @@ if (result === false)
     {
 
       sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
-      sgsJobId.value = data.originalOrderId;
-      showCartConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
+         // Validation failed, show the confirm  dialog
+    showConfirmDialog.value = true;
+    sendToPmStore.isValidated = true;
 
     }
     else
     {
       notificationsStore.addNotification(
         `Info`,
-        "Order cannot be processed.Flexo Plate Task isn't available for this order",
+        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
         { severity: "error" }
       );
 
@@ -528,14 +528,15 @@ else
       prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
         span.sendtoPm 
-          | Sorry something went wrong on our end.  Please contact a PM directly, or please go to  
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
+          | Sorry something went wrong on our end. Please contact a PM directly, or please go to  
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true" ) 
           | to place your request
       prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
         span.sendtoPm 
           | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder") | to place your request
+          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true") 
+          | to place your request
          
     router-view
 </template>
@@ -601,4 +602,6 @@ else
 
 .sendtoPm
   margin:25px 
+  display: flex
+  align-items: center
 </style>
