@@ -13,6 +13,11 @@ export const useNotificationsStore = defineStore('notifications', {
       options = { severity: 'warn', life: 3000, position: 'top-right', ...options }
       const notification = { summary: summary || 'Summary', detail: detail || 'Detailed message ...', ...options }
       this.notification = { ...notification }
+      if(options.life) {
+        setTimeout(() => {
+          this.notification = null
+        }, options.life)
+      }
     }
   }
 })
