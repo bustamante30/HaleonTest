@@ -357,7 +357,7 @@ export const useUsersStore = defineStore('users', {
         lastName: userEditResp.lastName,
         email: userEditResp.email,
        isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
-       isPrimaryPM: userEditResp.isPrimaryPM || false,
+       isPrimaryPM: isPrimaryPMValue|| false,
        //location: selectedLocations,
        userType: userEditResp.userType 
       };

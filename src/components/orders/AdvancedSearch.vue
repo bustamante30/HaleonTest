@@ -212,9 +212,6 @@ function validateForm() {
   if (!advancedFilters.value?.printerName) {
     return "You must select a printer.";
   }
-  // if (advancedFilters.value?.printerSite == null) {
-  //   return "You must select a Shipping location.";
-  // }
 
   const errorMessage =
     "You must enter information into at least 1 field. Printer Name must have an entry";
