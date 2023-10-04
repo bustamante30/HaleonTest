@@ -253,7 +253,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
           this.selectedOrder = { ...this.selectedOrder, ...mapSgsOrderDetail(details) }
-          //todo: get len blobs and map
           ReorderService.getThumbnail(details.jobId)
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;

@@ -53,7 +53,6 @@ function viewPreview() {
 }
 </script>
 
-
 <template lang="pug">
 .page.details
   sgs-mask(@click="router.push('/dashboard')")
