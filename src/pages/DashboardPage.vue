@@ -166,20 +166,14 @@ function changeDateFilter(dtFilter: any) {
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
-  addPrinterFilter(); 
   filters.value.myOrdersToggled = showMyOrders.value;
   ordersStore.setFilters(filters.value);
 }
-function addPrinterFilter() {
-  console.log("printer: " + authb2cStore.currentB2CUser.printerName);
-  const printerName = authb2cStore.currentB2CUser.isLoggedIn
-    ? authb2cStore.currentB2CUser.printerName
-    : null;
-  if (printerName && !filters.value.printerName)
-    filters.value.printerName = printerName;
-}
+
 
 function handleOrderToggle() {
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
+  filters.value.status = selectedStatus.value.value;
   const toggleFilter = {
     ...filters.value,
     myOrdersToggled: showMyOrders.value
@@ -192,7 +186,6 @@ function searchByStatus() {
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
   filters.value.myOrdersToggled = showMyOrders.value;
-  addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
@@ -230,7 +223,6 @@ function search(filters: any) {
         );
       }
     }
-    addPrinterFilter();
     ordersStore.setFilters(filters);
   } else {
     ordersStore.initAdvancedFilters();
@@ -250,7 +242,6 @@ const clearSearchTags = (index: number) => {
       ...filters.value,
       query: searchTags.value.join(","),
     };
-    addPrinterFilter();
     ordersStore.setFilters(fil);
   }
 };
