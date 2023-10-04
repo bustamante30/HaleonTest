@@ -2,7 +2,7 @@ import { colorDecorator, mapPhotonOrderDetail, validation, newFilterProps, flatt
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
-import { sum, sortBy} from "lodash";
+import { sum, sortBy, forEach} from "lodash";
 import { toRaw } from 'vue';
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from '@/stores/cart'
@@ -95,6 +95,21 @@ const getSearchParamsAsString = (search) =>{
 
   return JSON.stringify(filters)
 }
+
+const base64toBlob = (data: string) => {
+  // Cut the prefix `data:application/pdf;base64` from the raw base 64
+  const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+
+  const bytes = atob(base64WithoutPrefix);
+  let length = bytes.length;
+  let out = new Uint8Array(length);
+
+  while (length--) {
+      out[length] = bytes.charCodeAt(length);
+  }
+
+  return new Blob([out], { type: 'application/pdf' });
+};
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -200,15 +215,18 @@ export const useOrdersStore = defineStore("ordersStore", {
         const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
         if (isPhotonOrder) {
           const cartStore = useCartStore()
-          const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
-          const isCartOrder = !!order
+          const cartOrder = cartStore.cartOrders.find((order: any) => order.id === reorderId)
+          const isCartOrder = !!cartOrder
           if (isCartOrder) { // Photon order loaded from cart
-            const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
+            const plateTypes = await cartOrder?.plateTypes?.length ? mapPlateTypes(cartOrder) : mapColorPlateTypes(cartOrder.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-            this.selectedOrder = order
+            this.selectedOrder = cartOrder;
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
-            await this.getBarcodeAndShirtailForPhotonOrder(order)
+            await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
+            this.getPdfData(cartOrder.originalOrderId).then((response: Object) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
           } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
             const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null);
@@ -216,7 +234,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-            
+            this.getPdfData(photonOrder?.originalOrderId).then((response: Object) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -237,6 +257,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
+          this.getPdfData(details.jobId).then((response: Object) => {
+            if(response) this.selectedOrder.pdfData = response;
+          });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -324,13 +347,11 @@ export const useOrdersStore = defineStore("ordersStore", {
               totalRecords: result.reorderedData.length
             }
           }
-
           const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
           }
-
         } else {
           console.log('Clearing result from local store .. ');
           this.textSearchData.query = '';
@@ -528,5 +549,18 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    getPdfData(sgsId: string) {
+      return ReorderService.getPdfs(sgsId)
+      .then((response: Object | boolean) => {
+        if(response) {
+          for (const pdfName in response) {
+            const base64String = response[pdfName];
+            const blob = base64toBlob(base64String);
+            response[pdfName] = URL.createObjectURL(blob);
+          }
+          return response;
+        }
+      });
+    }
   },
 });
