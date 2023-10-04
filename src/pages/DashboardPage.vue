@@ -166,24 +166,30 @@ function changeDateFilter(dtFilter: any) {
   selectedDate.value = dtFilter.value;
   filters.value.startDate = getDateRange(dtFilter.value);
   filters.value.status = selectedStatus.value.value;
-  addPrinterFilter(); 
+  // addPrinterFilter(); 
   filters.value.myOrdersToggled = showMyOrders.value;
   ordersStore.setFilters(filters.value);
 }
-function addPrinterFilter() {
-  console.log("printer: " + authb2cStore.currentB2CUser.printerName);
-  const printerName = authb2cStore.currentB2CUser.isLoggedIn
-    ? authb2cStore.currentB2CUser.printerName
-    : null;
-  if (printerName && !filters.value.printerName)
-    filters.value.printerName = printerName;
-}
+
+// commented addPrinterFilter as we get this value in service from user claim, so not needed to send from UI
+// once validated will remove this commented code
+// function addPrinterFilter() {
+//   console.log("printer: " + authb2cStore.currentB2CUser.printerName);
+//   const printerName = authb2cStore.currentB2CUser.isLoggedIn
+//     ? authb2cStore.currentB2CUser.printerName
+//     : null;
+//   if (printerName && !filters.value.printerName)
+//     filters.value.printerName = printerName;
+// }
 
 function handleOrderToggle() {
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
+  filters.value.status = selectedStatus.value.value;
   const toggleFilter = {
     ...filters.value,
     myOrdersToggled: showMyOrders.value
   }
+  console.log('toggle',toggleFilter)
   ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
@@ -192,7 +198,7 @@ function searchByStatus() {
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
   filters.value.myOrdersToggled = showMyOrders.value;
-  addPrinterFilter();
+  // addPrinterFilter();
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
@@ -230,7 +236,7 @@ function search(filters: any) {
         );
       }
     }
-    addPrinterFilter();
+    //addPrinterFilter();
     ordersStore.setFilters(filters);
   } else {
     ordersStore.initAdvancedFilters();
@@ -250,7 +256,7 @@ const clearSearchTags = (index: number) => {
       ...filters.value,
       query: searchTags.value.join(","),
     };
-    addPrinterFilter();
+    // addPrinterFilter();
     ordersStore.setFilters(fil);
   }
 };

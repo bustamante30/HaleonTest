@@ -2,7 +2,7 @@ import { colorDecorator, mapPhotonOrderDetail, validation, newFilterProps, flatt
 import { DateTime } from "luxon";
 import { defineStore } from "pinia";
 import { faker } from '@faker-js/faker';
-import { sum, sortBy, forEach} from "lodash";
+import { sum, sortBy} from "lodash";
 import { toRaw } from 'vue';
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from '@/stores/cart'
@@ -29,7 +29,7 @@ const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageStat
          date = DateTime.fromISO(order.submittedDate).toMillis()
      }else{
       const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
-       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
+       date = DateTime.fromFormat(submittedDate,'MMM d, yyyy, h:mm a').toMillis()
      }
        if(date >= DateTime.fromJSDate(startDate).toMillis() && 
        date <= DateTime.fromJSDate(endDate).toMillis() ){
