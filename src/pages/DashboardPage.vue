@@ -178,7 +178,6 @@ function handleOrderToggle() {
     ...filters.value,
     myOrdersToggled: showMyOrders.value
   }
-  console.log('toggle',toggleFilter)
   ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
