@@ -7,7 +7,7 @@ import { useUploadFilesStore } from '@/stores/upload-files';
 import { useToast } from 'primevue/usetoast';
 import { useNotificationsStore } from '@/stores/notifications';
 import type { DeleteFileDto } from '@/models/DeleteFileDto';
-import { inject, ref, computed, watch } from 'vue'
+import { inject, ref, computed, watch, onMounted } from 'vue'
 import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -36,9 +36,15 @@ const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const sendToPmstore = useSendToPmStore();
 const notificationsStore = useNotificationsStore()
+
+onMounted(async () => {
+  sendToPmstore.externalPrinterName =authb2cStore.currentB2CUser.printerName;
+})
+
+
 const printerName = computed(() => {
   const user = authb2cStore.currentB2CUser;
- sendToPmstore.externalPrinterName =authb2cStore.currentB2CUser.printerName;
+
   return user?.printerName || '';
 });
 
