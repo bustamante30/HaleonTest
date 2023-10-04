@@ -224,7 +224,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
             await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
-            this.getPdfData(cartOrder.originalOrderId).then((response: Object) => {
+            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
               if(response) this.selectedOrder.pdfData = response;
             });
           } else { // Photon order loaded from dashboard
@@ -234,7 +234,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-            this.getPdfData(photonOrder?.originalOrderId).then((response: Object) => {
+            this.getPdfData(photonOrder?.originalOrderId).then((response: any) => {
               if(response) this.selectedOrder.pdfData = response;
             });
             const details = { ...photonOrder, ...photonOrderDetails }
@@ -257,7 +257,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-          this.getPdfData(details.jobId).then((response: Object) => {
+          this.getPdfData(details.jobId).then((response: any) => {
             if(response) this.selectedOrder.pdfData = response;
           });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
@@ -551,7 +551,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     getPdfData(sgsId: string) {
       return ReorderService.getPdfs(sgsId)
-      .then((response: Object | boolean) => {
+      .then((response: any) => {
         if(response) {
           for (const pdfName in response) {
             const base64String = response[pdfName];

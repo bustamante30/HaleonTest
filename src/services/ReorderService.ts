@@ -316,7 +316,7 @@ class ReorderService {
     public static getPdfs(sgsId: string) {
         return httpService
         .get<string>(`v1/Reorder/${sgsId.split('-')[0]}/pdfs`)
-        .then((response: string) => {
+        .then((response: Object) => {
           return response;
         })
           .catch((error: any) => {
