@@ -82,6 +82,14 @@ const searchHistory = computed(() => ordersStore.searchHistory);
 
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
+const roleKey = computed(() => {
+  if (authStore.currentUser.roleKey) {
+    return authStore.currentUser.roleKey;
+  }
+  if (authb2cStore.currentB2CUser.roleKey) {
+    return authb2cStore.currentB2CUser.roleKey;
+  }
+});
 const showMultipleSelection = ref(false);
 const searchExecuted = ref(false);
 // Freetext tags
@@ -94,6 +102,7 @@ const init = () =>{
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
+  isAdminAddDraftTab()
   showMyOrders.value = true;
   ordersStore.firstLoad = true;
 }
@@ -112,6 +121,7 @@ watch(currentUser, (value) => {
     ordersStore.initAdvancedFilters();
     changeDateFilter(dateFilter.value[0]);
   }
+  isAdminAddDraftTab()
 });
 watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
@@ -119,7 +129,14 @@ watch(currentB2CUser, (value) => {
     ordersStore.initAdvancedFilters();
     changeDateFilter(dateFilter.value[0]);
   }
+  isAdminAddDraftTab()
 });
+
+function isAdminAddDraftTab() {
+ const exists = statusList.value.some((obj) => obj.name === "Draft");
+  if (!exists && (roleKey.value === 'PrinterAdmin' || roleKey.value === 'PMSuperAdminUser'))
+    statusList.value.push({ name: "Draft", value: 1, })
+}
 
 function getDateFilter(): [string, string] {
   let filter: any = [];
@@ -499,7 +516,7 @@ else
               prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             .my-orders(v-if="!searchExecuted")
               .switch
-                span Show only my orders
+                span My orders
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
@@ -561,7 +578,7 @@ else
         border-radius: 3px
         span
           font-size: 0.95rem 
-          width: 8rem
+          width: 4rem
       .search, .send-to-pm
         justify-content: flex-end
   &.dark
