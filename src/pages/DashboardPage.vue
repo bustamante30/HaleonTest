@@ -189,6 +189,7 @@ function searchByStatus() {
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
+  showMyOrders.value = false;
   if (event) {
     searchExecuted.value = true;
     searchTags.value = event.query.split(",");
@@ -209,6 +210,7 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
+  showMyOrders.value = false;
   searchExecuted.value = true;
   ordersStore.pageState.page = 1;
   searchTags.value = [];
