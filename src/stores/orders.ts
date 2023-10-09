@@ -287,6 +287,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               
           })
         filters.roleKey = authStore.currentUser.roleKey
+        filters.userType = authStore.currentUser.userType
       }
       if(b2cAuth.currentB2CUser.isLoggedIn){
         b2cAuth.currentB2CUser.prtLocation.forEach((printer:any) =>{
@@ -299,6 +300,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
         })
         filters.roleKey = b2cAuth.currentB2CUser.roleKey
+        filters.userType = b2cAuth.currentB2CUser.userType
       }
       let result:
         | {
@@ -310,7 +312,9 @@ export const useOrdersStore = defineStore("ordersStore", {
         And Status should be completed (4) */
       if (
         this.textSearchData.query != '' &&
-        this.textSearchData.query === getSearchParamsAsString(filters) && filters.status === 4
+        this.textSearchData.query === getSearchParamsAsString(filters) && filters.status === 4 &&
+        ((filters.userType !== 'INT' && filters.roleKey !== 'PMSuperAdminUser') ||  
+         (filters.userType === 'INT' && filters.roleKey === 'PMUser'))
       ) {
         
         console.log('Showing result from Local Store');

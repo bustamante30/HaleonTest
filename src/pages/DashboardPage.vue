@@ -98,12 +98,12 @@ const searchTags = ref([]);
 provide("options", options);
 
 const init = () =>{
+  showMyOrders.value = true;
   initClearAllSearchTags()
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
   isAdminAddDraftTab()
-  showMyOrders.value = true;
   ordersStore.firstLoad = true;
 }
 onMounted(()=>{
