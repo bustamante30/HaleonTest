@@ -1,6 +1,4 @@
 import DashboardPage from "@/pages/DashboardPage.vue";
-import FaqPage from "@/pages/FaqPage.vue";
-import HelpPage from "@/pages/HelpPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import authRoutes from "./auth";
 import store from "store";
@@ -54,12 +52,12 @@ const router = createRouter({
      {
       path: '/faq',
       name: 'faq',
-      component: FaqPage
+      component: () => import("@/pages/FaqPage.vue"),
     },
     {
       path: '/help',
       name: 'help',
-      component: HelpPage
+      component: () => import("@/pages/HelpPage.vue"),
     },
     {
       path: "/users",
