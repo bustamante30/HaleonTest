@@ -98,12 +98,12 @@ const searchTags = ref([]);
 provide("options", options);
 
 const init = () =>{
+  showMyOrders.value = true;
   initClearAllSearchTags()
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
   isAdminAddDraftTab()
-  showMyOrders.value = true;
   ordersStore.firstLoad = true;
 }
 onMounted(()=>{
@@ -189,6 +189,7 @@ function searchByStatus() {
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
+  showMyOrders.value = false;
   if (event) {
     searchExecuted.value = true;
     searchTags.value = event.query.split(",");
@@ -209,6 +210,7 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
+  showMyOrders.value = false;
   searchExecuted.value = true;
   ordersStore.pageState.page = 1;
   searchTags.value = [];

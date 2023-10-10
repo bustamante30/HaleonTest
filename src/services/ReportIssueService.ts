@@ -13,7 +13,7 @@ class ReportIssueService{
         newattachments.push({
           filename: file.filename,
           contentType: file.contentType,
-          contents: file.contents
+          base64data: file.contents
         })
        });
         let request: ReportIssueRequestDto = {
