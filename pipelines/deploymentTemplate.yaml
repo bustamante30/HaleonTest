@@ -1,7 +1,7 @@
 parameters:  
   - name: environment
   - name: ArtifactName
-  - name: AzureSubscription
+  - name: AzureServiceConnName
   - name: BuildNumber
 
 jobs:

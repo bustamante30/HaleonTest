@@ -2,6 +2,7 @@ parameters:
   - name: environment
   - name: ArtifactName
   - name: BuildNumber
+  - name: AzureServiceConnName
 
 jobs:
   - job: Job_Build
