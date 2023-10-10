@@ -41,6 +41,28 @@ jobs:
         # Set Azure Devops CLI default settings
       - bash: az devops configure --defaults organization="$(System.TeamFoundationCollectionUri)" project="$(System.TeamProject)"
         displayName: "Set default Azure DevOps organization and project"
+      
+      - task: AzureKeyVault@2
+        displayName: 'Get Azure Secrets'
+        inputs:
+          azureSubscription: '${{ parameters.AzureServiceConnName }}'
+          KeyVaultName: '$(KeyVaultName)'
+          SecretsFilter: |
+                        ${{ parameters.environment }}-Imgcarrier-ui-ViteAadCliendId,
+                        ${{ parameters.environment }}-Imgcarrier-ui-ViteAadTokenScope,
+                        ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CClientId,
+                        ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CTokenScope,
+                        ${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl
+          RunAsPreJob: false
+
+      - script: |
+          echo "Tag azure secrets to environment variables"
+          echo "##vso[task.setvariable variable=VITE_AAD_CLIEND_ID]$(${{ parameters.environment }}-Imgcarrier-ui-ViteAadCliendId)"
+          echo "##vso[task.setvariable variable=VITE_AAD_TOKEN_SCOPE]$(${{ parameters.environment }}-Imgcarrier-ui-ViteAadTokenScope)"
+          echo "##vso[task.setvariable variable=VITE_B2C_CLIENT_ID]$(${{ parameters.environment }}-Imgcarrier-ui-ViteB2CClientId)"
+          echo "##vso[task.setvariable variable=VITE_B2C_TOKEN_SCOPE]$(${{ parameters.environment }}-Imgcarrier-ui-ViteB2CTokenScope)"
+          echo "##vso[task.setvariable variable=VITE_SERVICE_NOW_INTERNAL_URL]$(${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl)"
+        displayName: 'Configure env variables'
 
         # Get last successful commit from Azure Devops CLI
       - bash: |
