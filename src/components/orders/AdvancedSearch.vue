@@ -176,6 +176,7 @@ function reset() {
 
 async function search(advancedSearchParameters?: any) {
   await searchhistoryStore.setSearchHistory(advancedSearchParameters, true)
+  advancedSearchParameters = { ...advancedSearchParameters, isAdvancedSearch: true };
   emit("search", advancedSearchParameters);
 }
 
