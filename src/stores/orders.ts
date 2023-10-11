@@ -29,7 +29,7 @@ const handleSortPagination = ( reorderedData: ReorderDto[],filters:any, pageStat
          date = DateTime.fromISO(order.submittedDate).toMillis()
      }else{
       const submittedDate = order.submittedDate? order.submittedDate.toString() : ''
-       date = DateTime.fromFormat(submittedDate,'d MMM yyyy, HH:mm').toMillis()
+       date = DateTime.fromFormat(submittedDate,'MMM d, yyyy, h:mm a').toMillis()
      }
        if(date >= DateTime.fromJSDate(startDate).toMillis() && 
        date <= DateTime.fromJSDate(endDate).toMillis() ){
@@ -95,6 +95,21 @@ const getSearchParamsAsString = (search) =>{
 
   return JSON.stringify(filters)
 }
+
+const base64toBlob = (data: string) => {
+  // Cut the prefix `data:application/pdf;base64` from the raw base 64
+  const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+
+  const bytes = atob(base64WithoutPrefix);
+  let length = bytes.length;
+  let out = new Uint8Array(length);
+
+  while (length--) {
+      out[length] = bytes.charCodeAt(length);
+  }
+
+  return new Blob([out], { type: 'application/pdf' });
+};
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -200,15 +215,18 @@ export const useOrdersStore = defineStore("ordersStore", {
         const isPhotonOrder = !isNaN(parseFloat(reorderId)) && isFinite(reorderId)
         if (isPhotonOrder) {
           const cartStore = useCartStore()
-          const order = cartStore.cartOrders.find((order: any) => order.id === reorderId)
-          const isCartOrder = !!order
+          const cartOrder = cartStore.cartOrders.find((order: any) => order.id === reorderId)
+          const isCartOrder = !!cartOrder
           if (isCartOrder) { // Photon order loaded from cart
-            const plateTypes = await order?.plateTypes?.length ? mapPlateTypes(order) : mapColorPlateTypes(order.colors)
+            const plateTypes = await cartOrder?.plateTypes?.length ? mapPlateTypes(cartOrder) : mapColorPlateTypes(cartOrder.colors)
             this.options.plateTypeDescription = plateTypes.filter((plateType: any) => plateType.value !== 256)
-            this.selectedOrder = order
+            this.selectedOrder = cartOrder;
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder, statusId, plateTypes);
-            await this.getBarcodeAndShirtailForPhotonOrder(order)
+            await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
+            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
           } else { // Photon order loaded from dashboard
             const photonOrder = this.orders.find((order: any) => order.sgsId === reorderId)
             const photonOrderDetails = jsonify(photonOrder ? await ReorderService.getPhotonReorderDetails(photonOrder?.id) : null);
@@ -216,7 +234,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
-            
+            this.getPdfData(photonOrder?.originalOrderId).then((response: any) => {
+              if(response) this.selectedOrder.pdfData = response;
+            });
             const details = { ...photonOrder, ...photonOrderDetails }
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
@@ -242,6 +262,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               .then((response: string | boolean) => {
                 if(response) this.selectedOrder.thumbNailPath = response;
               });
+          this.getPdfData(details.jobId).then((response: any) => {
+            if(response) this.selectedOrder.pdfData = response;
+          });
           this.mapColorAndCustomerDetailsToOrder(details, (this.selectedOrder as any)["statusId"], plateTypes);
         }
       }
@@ -269,6 +292,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               
           })
         filters.roleKey = authStore.currentUser.roleKey
+        filters.userType = authStore.currentUser.userType
       }
       if(b2cAuth.currentB2CUser.isLoggedIn){
         b2cAuth.currentB2CUser.prtLocation.forEach((printer:any) =>{
@@ -281,6 +305,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number []
         })
         filters.roleKey = b2cAuth.currentB2CUser.roleKey
+        filters.userType = b2cAuth.currentB2CUser.userType
       }
       let result:
         | {
@@ -292,7 +317,9 @@ export const useOrdersStore = defineStore("ordersStore", {
         And Status should be completed (4) */
       if (
         this.textSearchData.query != '' &&
-        this.textSearchData.query === getSearchParamsAsString(filters) && filters.status === 4
+        this.textSearchData.query === getSearchParamsAsString(filters) && filters.status === 4 &&
+        ((filters.userType !== 'INT' && filters.roleKey !== 'PMSuperAdminUser') ||  
+         (filters.userType === 'INT' && filters.roleKey === 'PMUser'))
       ) {
         
         console.log('Showing result from Local Store');
@@ -329,13 +356,11 @@ export const useOrdersStore = defineStore("ordersStore", {
               totalRecords: result.reorderedData.length
             }
           }
-
           const reorderedData = handleSortPagination(this.textSearchData.data.reorderedData , filters,this.pageState);
           result =  {
             reorderedData : reorderedData,
             totalRecords : this.textSearchData.data.reorderedData.length
           }
-
         } else {
           console.log('Clearing result from local store .. ');
           this.textSearchData.query = '';
@@ -556,6 +581,17 @@ export const useOrdersStore = defineStore("ordersStore", {
             order.editionColors.push(colorCopy)
           }
         })
+    getPdfData(sgsId: string) {
+      return ReorderService.getPdfs(sgsId)
+      .then((response: any) => {
+        if(response) {
+          for (const pdfName in response) {
+            const base64String = response[pdfName];
+            const blob = base64toBlob(base64String);
+            response[pdfName] = URL.createObjectURL(blob);
+          }
+          return response;
+        }
       });
     }
   },

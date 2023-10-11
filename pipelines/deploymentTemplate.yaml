@@ -1,7 +1,7 @@
 parameters:  
   - name: environment
   - name: ArtifactName
-  - name: AzureSubscription
+  - name: AzureServiceConnName
   - name: BuildNumber
 
 jobs:
@@ -31,6 +31,14 @@ jobs:
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
+            - task: AzureKeyVault@2
+              displayName: 'Get Azure Secret'
+              inputs:
+                azureSubscription: '${{ parameters.AzureServiceConnName }}'
+                KeyVaultName: '$(KeyVaultName)'
+                SecretsFilter: '${{ parameters.environment }}-Imgcarrier-ui-StaticWebAppToken'
+                RunAsPreJob: false
+            
             - task: AzureStaticWebApp@0
               enabled: true #requires linux agent, so new stage needed and artefact should be exported in this one
               displayName: "Deploying to ${{ parameters.environment }}"
@@ -43,4 +51,4 @@ jobs:
                 is_static_export: false #meant to be used with Next.js apps
                 verbose: true
               env:
-                azure_static_web_apps_api_token: $(StaticWebAppToken)
+                azure_static_web_apps_api_token: $(${{ parameters.environment }}-Imgcarrier-ui-StaticWebAppToken)
