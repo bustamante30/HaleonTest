@@ -47,10 +47,7 @@ function addPlate() {
 function removePlate(plate: any) {
   const { checkboxId } = plate
   const { colourId } = props
-  //if (platesCount.value > 1)
-    emit('remove', { colourId, checkboxId })
- // else
-  //  updatePlate({ checkboxId, field: 'sets', value: 0 })
+  emit('remove', { colourId, checkboxId })
 }
 </script>
 

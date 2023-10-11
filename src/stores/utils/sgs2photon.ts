@@ -16,7 +16,6 @@ const mapSgsOrderDetail = (details: any = {}) => {
     dispro: details.techSpec.dispro,
     plateType: details.techSpec.plateType,
     plateTypeId: details.techSpec.plateTypeId,
-    pdfUris: details.pdfUris,
     pdfData: details.pdfData,
     variety: details.jobDetails.variety,
     thumbNailPath: new URL("@/assets/images/no_thumbnail.png", import.meta.url).pathname,
