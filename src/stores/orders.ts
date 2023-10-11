@@ -581,6 +581,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             order.editionColors.push(colorCopy)
           }
         })
+      })
+    },
     getPdfData(sgsId: string) {
       return ReorderService.getPdfs(sgsId)
       .then((response: any) => {
@@ -594,5 +596,5 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       });
     }
-  },
-});
+  }
+})
