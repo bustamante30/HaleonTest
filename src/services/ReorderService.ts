@@ -91,19 +91,25 @@ interface CustomerContact {
 class ReorderService {
     
     public static submitReorder(reorderInfo: any, statusId: number, isUpdate?: boolean) {
-        const newColors = JSON.parse(JSON.stringify(reorderInfo.colors))
+        const newColors = JSON.parse(JSON.stringify(reorderInfo.editionColors))
         const newContacts = [] as any[]
         ///code added to resolve the iisue with the plate details:
         newColors.forEach((color: any) => {
+            delete color.lenData
+            let hasPlates = false
             color?.plateType?.forEach((plateType: any) => {
                 let plateInfo = plateType.plateTypeDescription
                 plateType.plateTypeId = plateInfo.value
-                plateType.plateThicknessDescription = plateInfo.plateThicknessDescription
-                plateType.plateThicknessId = plateInfo.plateThicknessId
                 plateType.plateTypeDescription = plateInfo.label
+                if(plateType.sets>0)
+                    hasPlates = true
             })
-            ///api expects plateTypes and sets fields:
-            color.plateTypes = color.plateType
+            ///api expects plates and sets fields:
+            if(hasPlates)
+                color.plates = color.plateType
+            else
+                color.plates = []
+            delete color.plateType
             color.sets = color.totalSets
         })
         reorderInfo.customerContacts.forEach((contact: any) => {
@@ -361,6 +367,17 @@ class ReorderService {
                 console.log('Error while validate order service:', error);
                 return false;
               });
+    }
+
+    public static async getLen(jobNo: string, sequenceNumber: number)
+    {
+        return httpService.get<any>('v1/Reorder/lenThumbnails?sgsOrderID=' + jobNo + '&sequenceNumber=' + sequenceNumber).then((response: any) => {
+            console.log(response)
+            return response
+        }).catch((error: any) => {
+            console.log("error getting reorders: ", error);
+            return null;
+        });
     }
 
 }

@@ -22,7 +22,7 @@ export default {
     },
     {
       header: "View Colour",
-      field: "lenThumbnail",
+      field: "lenData",
       type: 'image',
       freeze: "left",
       width: 6,
@@ -63,14 +63,6 @@ export default {
         field: 'plateTypeDescription',
         type: 'lookup',
         options: { key: 'plateTypeDescription' },
-      },
-      {
-        header: 'Plate Thickness (1/1000)',
-        field: 'plateTypeDescription.plateThicknessDescription',
-        type: 'number',
-        min: 0.25,
-        max: 100,
-        width: 12
       },
       {
         header: 'Quantity',

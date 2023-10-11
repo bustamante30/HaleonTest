@@ -147,7 +147,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     flattenedColors: (state) => (orderType?: string) => {
       const order = orderType === 'success' ||  state.isCancel === true ? state.successfullReorder : state.selectedOrder
 
-      return flattenColors(order?.colors)
+      return flattenColors(order?.editionColors)
     },  
   },
   actions: {
@@ -221,6 +221,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
+            this.selectedOrder.editionColors = this.getEditableColors(photonOrder?.originalOrderId, this.selectedOrder)
+            
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             if (statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)
@@ -229,6 +231,9 @@ export const useOrdersStore = defineStore("ordersStore", {
         } else { // MySGS Order loaded from dashboard
           this.selectedOrder = this.orders.find( (order: any) => order.sgsId === reorderId );
           let details = jsonify(await ReorderService.getOrderDetails(reorderId))
+          const editionColors: any[] = []
+          this.selectedOrder.editionColors = editionColors 
+          console.log(this.selectedOrder)
           const plateTypes = await mapPlateTypes(details)
           this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
           this.selectedOrder = this.selectedOrder || {}
@@ -409,28 +414,28 @@ export const useOrdersStore = defineStore("ordersStore", {
 
     // color update flow
     async updateColor({ checkboxId, field, value }: any) {
-      const colours = this.selectedOrder['colors'] as any[]
+      const colours = this.selectedOrder.editionColors
       const selectedIndex = colours.findIndex(c => c.checkboxId === checkboxId)
       if (selectedIndex >= 0) {
-        const colour = this.selectedOrder['colors'][selectedIndex]
+        const colour = this.selectedOrder.editionColors[selectedIndex]
         if (colour) {
           const plateType = [...colour.plateType].map(plate => {
             const p = toRaw(plate)
             return { ...p, [field]: value }
           })
-          this.selectedOrder['colors'][selectedIndex].plateType = [...plateType]
-          this.updateComputedColorFields()
+          this.selectedOrder.editionColors[selectedIndex].plateType = [...plateType]
+          this.updateComputedColorFields(this.selectedOrder.editionColors[selectedIndex])
         }
       }
     },
     // Add, Remove & Update Plates
     addPlate(params: any) {
-      const colours = this.selectedOrder['colors'] as any[]
+      const colours = this.selectedOrder.editionColors
       const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
-        const colour = this.selectedOrder['colors'][selectedIndex]
+        const colour = this.selectedOrder.editionColors[selectedIndex]
         const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => plate.checkboxId === params.checkboxId ? params.value : plate.sets))
-        this.selectedOrder['colors'][selectedIndex] = {
+        this.selectedOrder.editionColors[selectedIndex] = {
           ...colour,
           plateType: [
             ...colour.plateType,
@@ -440,22 +445,23 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
     },
     removePlate(params: any) {
-      const colours = this.selectedOrder['colors'] as any[]
+      const colours = this.selectedOrder.editionColors
       const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
-        const colour = this.selectedOrder['colors'][selectedIndex]
+        const colour = this.selectedOrder.editionColors[selectedIndex]
         if (colour) {
           const plateType = colour.plateType && colour.plateType.filter((plate: any) => plate.checkboxId !== params.checkboxId)
-          this.selectedOrder['colors'][selectedIndex] = { ...colour, plateType }
+          this.selectedOrder.editionColors[selectedIndex] = { ...colour, plateType }
+          this.updateComputedColorFields(this.selectedOrder.editionColors[selectedIndex])
         }
       }
     },
     async updatePlate(params: any) {
       const notificationsStore = useNotificationsStore()
-      const colours = this.selectedOrder['colors'] as any[]
+      const colours = this.selectedOrder.editionColors
       const selectedIndex = colours.findIndex(c => c.checkboxId === params.colourId)
       if (selectedIndex >= 0) {
-        const colour = this.selectedOrder['colors'][selectedIndex]
+        const colour = this.selectedOrder.editionColors[selectedIndex]
         if (colour) {
           const colorFirstPlateType = colour.plateType[0]
           const totalSets = colour.plateType && colour.plateType.length && sum(colour.plateType.map((plate: any) => {
@@ -485,9 +491,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             }
             const newPlates = plateDetails.map(plate => plate.checkboxId === plateToReplace?.checkboxId ? plateToReplace : plate)
-            this.selectedOrder['colors'][selectedIndex].plateType = [...newPlates] as any[]
+            this.selectedOrder.editionColors[selectedIndex].plateType = [...newPlates] as any[]
 
-            this.updateComputedColorFields()
+            this.updateComputedColorFields(this.selectedOrder.editionColors[selectedIndex])
           }
         }
       }
@@ -501,12 +507,10 @@ export const useOrdersStore = defineStore("ordersStore", {
         notificationsStore.addNotification('Warning', `Please confirm the plate type from the available plate list`, { severity: 'warn' })
       return isValid
     },
-    updateComputedColorFields() {
-      const { colors } = this.selectedOrder
-      colors.forEach((color:any, index:number) => {
-        const totalSets = color.plateType && color.plateType.length && sum(color.plateType.map((plate: any) => plate.sets))
-        this.selectedOrder['colors'][index].totalSets = totalSets
-      })
+    updateComputedColorFields(color: any) {
+      color.totalSets = 0
+      for(let i = 0;i< color.plateType.length;i++)
+        color.totalSets +=color.plateType[i].sets
     },
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);
@@ -518,15 +522,41 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.searchHistory = [...history];
     },
     mapColorAndCustomerDetailsToOrder(details: any, statusId: number, plateTypes: any[]) {
-      const colors = Array.from(details && details?.colors || [])
-      this.selectedOrder.colors = colorDecorator(colors, plateTypes)
-      this.selectedOrder.colors?.map((x:any) => {
-        ((x as any)["originalSets"] = (x as any)["sets"]),
-            ((x as any)["sets"] = statusId === null?0:(x as any)["sets"]),
-          ((x as any)["newColour"] = (x as any)["isNew"] ? "New" : "Common")
-      });
-      (this.selectedOrder as any)["customerContacts"] =
-        details.customerContacts;
+      const colors = Array.from(details && details?.colors || []);
+      (this.selectedOrder as any)["colors"] = colors;
+      (this.selectedOrder as any)["customerContacts"] = details.customerContacts;
     },
+    async getEditableColors(jobNumber: string, order:any)
+    {
+      if(!order.editionColors){
+        const editionColors: any[] = []
+        order.editionColors = editionColors 
+      }
+      order.colors.forEach(color => {
+        ReorderService.getLen(jobNumber,color.sequenceNumber).
+        then(res=>{
+          for(let i=0;i<res.length;i++){
+            let colorCopy: any = JSON.parse(JSON.stringify(color))
+            colorCopy.lenPath = res[i].lenPath
+            colorCopy.lenData = res[i].lenData
+            colorCopy.checkboxId = faker.datatype.uuid()
+            colorCopy.totalSets = 0
+            colorCopy.plateType = [
+              {
+                checkboxId: faker.datatype.uuid(), 
+                plateTypeId: null, 
+                plateTypeDescription: {
+                  isActive: true,
+                  label: null,
+                  value: null,
+                },
+                sets:0
+              }
+            ]
+            order.editionColors.push(colorCopy)
+          }
+        })
+      });
+    }
   },
 });
