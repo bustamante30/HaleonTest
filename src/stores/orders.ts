@@ -241,8 +241,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             const plateTypes = await mapColorPlateTypes(details?.colors)
             this.options.plateTypeDescription = plateTypes?.filter((plateType: any) => plateType.value !== 256)
             this.selectedOrder = details
-            this.selectedOrder.editionColors = this.getEditableColors(photonOrder?.originalOrderId, this.selectedOrder)
-            
+            ReorderService.decoratePhotonOrder(this.selectedOrder)
             const statusId = this.selectedOrder ? this.selectedOrder?.statusId : 1
             if (statusId && plateTypes.length)
               this.mapColorAndCustomerDetailsToOrder(details, statusId, plateTypes)

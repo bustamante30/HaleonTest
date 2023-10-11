@@ -1,5 +1,6 @@
 import type { ReorderDto } from '../models/ReorderDto';
 import ApiService from '../services/apiService';
+import { faker } from '@faker-js/faker';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 
@@ -391,7 +392,70 @@ class ReorderService {
             return null;
         });
     }
-
+    public static async decoratePhotonOrder(order:any){
+        console.log(order.colors)
+        this.decorateColours(order.colors);
+        //transform cart colors to the structure used in the ui
+        order.editionColors = JSON.parse(JSON.stringify(order.colors)) 
+        //remove duplicate colors for first page 
+        const distinctColors = order.colors.filter(
+          (thing, i, arr) => {
+            return arr.indexOf(arr.find(t => t.sequenceNumber === thing.sequenceNumber)) === i;
+          }
+        );
+        order.colors = distinctColors;
+        //make editable the colors:
+        order.editionColors.forEach(color => {
+          ReorderService.getLen(order.originalOrderId,color.sequenceNumber).
+          then(res=>{
+            for(let i=0;i<res.length;i++){
+              if(res.lenPath == color.lenPath){
+                color.lenData = res[i].lenData
+                color.checkboxId = faker.datatype.uuid()
+                if(color.plates.length==0)
+                {
+                  color.plateType = [
+                    {
+                      checkboxId: faker.datatype.uuid(), 
+                      plateTypeId: null, 
+                      plateTypeDescription: {
+                        isActive: true,
+                        label: null,
+                        value: null,
+                      },
+                      sets:0
+                    }
+                  ]
+                }
+                else{
+                  const editionPlates: any[] = []
+                  color.plateType = editionPlates 
+                  color.plates.forEach(plate =>{
+                    let editionPlate = JSON.parse(JSON.stringify(plate)) 
+                    editionPlate.checkboxId = faker.datatype.uuid()
+                    editionPlate.plateTypeDescription = {
+                      isActive: true,
+                      label: plate.plateTypeDescription,
+                      value: plate.plateTypeId,
+                    }
+                    color.plateType.push(editionPlate)
+                  })
+                  console.log(color.plateType)
+                }
+                break
+              }
+            }
+          })
+        });
+        order.thumbNailPath = new URL(
+          "@/assets/images/no_thumbnail.png",
+          import.meta.url
+        );
+        ReorderService.getThumbnail(order.originalOrderId)
+          .then((response: string | boolean) => {
+            if(response) order.thumbNailPath = response;
+          });
+    }
 }
 
 export default ReorderService;

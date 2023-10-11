@@ -39,71 +39,7 @@ export const useCartStore = defineStore("cartStore", {
     },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {
-        console.log(this.cartOrders[i].colors)
-        ReorderService.decorateColours(this.cartOrders[i].colors);
-        //transform cart colors to the structure used in the ui
-        this.cartOrders[i].editionColors = JSON.parse(JSON.stringify(this.cartOrders[i].colors)) 
-        //remove duplicate colors for first page 
-        const distinctColors = this.cartOrders[i].colors.filter(
-          (thing, i, arr) => {
-            return arr.indexOf(arr.find(t => t.sequenceNumber === thing.sequenceNumber)) === i;
-          }
-        );
-        this.cartOrders[i].colors = distinctColors;
-        //make editable the colors:
-        
-        this.cartOrders[i].editionColors.forEach(color => {
-          ReorderService.getLen(this.cartOrders[i].originalOrderId,color.sequenceNumber).
-          then(res=>{
-            for(let i=0;i<res.length;i++){
-              if(res.lenPath == color.lenPath){
-                color.lenData = res[i].lenData
-                color.checkboxId = faker.datatype.uuid()
-                if(color.plates.length==0)
-                {
-                  color.plateType = [
-                    {
-                      checkboxId: faker.datatype.uuid(), 
-                      plateTypeId: null, 
-                      plateTypeDescription: {
-                        isActive: true,
-                        label: null,
-                        value: null,
-                      },
-                      sets:0
-                    }
-                  ]
-                }
-                else{
-                  const editionPlates: any[] = []
-                  color.plateType = editionPlates 
-                  color.plates.forEach(plate =>{
-                    let editionPlate = JSON.parse(JSON.stringify(plate)) 
-                    editionPlate.checkboxId = faker.datatype.uuid()
-                    editionPlate.plateTypeDescription = {
-                      isActive: true,
-                      label: plate.plateTypeDescription,
-                      value: plate.plateTypeId,
-                    }
-                    color.plateType.push(editionPlate)
-                  })
-                  console.log(color.plateType)
-                }
-                break
-              }
-            }
-          })
-        });
-        this.cartOrders[i].thumbNailPath = new URL(
-          "@/assets/images/no_thumbnail.png",
-          import.meta.url
-        );
-        ReorderService.getThumbnail(this.cartOrders[i].originalOrderId)
-          .then((response: string | boolean) => {
-            if(response) this.cartOrders[i].thumbNailPath = response;
-          });
-        
-        //this.cartOrders[i].flattenedColors = this.flattenedColorsArrayDecorator(this.cartOrders[i].colors)
+        ReorderService.decoratePhotonOrder(this.cartOrders[i]);
       }
     },
     async addToCart(order: any) {
