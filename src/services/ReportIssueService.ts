@@ -7,7 +7,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL ??'http://localhost:5208/';
 const httpService = new ApiService(baseUrl)
 
 class ReportIssueService{
-    public static submitIssue(reportData: any, id: number, files: any) {
+    public static submitIssue(reportData: any, userName: string, files: any) {
       const newattachments = [] as AttachmentDto[]
       files.forEach(file => {
         newattachments.push({
@@ -17,7 +17,7 @@ class ReportIssueService{
         })
        });
         let request: ReportIssueRequestDto = {
-            open_on_behalf_of_this_user: reportData.userId,
+            open_on_behalf_of_this_user: userName,
             which_photon_appication_are_you_reporting_issue_on: reportData.application,
             please_select_your_issue_from_the_following_options: reportData.issueType,
             browser: reportData.browser,

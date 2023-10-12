@@ -83,8 +83,8 @@ function validateForm() {
 }
 
 async function reportIssue(report?: any) {
-  const id = await getUserId()
-  let result = await ReportIssueService.submitIssue(issue.value, parseInt(id), validFiles.value);
+  const userName = await getUserName()
+  let result = await ReportIssueService.submitIssue(issue.value, userName, validFiles.value);
   if (result != null && result.success) {
     notificationsStore.addNotification(
       '',
@@ -111,15 +111,15 @@ async function blobToBase64(blob: any) {
   });
 }
 
-async function getUserId() {
-  let userId = '6';
+async function getUserName() {
+  let userName= '6';
   if (isUserLoggedIn.value) {
-    userId = (await authStore.currentUser.userId as any);
+    userName = (await authStore.currentUser.displayName as any);
   }
   if (isb2cUserLoggedIn.value) {
-    userId = (await authb2cStore.currentB2CUser.userId as any);
+    userName = (await authb2cStore.currentB2CUser.displayName as any);
   }
-  return userId
+  return userName
 }
 
 function onDragOver(event: any) {
