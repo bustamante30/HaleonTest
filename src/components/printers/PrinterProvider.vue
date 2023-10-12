@@ -1,30 +1,28 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { providers, federated } from '@/data/config/identitiy-providers'
-import { useUsersStore } from '@/stores/users'
+import { computed, ref } from "vue";
+import { providers, federated } from "@/data/config/identitiy-providers";
+import { useUsersStore } from "@/stores/users";
 
 const props = defineProps({
   data: {
     type: Object,
-    default: () => ({ type: 'photon', settings: {} })
-  }
-})
+    default: () => ({ type: "photon", settings: {} }),
+  },
+});
 
-const usersStore = useUsersStore()
-const identityProviderId  = computed(() => usersStore.identityProviderId);
+const usersStore = useUsersStore();
+const identityProviderId = computed(() => usersStore.identityProviderId);
 const identityTypeId = computed(() => usersStore.identityTypeId);
 let provider = ref({
-  identityProviderId : 2,
-  identityTypeId : 3
-
-})
+  identityProviderId: 2,
+  identityTypeId: 3,
+});
 
 // const providerName = computed(() => {
 //   const result = providers.find((p: any) => p.value === provider.value)
 //   console.log("providers:" + providers)
 //   return result ? result.label : null
 // })
-
 </script>
 
 <template lang="pug">

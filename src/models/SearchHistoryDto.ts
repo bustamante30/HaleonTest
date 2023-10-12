@@ -1,5 +1,4 @@
 export type SearchHistoryDto = {
-    SearchFieldId?: number;
-    Value?: string;
+  SearchFieldId?: number;
+  Value?: string;
 };
-

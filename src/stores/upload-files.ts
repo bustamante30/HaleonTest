@@ -1,20 +1,18 @@
+import { FileUploadService } from "@/services/FileUploadService";
+import { defineStore } from "pinia";
 
-import { FileUploadService } from '@/services/FileUploadService'
-import { defineStore } from 'pinia'
-
-export const useUploadFilesStore = defineStore('upload-files', {
+export const useUploadFilesStore = defineStore("upload-files", {
   state: () => ({
     uploadedFiles: [],
-    sasTokenUrl:''
+    sasTokenUrl: "",
   }),
-  getters: {
-  },
+  getters: {},
   actions: {
     uploadData(files: []) {
-      this.uploadedFiles = files
+      this.uploadedFiles = files;
     },
-    async getSasPathDemoVideo(){
-      this.sasTokenUrl = await FileUploadService.getDemoVideo()
+    async getSasPathDemoVideo() {
+      this.sasTokenUrl = await FileUploadService.getDemoVideo();
     },
-  }
-})
+  },
+});

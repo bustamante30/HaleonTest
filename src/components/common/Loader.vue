@@ -1,5 +1,5 @@
 <script setup>
-import Spinner from '@/components/ui/Spinner.vue'
+import Spinner from "@/components/ui/Spinner.vue";
 </script>
 
 <template lang="pug">

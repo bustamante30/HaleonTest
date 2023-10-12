@@ -1,5 +1,5 @@
 export type UploadFileDto = {
-    UserId?: number;
-    FileName?: string | null;
-    Data?: string;
+  UserId?: number;
+  FileName?: string | null;
+  Data?: string;
 };

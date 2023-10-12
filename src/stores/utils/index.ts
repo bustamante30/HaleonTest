@@ -1,7 +1,12 @@
-import { colorDecorator, validation, mapPlateTypes, flattenColors } from './colour'
-import { mapPhotonOrderDetail, mapColorPlateTypes } from './photon'
-import { mapSgsOrderDetail } from './sgs2photon'
-import { newFilterProps } from './filters'
+import {
+  colorDecorator,
+  validation,
+  mapPlateTypes,
+  flattenColors,
+} from "./colour";
+import { mapPhotonOrderDetail, mapColorPlateTypes } from "./photon";
+import { mapSgsOrderDetail } from "./sgs2photon";
+import { newFilterProps } from "./filters";
 
 export {
   newFilterProps,
@@ -14,4 +19,4 @@ export {
   // order detail utils
   mapSgsOrderDetail,
   mapPhotonOrderDetail,
-}
+};

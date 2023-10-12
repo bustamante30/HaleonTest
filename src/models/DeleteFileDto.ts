@@ -1,4 +1,4 @@
 export type DeleteFileDto = {
-    UserId?: number;
-    FileName?: string | null;
+  UserId?: number;
+  FileName?: string | null;
 };

@@ -1,13 +1,13 @@
 <script setup>
-import MenuButton from './menu/MenuButton.vue'
-import MenuPopup from './menu/MenuPopup.vue'
+import MenuButton from "./menu/MenuButton.vue";
+import MenuPopup from "./menu/MenuPopup.vue";
 
 const props = defineProps({
   menu: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 </script>
 
 <template lang="pug">

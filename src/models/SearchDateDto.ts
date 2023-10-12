@@ -1,4 +1,4 @@
 export type SearchDateDto = {
-    DateRefId?: number;
-    FieldName?: string | null
+  DateRefId?: number;
+  FieldName?: string | null;
 };

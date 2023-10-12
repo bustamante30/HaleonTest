@@ -1,14 +1,14 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import router from '@/router'
-import SuccessDetails from '@/components/orders/OrderSuccess.vue'
+import { useRoute } from "vue-router";
+import router from "@/router";
+import SuccessDetails from "@/components/orders/OrderSuccess.vue";
 
-const route = useRoute()
+const route = useRoute();
 
-const id = route.params.id
+const id = route.params.id;
 
 function back() {
-  router.push('/dashboard')
+  router.push("/dashboard");
 }
 </script>
 
@@ -19,9 +19,7 @@ function back() {
     success-details(:selectedId="id")
 </template>
 
-<script setup>
-
-</script>
+<script setup></script>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

@@ -2,24 +2,26 @@
 import Image from "primevue/image";
 import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import { useCartStore } from '@/stores/cart'
+import { useCartStore } from "@/stores/cart";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
 import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useNotificationsStore } from '@/stores/notifications';
+import { useNotificationsStore } from "@/stores/notifications";
 const router = useRouter();
 const ordersStore = useOrdersStore();
-const cartStore = useCartStore()
+const cartStore = useCartStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const isOrderCancel = computed(() => ordersStore.isCancel);
-const colors = computed(() => ordersStore.flattenedColors('success').filter(color => color.sets))
+const colors = computed(() =>
+  ordersStore.flattenedColors("success").filter((color) => color.sets),
+);
 const expectedDate = ref("");
 
 onBeforeMount(async () => {
@@ -45,21 +47,32 @@ async function handleClose() {
 }
 
 async function handleCancelOrder() {
-  if (selectedOrder) {
-    const cancelResult = await ordersStore.cancelOrder(selectedOrder.value.id, true);
+  if (selectedOrder.value) {
+    const cancelResult = await ordersStore.cancelOrder(
+      selectedOrder.value.id,
+      true,
+    );
     if (cancelResult) {
-      notificationsStore.addNotification(`Success`, 'Order Cancelled successfully', { severity: 'success' })
+      notificationsStore.addNotification(
+        `Success`,
+        "Order Cancelled successfully",
+        { severity: "success" },
+      );
       await router.push(`/dashboard?q=${Date.now()}`);
       await ordersStore.getOrders();
     } else {
-      notificationsStore.addNotification(`Error`, '10 mins window closed for Re-Order cancellation', { severity: 'error' })
+      notificationsStore.addNotification(
+        `Error`,
+        "10 mins window closed for Re-Order cancellation",
+        { severity: "error" },
+      );
       // Handle error or show a notification
     }
   }
 }
 
 watch(ordersStore.selectedOrder, (value) => {
-  selectedOrder = value;
+  selectedOrder.value = value;
 });
 </script>
 
@@ -114,8 +127,8 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
-          sgs-button(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
-          sgs-button(label="Close" @click="handleClose()")
+          sgs-button#cancel-order(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
+          sgs-button#close(label="Close" @click="handleClose()")
 </template>
 
 <style lang="sass" scoped>

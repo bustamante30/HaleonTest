@@ -1,72 +1,67 @@
 <script setup>
-import AppLogo from './AppLogo.vue'
-import UserProfile from './UserProfile.vue'
-import SgsMenu from '@/components/ui/Menu.vue'
+import AppLogo from "./AppLogo.vue";
+import UserProfile from "./UserProfile.vue";
+import SgsMenu from "@/components/ui/Menu.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useCartStore } from "@/stores/cart";
 import { useOrdersStore } from "@/stores/orders";
 import { onMounted, computed, watch, ref } from "vue";
 import store from "store";
-import navigation from '@/data/config/app-navigation.js'
+import navigation from "@/data/config/app-navigation.js";
 import { useRouter } from "vue-router";
 const router = useRouter();
-
 
 const cartStore = useCartStore();
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-const cartCount = computed(() => cartStore.cartCount)
+const cartCount = computed(() => cartStore.cartCount);
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
-const IsExternalAdmin = ref('');
-const emit = defineEmits(['report', 'demo'])
+const IsExternalAdmin = ref("");
+const emit = defineEmits(["report", "demo"]);
 
-
-const menu = computed(() => [...navigation(emit, IsExternalAdmin.value)])
-
+const menu = computed(() => [...navigation(emit, IsExternalAdmin.value)]);
 
 onMounted(async () => {
-  if (store.get('currentUser')) {
-    authStore.currentUser = store.get('currentUser');
+  if (store.get("currentUser")) {
+    authStore.currentUser = store.get("currentUser");
   }
-  if (store.get('currentb2cUser')) {
-    authb2cStore.currentB2CUser = store.get('currentb2cUser');
+  if (store.get("currentb2cUser")) {
+    authb2cStore.currentB2CUser = store.get("currentb2cUser");
   }
 });
 
 watch(currentUser, async (value) => {
   if (authStore.currentUser) {
-    ordersStore.userPrinterName = authStore.currentUser.printerName
-    ordersStore.userRoleKey = authStore.currentUser.roleKey
-    if (value.userType === 'INT' && value.roleKey=== 'PMSuperAdminUser') {
-      IsExternalAdmin.value = 'PMSuperAdminUser';
-    } else if (value.userType === 'INT' && value.roleKey === 'PMUser') {
-      IsExternalAdmin.value = 'PMUser';
-    } 
+    ordersStore.userPrinterName = authStore.currentUser.printerName;
+    ordersStore.userRoleKey = authStore.currentUser.roleKey;
+    if (value.userType === "INT" && value.roleKey === "PMSuperAdminUser") {
+      IsExternalAdmin.value = "PMSuperAdminUser";
+    } else if (value.userType === "INT" && value.roleKey === "PMUser") {
+      IsExternalAdmin.value = "PMUser";
+    }
     await cartStore.getCartCount();
   }
 });
-
 
 watch(currentB2CUser, async (value) => {
   if (authb2cStore.currentB2CUser) {
-    ordersStore.userPrinterName = authb2cStore.currentB2CUser.printerName
-    ordersStore.userRoleKey = authb2cStore.currentB2CUser.roleKey
-   if (value.userType === 'EXT' && value.roleKey === 'PrinterAdmin') {
-      IsExternalAdmin.value = 'PrinterAdmin';
-    } else if (value.userType === 'EXT' && value.roleKey=== 'PrinterUser') {
-      IsExternalAdmin.value = 'PrinterUser';
-    }
-     else {
-      IsExternalAdmin.value = '';
+    ordersStore.userPrinterName = authb2cStore.currentB2CUser.printerName;
+    ordersStore.userRoleKey = authb2cStore.currentB2CUser.roleKey;
+    if (value.userType === "EXT" && value.roleKey === "PrinterAdmin") {
+      IsExternalAdmin.value = "PrinterAdmin";
+    } else if (value.userType === "EXT" && value.roleKey === "PrinterUser") {
+      IsExternalAdmin.value = "PrinterUser";
+    } else {
+      IsExternalAdmin.value = "";
     }
     await cartStore.getCartCount();
   }
 });
-async function redirect(path){
-  router.push(`${path}?q=${Date.now()}`)
+async function redirect(path) {
+  router.push(`${path}?q=${Date.now()}`);
 }
 </script>
 
@@ -77,7 +72,6 @@ header.app-header
     nav.app-navigation
       a.dashboardLink(@click="redirect('/dashboard')") Dashboard
       sgs-menu(:menu="menu")
-      //- prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
         router-link.cart(to="/cart" v-badge.danger="cartCount || '0'")
@@ -120,14 +114,14 @@ header.app-header
     margin-top: $s50
     opacity: 0.9 !important
     &:hover
-      opacity: 1 
+      opacity: 1
 
   .tools, .nav
     +flex($h: right)
     > *
       margin: 0 $s
     a span
-      color: #fff     
+      color: #fff
 .dashboardLink
   color: #FFFFFF
   display: inline-block
@@ -137,5 +131,5 @@ header.app-header
   color: inherit !important
   border-color: transparent !important
   &:hover
-    background: rgba(#fff, 0.1) !important   
+    background: rgba(#fff, 0.1) !important
 </style>

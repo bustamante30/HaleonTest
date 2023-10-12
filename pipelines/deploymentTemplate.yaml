@@ -1,4 +1,4 @@
-parameters:  
+parameters:
   - name: environment
   - name: ArtifactName
   - name: AzureServiceConnName
@@ -6,10 +6,10 @@ parameters:
 
 jobs:
   - deployment:
-    displayName: '${{ parameters.environment }}'
-    environment: '${{ parameters.environment }}'
+    displayName: "${{ parameters.environment }}"
+    environment: "${{ parameters.environment }}"
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: "ubuntu-latest"
     strategy:
       runOnce:
         deploy:
@@ -17,36 +17,36 @@ jobs:
             - checkout: self
               submodules: true
             - task: DownloadBuildArtifacts@1
-              displayName: 'Download latest build artifact'
+              displayName: "Download latest build artifact"
               inputs:
-                buildType: 'current'
-                downloadType: 'single'
-                artifactName: '${{ parameters.ArtifactName }}'
-                downloadPath: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}'
+                buildType: "current"
+                downloadType: "single"
+                artifactName: "${{ parameters.ArtifactName }}"
+                downloadPath: "$(System.DefaultWorkingDirectory)/${{ parameters.environment }}"
 
             - task: ExtractFiles@1
               inputs:
-                archiveFilePatterns: '**/${{ parameters.BuildNumber }}'
-                destinationFolder: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
+                archiveFilePatterns: "**/${{ parameters.BuildNumber }}"
+                destinationFolder: "$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/"
                 cleanDestinationFolder: true
                 overwriteExistingFiles: true
 
             - task: AzureKeyVault@2
-              displayName: 'Get Azure Secret'
+              displayName: "Get Azure Secret"
               inputs:
-                azureSubscription: '${{ parameters.AzureServiceConnName }}'
-                KeyVaultName: '$(KeyVaultName)'
-                SecretsFilter: '${{ parameters.environment }}-Imgcarrier-ui-StaticWebAppToken'
+                azureSubscription: "${{ parameters.AzureServiceConnName }}"
+                KeyVaultName: "$(KeyVaultName)"
+                SecretsFilter: "${{ parameters.environment }}-Imgcarrier-ui-StaticWebAppToken"
                 RunAsPreJob: false
-            
+
             - task: AzureStaticWebApp@0
               enabled: true #requires linux agent, so new stage needed and artefact should be exported in this one
               displayName: "Deploying to ${{ parameters.environment }}"
               inputs:
-                cwd: '$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/'
-                app_location: '/'
+                cwd: "$(System.DefaultWorkingDirectory)/${{ parameters.environment }}/apps/"
+                app_location: "/"
                 # output_location: 'wwwroot'
-                config_file_location: '/'
+                config_file_location: "/"
                 skip_app_build: true
                 is_static_export: false #meant to be used with Next.js apps
                 verbose: true

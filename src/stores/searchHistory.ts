@@ -12,7 +12,10 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
   }),
   actions: {
     async getSearchHistory(dateRefId: number, isAdvanceSearch: boolean) {
-      const history = await SearchHistoryService.getSearchHistory(dateRefId, isAdvanceSearch);
+      const history = await SearchHistoryService.getSearchHistory(
+        dateRefId,
+        isAdvanceSearch,
+      );
       this.searchHistory = history as SearchHistoryDto[];
     },
     async getSearchField() {
@@ -20,43 +23,62 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
       this.searchFieldReference = searchField as SearchFieldDto[];
     },
     async getSearchDate(isAdvanceSearch: boolean) {
-      const searchDate = await SearchHistoryService.getSearchDate(isAdvanceSearch);
+      const searchDate =
+        await SearchHistoryService.getSearchDate(isAdvanceSearch);
       this.searchDate = searchDate as SearchDateDto[];
     },
-    async setSearchHistory(advanceSearchParameters: any, isAdvanceSearch: boolean) {
-      let searchRequest: SearchHistoryDto[] = [];
+    async setSearchHistory(
+      advanceSearchParameters: any,
+      isAdvanceSearch: boolean,
+    ) {
+      const searchRequest: SearchHistoryDto[] = [];
       if (this.searchFieldReference.length > 0) {
         this.searchFieldReference.forEach((field) => {
           if (advanceSearchParameters[(field as any).fieldName]) {
-            if (Array.isArray(advanceSearchParameters[(field as any).fieldName])) {
-              if (advanceSearchParameters[(field as any).fieldName].join(',')) {
+            if (
+              Array.isArray(advanceSearchParameters[(field as any).fieldName])
+            ) {
+              if (advanceSearchParameters[(field as any).fieldName].join(",")) {
                 searchRequest.push({
                   SearchFieldId: (field as any).id,
-                  Value: advanceSearchParameters[(field as any).fieldName].join(',')
-                })
+                  Value:
+                    advanceSearchParameters[(field as any).fieldName].join(","),
+                });
               }
             } else {
               searchRequest.push({
                 SearchFieldId: (field as any).id,
-                Value: advanceSearchParameters[(field as any).fieldName]
-              })
+                Value: advanceSearchParameters[(field as any).fieldName],
+              });
             }
           }
-        })
-        const result = await SearchHistoryService.setSearchHistory(searchRequest, isAdvanceSearch);
+        });
+        const result = await SearchHistoryService.setSearchHistory(
+          searchRequest,
+          isAdvanceSearch,
+        );
       }
     },
-    async setKeywordSearchHistory(keywordSearchValue: any, isAdvanceSearch: boolean) {
+    async setKeywordSearchHistory(
+      keywordSearchValue: any,
+      isAdvanceSearch: boolean,
+    ) {
       if (keywordSearchValue === "") {
         return;
       }
 
       const searchRequest: SearchHistoryDto[] = this.searchFieldReference
         .filter((field: any) => field.fieldName === "keywordSearch")
-        .map((field: any) => ({ SearchFieldId: field.id, Value: keywordSearchValue, }));
+        .map((field: any) => ({
+          SearchFieldId: field.id,
+          Value: keywordSearchValue,
+        }));
       if (searchRequest.length > 0) {
-        const result = await SearchHistoryService.setSearchHistory(searchRequest, isAdvanceSearch);
+        const result = await SearchHistoryService.setSearchHistory(
+          searchRequest,
+          isAdvanceSearch,
+        );
       }
-    }
+    },
   },
 });

@@ -1,42 +1,41 @@
 <script setup>
-import { faker } from '@faker-js/faker'
-import { ref, onBeforeMount, watch } from 'vue'
-import PrinterForm from './PrinterForm.vue'
+import { faker } from "@faker-js/faker";
+import { ref, onBeforeMount, watch } from "vue";
+import PrinterForm from "./PrinterForm.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useUsersStore } from '@/stores/users';
-import router from '@/router';
-import { useNotificationsStore } from '@/stores/notifications';
+import { useUsersStore } from "@/stores/users";
+import router from "@/router";
+import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
-  printers  : {
+  printers: {
     type: Object,
     default: () => {
       return {
         page: 0,
         perPage: 20,
         total: 0,
-        data: []
-      }
-    }
+        data: [],
+      };
+    },
   },
   selected: {
     type: Object,
-    default: null
+    default: null,
   },
   suggestions: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
+const notificationsStore = useNotificationsStore();
+const usersStore = useUsersStore();
+const emit = defineEmits(["select", "fetch", "searchPrinter"]);
 
-const notificationsStore = useNotificationsStore()
-const usersStore = useUsersStore()
-const emit = defineEmits(['select', 'fetch', 'searchPrinter'])
-
-let isPrinterFormVisible = ref(false)
-const query = ref()
+let isPrinterFormVisible = ref(false);
+const query = ref();
 
 watch(query, (changeQuery) => {
   if (changeQuery === "") {
@@ -45,36 +44,31 @@ watch(query, (changeQuery) => {
 });
 
 function selectPrinter(printer) {
-  emit('select', printer)
+  emit("select", printer);
 }
 
 function getPrinters(event) {
-  emit('fetch', event)
-
+  emit("fetch", event);
 }
 
 function searchPrinter(query) {
-  emit('searchPrinter', query)
+  emit("searchPrinter", query);
 }
-
 
 async function saveprinter(printerFormRequest) {
-  const printerResp  = await  usersStore.savePrinter(printerFormRequest);
-  if(printerResp)
-  {
-  notificationsStore.addNotification(
-        `Printer Creation`,
-        `Printer Created Successfully`,
-        { severity: 'Success', position: 'top-right' }
-      );
-  
-  await usersStore.getPrinters(0)
-  isPrinterFormVisible.value = false;
-  router.push('/users?role=super');
+  const printerResp = await usersStore.savePrinter(printerFormRequest);
+  if (printerResp) {
+    notificationsStore.addNotification(
+      `Printer Creation`,
+      `Printer Created Successfully`,
+      { severity: "Success", position: "top-right" },
+    );
+
+    await usersStore.getPrinters(0);
+    isPrinterFormVisible.value = false;
+    router.push("/users?role=super");
   }
-
 }
-
 </script>
 
 <template lang="pug">
@@ -86,7 +80,7 @@ async function saveprinter(printerFormRequest) {
           .input
             prime-auto-complete.search-input(placeholder="Search Printers ..." v-model="query" name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="searchPrinter")
             span.material-icons.outline search
-        sgs-button.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
+        sgs-button#add-printer.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
     .printer(v-for="(printer, i) in printers.data" :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")
       span {{ printer.name }}
       span.summary

@@ -1,24 +1,24 @@
 const config = {
   cols: [
     {
-      header: 'First Name',
-      field: 'firstName',
-      type: 'link',
-      path: '/users/$1',
-      pathParams: ['id'],
-      freeze: 'left',
-      width: 12
+      header: "First Name",
+      field: "firstName",
+      type: "link",
+      path: "/users/$1",
+      pathParams: ["id"],
+      freeze: "left",
+      width: 12,
     },
     {
-      header: 'Last Name',
-      field: 'lastName',
-      type: 'text',
-      width: 12
+      header: "Last Name",
+      field: "lastName",
+      type: "text",
+      width: 12,
     },
     {
-      header: 'Email',
-      field: 'email',
-      type: 'text',
+      header: "Email",
+      field: "email",
+      type: "text",
     },
     // {
     //   header: 'Designation',
@@ -38,7 +38,7 @@ const config = {
     //   type: 'check',
     //   width: 3
     // },
-  ]
-}
+  ],
+};
 
-export { config }
+export { config };

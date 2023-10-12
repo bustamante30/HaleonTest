@@ -49,18 +49,18 @@ const props = defineProps({
       value: 0;
     },
   },
-  status:{
+  status: {
     type: Object,
     default: () => {
       value: 4;
     },
   },
-  userType:{
+  userType: {
     type: String,
-    default: () => 'INT',
-  }
+    default: () => "INT",
+  },
 });
-const totalRecords = computed(()=>orderStore.totalRecords)
+const totalRecords = computed(() => orderStore.totalRecords);
 let selected = ref();
 const emit = defineEmits([
   "deleteFilter",
@@ -69,7 +69,7 @@ const emit = defineEmits([
   "cancel",
   "audit",
   "addMultipleToCart",
-  "ordervalidation"
+  "ordervalidation",
 ]);
 const current = ref(0);
 
@@ -88,7 +88,7 @@ watch(
   () => props.currentPage,
   (newValue) => {
     current.value = newValue.value;
-  }
+  },
 );
 watch(selected, (value) => {
   selected = value;
@@ -99,7 +99,6 @@ const orderStore = useOrdersStore();
 const dropdownOptions = ref<string[]>([]);
 const showStartDateCalendar = ref(false);
 const showEndDateCalendar = ref(false);
-
 
 const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -118,8 +117,6 @@ const mutationMap: { [key: string]: string } = {
 const showCalendar = ref(false);
 const sortFields = ref<string[]>([]);
 
-
-
 const initFilters = () => {
   columnFilters.value = { ...columnFilters.value };
 };
@@ -132,23 +129,33 @@ const clearFilter = async (fieldName: string, filterModel: any) => {
   }
   //orderStore.getOrders();
   orderStore.setFilters(orderStore.filters);
- // router.push('/dashboard')
+  // router.push('/dashboard')
 };
 
-function getFormattedValue(value: string | null, matchMode: string): string | null {
-  if (value !== null && value !== undefined && value !== '') {
+function getFormattedValue(
+  value: string | null,
+  matchMode: string,
+): string | null {
+  if (value !== null && value !== undefined && value !== "") {
     return matchMode === FilterMatchMode.CONTAINS ? `%${value}%` : value;
   }
   return null;
 }
 
-async function customFilter(field: string, filterModel: any, filterMatchMode: string) {
+async function customFilter(
+  field: string,
+  filterModel: any,
+  filterMatchMode: string,
+) {
   const fieldName = field as keyof typeof columnFilters.value;
- if (mutationMap.hasOwnProperty(fieldName)) {
-  columnFilters.value[fieldName] = { value: getFormattedValue(filterModel.value, filterMatchMode), matchMode: filterMatchMode } as any;
-  console.log("customFilter:" + columnFilters.value[fieldName].value);
-  const mutation = mutationMap[fieldName];
-  filterStore.commit(mutation, columnFilters.value[fieldName].value);
+  if (mutationMap.hasOwnProperty(fieldName)) {
+    columnFilters.value[fieldName] = {
+      value: getFormattedValue(filterModel.value, filterMatchMode),
+      matchMode: filterMatchMode,
+    } as any;
+    console.log("customFilter:" + columnFilters.value[fieldName].value);
+    const mutation = mutationMap[fieldName];
+    filterStore.commit(mutation, columnFilters.value[fieldName].value);
   }
   orderStore.setFilters(orderStore.filters);
 }
@@ -171,11 +178,9 @@ function onPage(event: any) {
   orderStore.pageState.page = event.page + 1;
   orderStore.setFilters(orderStore.filters);
 }
-function setSgsNumberHeader(){
-  if(props.status && props.status.value == 4)
-    return "SGS Ref #"
-  else
-    return "Order #"
+function setSgsNumberHeader() {
+  if (props.status && props.status.value == 4) return "SGS Ref #";
+  else return "Order #";
 }
 
 function handleOrderValidation(data: any) {
@@ -264,7 +269,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by Brand"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-brand-name-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('brandName', filterModel)"
@@ -272,7 +277,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-brand-name-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('brandName', filterModel)"
@@ -301,7 +306,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by Description"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-description-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('description', filterModel)"
@@ -309,7 +314,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-description-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('description', filterModel)"
@@ -395,7 +400,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by PackType"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-packtype-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('packType', filterModel)"
@@ -403,7 +408,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-packtype-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('packType', filterModel)"

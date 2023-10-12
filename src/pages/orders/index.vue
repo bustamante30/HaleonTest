@@ -1,5 +1,4 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template lang="pug">
 .page.orders

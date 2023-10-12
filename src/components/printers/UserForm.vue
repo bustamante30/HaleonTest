@@ -1,12 +1,11 @@
 <script setup>
-import { ref, inject, computed, onBeforeMount, reactive ,watch} from 'vue';
+import { ref, inject, computed, onBeforeMount, reactive, watch } from "vue";
 import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import router from '@/router';
-import { useUsersStore } from '@/stores/users';
-import { useNotificationsStore } from '@/stores/notifications';
-
+import router from "@/router";
+import { useUsersStore } from "@/stores/users";
+import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
   user: {
@@ -17,54 +16,60 @@ const props = defineProps({
     type: String,
     default: null,
   },
-})
+});
 
-const userForm = ref({ ...props.user })
-watch(()=>props.user,()=>{
-  userForm.value = { ...props.user }
-})
-const usersStore = useUsersStore()
-const notificationsStore = useNotificationsStore()
+const userForm = ref({ ...props.user });
+watch(
+  () => props.user,
+  () => {
+    userForm.value = { ...props.user };
+  },
+);
+const usersStore = useUsersStore();
+const notificationsStore = useNotificationsStore();
 
 const isPrimaryPMDiv = ref("");
-  
- 
-const emit = defineEmits(['save'])
+
+const emit = defineEmits(["save"]);
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
-      let currentUserType ='';
-      let userRole ='';
-      if(authStore.currentUser.email != '')
-      {
-      if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-        currentUserType =authStore.currentUser.userType;
-      } 
-      }
-      
-     if(authb2cStore.currentB2CUser.email != '')
-      {
-      if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-        currentUserType =authb2cStore.currentB2CUser.userType;
-      }
-      }
+let currentUserType = "";
+let userRole = "";
+if (authStore.currentUser.email != "") {
+  if (
+    authStore.currentUser?.userType !== undefined &&
+    authStore.currentUser?.userType !== null
+  ) {
+    currentUserType = authStore.currentUser.userType;
+  }
+}
+
+if (authb2cStore.currentB2CUser.email != "") {
+  if (
+    authb2cStore.currentB2CUser?.userType !== undefined &&
+    authb2cStore.currentB2CUser?.userType !== null
+  ) {
+    currentUserType = authb2cStore.currentB2CUser.userType;
+  }
+}
 
 function handleClose() {
-  if (currentUserType === 'INT') {
-    router.push('/users?role=super');
-  } else if (currentUserType === 'EXT') {
+  if (currentUserType === "INT") {
+    router.push("/users?role=super");
+  } else if (currentUserType === "EXT") {
     //usersStore.user.id = null;
-    router.push('/users');
+    router.push("/users");
   }
 }
 
 //Function is used to verify the email id is external or internal
 //Any email with sgsco.com domain is considered as internal.
-function verifyInternalEmail(){
-  if(currentUserType !== 'EXT') {
+function verifyInternalEmail() {
+  if (currentUserType !== "EXT") {
     var email = userForm.value.email.trim().toLowerCase();
-    var display = email.endsWith("@sgsco.com") ? 'block' : 'none';
-    isPrimaryPMDiv.value.style.display = display; 
+    var display = email.endsWith("@sgsco.com") ? "block" : "none";
+    isPrimaryPMDiv.value.style.display = display;
   }
 }
 
@@ -72,32 +77,32 @@ function save() {
   //Required fields validations.
   if (!userForm.value.firstName) {
     notificationsStore.addNotification(
-      'Validation Error',
-      'FirstName is required.',
-      { severity: 'error', position: 'top-right' }
+      "Validation Error",
+      "FirstName is required.",
+      { severity: "error", position: "top-right" },
     );
-    return; 
+    return;
   }
 
   if (!userForm.value.lastName) {
     notificationsStore.addNotification(
-      'Validation Error',
-      'LastName is required.',
-      { severity: 'error', position: 'top-right' }
+      "Validation Error",
+      "LastName is required.",
+      { severity: "error", position: "top-right" },
     );
     return;
   }
 
   if (!userForm.value.email) {
     notificationsStore.addNotification(
-      'Validation Error',
-      'Email is required.',
-      { severity: 'error', position: 'top-right' }
+      "Validation Error",
+      "Email is required.",
+      { severity: "error", position: "top-right" },
     );
     return;
   }
 
-  emit('save', userForm)
+  emit("save", userForm);
 }
 </script>
 
@@ -139,7 +144,7 @@ function save() {
         footer
           .secondary-actions &nbsp;
           .actions
-            sgs-button(label="Save" @click="save")
+            sgs-button#save-user(label="Save" @click="save")
 </template>
 
 <style lang="sass" scoped>
