@@ -1,31 +1,33 @@
 <script setup>
-import { computed, ref } from 'vue'
-import AdvancedSearch from '@/components/orders/AdvancedSearch.vue'
+import { computed, ref } from "vue";
+import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 
 const props = defineProps({
   config: {
     type: Object,
-    default: () => { sections: [] }
+    default: () => {
+      [];
+    },
   },
   filters: {
     type: Object,
-    default: () => null
-  }
-})
+    default: () => null,
+  },
+});
 
-const emit = defineEmits(['search'])
+const emit = defineEmits(["search"]);
 
-const items = computed(() => [])
+const items = computed(() => []);
 
-const isFiltersVisible = ref(false)
+const isFiltersVisible = ref(false);
 
 function search(filters) {
-  isFiltersVisible.value = false
-  emit('search', filters)
+  isFiltersVisible.value = false;
+  emit("search", filters);
 }
 
 function toggleFilters() {
-  isFiltersVisible.value = !isFiltersVisible.value
+  isFiltersVisible.value = !isFiltersVisible.value;
 }
 </script>
 

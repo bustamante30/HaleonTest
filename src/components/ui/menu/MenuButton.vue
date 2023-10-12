@@ -1,19 +1,19 @@
 <script setup>
-import router from '@/router'
+import router from "@/router";
 
 const props = defineProps({
   menuitem: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
 function action() {
   if (props.menuitem) {
     if (props.menuitem.to) {
-      router.push(props.menuitem.to)
+      router.push(props.menuitem.to);
     } else if (props.menuitem.command) {
-      props.menuitem.command()
+      props.menuitem.command();
     }
   }
 }
@@ -35,5 +35,4 @@ span.menu-button
     border-color: transparent !important
     &:hover
       background: rgba(#fff, 0.1) !important
-
 </style>

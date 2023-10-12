@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router"
-import OrderReorder from "@/components/orders/OrderReorder.vue"
+import { useRoute } from "vue-router";
+import OrderReorder from "@/components/orders/OrderReorder.vue";
 
 const route = useRoute();
-const id = route.params.id
-
+const id = route.params.id;
 </script>
 
 <template lang="pug">
@@ -14,5 +13,4 @@ const id = route.params.id
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
-
 </style>

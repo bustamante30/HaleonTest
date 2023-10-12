@@ -14,7 +14,7 @@ const newFilterProps = (printerName = null) => {
     imageCarrierCode: null,
     printerPlateCode: null,
     startDate: [],
-  }
-}
+  };
+};
 
-export { newFilterProps }
+export { newFilterProps };

@@ -17,7 +17,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
-import { useRoute } from 'vue-router';
+import { useRoute } from "vue-router";
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -44,20 +44,23 @@ const userType = computed(() => {
 });
 
 const printerName = computed(() => {
-  if(authb2cStore.currentB2CUser.printerName != "" && authb2cStore.currentB2CUser.userType === 'EXT')
-  return authb2cStore.currentB2CUser.printerName ;
+  if (
+    authb2cStore.currentB2CUser.printerName != "" &&
+    authb2cStore.currentB2CUser.userType === "EXT"
+  )
+    return authb2cStore.currentB2CUser.printerName;
 });
 
 const username = computed(
   () =>
     `${authStore.currentUser.firstName || "John"} ${
       authStore.currentUser.lastName || "Doe"
-    }`
+    }`,
 );
-const isAuditVisible = ref(false)
-const sgsJobId = ref('')
-const auditReorderId = ref()
-const auditData = ref()
+const isAuditVisible = ref(false);
+const sgsJobId = ref("");
+const auditReorderId = ref();
+const auditData = ref();
 const selectedDate = ref(() => dateFilter.value[0]);
 const selectedStatus = ref();
 const showMyOrders = ref(true);
@@ -67,7 +70,7 @@ const orders = computed(() => ordersStore.orders);
 const options = computed(() => ordersStore.options);
 const filters = computed(() => ordersStore.filters);
 const isb2cUserLoggedIn = computed(
-  () => authb2cStore.currentB2CUser.isLoggedIn
+  () => authb2cStore.currentB2CUser.isLoggedIn,
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const isValidIdentityProvider = computed(() => {
@@ -97,23 +100,26 @@ const searchTags = ref([]);
 
 provide("options", options);
 
-const init = () =>{
+const init = () => {
   showMyOrders.value = true;
-  initClearAllSearchTags()
+  initClearAllSearchTags();
   ordersStore.initAdvancedFilters();
   selectedStatus.value = statusList.value[0];
   changeDateFilter(dateFilter.value[0]);
-  isAdminAddDraftTab()
+  isAdminAddDraftTab();
   ordersStore.firstLoad = true;
-}
-onMounted(()=>{
-   init()
+};
+onMounted(() => {
+  init();
 });
 const route = useRoute();
 // Watch for query change and refersh the dashboad thro. init()
-watch(() => route.query['q'],()=>{
-  init()
-})
+watch(
+  () => route.query["q"],
+  () => {
+    init();
+  },
+);
 
 watch(currentUser, (value) => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
@@ -121,7 +127,7 @@ watch(currentUser, (value) => {
     ordersStore.initAdvancedFilters();
     changeDateFilter(dateFilter.value[0]);
   }
-  isAdminAddDraftTab()
+  isAdminAddDraftTab();
 });
 watch(currentB2CUser, (value) => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
@@ -129,13 +135,16 @@ watch(currentB2CUser, (value) => {
     ordersStore.initAdvancedFilters();
     changeDateFilter(dateFilter.value[0]);
   }
-  isAdminAddDraftTab()
+  isAdminAddDraftTab();
 });
 
 function isAdminAddDraftTab() {
- const exists = statusList.value.some((obj) => obj.name === "Draft");
-  if (!exists && (roleKey.value === 'PrinterAdmin' || roleKey.value === 'PMSuperAdminUser'))
-    statusList.value.push({ name: "Draft", value: 1, })
+  const exists = statusList.value.some((obj) => obj.name === "Draft");
+  if (
+    !exists &&
+    (roleKey.value === "PrinterAdmin" || roleKey.value === "PMSuperAdminUser")
+  )
+    statusList.value.push({ name: "Draft", value: 1 });
 }
 
 function getDateFilter(): [string, string] {
@@ -172,7 +181,6 @@ function changeDateFilter(dtFilter: any) {
   ordersStore.setFilters(filters.value);
 }
 
-
 function addPrinterFilter() {
   console.log("printer: " + authb2cStore.currentB2CUser.printerName);
   const printerName = authb2cStore.currentB2CUser.isLoggedIn
@@ -188,12 +196,12 @@ function handleOrderToggle() {
   const toggleFilter = {
     ...filters.value,
     myOrdersToggled: showMyOrders.value,
-    isAdvancedSearch: false
-  }
+    isAdvancedSearch: false,
+  };
   ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
-  if(!selectedStatus?.value?.value) return
+  if (!selectedStatus?.value?.value) return;
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
   filters.value.status = selectedStatus?.value?.value;
@@ -211,14 +219,14 @@ function searchKeyword(event: any) {
       ...filters.value,
       myOrdersToggled: false,
       isAdvancedSearch: false,
-      printerName:null,
-      status:4,
-      query:event.query
-    }
+      printerName: null,
+      status: 4,
+      query: event.query,
+    };
     ordersStore.setFilters(fil);
   } else {
-    filters.value.myOrdersToggled = false
-    filters.value.isAdvancedSearch = false
+    filters.value.myOrdersToggled = false;
+    filters.value.isAdvancedSearch = false;
     searchTags.value = [];
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
@@ -231,13 +239,13 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
- 
+
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
       if (filters.status !== selectedStatus.value.value) {
         selectedStatus.value = statusList.value.find(
-          (x) => x.value === filters.status
+          (x) => x.value === filters.status,
         );
       }
     }
@@ -267,9 +275,8 @@ const clearSearchTags = (index: number) => {
 };
 
 const clearAllSearchTags = () => {
-  initClearAllSearchTags()
+  initClearAllSearchTags();
   changeDateFilter(dateFilter.value[0]);
- 
 };
 
 const initClearAllSearchTags = () => {
@@ -290,13 +297,13 @@ function createPmOrder() {
   sendToPmStore.getPlateTypes();
 }
 
-function resetSets(orderToAdd: any){
-  orderToAdd.colors.forEach((color)=>{
-    color.sets = 0
-    color.plateType.forEach((plate)=>{
-      plate.sets = 0
-    })
-  })
+function resetSets(orderToAdd: any) {
+  orderToAdd.colors.forEach((color) => {
+    color.sets = 0;
+    color.plateType.forEach((plate) => {
+      plate.sets = 0;
+    });
+  });
 }
 async function addToCart(order: any) {
   confirm.require({
@@ -308,71 +315,60 @@ async function addToCart(order: any) {
       showMultipleSelection.value = true;
       (
         document.getElementsByClassName(
-          "p-image-preview-indicator"
+          "p-image-preview-indicator",
         )[0] as HTMLElement
       )?.focus();
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
-      const result=  await ReorderService.validateOrder(order.sgsId);
-      if(result === false)
-      {
-        if(userType.value === 'EXT')
-    {
-      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
-      sgsJobId.value = order.sgsId;
-      showCartConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
-    }
-    else
-    {
-      notificationsStore.addNotification(
-        `Info`,
-        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-        { severity: "error" }
-      );
-
-    }
+      const result = await ReorderService.validateOrder(order.sgsId);
+      if (result === false) {
+        if (userType.value === "EXT") {
+          sendToPmStore.externalPrinterName =
+            authb2cStore.currentB2CUser.printerName;
+          sgsJobId.value = order.sgsId;
+          showCartConfirmDialog.value = true;
+          sendToPmStore.isValidated = true;
+        } else {
+          notificationsStore.addNotification(
+            `Info`,
+            "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+            { severity: "error" },
+          );
+        }
+      } else {
+        let orderToAdd = await ordersStore.getOrderById(order.sgsId);
+        resetSets(orderToAdd);
+        if (await cartStore.addToCart(orderToAdd)) {
+          notificationsStore.addNotification(
+            `Success`,
+            "Order added to the cart successfully",
+            { severity: "success" },
+          );
+        }
       }
-      else
-      {
-      let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-      resetSets(orderToAdd)
-      if (await cartStore.addToCart(orderToAdd)) {
-        notificationsStore.addNotification(
-          `Success`,
-          "Order added to the cart successfully",
-          { severity: "success" }
-        );
-      }
-    }
       ordersStore.loading.ordersList = false;
     },
   });
-
 }
 async function reorder(order: any) {
-  const result=  await ReorderService.validateOrder(order.sgsId);
+  const result = await ReorderService.validateOrder(order.sgsId);
   if (result === false) {
-    if(userType.value === 'EXT')
-    {
-      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+    if (userType.value === "EXT") {
+      sendToPmStore.externalPrinterName =
+        authb2cStore.currentB2CUser.printerName;
       // Validation failed, show the confirm  dialog
-    showConfirmDialog.value = true;
-    sendToPmStore.isValidated = true;
-    }
-    else
-    {
+      showConfirmDialog.value = true;
+      sendToPmStore.isValidated = true;
+    } else {
       notificationsStore.addNotification(
         `Info`,
         "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-        { severity: "error" }
+        { severity: "error" },
       );
-
     }
-    
   } else {
-  ordersStore.reorder(order);
+    ordersStore.reorder(order);
   }
 }
 function cancelOrder(order: any) {
@@ -384,13 +380,13 @@ function cancelOrder(order: any) {
       //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
       // api
       let orderDetails = JSON.parse(
-        JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id))
+        JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id)),
       );
       ordersStore.isCancel = true;
       ordersStore.setOrderInStore(orderDetails);
       (
         document.getElementsByClassName(
-          "p-image-preview-indicator"
+          "p-image-preview-indicator",
         )[0] as HTMLElement
       )?.focus();
       // Assuming you have a route named "success" for the success page
@@ -400,7 +396,7 @@ function cancelOrder(order: any) {
       notificationsStore.addNotification(
         `Info`,
         "Order Cancellation Rejected",
-        { severity: "error" }
+        { severity: "error" },
       );
     },
   });
@@ -408,14 +404,14 @@ function cancelOrder(order: any) {
   //ordersStore.cancelOrder(order);
 }
 
-const auditOrder = async (order)=>{
- const audit = await ReorderService.getReorderAudit(order.id)
-  isAuditVisible.value = true
-  auditReorderId.value = order.id
-  auditData.value = audit.results
+const auditOrder = async (order) => {
+  const audit = await ReorderService.getReorderAudit(order.id);
+  isAuditVisible.value = true;
+  auditReorderId.value = order.id;
+  auditData.value = audit.results;
 
-  console.log(audit.result)
-}
+  console.log(audit.result);
+};
 
 async function addMultipleToCart(values: any) {
   ordersStore.loading.ordersList = true;
@@ -423,90 +419,70 @@ async function addMultipleToCart(values: any) {
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
 
-    const result=  await ReorderService.validateOrder(order.sgsId);
+    const result = await ReorderService.validateOrder(order.sgsId);
     if (result === false) {
+      if (userType.value === "EXT") {
+        sendToPmStore.externalPrinterName =
+          authb2cStore.currentB2CUser.printerName;
+        sgsJobId.value = order.sgsId;
+        showCartConfirmDialog.value = true;
+        sendToPmStore.isValidated = true;
 
-      if(userType.value === 'EXT')
-    {
-
-      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
-      sgsJobId.value = order.sgsId;
-      showCartConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
-
-      // notificationsStore.addNotification(
-      //   `Error`,
-      //   `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
-      //   { severity: "error" }
-      // );
+        // notificationsStore.addNotification(
+        //   `Error`,
+        //   `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
+        //   { severity: "error" }
+        // );
+      } else {
+        notificationsStore.addNotification(
+          `Info`,
+          "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+          { severity: "error" },
+        );
+      }
+    } else {
+      let orderToAdd = await ordersStore.getOrderById(order.sgsId);
+      resetSets(orderToAdd);
+      if (await cartStore.addToCart(orderToAdd)) {
+        notificationsStore.addNotification(
+          `Sucesss`,
+          "Success adding the order #" + order.sgsId,
+          { severity: "success" },
+        );
+      } else {
+        notificationsStore.addNotification(
+          `Error`,
+          "Error adding to the cart #" + order.sgsId,
+          { severity: "error" },
+        );
+      }
+      order.selected = false;
     }
-    else
-    {
-      notificationsStore.addNotification(
-        `Info`,
-        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-        { severity: "error" }
-      );
-
-    }
-    } 
-    else 
-    {
-    let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-    resetSets(orderToAdd)
-    if (await cartStore.addToCart(orderToAdd)) {
-      notificationsStore.addNotification(
-        `Sucesss`,
-        "Success adding the order #"+order.sgsId,
-        { severity: "success" }
-      );
-    }
-    else{
-      notificationsStore.addNotification(
-        `Error`,
-        "Error adding to the cart #"+order.sgsId,
-        { severity: "error" }
-      );
-    }
-    order.selected = false;
   }
-}
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
 }
 
-async function handleOrderValidation(data: any) 
-{
-const result=  await ReorderService.validateOrder(data.originalOrderId);
-if (result === false && showMyOrders.value === false)  
-{
-    if(userType.value === 'EXT')
-    {
-
-      sendToPmStore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
-         // Validation failed, show the confirm  dialog
-    showConfirmDialog.value = true;
-    sendToPmStore.isValidated = true;
-
-    }
-    else
-    {
+async function handleOrderValidation(data: any) {
+  const result = await ReorderService.validateOrder(data.originalOrderId);
+  if (result === false && showMyOrders.value === false) {
+    if (userType.value === "EXT") {
+      sendToPmStore.externalPrinterName =
+        authb2cStore.currentB2CUser.printerName;
+      // Validation failed, show the confirm  dialog
+      showConfirmDialog.value = true;
+      sendToPmStore.isValidated = true;
+    } else {
       notificationsStore.addNotification(
         `Info`,
         "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-        { severity: "error" }
+        { severity: "error" },
       );
-
     }
+  } else {
+    router.push(data.path);
+  }
 }
-else
-{
-  router.push(data.path);
-}
-
-}
-
-
 </script>
 
 <template lang="pug">
@@ -588,7 +564,7 @@ else
         border: 1px solid #ced4da
         border-radius: 3px
         span
-          font-size: 0.95rem 
+          font-size: 0.95rem
           width: 4rem
       .search, .send-to-pm
         justify-content: flex-end
@@ -629,7 +605,7 @@ else
   margin:15px
 
 .sendtoPm
-  margin:25px 
+  margin:25px
   display: flex
   align-items: center
 </style>

@@ -1,143 +1,186 @@
 <script setup>
-import Image from 'primevue/image'
-import { ref, computed, reactive, onMounted, onBeforeMount } from 'vue'
-import { useOrdersStore } from '@/stores/orders'
-import { useCartStore } from '@/stores/cart'
-import ColorsTable from './ColorsTable.vue'
-import router from '@/router'
-import config from '@/data/config/color-table-order'
-import OrderConfirmForm from './OrderConfirmForm.vue'
+import Image from "primevue/image";
+import { ref, computed, reactive, onMounted, onBeforeMount } from "vue";
+import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from "@/stores/cart";
+import ColorsTable from "./ColorsTable.vue";
+import router from "@/router";
+import config from "@/data/config/color-table-order";
+import OrderConfirmForm from "./OrderConfirmForm.vue";
 import ReorderService from "@/services/ReorderService";
-import { useNotificationsStore } from '@/stores/notifications'
-import * as Constants from '@/services/Constants';
+import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
-const ordersStore = useOrdersStore()
-const cartStore = useCartStore()
-const notificationsStore = useNotificationsStore()
-const checkout = computed(() => ordersStore.checkout)
+const ordersStore = useOrdersStore();
+const cartStore = useCartStore();
+const notificationsStore = useNotificationsStore();
+const checkout = computed(() => ordersStore.checkout);
 
 const props = defineProps({
-  selectedId: { type: String, default: () => '', },
-})
+  selectedId: { type: String, default: () => "" },
+});
 
-const selection = computed(() => ordersStore.selectedOrder)
-const loading = computed(() => ordersStore.loading)
-const colors = computed(() => ordersStore.flattenedColors().filter(color => color.sets))
+const selection = computed(() => ordersStore.selectedOrder);
+const loading = computed(() => ordersStore.loading);
+const colors = computed(() =>
+  ordersStore.flattenedColors().filter((color) => color.sets),
+);
 
-let isFormVisible = ref(false)
+let isFormVisible = ref(false);
 
 function confirm() {
-  isFormVisible.value = true
+  isFormVisible.value = true;
 }
 
-const errorMessage = ref('');
+const errorMessage = ref("");
 
-async function cancelPOForm(){
+async function cancelPOForm() {
   isFormVisible.value = false;
   resetPOForm();
 }
 
-async function resetPOForm(){
-  checkout.value.expectedDate = null
-  checkout.value.expectedTime = null
-  checkout.value.purchaseOrder = ['']
-  ordersStore.loading.reorder = false
+async function resetPOForm() {
+  checkout.value.expectedDate = null;
+  checkout.value.expectedTime = null;
+  checkout.value.purchaseOrder = [""];
+  ordersStore.loading.reorder = false;
 }
 
 function validatePOForm() {
-  
-  if(checkout.value.expectedDate === '' || checkout.value.expectedDate === null) {
-    notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.INVALID_DATE_TIME, 
-        { severity: 'error', position: 'top-right' });
+  if (
+    checkout.value.expectedDate === "" ||
+    checkout.value.expectedDate === null
+  ) {
+    notificationsStore.addNotification(
+      Constants.PO_FORM_ERROR,
+      Constants.INVALID_DATE_TIME,
+      { severity: "error", position: "top-right" },
+    );
     return false;
   }
 
   checkDuplicatePONumbers();
-  let validSpecialCharacters = ['-', '_', '/', '\\', '#', '.', ',', '+', '&', '(', ')', ' ', ':', ';', '<', '>', '\''];
+  let validSpecialCharacters = [
+    "-",
+    "_",
+    "/",
+    "\\",
+    "#",
+    ".",
+    ",",
+    "+",
+    "&",
+    "(",
+    ")",
+    " ",
+    ":",
+    ";",
+    "<",
+    ">",
+    "'",
+  ];
 
-  for (let i = 0; i < checkout.value.purchaseOrder.length; i++){
-    const poNumber = checkout.value.purchaseOrder[i]?.trim(); 
-    if (poNumber != null && poNumber.length > 0) { 
-      
+  for (let i = 0; i < checkout.value.purchaseOrder.length; i++) {
+    const poNumber = checkout.value.purchaseOrder[i]?.trim();
+    if (poNumber != null && poNumber.length > 0) {
       if (poNumber.length < 3) {
-        notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.PO_NUMBER_MIN_LENGTH, 
-        { severity: 'error', position: 'top-right' });
+        notificationsStore.addNotification(
+          Constants.PO_FORM_ERROR,
+          Constants.PO_NUMBER_MIN_LENGTH,
+          { severity: "error", position: "top-right" },
+        );
         return false;
       }
 
       for (let i = 0; i < poNumber.length; i++) {
-        if (!validSpecialCharacters.includes(poNumber[i]) && !/^[a-zA-Z0-9]$/.test(poNumber[i])) 
-        {
-            notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.INVALID_PO_NUMBER, 
-            { severity: 'error', position: 'top-right' });
-            return false;
-          }
+        if (
+          !validSpecialCharacters.includes(poNumber[i]) &&
+          !/^[a-zA-Z0-9]$/.test(poNumber[i])
+        ) {
+          notificationsStore.addNotification(
+            Constants.PO_FORM_ERROR,
+            Constants.INVALID_PO_NUMBER,
+            { severity: "error", position: "top-right" },
+          );
+          return false;
         }
       }
     }
+  }
   return true;
 }
 
-function checkDuplicatePONumbers(){
- 
+function checkDuplicatePONumbers() {
   const poArray = checkout.value.purchaseOrder;
-  var duplicates = poArray.filter((poNumber, index) => poArray.indexOf(poNumber) !== index);
+  var duplicates = poArray.filter(
+    (poNumber, index) => poArray.indexOf(poNumber) !== index,
+  );
 
   duplicates = Array.from(new Set(duplicates));
 
-  if(duplicates != null && duplicates.length > 0){
-    notificationsStore.addNotification(Constants.PO_FORM_ERROR, Constants.DUPLICATE_PO_NUMBER + ' '+duplicates, 
-    { severity: 'error', position: 'top-right' });
+  if (duplicates != null && duplicates.length > 0) {
+    notificationsStore.addNotification(
+      Constants.PO_FORM_ERROR,
+      Constants.DUPLICATE_PO_NUMBER + " " + duplicates,
+      { severity: "error", position: "top-right" },
+    );
   }
 }
 
 async function placeOrder() {
-  
   if (validatePOForm()) {
-    ordersStore.loading.reorder = true
+    ordersStore.loading.reorder = true;
     if (ordersStore.selectedOrder.statusId === 1) {
       // add reorder flow
-      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-      let draftResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2, true)
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs;
+      let draftResult = await ReorderService.submitReorder(
+        ordersStore.selectedOrder,
+        2,
+        true,
+      );
       if (!draftResult.success) {
-        alert('Error updating draft')
+        alert("Error updating draft");
+      } else {
+        let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder);
+        cartStore.cartOrders[index] = draftResult.result;
+        ordersStore.successfullReorder = draftResult.result;
+        cartStore.getCartCount();
       }
-      else {
-        let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder)
-        cartStore.cartOrders[index] = draftResult.result
-        ordersStore.successfullReorder = draftResult.result
-        cartStore.getCartCount()
-      }
-    }
-    else {
+    } else {
       // completed reorder flow
-      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs
-      let compResult = await ReorderService.submitReorder(ordersStore.selectedOrder, 2)
-      ordersStore.setOrderInStore(compResult.result)
+      ordersStore.selectedOrder.reorderDocs = checkout.value.reorderdocs;
+      let compResult = await ReorderService.submitReorder(
+        ordersStore.selectedOrder,
+        2,
+      );
+      ordersStore.setOrderInStore(compResult.result);
     }
-    
-  
+
     resetPOForm();
     router.push(`/dashboard/${props.selectedId}/success`);
   }
 
-  ordersStore.loading.reorder = false
+  ordersStore.loading.reorder = false;
 }
 
 function updateCheckout(values) {
-  ordersStore.updateCheckout(values)
+  ordersStore.updateCheckout(values);
 }
 
 function getShippingAddress() {
-
   if (!ordersStore.selectedOrder.customerContacts) {
-    return "No printer site provided"
+    return "No printer site provided";
   }
-  ordersStore.selectedOrder.customerContacts[0].isActive = true
-  return ordersStore.selectedOrder.customerContacts[0].shippingAddress ? ordersStore.selectedOrder.customerContacts[0].shippingAddress : ""
+  ordersStore.selectedOrder.customerContacts[0].isActive = true;
+  return ordersStore.selectedOrder.customerContacts[0].shippingAddress
+    ? ordersStore.selectedOrder.customerContacts[0].shippingAddress
+    : "";
 }
 function checkCustomerDetails() {
-  return ordersStore.selectedOrder.customerContacts && ordersStore.selectedOrder.customerContacts.length === 1
+  return (
+    ordersStore.selectedOrder.customerContacts &&
+    ordersStore.selectedOrder.customerContacts.length === 1
+  );
 }
 </script>
 
@@ -260,5 +303,5 @@ function checkCustomerDetails() {
   width:65%
 
 .shipping
- +flex 
+ +flex
 </style>

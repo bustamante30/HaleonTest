@@ -1,15 +1,15 @@
 <script setup>
-import { onBeforeMount, computed, ref, watch, provide, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import AppHeader from '@/components/common/AppHeader.vue'
-import PrinterList from '@/components/printers/PrinterList.vue'
-import PrinterDetails from '@/components/printers/PrinterDetails.vue'
-import { useUsersStore } from '@/stores/users';
+import { computed, ref, watch, provide, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import AppHeader from "@/components/common/AppHeader.vue";
+import PrinterList from "@/components/printers/PrinterList.vue";
+import PrinterDetails from "@/components/printers/PrinterDetails.vue";
+import { useUsersStore } from "@/stores/users";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useNotificationsStore } from '@/stores/notifications';
+import { useNotificationsStore } from "@/stores/notifications";
 
-const authStore =  useAuthStore();
+const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const usersStore = useUsersStore();
 const notificationsStore = useNotificationsStore();
@@ -17,139 +17,140 @@ const notificationsStore = useNotificationsStore();
 const route = useRoute();
 let role = ref(route.query?.role);
 
-
 const printers = computed(() => usersStore.printers);
 const selected = computed(() => usersStore.selected);
 const user = computed(() => usersStore.user);
 const options = computed(() => usersStore.options);
 let printerId = "";
-let userType ="";
+let userType = "";
 
-provide('options', options)
+provide("options", options);
 
 onMounted(() => {
-  usersStore.getPrinters(0)
-  usersStore.getPrinterById('')
-})
+  usersStore.getPrinters(0);
+  usersStore.getPrinterById("");
+});
 
-watch(() => route.query, (query) => {
-  role.value = query?.role
-})
+watch(
+  () => route.query,
+  (query) => {
+    role.value = query?.role;
+  },
+);
 
 async function selectPrinter(printer) {
-  await usersStore.getPrinterById(printer)
+  await usersStore.getPrinterById(printer);
 }
 
- async function getPrinters(event) {
-  const page = event ? event / 20 : 0
+async function getPrinters(event) {
+  const page = event ? event / 20 : 0;
   // const perPage = (printers && printers.value ? printers.value.perPage : 20)
-   await usersStore.getPrinters(page)
+  await usersStore.getPrinters(page);
 }
 
 function createUser() {
-  usersStore.createUser()
+  usersStore.createUser();
 }
 
 function editUser(user) {
- usersStore.getUser(user.data.id)
+  usersStore.getUser(user.data.id);
 }
 
- function searchUser(query) {
-   //getting printerId value
-      if(authStore.currentUser.email != '')
-      {
-        if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-          userType =authStore.currentUser.userType;
-        } 
-      }
-      
-     if(authb2cStore.currentB2CUser.email != '')
-     {
-        if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-          userType =authb2cStore.currentB2CUser.userType;
-        }
-      }
-      
-      if( userType === "EXT")
-      {
-        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
-          printerId = authb2cStore.currentB2CUser.printerId;
-        }
+function searchUser(query) {
+  //getting printerId value
+  if (authStore.currentUser.email != "") {
+    if (
+      authStore.currentUser?.userType !== undefined &&
+      authStore.currentUser?.userType !== null
+    ) {
+      userType = authStore.currentUser.userType;
+    }
+  }
 
-      }
-      else if(userType === "INT")
-      {
-        printerId = usersStore.selected.id;
-      }
+  if (authb2cStore.currentB2CUser.email != "") {
+    if (
+      authb2cStore.currentB2CUser?.userType !== undefined &&
+      authb2cStore.currentB2CUser?.userType !== null
+    ) {
+      userType = authb2cStore.currentB2CUser.userType;
+    }
+  }
 
-      //check search key
-      if(query.query != "")
-      {
-        usersStore.getPrinterById(printerId,query.query)
-      }
-      else
-      {
-        usersStore.getPrinterById(printerId,'')
-      }
+  if (userType === "EXT") {
+    if (
+      authb2cStore.currentB2CUser?.printerId !== undefined &&
+      authb2cStore.currentB2CUser?.printerId !== null
+    ) {
+      printerId = authb2cStore.currentB2CUser.printerId;
+    }
+  } else if (userType === "INT") {
+    printerId = usersStore.selected.id;
+  }
+
+  //check search key
+  if (query.query != "") {
+    usersStore.getPrinterById(printerId, query.query);
+  } else {
+    usersStore.getPrinterById(printerId, "");
+  }
 }
 
 async function searchPrinter(query) {
-      if(query.query != "")
-      {
-        usersStore.getPrinters(0,500,"",query.query)
-      }
-      else
-      {
-        usersStore.getPrinters(0)
-        usersStore.getPrinterById('')
-      }
+  if (query.query != "") {
+    usersStore.getPrinters(0, 500, "", query.query);
+  } else {
+    usersStore.getPrinters(0);
+    usersStore.getPrinterById("");
+  }
 }
 
 async function deleteUser(user) {
-  if(authStore.currentUser.email != '')
-      {
-        if (authStore.currentUser?.userType !== undefined && authStore.currentUser?.userType !== null) {
-          userType =authStore.currentUser.userType;
-        } 
-      }
-      
-     if(authb2cStore.currentB2CUser.email != '')
-     {
-        if (authb2cStore.currentB2CUser?.userType !== undefined && authb2cStore.currentB2CUser?.userType !== null) {
-          userType =authb2cStore.currentB2CUser.userType;
-        }
-      }
-      
-      if( userType === "EXT")
-      {
-        if (authb2cStore.currentB2CUser?.printerId !== undefined && authb2cStore.currentB2CUser?.printerId !== null) {
-          printerId = authb2cStore.currentB2CUser.printerId;
-        }
+  if (authStore.currentUser.email != "") {
+    if (
+      authStore.currentUser?.userType !== undefined &&
+      authStore.currentUser?.userType !== null
+    ) {
+      userType = authStore.currentUser.userType;
+    }
+  }
 
-      }
-      else if(userType === "INT")
-      {
-        printerId = usersStore.selected.id;
-      }
+  if (authb2cStore.currentB2CUser.email != "") {
+    if (
+      authb2cStore.currentB2CUser?.userType !== undefined &&
+      authb2cStore.currentB2CUser?.userType !== null
+    ) {
+      userType = authb2cStore.currentB2CUser.userType;
+    }
+  }
 
- await usersStore.deleteUser(user.data.id)
- notificationsStore.addNotification(
-        `User Deletion`,
-        `User Deleted Successfully`,
-        { severity: 'Success', position: 'top-right' }
-      );
- await usersStore.getPrinters(0,500,'','',usersStore.selected.id)
+  if (userType === "EXT") {
+    if (
+      authb2cStore.currentB2CUser?.printerId !== undefined &&
+      authb2cStore.currentB2CUser?.printerId !== null
+    ) {
+      printerId = authb2cStore.currentB2CUser.printerId;
+    }
+  } else if (userType === "INT") {
+    printerId = usersStore.selected.id;
+  }
+
+  await usersStore.deleteUser(user.data.id);
+  notificationsStore.addNotification(
+    `User Deletion`,
+    `User Deleted Successfully`,
+    { severity: "Success", position: "top-right" },
+  );
+  await usersStore.getPrinters(0, 500, "", "", usersStore.selected.id);
 }
 
 function resend(user) {
- usersStore.resendInvitation(user.data.id)
- notificationsStore.addNotification(
-        `Resend Invitation`,
-        `Invitation resend Successfully`,
-        { severity: 'Success', position: 'top-right' }
-      );
+  usersStore.resendInvitation(user.data.id);
+  notificationsStore.addNotification(
+    `Resend Invitation`,
+    `Invitation resend Successfully`,
+    { severity: "Success", position: "top-right" },
+  );
 }
-
 </script>
 <template lang="pug">
 .page.users

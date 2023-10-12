@@ -1,101 +1,119 @@
 <script lang="ts" setup>
-import { DateTime } from 'luxon';
-import { onBeforeMount,computed,ref, watch } from 'vue';
+import { DateTime } from "luxon";
+import { onBeforeMount, computed, ref, watch } from "vue";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useNotificationsStore } from '@/stores/notifications';
+import { useNotificationsStore } from "@/stores/notifications";
 import { useAuthStore } from "@/stores/auth";
 import SendToPMService from "@/services/SendToPmService";
-import { FileUploadService ,type FileUploadResponse, type FileDelete }from "@/services/FileUploadService";
-import type { UploadFileDto } from '@/models/UploadFileDto';
-import type { DeleteFileDto } from '@/models/DeleteFileDto';
-
-
+import {
+  FileUploadService,
+  type FileUploadResponse,
+  type FileDelete,
+} from "@/services/FileUploadService";
+import type { UploadFileDto } from "@/models/UploadFileDto";
+import type { DeleteFileDto } from "@/models/DeleteFileDto";
 
 type ValidFiles = {
-  fileName : string,
-  uri:string
-}
+  fileName: string;
+  uri: string;
+};
 const props = defineProps({
   checkout: {
     type: Object,
     default: {
       expectedDate: null,
       purchaseOrder: null,
-      shippingAddrress: null
-    }
-  }
-})
+      shippingAddrress: null,
+    },
+  },
+});
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(["change"]);
 const authb2cStore = useB2CAuthStore();
 const authStore = useAuthStore();
 const notificationsStore = useNotificationsStore();
 
-const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isb2cUserLoggedIn = computed(
+  () => authb2cStore.currentB2CUser.isLoggedIn,
+);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-let entering = ref()
-const sendUpload = ref([])
-const checkoutForm = ref()
+let entering = ref();
+const sendUpload = ref([]);
+const checkoutForm = ref();
 let validFiles = ref<ValidFiles[]>([]);
 onBeforeMount(() => {
-  checkoutForm.value = { ...props.checkout }
-})
+  checkoutForm.value = { ...props.checkout };
+});
 
 watch(props.checkout, () => {
-  checkoutForm.value = { ...props.checkout }
-})
+  checkoutForm.value = { ...props.checkout };
+});
 
 function addPurchaseOrder() {
-  if (checkoutForm.value?.purchaseOrder?.length < 10) checkoutForm.value?.purchaseOrder.unshift('');
-
+  if (checkoutForm.value?.purchaseOrder?.length < 10)
+    checkoutForm.value?.purchaseOrder.unshift("");
 }
 
-function removePurchaseOrder(index : number) {
-  const po = checkoutForm.value?.purchaseOrder
-  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[]
+function removePurchaseOrder(index: number) {
+  const po = checkoutForm.value?.purchaseOrder;
+  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[];
 }
 
 function updateCheckout() {
   let expectedDateTime: Date = checkoutForm.value.expectedDate;
-  if(checkoutForm.value.expectedDate) {
+  if (checkoutForm.value.expectedDate) {
     expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
-    expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes())
+    expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes());
   }
 
-  emit('change', { 
-    purchaseOrder:checkoutForm.value.purchaseOrder? checkoutForm.value.purchaseOrder: null,
-    expectedDate:expectedDateTime, 
-    notes: checkoutForm.value.notes ? checkoutForm.value.notes: null,
-    reorderdocs: validFiles.value.map(x=> {
-      return  ({fileName: x.fileName,url: x.uri })
-    })
-  })
+  emit("change", {
+    purchaseOrder: checkoutForm.value.purchaseOrder
+      ? checkoutForm.value.purchaseOrder
+      : null,
+    expectedDate: expectedDateTime,
+    notes: checkoutForm.value.notes ? checkoutForm.value.notes : null,
+    reorderdocs: validFiles.value.map((x) => {
+      return { fileName: x.fileName, url: x.uri };
+    }),
+  });
 }
 
 function minSelectableDate() {
-  return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
+  return DateTime.now().plus({ hour: 72 }).startOf("hour").toJSDate();
 }
 
 function showNotes(): boolean {
-  return authb2cStore.currentB2CUser.userType === 'EXT';
+  return authb2cStore.currentB2CUser.userType === "EXT";
 }
 
 const isExpectedTimeDisabled = computed(() => {
   return !checkoutForm.value.expectedDate;
 });
 
-
 const isValidFileType = (file: File) => {
-  const forbiddenExtensions = ['.exe', '.bat', '.com', '.cmd', '.inf', '.ipa', '.osx', '.pif', '.run', '.wsh'];
+  const forbiddenExtensions = [
+    ".exe",
+    ".bat",
+    ".com",
+    ".cmd",
+    ".inf",
+    ".ipa",
+    ".osx",
+    ".pif",
+    ".run",
+    ".wsh",
+  ];
   const lowercaseName = file.name.toLowerCase();
-  return forbiddenExtensions.some(extension => lowercaseName.endsWith(extension));
-}
+  return forbiddenExtensions.some((extension) =>
+    lowercaseName.endsWith(extension),
+  );
+};
 
 async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = (reader.result as any).split(',')[1];
+      const base64String = (reader.result as any).split(",")[1];
       resolve(base64String);
     };
     reader.onerror = reject;
@@ -104,28 +122,28 @@ async function blobToBase64(blob: any) {
 }
 
 async function getUserId() {
-  let userId = '6';
+  let userId = "6";
   if (isUserLoggedIn.value) {
-    userId = (await authStore.currentUser.userId as any);
+    userId = (await authStore.currentUser.userId) as any;
   }
   if (isb2cUserLoggedIn.value) {
-    userId = (await authb2cStore.currentB2CUser.userId as any);
+    userId = (await authb2cStore.currentB2CUser.userId) as any;
   }
-  return userId
+  return userId;
 }
 
-async function convertAndSendFile(file: any):Promise<FileUploadResponse> {
+async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
   const binaryToBase64 = await blobToBase64(file);
-  const fileName = file.name.replace(/[(!$%&[\]{}]/g, '-')
-  const id = await getUserId()
+  const fileName = file.name.replace(/[(!$%&[\]{}]/g, "-");
+  const id = await getUserId();
 
   const formdata = new FormData();
-  formdata.append('file', file)
-  formdata.append('UserId', id)
-  formdata.append('FileName', fileName)
-  formdata.append('Data', '')
-  formdata.append('isReorderDocs', 'yes')
-  return await FileUploadService.uploadFile(formdata)
+  formdata.append("file", file);
+  formdata.append("UserId", id);
+  formdata.append("FileName", fileName);
+  formdata.append("Data", "");
+  formdata.append("isReorderDocs", "yes");
+  return await FileUploadService.uploadFile(formdata);
 }
 
 async function onDrop(event: any) {
@@ -133,24 +151,27 @@ async function onDrop(event: any) {
   const uploadFiles = Array.from(event.dataTransfer.files);
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
-      // rename the File 
+      // rename the File
 
       notificationsStore.addNotification(
         `Invalid file type`,
         `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
-        { severity: 'error', position: 'top-right' }
+        { severity: "error", position: "top-right" },
       );
       return null;
     } else {
       const response = await convertAndSendFile(file);
-      if (response.status === 'OK') {
-        validFiles.value.push({fileName : file.name as string , uri: response.uri} );
+      if (response.status === "OK") {
+        validFiles.value.push({
+          fileName: file.name as string,
+          uri: response.uri,
+        });
         return response;
       } else {
         notificationsStore.addNotification(
           `Upload failed`,
           `Your file was not uploaded. Please try again.`,
-          { severity: 'error', position: 'top-right' }
+          { severity: "error", position: "top-right" },
         );
         return null;
       }
@@ -162,10 +183,10 @@ async function onDrop(event: any) {
     notificationsStore.addNotification(
       `Uploaded successfully`,
       `You have uploaded ${successfulUploads.length} files successfully`,
-      { severity: 'success', position: 'top-right' }
+      { severity: "success", position: "top-right" },
     );
   }
-  updateCheckout()
+  updateCheckout();
 }
 
 const removeItemByProperty = (index: number) => {
@@ -174,20 +195,28 @@ const removeItemByProperty = (index: number) => {
   }
 };
 
-async function onDeleteClick(file: ValidFiles,index:number) {
+async function onDeleteClick(file: ValidFiles, index: number) {
   const deleteInfo: FileDelete = {
-    isRedorder : true,
-    uri :file.uri
-  }
-  const deleteResponse = await FileUploadService.deleteFilesToBlobStorage(deleteInfo)
+    isRedorder: true,
+    uri: file.uri,
+  };
+  const deleteResponse =
+    await FileUploadService.deleteFilesToBlobStorage(deleteInfo);
   if (deleteResponse) {
-    removeItemByProperty(index)
-    notificationsStore.addNotification(`Deleted Successfully`, `Your file ${file.fileName} was successfully deleted`, { severity: 'success', position: 'top-right' })
+    removeItemByProperty(index);
+    notificationsStore.addNotification(
+      `Deleted Successfully`,
+      `Your file ${file.fileName} was successfully deleted`,
+      { severity: "success", position: "top-right" },
+    );
+  } else {
+    notificationsStore.addNotification(
+      `Delete failed`,
+      `Your file ${file.fileName} was not deleted`,
+      { severity: "error", position: "top-right" },
+    );
   }
-  else {
-    notificationsStore.addNotification(`Delete failed`, `Your file ${file.fileName} was not deleted`, { severity: 'error', position: 'top-right' })
-  }
-  updateCheckout()
+  updateCheckout();
 }
 
 function onDragOver(event: any) {
@@ -205,7 +234,6 @@ function onDragLeave(event: any) {
 function handleInput(e: any) {
   const files = e.target.files;
 }
-
 </script>
 
 <template lang="pug">
@@ -258,7 +286,6 @@ function handleInput(e: any) {
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
-
 </style>
 
 .order-conformation-form
@@ -299,7 +326,7 @@ function handleInput(e: any) {
         color: red
         font-weight: bolder
         font-size: 14px
-      
+
       span.error
         color: $sgs-red
         display: block
@@ -337,7 +364,7 @@ function handleInput(e: any) {
   &:hover
     border: 1px dashed rgba($sgs-gray, 1)
 .upload
-  h4 
+  h4
     padding: 0 $s
   .files
     +reset
@@ -355,7 +382,7 @@ function handleInput(e: any) {
       .delete
         visibility: hidden
         margin-right: $s125
-      &:hover 
+      &:hover
         background: rgba($sgs-blue, 0.1)
         .delete
           visibility: visible

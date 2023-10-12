@@ -1,4 +1,4 @@
 export interface SearchResponeDto {
-    totalRecords: number;
-    data: any[];
-  }
+  totalRecords: number;
+  data: any[];
+}

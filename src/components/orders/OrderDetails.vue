@@ -1,55 +1,57 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import ColorsTable from './ColorsTable.vue'
-import config from '@/data/config/color-table'
-import router from '@/router'
-import OrderShirttail from './OrderShirttail.vue'
+import ColorsTable from "./ColorsTable.vue";
+import config from "@/data/config/color-table";
+import router from "@/router";
+import OrderShirttail from "./OrderShirttail.vue";
 
-const preview = ref()
+const preview = ref();
 
-const ordersStore = useOrdersStore()
+const ordersStore = useOrdersStore();
 
 const props = defineProps({
   selectedId: {
     type: String,
     default: () => "",
   },
-})
-const selectedOrder = computed(() => ordersStore.selectedOrder)
-const loadingOrder = computed(() => ordersStore.loading.order)
-const colors = computed(() => ordersStore.flattenedColors())
+});
+const selectedOrder = computed(() => ordersStore.selectedOrder);
+const loadingOrder = computed(() => ordersStore.loading.order);
+const colors = computed(() => ordersStore.flattenedColors());
 
 onMounted(async () => {
-  await ordersStore.getOrderById(props.selectedId)
-})
+  await ordersStore.getOrderById(props.selectedId);
+});
 
 function buy() {
-  const confirmRoute = `/dashboard/${props.selectedId}/reorder`+(selectedOrder.value.statusId==1?`?source=cart`:``)
-  console.log(confirmRoute)
-  router.push(confirmRoute)
+  const confirmRoute =
+    `/dashboard/${props.selectedId}/reorder` +
+    (selectedOrder.value.statusId == 1 ? `?source=cart` : ``);
+  console.log(confirmRoute);
+  router.push(confirmRoute);
 }
 function getPDFFileName(pdfUri) {
-    // Split the URI by '/' to separate the parts
-    const uriParts = pdfUri.split('/');
-    
-    // Get the last part, which is the full PDF file name
-    const fullFileName = uriParts[uriParts.length - 1];
-    
-    // Use a regular expression to extract the actual file name
-    const fileNameMatch = fullFileName.match(/([^/?#]+)(\?|$)/);
-    
-    if (fileNameMatch) {
-      // The first capturing group (fileNameMatch[1]) contains the file name
-      return fileNameMatch[1];
-    } else {
-      // If the regular expression didn't match, return the full file name
-      return fullFileName;
-    }
+  // Split the URI by '/' to separate the parts
+  const uriParts = pdfUri.split("/");
+
+  // Get the last part, which is the full PDF file name
+  const fullFileName = uriParts[uriParts.length - 1];
+
+  // Use a regular expression to extract the actual file name
+  const fileNameMatch = fullFileName.match(/([^/?#]+)(\?|$)/);
+
+  if (fileNameMatch) {
+    // The first capturing group (fileNameMatch[1]) contains the file name
+    return fileNameMatch[1];
+  } else {
+    // If the regular expression didn't match, return the full file name
+    return fullFileName;
   }
+}
 
 function viewPreview() {
-  preview?.value?.scrollIntoView()
+  preview?.value?.scrollIntoView();
 }
 </script>
 

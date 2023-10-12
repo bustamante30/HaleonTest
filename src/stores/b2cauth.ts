@@ -27,7 +27,7 @@ const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 
-const printerIdSearch = async (currentB2CUser: any): Promise<Number[]> => {
+const printerIdSearch = async (currentB2CUser: any): Promise<number[]> => {
   if (
     currentB2CUser.userType === "EXT" &&
     currentB2CUser.roleKey.toLowerCase().includes("admin")
@@ -71,7 +71,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
   actions: {
     async aquireToken() {
       await this.getAccount();
-      let tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
+      const tokenResponse = await this.msalB2cInstance.handleRedirectPromise();
       if (tokenResponse) {
         this.account = tokenResponse.account;
       } else {
@@ -88,9 +88,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         account: this.msalB2cInstance.getAllAccounts()[0],
       };
       console.info("acquireTokenSilent");
-      const tokenResponse = await this.msalB2cInstance.acquireTokenSilent(
-        accessTokenRequest
-      );
+      const tokenResponse =
+        await this.msalB2cInstance.acquireTokenSilent(accessTokenRequest);
       if (tokenResponse) {
         this.account = tokenResponse.account;
       } else {
@@ -141,7 +140,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
               error ||
               (typeof error === "string" &&
                 error.includes(
-                  "The provided token does not contain a valid issuer"
+                  "The provided token does not contain a valid issuer",
                 ))
             ) {
               this.currentB2CUser.isValidDomain = false;
@@ -151,10 +150,9 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             }
           });
 
-       
         if (this.account && response) {
           console.log(
-            "[Auth Store] successfully obtained valid account and tokenResponse"
+            "[Auth Store] successfully obtained valid account and tokenResponse",
           );
           await this.updateUserStore(response);
         } else if (this.account) {
@@ -177,20 +175,20 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           }
         } else {
           console.log(
-            "[Auth Store]  No account or tokenResponse present. User must now login."
+            "[Auth Store]  No account or tokenResponse present. User must now login.",
           );
           const account = this.msalB2cInstance.getActiveAccount();
           if (!account) {
             this.msalB2cInstance
               .loginRedirect({
                 scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
-                loginHint: this.userEmail
+                loginHint: this.userEmail,
               })
               .then((tokenResponse) => {
                 console.log("Login redirect response" + tokenResponse);
                 response = tokenResponse;
               })
-              .catch(async(e) =>  {
+              .catch(async (e) => {
                 console.log("login error loginRedirect: ", e);
               });
           }
@@ -221,17 +219,17 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       const user = await UserService.getUserClaimInfo();
       this.decodedToken = jwt_decode(this.accessToken);
       const identityProviderSelected = this.getIdentityUsingToken(
-        this.decodedToken
+        this.decodedToken,
       );
       if (user !== null) {
         localStorage.setItem("Claims", user.claims);
         this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
         localStorage.setItem("userType", this.currentB2CUser.userType);
         this.currentB2CUser.printerUserIds = await printerIdSearch(
-          this.currentB2CUser
+          this.currentB2CUser,
         );
         console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
-       
+
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
@@ -250,7 +248,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           this.currentB2CUser.isLoggedIn = false;
           router.push("/error");
         }
-       
+
         store.set("currentb2cUser", this.currentB2CUser);
       } else {
         router.push("/error");
@@ -276,11 +274,11 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       }
       return identityProvider;
     },
-    resetLogin(){
+    resetLogin() {
       this.currentB2CUser.isLoggedIn = false;
     },
-    setUseremail(id){
+    setUseremail(id) {
       this.userEmail = id;
-    }
+    },
   },
 });

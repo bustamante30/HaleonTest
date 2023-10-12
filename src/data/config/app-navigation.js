@@ -1,11 +1,11 @@
 const nav = (emit, isAdmin) => {
-  console.log('isAdmin', isAdmin)
-  
+  console.log("isAdmin", isAdmin);
+
   const adminMenu = [];
   if (isAdmin === "PMSuperAdminUser") {
-    adminMenu.push({ label: "Manage Users", to: "/users?role=super", })
+    adminMenu.push({ label: "Manage Users", to: "/users?role=super" });
   } else if (isAdmin === "PrinterAdmin") {
-    adminMenu.push({ label: "Manage Users", to: "/users", })
+    adminMenu.push({ label: "Manage Users", to: "/users" });
   }
 
   return [

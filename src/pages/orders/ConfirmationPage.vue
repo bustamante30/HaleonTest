@@ -1,13 +1,11 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import router from '@/router'
-import ConfirmDetails from '@/components/orders/OrderConfirm.vue'
+import { useRoute } from "vue-router";
+import router from "@/router";
+import ConfirmDetails from "@/components/orders/OrderConfirm.vue";
 
-const route = useRoute()
+const route = useRoute();
 
-const id = route.params.id
-
-
+const id = route.params.id;
 </script>
 
 <template lang="pug">

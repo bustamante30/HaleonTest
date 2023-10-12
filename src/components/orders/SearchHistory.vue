@@ -1,31 +1,31 @@
 <script lang="ts" setup>
-import { slice } from 'lodash'
-import { computed } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import TableCell from '@/components/ui/TableCell.vue'
+import { slice } from "lodash";
+import { computed } from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import TableCell from "@/components/ui/TableCell.vue";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: { cols: [] }
+    default: { cols: [] },
   },
   limit: {
     type: Number,
-    default: 5
-  }
-})
+    default: 5,
+  },
+});
 
-const limitedData = computed(() => slice(props.data, 0, props.limit))
+const limitedData = computed(() => slice(props.data, 0, props.limit));
 
 function stylify(width: number) {
   return width
-    ? { width: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { width: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
 </script>
 

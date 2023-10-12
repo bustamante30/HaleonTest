@@ -1,73 +1,75 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { get } from 'lodash'
-import { DateTime } from 'luxon'
+import { ref, computed } from "vue";
+import { get } from "lodash";
+import { DateTime } from "luxon";
 import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
   actions: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   data: {
     type: Object,
-    default: null
+    default: null,
   },
-})
+});
 
-const menu = ref()
+const menu = ref();
 
-const emit = defineEmits(['select','action'])
+const emit = defineEmits(["select", "action"]);
 
 const items = computed(() => {
-  
-  return props.actions.map(action => {
+  return props.actions.map((action) => {
     return {
       label: action.label,
       icon: action.icon,
-      validate:action.validate,
-      field:action.field,
-      command: () => { emit('action', { event: action.event, data: props.data }) }
-    }
-  })
-})
+      validate: action.validate,
+      field: action.field,
+      command: () => {
+        emit("action", { event: action.event, data: props.data });
+      },
+    };
+  });
+});
 
 function formatDate(date) {
-  return DateTime.fromJSDate(date).toFormat('dd LLL, yyyy h:mm a')
+  return DateTime.fromJSDate(date).toFormat("dd LLL, yyyy h:mm a");
 }
 
 function resolvePath(config, data) {
-  let path = config.path
+  let path = config.path;
   config.pathParams.forEach((param, i) => {
-    const placeholder = `$${i + 1}`
-    const value = get(data, param)
-    path = path.replace(placeholder, value)
-  })
-  return path
+    const placeholder = `$${i + 1}`;
+    const value = get(data, param);
+    path = path.replace(placeholder, value);
+  });
+  return path;
 }
 
 async function toggleMenu(event) {
-  const removeIndex =  items.value.findIndex(x=>x.validate)
-  if(removeIndex >= 0){
-    const item =items.value[removeIndex]
-    const submittedDate = props.data[item.field]
-    const currentTime = DateTime.fromJSDate(new Date())
-    const subTime = DateTime.fromMillis(new Date(submittedDate).getTime())
-    const diff = currentTime.diff(subTime, ['minutes']).minutes
-    if(diff > 10) {
-      const result = await ReorderService.submitReorder(item, 4, true)
+  const removeIndex = items.value.findIndex((x) => x.validate);
+  if (removeIndex >= 0) {
+    const item = items.value[removeIndex];
+    const submittedDate = props.data[item.field];
+    const currentTime = DateTime.fromJSDate(new Date());
+    const subTime = DateTime.fromMillis(new Date(submittedDate).getTime());
+    const diff = currentTime.diff(subTime, ["minutes"]).minutes;
+    if (diff > 10) {
+      const result = await ReorderService.submitReorder(item, 4, true);
       if (!result) {
-        notificationsStore.addNotification(`Error`, 'Error completing the order', { severity: 'error' })
-      }
-      else {
-        items.value.splice(removeIndex, 1)
+        notificationsStore.addNotification(
+          `Error`,
+          "Error completing the order",
+          { severity: "error" },
+        );
+      } else {
+        items.value.splice(removeIndex, 1);
       }
     }
   }
 
-
-  if(items.value.length > 0)
-    menu.value.toggle(event)
+  if (items.value.length > 0) menu.value.toggle(event);
 }
 </script>
 

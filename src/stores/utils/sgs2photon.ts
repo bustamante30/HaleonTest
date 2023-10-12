@@ -17,9 +17,10 @@ const mapSgsOrderDetail = (details: any = {}) => {
     plateType: details.techSpec.plateType,
     pdfData: details.pdfData,
     variety: details.jobDetails.variety,
-    thumbNailPath: new URL("@/assets/images/no_thumbnail.png", import.meta.url).pathname,
+    thumbNailPath: new URL("@/assets/images/no_thumbnail.png", import.meta.url)
+      .pathname,
     isActive: true,
-  }
-}
+  };
+};
 
-export { mapSgsOrderDetail }
+export { mapSgsOrderDetail };

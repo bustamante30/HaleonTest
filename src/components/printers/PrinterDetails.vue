@@ -1,36 +1,41 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { config as userConfig } from '@/data/config/user-table'
-import { config as internalUserConfig } from '@/data/config/internal-user-table'
-import UserTable from './UserTable.vue'
-import PrinterProviders from './PrinterProvider.vue'
-import { useUsersStore } from '@/stores/users'
-import router from '@/router'
+import { ref, watch, computed } from "vue";
+import { config as userConfig } from "@/data/config/user-table";
+import { config as internalUserConfig } from "@/data/config/internal-user-table";
+import UserTable from "./UserTable.vue";
+import PrinterProviders from "./PrinterProvider.vue";
+import { useUsersStore } from "@/stores/users";
+import router from "@/router";
 
 const props = defineProps({
   printer: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   user: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   role: {
     type: String,
-    default: null
+    default: null,
   },
   suggestions: {
     type: Array,
-    default: () => []
-  }
-})
-const usersStore = useUsersStore()
+    default: () => [],
+  },
+});
+const usersStore = useUsersStore();
 //printer = computed(() => usersStore.selected);
-const emit = defineEmits(['createUser', 'editUser','searchUser', 'deleteUser'])
+const emit = defineEmits([
+  "createUser",
+  "editUser",
+  "searchUser",
+  "deleteUser",
+]);
 
-const tab = ref('users')
-const query = ref()
+const tab = ref("users");
+const query = ref();
 
 watch(query, (changeQuery) => {
   if (changeQuery === "") {
@@ -38,34 +43,30 @@ watch(query, (changeQuery) => {
   }
 });
 
-
-
 function selectTab(tabName) {
-  tab.value = tabName
+  tab.value = tabName;
 }
 
 function create(path) {
-  emit('createUser')
+  emit("createUser");
 }
 
 function edit(user) {
-  emit('editUser', user)
+  emit("editUser", user);
   // router.push(`/users/${user.data.id}?role=super`)
 }
 
 function search(query) {
-  emit('searchUser', query)
+  emit("searchUser", query);
 }
 
 function deleteUser(user) {
-  emit('deleteUser', user)
+  emit("deleteUser", user);
 }
-
 
 function resend(user) {
-  emit('resend', user)
+  emit("resend", user);
 }
-
 </script>
 
 <template lang="pug">
