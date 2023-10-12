@@ -1,48 +1,53 @@
 <script setup>
-import { ref, computed,onMounted } from 'vue'
+import { ref, computed, onMounted } from "vue";
 const props = defineProps({
   src: {
     type: String,
-    default: null
+    default: null,
   },
   chapters: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   showChapters: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const currentChapter = ref(null)
+const currentChapter = ref(null);
 const currentChapterInSecs = computed(() => {
-  const time = currentChapter.value && currentChapter.value.In
+  const time = currentChapter.value && currentChapter.value.In;
   if (time) {
-    const t = time.split(':').map(t => parseInt(t))
-    const secs = (t[0] * 216000) + (t[1] * 3600) + (t[2] * 60) + t[3]
-    return secs
+    const t = time.split(":").map((t) => parseInt(t));
+    const secs = t[0] * 216000 + t[1] * 3600 + t[2] * 60 + t[3];
+    return secs;
   } else {
-    return ''
+    return "";
   }
-})
+});
 function isCurrentChapter(chapter) {
-  return currentChapter.value && chapter.In === currentChapter.value.In
+  return currentChapter.value && chapter.In === currentChapter.value.In;
 }
 
-const videoUrl = ref()
+const videoUrl = ref();
 async function showDialog() {
-  const useUploadFilesStore = async() => await import("@/stores/upload-files").then( async (store)=>{
-  const uploadDocsStore = store.useUploadFilesStore();
-  await uploadDocsStore.getSasPathDemoVideo()
-  return uploadDocsStore.sasTokenUrl 
-})
- return await useUploadFilesStore()
+  const useUploadFilesStore = async () =>
+    await import("@/stores/upload-files").then(async (store) => {
+      const uploadDocsStore = store.useUploadFilesStore();
+      await uploadDocsStore.getSasPathDemoVideo();
+      return uploadDocsStore.sasTokenUrl;
+    });
+  return await useUploadFilesStore();
 }
-const videour = computed(() => videoUrl.value + (currentChapterInSecs.value ? `#t=${currentChapterInSecs.value}` : ''))
-onMounted(async()=>{
-  videoUrl.value  = await showDialog()
-})
+const videour = computed(
+  () =>
+    videoUrl.value +
+    (currentChapterInSecs.value ? `#t=${currentChapterInSecs.value}` : ""),
+);
+onMounted(async () => {
+  videoUrl.value = await showDialog();
+});
 </script>
 
 <template lang="pug">
@@ -116,5 +121,4 @@ onMounted(async()=>{
     video
       width: 100%
       height: 100%
-
 </style>

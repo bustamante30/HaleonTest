@@ -1,53 +1,61 @@
 <script lang="ts" setup>
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import TableActions from '@/components/ui/TableActions.vue'
-import TableCell from '@/components/ui/TableCell.vue'
-import { inject, computed } from 'vue';
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import TableActions from "@/components/ui/TableActions.vue";
+import TableCell from "@/components/ui/TableCell.vue";
+import { inject, computed } from "vue";
 
 const props = defineProps({
   colourId: {
     type: String,
-    default: null
+    default: null,
   },
   config: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   data: {
     type: Object,
-    default: () => {}
-  }
-})
+    default: () => {},
+  },
+});
 
-const options = inject('options')
+const options = inject("options");
 
-const emit = defineEmits(['update', 'add', 'remove'])
+const emit = defineEmits(["update", "add", "remove"]);
 
-const platesCount = computed(() => props.data && props.data.length)
+const platesCount = computed(() => props.data && props.data.length);
 
 function stylify(width: any) {
   return width
-    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
 
-function updatePlate({ checkboxId, field, value }: { checkboxId: number, field: string, value: any }) {
-  const { colourId } = props
+function updatePlate({
+  checkboxId,
+  field,
+  value,
+}: {
+  checkboxId: number;
+  field: string;
+  value: any;
+}) {
+  const { colourId } = props;
   // console.log('update plate', { colourId, checkboxId, field, value })
-  if (colourId) emit('update', { colourId, checkboxId, field, value })
+  if (colourId) emit("update", { colourId, checkboxId, field, value });
 }
 
 function addPlate() {
-  const { colourId } = props
+  const { colourId } = props;
   // console.log('add plate', { colourId })
-  if (colourId) emit('add', { colourId })
+  if (colourId) emit("add", { colourId });
 }
 
 function removePlate(plate: any) {
-  const { checkboxId } = plate
-  const { colourId } = props
-  emit('remove', { colourId, checkboxId })
+  const { checkboxId } = plate;
+  const { colourId } = props;
+  emit("remove", { colourId, checkboxId });
 }
 </script>
 

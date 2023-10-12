@@ -1,3 +1,1 @@
-<template>
-    SGS Help
-</template>
+<template>SGS Help</template>

@@ -1,77 +1,89 @@
 <script setup>
-import { get } from 'lodash'
-import { DateTime } from 'luxon'
-import {computed } from 'vue'
-import SgsLookup from '@/components/ui/Lookup.vue'
-import router from '@/router'
+import { get } from "lodash";
+import { DateTime } from "luxon";
+import { computed } from "vue";
+import SgsLookup from "@/components/ui/Lookup.vue";
+import router from "@/router";
 import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
   config: {
     type: Object,
-    default: () => { }
+    default: () => {},
   },
   data: {
     type: Object,
-    default: null
+    default: null,
   },
   dataKey: {
     type: String,
-    default: 'id'
-  },  
+    default: "id",
+  },
   options: {
     type: Object,
-    default: () => {}
-  }  
-})
+    default: () => {},
+  },
+});
 
-const emit = defineEmits(['update', 'ordervalidation'])
+const emit = defineEmits(["update", "ordervalidation"]);
 const notificationsStore = useNotificationsStore();
 
-const value = computed(() => get(props.data, props.config.field))
+const value = computed(() => get(props.data, props.config.field));
 // const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
-const optionKey = computed(() => get(props.config, 'options.key') || null)
-const optionValues = computed(() => optionKey.value ? get(props.options, optionKey.value) : [])
-const optionLabelKey = computed(() => get(props.config, 'options.label') || 'label')
-const optionValueKey = computed(() => get(props.config, 'options.value') || 'value')
+const optionKey = computed(() => get(props.config, "options.key") || null);
+const optionValues = computed(() =>
+  optionKey.value ? get(props.options, optionKey.value) : [],
+);
+const optionLabelKey = computed(
+  () => get(props.config, "options.label") || "label",
+);
+const optionValueKey = computed(
+  () => get(props.config, "options.value") || "value",
+);
 
 function formatDate(date) {
-  return DateTime.fromJSDate(date).toFormat('dd LLL, yyyy h:mm a')
+  return DateTime.fromJSDate(date).toFormat("dd LLL, yyyy h:mm a");
 }
 
 function resolvePath(config, data) {
-  let path = config.path
+  let path = config.path;
   config.pathParams.forEach((param, i) => {
-    const placeholder = `$${i + 1}`
-    const value = get(data, param)
-    path = path.replace(placeholder, value)
-  })
-  return path
+    const placeholder = `$${i + 1}`;
+    const value = get(data, param);
+    path = path.replace(placeholder, value);
+  });
+  return path;
 }
 
 function update(value) {
-  const { data, config } = props
-  emit('update', { [props.dataKey]: data[props.dataKey], field: config.field, value: value })
+  const { data, config } = props;
+  emit("update", {
+    [props.dataKey]: data[props.dataKey],
+    field: config.field,
+    value: value,
+  });
 }
 
-async function navigate(config,data){
-    if ((data.originalOrderId != undefined || data.sgsId !=undefined) && data.orderStatus === "Completed")
-  {
-    let jobNumber ="";
-    if(data.originalOrderId != null)
-    {
+async function navigate(config, data) {
+  if (
+    (data.originalOrderId != undefined || data.sgsId != undefined) &&
+    data.orderStatus === "Completed"
+  ) {
+    let jobNumber = "";
+    if (data.originalOrderId != null) {
       jobNumber = data.originalOrderId;
-    }
-    else if (data.sgsId != null)
-    {
+    } else if (data.sgsId != null) {
       jobNumber = data.sgsId;
     }
 
-    emit('ordervalidation',{originalOrderId : jobNumber,path:resolvePath(config, data)});
-  }else{
-    const link = resolvePath(config, data)
-    router.push(link)
+    emit("ordervalidation", {
+      originalOrderId: jobNumber,
+      path: resolvePath(config, data),
+    });
+  } else {
+    const link = resolvePath(config, data);
+    router.push(link);
   }
 }
 </script>
@@ -138,11 +150,11 @@ span.thumb
     width: auto
 
 span.image > *
-  
+
   min-height: 1.25rem
   background: #999
   border: 1px solid #333
-  
+
   img
     height: 100%
     width: auto

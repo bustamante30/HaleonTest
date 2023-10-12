@@ -1,13 +1,13 @@
 <script setup>
-import { onMounted,ref} from 'vue'
-import { useFaqStore } from '@/stores/faq'
+import { onMounted, ref } from "vue";
+import { useFaqStore } from "@/stores/faq";
 
-const faqStore = useFaqStore()
-let faqs = ref([])
+const faqStore = useFaqStore();
+let faqs = ref([]);
 onMounted(async () => {
-  const faq = await faqStore.loadFaqs()
-  faqs.value = faq.results
-})
+  const faq = await faqStore.loadFaqs();
+  faqs.value = faq.results;
+});
 </script>
 
 <template lang="pug">
@@ -23,8 +23,7 @@ sgs-scrollpanel.project-job-detail
 
 </template>
 
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 

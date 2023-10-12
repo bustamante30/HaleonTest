@@ -4,7 +4,7 @@ defineProps({
     type: Number,
     default: 2,
   },
-})
+});
 </script>
 
 <template lang="pug">

@@ -1,26 +1,24 @@
 <script lang="ts" setup>
-import { config } from '@/data/config/shirttail'
-import { get } from 'lodash'
+import { config } from "@/data/config/shirttail";
+import { get } from "lodash";
 import { useOrdersStore } from "@/stores/orders";
 import { ref, computed, reactive, onMounted } from "vue";
-import Dialog from 'primevue/dialog';
-import OrderBarcodes from './OrderBarcodes.vue';
-
+import Dialog from "primevue/dialog";
+import OrderBarcodes from "./OrderBarcodes.vue";
 
 const props = defineProps({
   data: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
-})
+});
 
-
-const ordersStore = useOrdersStore()
-const selectedOrder = computed(()=>ordersStore.selectedOrder)
-const colors = computed(()=>ordersStore.selectedOrder.colors)
+const ordersStore = useOrdersStore();
+const selectedOrder = computed(() => ordersStore.selectedOrder);
+const colors = computed(() => ordersStore.selectedOrder.colors);
 
 function getFieldData(fieldName: string): any {
-  console.log("selected orders",selectedOrder.value)
+  console.log("selected orders", selectedOrder.value);
   const fieldValue = get(selectedOrder.value, fieldName);
   if (fieldValue === null || fieldValue === "") {
     return "N/A";
@@ -33,17 +31,14 @@ function getFieldData(fieldName: string): any {
         return "Surface";
       } else if (fieldValue === 2) {
         return "Both";
-      }else if (fieldValue === -1) {
+      } else if (fieldValue === -1) {
         return "N/A";
       }
     }
   }
-  
+
   return get(selectedOrder.value, fieldName);
 }
-
-
-
 </script>
 
 <template lang="pug">

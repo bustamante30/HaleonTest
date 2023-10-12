@@ -1,4 +1,7 @@
-const mapPhotonOrderDetail = (shirttailDetails: any = {}, barcodeDetails: any = {}) => {
+const mapPhotonOrderDetail = (
+  shirttailDetails: any = {},
+  barcodeDetails: any = {},
+) => {
   return {
     cust1UpDie: shirttailDetails?.cust1UpDie,
     printProcess: shirttailDetails?.printProcessDescription,
@@ -12,24 +15,24 @@ const mapPhotonOrderDetail = (shirttailDetails: any = {}, barcodeDetails: any = 
     plateType: shirttailDetails?.plateType,
     barcodes: barcodeDetails,
     isActive: true,
-  }
-}
+  };
+};
 
 const mapColorPlateTypes = (colors: any[]) => {
-  const plateTypes = [] as any[]
-      colors?.forEach((color: any) => {
-        color?.plateTypes?.forEach((plateType: any) => {
-          console.log('plateType', plateType)
-          plateTypes.push({
-            label: plateType?.plateTypeDescription,
-            value: plateType?.plateTypeId,
-            plateThicknessDescription: plateType?.plateThicknessDescription,
-            plateThicknessId: plateType?.plateThicknessId,
-            isActive: true
-          })
-        })
-      })
-      return plateTypes
-}
+  const plateTypes = [] as any[];
+  colors?.forEach((color: any) => {
+    color?.plateTypes?.forEach((plateType: any) => {
+      console.log("plateType", plateType);
+      plateTypes.push({
+        label: plateType?.plateTypeDescription,
+        value: plateType?.plateTypeId,
+        plateThicknessDescription: plateType?.plateThicknessDescription,
+        plateThicknessId: plateType?.plateThicknessId,
+        isActive: true,
+      });
+    });
+  });
+  return plateTypes;
+};
 
-export { mapPhotonOrderDetail, mapColorPlateTypes }
+export { mapPhotonOrderDetail, mapColorPlateTypes };

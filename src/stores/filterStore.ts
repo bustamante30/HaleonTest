@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import { createStore } from "vuex";
 
 const filterStore = createStore({
   state: {
@@ -6,7 +6,7 @@ const filterStore = createStore({
     packTypeFilter: null,
     descriptionFilter: null,
     sortFields: null,
-    sortOrder: null
+    sortOrder: null,
   },
   mutations: {
     setBrandNameFilter(state, value) {

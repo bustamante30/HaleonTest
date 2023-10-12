@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 import { ref, computed, reactive, onMounted } from "vue";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: () => {}
-  }
-})
+    default: () => {},
+  },
+});
 
 const columnStyle = (width: number) => {
   return width
-    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
-}
+    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
+};
 
 function checkData(data: any) {
   console.log("Data prop received:", data);
@@ -28,7 +28,6 @@ function checkData(data: any) {
 onMounted(() => {
   checkData(props.data);
 });
-
 </script>
 
 <template lang="pug">

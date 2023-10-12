@@ -17,7 +17,7 @@ const colorDecorator = (colors: any[], masterPlateTypes: any[]) => {
         0,
       plateType: plateTypes.map((colorPlateType: any) => {
         const selected = masterPlateTypes?.find(
-          (plateType) => plateType?.value === colorPlateType?.plateTypeId
+          (plateType) => plateType?.value === colorPlateType?.plateTypeId,
         );
         const { plateThicknessDescription, plateThicknessId } =
           colorFirstPlateType;
@@ -39,7 +39,7 @@ const colorDecorator = (colors: any[], masterPlateTypes: any[]) => {
 const mapPlateTypes = (details: any) => {
   return details?.plateTypes?.map((plateType: any) => {
     const thickness = details?.plateThicknesses?.find(
-      (thickness: any) => thickness?.thicknessId === plateType?.plateTypeId
+      (thickness: any) => thickness?.thicknessId === plateType?.plateTypeId,
     );
     return {
       label: plateType?.plateTypeName,
@@ -68,12 +68,13 @@ const validation = (colour: any) => {
   const hasMixed =
     colour.plateType &&
     colour.plateType.find(
-      (plate: any) => plate.sets > 0 && plate.plateTypeDescription.value === 256
+      (plate: any) =>
+        plate.sets > 0 && plate.plateTypeDescription.value === 256,
     ); // 256 = Mixed plateTypeId
   const hasEmptyPlateDescription =
     colour.plateType &&
     colour.plateType.find(
-      (plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value
+      (plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value,
     ); // 256 = Mixed plateTypeId
   const isValid =
     hasUniquePlates &&
@@ -85,31 +86,39 @@ const validation = (colour: any) => {
 };
 
 const flattenColors = (colors: any[] = []) => {
-  
-  const flattenedColors = [] as any[]
-  colors?.length && colors?.forEach((color: any) => {
-    color?.plateType.forEach(plate =>{
-      flattenedColors.push({
-        clientPlateColourRef: color.clientPlateColourRef,
-        colourName: color.colourName,
-        colourType: color.colourType,
-        commonColourRef: color.commonColourRef,
-        custCarrierIdNo: color.custCarrierIdNo,
-        custImageIdNo: color.custImageIdNo,
-        imageCarrierId: color.custImageIdNo ? color.custImageIdNo : (color.custCarrierIdNo ? color.custCarrierIdNo : color.imageCarrierId),
-        serialNumber: plate.serialNumber,
-        isActive: true,
-        isNew: color.isNew,
-        jobTechSpecColourId: color.jobTechSpecColourId,
-        newColour: color.newColour === undefined ? color.isNew : color.newColour,
-        id: plate.id,
-        plateTypeId: plate?.plateTypeId,
-        plateTypeDescription: plate.plateType || plate?.plateTypeDescription?.label || plate?.plateTypeDescription,
-        sequenceNumber: color.sequenceNumber,
-        sets: plate.sets
-      })
-    })
-  })
+  const flattenedColors = [] as any[];
+  colors?.length &&
+    colors?.forEach((color: any) => {
+      color?.plateType.forEach((plate) => {
+        flattenedColors.push({
+          clientPlateColourRef: color.clientPlateColourRef,
+          colourName: color.colourName,
+          colourType: color.colourType,
+          commonColourRef: color.commonColourRef,
+          custCarrierIdNo: color.custCarrierIdNo,
+          custImageIdNo: color.custImageIdNo,
+          imageCarrierId: color.custImageIdNo
+            ? color.custImageIdNo
+            : color.custCarrierIdNo
+            ? color.custCarrierIdNo
+            : color.imageCarrierId,
+          serialNumber: plate.serialNumber,
+          isActive: true,
+          isNew: color.isNew,
+          jobTechSpecColourId: color.jobTechSpecColourId,
+          newColour:
+            color.newColour === undefined ? color.isNew : color.newColour,
+          id: plate.id,
+          plateTypeId: plate?.plateTypeId,
+          plateTypeDescription:
+            plate.plateType ||
+            plate?.plateTypeDescription?.label ||
+            plate?.plateTypeDescription,
+          sequenceNumber: color.sequenceNumber,
+          sets: plate.sets,
+        });
+      });
+    });
   return flattenedColors;
 };
 

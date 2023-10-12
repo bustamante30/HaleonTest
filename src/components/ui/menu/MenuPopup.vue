@@ -2,14 +2,14 @@
 const props = defineProps({
   menuitem: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const menu = ref()
+const menu = ref();
 
 function toggle(event) {
-  menu.value.toggle(event)
+  menu.value.toggle(event);
 }
 </script>
 

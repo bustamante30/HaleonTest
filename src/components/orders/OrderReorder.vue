@@ -1,18 +1,18 @@
 <script setup>
-import { useCartStore } from '@/stores/cart'
-import { useNotificationsStore } from '@/stores/notifications'
-import { useOrdersStore } from "@/stores/orders"
-import { useRoute } from 'vue-router'
-import ColorsTable from './ColorsTableExpand.vue'
-import config from '@/data/config/color-table-edit'
-import ReorderService from "../../services/ReorderService"
-import router from '@/router'
+import { useCartStore } from "@/stores/cart";
+import { useNotificationsStore } from "@/stores/notifications";
+import { useOrdersStore } from "@/stores/orders";
+import { useRoute } from "vue-router";
+import ColorsTable from "./ColorsTableExpand.vue";
+import config from "@/data/config/color-table-edit";
+import ReorderService from "../../services/ReorderService";
+import router from "@/router";
 
-const route = useRoute()
+const route = useRoute();
 
-const ordersStore = useOrdersStore()
-const cartStore = useCartStore()
-const notificationsStore = useNotificationsStore()
+const ordersStore = useOrdersStore();
+const cartStore = useCartStore();
+const notificationsStore = useNotificationsStore();
 
 const props = defineProps({
   selectedId: {
@@ -21,75 +21,75 @@ const props = defineProps({
   },
   loading: {
     type: Object,
-    default: () => ({ cart: false, reorder: false })
-  }
-})
+    default: () => ({ cart: false, reorder: false }),
+  },
+});
 
-const isCartMessageVisible = ref(false)
-const cartCount = computed(()=> cartStore.cartCount)
-const isOrderInCart = computed(()=> cartStore.isOrderInCart(props.selectedId))
+const isCartMessageVisible = ref(false);
+const cartCount = computed(() => cartStore.cartCount);
+const isOrderInCart = computed(() => cartStore.isOrderInCart(props.selectedId));
 const colors = computed(() => ordersStore.selectedOrder.editionColors);
-const loading = computed(() => ordersStore.loading)
-const loadingCart = computed(() => cartStore.loading)
-const disableReorder = computed(()=>{
-  const totalSets = (colors.value && colors.value.filter(x => x.totalSets))
-  return !(totalSets && totalSets.length)
-})
+const loading = computed(() => ordersStore.loading);
+const loadingCart = computed(() => cartStore.loading);
+const disableReorder = computed(() => {
+  const totalSets = colors.value && colors.value.filter((x) => x.totalSets);
+  return !(totalSets && totalSets.length);
+});
 
-const source = computed(() => route.query && route.query?.source)
-const selectedOrder = computed(() => ordersStore.selectedOrder)
-const isCartOrder = computed(() => isOrderInCart.value || selectedOrder?.statusId === 1)
+const source = computed(() => route.query && route.query?.source);
+const selectedOrder = computed(() => ordersStore.selectedOrder);
+const isCartOrder = computed(
+  () => isOrderInCart.value || selectedOrder?.statusId === 1,
+);
 
 function buy() {
-  router.push(`/dashboard/${props.selectedId}/confirm`)
+  router.push(`/dashboard/${props.selectedId}/confirm`);
 }
 
-
-
 function updateColor(color) {
-  ordersStore.updateColor(color)
+  ordersStore.updateColor(color);
 }
 
 function validateReorder() {
-  let valid = true
-  colors?.value.forEach(color => {
-    if (!ordersStore.validateColour(color)) valid = false
-  })
-  return valid
+  let valid = true;
+  colors?.value.forEach((color) => {
+    if (!ordersStore.validateColour(color)) valid = false;
+  });
+  return valid;
 }
 
 function reorder() {
-  const valid = validateReorder()
-  if (valid) router.push(`/dashboard/${props.selectedId}/confirm`)
+  const valid = validateReorder();
+  if (valid) router.push(`/dashboard/${props.selectedId}/confirm`);
 }
 
 async function addToCart() {
-  const valid = validateReorder()
+  const valid = validateReorder();
   if (valid) {
     if (isCartOrder.value) {
-      updateToCart()
-      return
+      updateToCart();
+      return;
     }
     if (await cartStore.addToCart(ordersStore.selectedOrder))
-      isCartMessageVisible.value = true
+      isCartMessageVisible.value = true;
   }
 }
 
 async function updateToCart() {
-  if(await cartStore.updateToCart(ordersStore.selectedOrder))
-    notificationsStore.addNotification( `Success`, "Cart updated successfully", { severity: "success" } );  
+  if (await cartStore.updateToCart(ordersStore.selectedOrder))
+    notificationsStore.addNotification(`Success`, "Cart updated successfully", {
+      severity: "success",
+    });
   else
-    notificationsStore.addNotification( `Error`, "Error updating draft", { severity: "error" } );  
+    notificationsStore.addNotification(`Error`, "Error updating draft", {
+      severity: "error",
+    });
 }
 
 function goBack() {
-  
-  if (source.value === 'cart')
-    router.push(`/cart`)
-  else
-    router.push(`/dashboard/${props.selectedId}`)
+  if (source.value === "cart") router.push(`/cart`);
+  else router.push(`/dashboard/${props.selectedId}`);
 }
-
 </script>
 
 <template lang="pug">

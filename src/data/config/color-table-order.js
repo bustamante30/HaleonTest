@@ -1,5 +1,5 @@
 export default {
-  sortBy: ['sequenceNumber'],
+  sortBy: ["sequenceNumber"],
   cols: [
     {
       header: "Sequence #",

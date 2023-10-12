@@ -18,19 +18,19 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount } from 'vue'
-import CartOrder from '@/components/cart/CartOrder.vue'
-import { useCartStore } from '@/stores/cart'
-import router from '@/router'
+import { computed, onBeforeMount } from "vue";
+import CartOrder from "@/components/cart/CartOrder.vue";
+import { useCartStore } from "@/stores/cart";
+import router from "@/router";
 
-const cartStore = useCartStore()
-const cart = computed(() => cartStore.cartOrders)
-const cartCount = computed(() => cartStore.cartCount)
-const loading = computed(() => cartStore.loading)
+const cartStore = useCartStore();
+const cart = computed(() => cartStore.cartOrders);
+const cartCount = computed(() => cartStore.cartCount);
+const loading = computed(() => cartStore.loading);
 
 onBeforeMount(() => {
-  cartStore.getCart()
-})
+  cartStore.getCart();
+});
 </script>
 
 <style lang="sass" scoped>

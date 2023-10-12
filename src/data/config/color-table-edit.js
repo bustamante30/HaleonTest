@@ -1,6 +1,6 @@
 export default {
-  dataKey: 'checkboxId',
-  sortBy: ['sequenceNumber'],
+  dataKey: "checkboxId",
+  sortBy: ["sequenceNumber"],
   cols: [
     {
       header: "Seq #",
@@ -23,14 +23,14 @@ export default {
     {
       header: "View Colour",
       field: "lenData",
-      type: 'image',
+      type: "image",
       freeze: "left",
       width: 6,
     },
     {
-      header: 'Total Quantity',
-      field: 'totalSets',
-      width: 5
+      header: "Total Quantity",
+      field: "totalSets",
+      width: 5,
     },
     {
       header: "Printer Plate Code",
@@ -56,21 +56,21 @@ export default {
     },
   ],
   plates: {
-    dataKey: 'checkboxId',
+    dataKey: "checkboxId",
     cols: [
       {
-        header: 'Plate Type',
-        field: 'plateTypeDescription',
-        type: 'lookup',
-        options: { key: 'plateTypeDescription' },
+        header: "Plate Type",
+        field: "plateTypeDescription",
+        type: "lookup",
+        options: { key: "plateTypeDescription" },
       },
       {
-        header: 'Quantity',
-        field: 'sets',
-        type: 'edit-sets',
+        header: "Quantity",
+        field: "sets",
+        type: "edit-sets",
         max: 10,
-        width: 5
+        width: 5,
       },
-    ]
+    ],
   },
 };

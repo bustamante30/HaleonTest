@@ -19,11 +19,11 @@ defineProps({
   },
   iconPosition: {
     type: String,
-    default: 'left',
+    default: "left",
   },
   iconClass: {
     type: String,
-    default: '',
+    default: "",
   },
   disabled: {
     type: Boolean,
@@ -177,5 +177,4 @@ span.badge
   transform: translate(50%,-50%)
   transform-origin: 100% 0
   margin: 0
-
 </style>

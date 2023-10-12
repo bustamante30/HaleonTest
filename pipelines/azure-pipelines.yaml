@@ -1,19 +1,19 @@
 trigger:
   branches:
     include:
-    - 'master'
+      - "master"
   tags:
     include:
-    - 'refs/tags/release-imageCarrier-ui-v*'
-  
+      - "refs/tags/release-imageCarrier-ui-v*"
+
   paths:
     include:
-    - '*'
+      - "*"
     exclude:
-    - 'pipelines/*'
+      - "pipelines/*"
 
 # pr:
-#   branches: 
+#   branches:
 #     include:
 #     - 'master'
 #     - 'release-imageCarrier-ui-v*'
@@ -21,106 +21,106 @@ trigger:
 name: "ImageCarrier-UI"
 
 variables:
-  AzureServiceConnName: 'photon-dev-ai-cr'
-  ArtifactName: 'ImageCarrierUI'
-  DEV_BuildNumber: 'imagecarrier-ui-dev-$(Build.BuildId).zip'
-  QA_BuildNumber: 'imagecarrier-ui-qa-$(Build.BuildId).zip'
-  STAGE_BuildNumber: 'imagecarrier-ui-stage-$(Build.BuildId).zip'
-  PROD_BuildNumber: 'imagecarrier-ui-prod-$(Build.BuildId).zip'
+  AzureServiceConnName: "photon-dev-ai-cr"
+  ArtifactName: "ImageCarrierUI"
+  DEV_BuildNumber: "imagecarrier-ui-dev-$(Build.BuildId).zip"
+  QA_BuildNumber: "imagecarrier-ui-qa-$(Build.BuildId).zip"
+  STAGE_BuildNumber: "imagecarrier-ui-stage-$(Build.BuildId).zip"
+  PROD_BuildNumber: "imagecarrier-ui-prod-$(Build.BuildId).zip"
 
 stages:
   - stage: Build_Dev
-    displayName: 'Build Dev'
+    displayName: "Build Dev"
     variables:
-      - group: 'dev-azure-imgcarrier-ui-static-variable-group'
+      - group: "dev-azure-imgcarrier-ui-static-variable-group"
     jobs:
-    - template: buildTemplate.yaml
-      parameters:          
-        environment: 'dev'
-        ArtifactName:  '$(ArtifactName)'
-        BuildNumber:  '$(DEV_BuildNumber)'
-        AzureServiceConnName:  '$(AzureServiceConnName)'
+      - template: buildTemplate.yaml
+        parameters:
+          environment: "dev"
+          ArtifactName: "$(ArtifactName)"
+          BuildNumber: "$(DEV_BuildNumber)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
 
   - stage: Deploy_Dev
-    displayName: 'Deploy to Dev'
+    displayName: "Deploy to Dev"
     condition: succeeded('Build_Dev')
     dependsOn: Build_Dev
     variables:
-      - group: 'dev-azure-imgcarrier-ui-static-variable-group'
+      - group: "dev-azure-imgcarrier-ui-static-variable-group"
     jobs:
       - template: deploymentTemplate.yaml
         parameters:
-          environment: 'dev'
-          ArtifactName:  '$(ArtifactName)'
-          AzureServiceConnName:  '$(AzureServiceConnName)'
-          BuildNumber:  '$(DEV_BuildNumber)'
+          environment: "dev"
+          ArtifactName: "$(ArtifactName)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
+          BuildNumber: "$(DEV_BuildNumber)"
 
   - stage: Build_QA
-    displayName: 'Build QA'
+    displayName: "Build QA"
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
-    - Build_Dev
-    - Deploy_Dev
+      - Build_Dev
+      - Deploy_Dev
     variables:
-      - group: 'qa-azure-imgcarrier-ui-static-variable-group'
+      - group: "qa-azure-imgcarrier-ui-static-variable-group"
     jobs:
-    - template: buildTemplate.yaml
-      parameters:          
-        environment: 'qa'
-        ArtifactName:  '$(ArtifactName)'
-        BuildNumber:  '$(QA_BuildNumber)'
-        AzureServiceConnName:  '$(AzureServiceConnName)'
+      - template: buildTemplate.yaml
+        parameters:
+          environment: "qa"
+          ArtifactName: "$(ArtifactName)"
+          BuildNumber: "$(QA_BuildNumber)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
 
   - stage: Deploy_QA
-    displayName: 'Deploy to QA'
+    displayName: "Deploy to QA"
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
-    - Build_Dev
-    - Deploy_Dev
-    - Build_QA
+      - Build_Dev
+      - Deploy_Dev
+      - Build_QA
     variables:
-      - group: 'qa-azure-imgcarrier-ui-static-variable-group'
+      - group: "qa-azure-imgcarrier-ui-static-variable-group"
     jobs:
       - template: deploymentTemplate.yaml
         parameters:
-          environment: 'qa'
-          ArtifactName:  '$(ArtifactName)'
-          AzureServiceConnName:  '$(AzureServiceConnName)'
-          BuildNumber:  '$(QA_BuildNumber)'
+          environment: "qa"
+          ArtifactName: "$(ArtifactName)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
+          BuildNumber: "$(QA_BuildNumber)"
 
   - stage: Build_STAGING
-    displayName: 'Build STAGING'
+    displayName: "Build STAGING"
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
-    - Build_Dev
-    - Deploy_Dev
-    - Build_QA
-    - Deploy_QA
+      - Build_Dev
+      - Deploy_Dev
+      - Build_QA
+      - Deploy_QA
     variables:
-      - group: 'stage-azure-imgcarrier-ui-static-variable-group'
+      - group: "stage-azure-imgcarrier-ui-static-variable-group"
     jobs:
-    - template: buildTemplate.yaml
-      parameters:          
-        environment: 'stage'
-        ArtifactName:  '$(ArtifactName)'
-        BuildNumber:  '$(STAGE_BuildNumber)'
-        AzureServiceConnName:  '$(AzureServiceConnName)'
+      - template: buildTemplate.yaml
+        parameters:
+          environment: "stage"
+          ArtifactName: "$(ArtifactName)"
+          BuildNumber: "$(STAGE_BuildNumber)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
 
   - stage: Deploy_STAGING
-    displayName: 'Deploy to STAGING'
+    displayName: "Deploy to STAGING"
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     dependsOn:
-    - Build_Dev
-    - Deploy_Dev
-    - Build_QA
-    - Deploy_QA
-    - Build_STAGING
+      - Build_Dev
+      - Deploy_Dev
+      - Build_QA
+      - Deploy_QA
+      - Build_STAGING
     variables:
-      - group: 'stage-azure-imgcarrier-ui-static-variable-group'
+      - group: "stage-azure-imgcarrier-ui-static-variable-group"
     jobs:
       - template: deploymentTemplate.yaml
         parameters:
-          environment: 'stage'
-          ArtifactName:  '$(ArtifactName)'
-          AzureServiceConnName:  '$(AzureServiceConnName)'
-          BuildNumber:  '$(STAGE_BuildNumber)'
+          environment: "stage"
+          ArtifactName: "$(ArtifactName)"
+          AzureServiceConnName: "$(AzureServiceConnName)"
+          BuildNumber: "$(STAGE_BuildNumber)"

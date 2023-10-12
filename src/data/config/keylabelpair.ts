@@ -1,5 +1,4 @@
 export type KeyLabelPair = {
-    key: string
-    label: string
-  }
-  
+  key: string;
+  label: string;
+};

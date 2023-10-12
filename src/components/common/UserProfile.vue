@@ -10,15 +10,15 @@ const props = defineProps({
   },
 });
 
-
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 
-const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isb2cUserLoggedIn = computed(
+  () => authb2cStore.currentB2CUser.isLoggedIn,
+);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const initials = computed(() => {
-  if (isUserLoggedIn.value)
-  {
+  if (isUserLoggedIn.value) {
     if (
       authStore.currentUser &&
       authStore.currentUser.firstName &&
@@ -29,22 +29,22 @@ const initials = computed(() => {
 
       return firstLetterOfFirstName + firstLetterOfLastName;
     }
-  }
-else if (isb2cUserLoggedIn.value)
-{
-  if (
-    authb2cStore.currentB2CUser &&
-    authb2cStore.currentB2CUser.firstName &&
-    authb2cStore.currentB2CUser.lastName
-  ) {
-    const firstLetterOfFirstName = authb2cStore.currentB2CUser.firstName.charAt(0);
-    const firstLetterOfLastName = authb2cStore.currentB2CUser.lastName.charAt(0);
+  } else if (isb2cUserLoggedIn.value) {
+    if (
+      authb2cStore.currentB2CUser &&
+      authb2cStore.currentB2CUser.firstName &&
+      authb2cStore.currentB2CUser.lastName
+    ) {
+      const firstLetterOfFirstName =
+        authb2cStore.currentB2CUser.firstName.charAt(0);
+      const firstLetterOfLastName =
+        authb2cStore.currentB2CUser.lastName.charAt(0);
 
-    return firstLetterOfFirstName + firstLetterOfLastName;
+      return firstLetterOfFirstName + firstLetterOfLastName;
+    }
   }
-}
   // Default value if any of the properties are null
-  return 'AB';
+  return "AB";
 });
 
 const isPopupVisible = ref(false);
@@ -59,10 +59,13 @@ async function logout() {
   }
   if (isb2cUserLoggedIn.value) {
     await authb2cStore.logout();
-  } 
+  }
 }
 
-watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
+watch(
+  () => [isUserLoggedIn, isb2cUserLoggedIn],
+  ([]) => {},
+);
 </script>
 
 <template lang="pug">
@@ -91,7 +94,7 @@ watch(() => [isUserLoggedIn,isb2cUserLoggedIn],([]) =>{});
     font-size: 1rem
     font-weight: 600
     text-align: center
-  
+
   .mask
     +fixed
     background: rgba(0, 0, 0, 0.02)
