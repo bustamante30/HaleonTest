@@ -105,9 +105,9 @@ function getShippingAddress(order) {
       footer
         .secondary-actions
         .actions
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)")
-          sgs-button.sm.secondary(icon="visibility" @click="auditOrder(order)" v-tooltip.bottom="{ value: 'View Audit' }")
-          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)" v-tooltip.bottom="{ value: 'Discard Order' }")
+          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)" :id="`view-order-${order.id}`")
+          sgs-button.sm.secondary(icon="visibility" @click="auditOrder(order)" v-tooltip.bottom="{ value: 'View Audit' }"  :id="`audit-order-${order.id}`")
+          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)" v-tooltip.bottom="{ value: 'Discard Order' }"  :id="`discard-order-${order.id}`")
   prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
     template(#header)
       header

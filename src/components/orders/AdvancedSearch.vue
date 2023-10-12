@@ -28,8 +28,8 @@ form.advanced-search(@submit.prevent="onSubmit")
       footer
         .secondaryactions
         .actions
-          sgs-button.default(label="Reset" @click.prevent="reset")
-          sgs-button(label="Search" type="submit")
+          sgs-button#reset-search.default(label="Reset" @click.prevent="reset")
+          sgs-button#submit-search(label="Search" type="submit")
 </template>
 
 <script lang="ts" setup>

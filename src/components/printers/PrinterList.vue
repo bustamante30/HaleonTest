@@ -80,7 +80,7 @@ async function saveprinter(printerFormRequest) {
           .input
             prime-auto-complete.search-input(placeholder="Search Printers ..." v-model="query" name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="searchPrinter")
             span.material-icons.outline search
-        sgs-button.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
+        sgs-button#add-printer.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
     .printer(v-for="(printer, i) in printers.data" :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")
       span {{ printer.name }}
       span.summary

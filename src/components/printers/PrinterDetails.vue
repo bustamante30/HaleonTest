@@ -87,7 +87,7 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
         .input
           prime-auto-complete.search-input(placeholder="Search Users ..." v-model="query" name="search_users" inputId="search_users" :suggestions="suggestions" @complete="search")
           span.material-icons.outline search
-      sgs-button.sm(label="Add User" icon="add" @click="create")
+      sgs-button#add-user.sm(label="Add User" icon="add" @click="create")
   .content
     user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @deleteUser="deleteUser" @resend="resend" :className="[ user ? 'lay-low' : '']")
     user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")

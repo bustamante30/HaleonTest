@@ -225,9 +225,9 @@ function checkCustomerDetails() {
     template(#footer)
       footer
         .secondary-actions
-          sgs-button.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder?source=${'confirm'}`)")
+          sgs-button#back.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder?source=${'confirm'}`)")
         .actions
-          sgs-button(label="Confirm" @click="confirm()")
+          sgs-button#confirm(label="Confirm" @click="confirm()")
 
   prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
     order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
@@ -237,8 +237,8 @@ function checkCustomerDetails() {
       footer
         .secondary-actions &nbsp;
         .actions
-          sgs-button.default.sm(label="Cancel" @click="cancelPOForm")
-          sgs-button.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
+          sgs-button#cancel-po.default.sm(label="Cancel" @click="cancelPOForm")
+          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
           
 
 </template>

@@ -79,7 +79,7 @@ function viewPreview() {
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button.sm(label="View PDF" @click="viewPreview")
+          sgs-button#thumbnail.sm(label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
@@ -99,7 +99,7 @@ function viewPreview() {
           .secondary-actions &nbsp;
           .actions
             //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
+            sgs-button#reorder(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
 </template>
 
 <style lang="sass">

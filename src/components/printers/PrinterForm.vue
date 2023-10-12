@@ -161,7 +161,7 @@ function save() {
         footer
           .secondary-actions &nbsp;
           .actions
-            sgs-button(label="Save" @click="save()")
+            sgs-button#save-printer(label="Save" @click="save()")
 </template>
 
 <style lang="sass" scoped>

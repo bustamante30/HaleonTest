@@ -127,8 +127,8 @@ watch(ordersStore.selectedOrder, (value) => {
       footer
         .secondary-actions
         .actions
-          sgs-button(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
-          sgs-button(label="Close" @click="handleClose()")
+          sgs-button#cancel-order(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
+          sgs-button#close(label="Close" @click="handleClose()")
 </template>
 
 <style lang="sass" scoped>

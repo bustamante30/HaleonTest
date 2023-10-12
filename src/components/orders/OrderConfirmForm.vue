@@ -280,7 +280,7 @@ function handleInput(e: any) {
       ul.files 
         li(v-for="(file, index) in validFiles" :key="file") 
           .name {{ file.fileName }}
-          sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+          sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
 
 </template>
 

@@ -75,8 +75,8 @@ async function toggleMenu(event) {
 
 <template lang="pug">
 span.table-action(v-if="actions.length>0")
-  sgs-button.sm.default(icon="unfold_more" @click="toggleMenu" aria-haspopup="true" aria-controls="overlay_menu")
-  prime-menu(ref="menu" id="overlay_menu" :model="items" popup)
+  sgs-button#table-actions.sm.default(icon="unfold_more" @click="toggleMenu")
+  prime-menu(ref="menu" :model="items" popup)
     template(#item="{ item }")
       span.menu-item
         span.material-icons {{ item.icon }}

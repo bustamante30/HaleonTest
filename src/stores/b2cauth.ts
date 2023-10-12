@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import {
   EventType,
   PublicClientApplication,
-  type AccountInfo
+  type AccountInfo,
 } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";

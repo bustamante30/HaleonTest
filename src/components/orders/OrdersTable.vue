@@ -269,7 +269,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by Brand"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-brand-name-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('brandName', filterModel)"
@@ -277,7 +277,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-brand-name-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('brandName', filterModel)"
@@ -306,7 +306,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by Description"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-description-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('description', filterModel)"
@@ -314,7 +314,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-description-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('description', filterModel)"
@@ -400,7 +400,7 @@ function handleOrderValidation(data: any) {
             placeholder="Search by PackType"
           )
         template(#filterclear="{ filterModel }")
-          Button(
+          Button#filter-packtype-clear(
             type="button"
             icon="pi pi-times"
             @click="clearFilter('packType', filterModel)"
@@ -408,7 +408,7 @@ function handleOrderValidation(data: any) {
             severity="secondary"
           )
         template(#filterapply="{ filterModel, filterCallback }")
-          Button(
+          Button#filter-packtype-apply(
             type="button"
             icon="pi pi-check"
             @click="customFilter('packType', filterModel)"

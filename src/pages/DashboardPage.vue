@@ -500,11 +500,11 @@ async function handleOrderValidation(data: any) {
               prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 optionLabel="label" optionValue="value" @change="changeDateFilter")
             .statuses(v-if="!searchExecuted")
-              prime-listbox.sm(id="statusListbox" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
+              prime-listbox.sm(id="statusListbox" aria-label="status" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
             .my-orders(v-if="!searchExecuted")
               .switch
-                span My orders
-                prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle")
+                label(for="my-orders") My orders
+                prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle" inputId="my-orders")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
             .send-to-pm
@@ -563,7 +563,7 @@ async function handleOrderValidation(data: any) {
         background: #ffffff
         border: 1px solid #ced4da
         border-radius: 3px
-        span
+        label
           font-size: 0.95rem
           width: 4rem
       .search, .send-to-pm

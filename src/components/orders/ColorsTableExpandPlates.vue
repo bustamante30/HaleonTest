@@ -67,9 +67,9 @@ function removePlate(plate: any) {
         table-cell(:config="col" :data="data" :data-key="config.dataKey" @update="updatePlate" :options="options")
     column
       template(#body="{ data }")
-        sgs-button.sm.alert.secondary(@click="removePlate(data)" icon="delete")
+        sgs-button.sm.alert.secondary(@click="removePlate(data)" icon="delete" :id="`remove-plate-${data[config?.dataKey]}`")
   .actions
-    sgs-button.sm(icon="add" label="Add Plate Type" @click="addPlate")
+    sgs-button#add-plate.sm(icon="add" label="Add Plate Type" @click="addPlate")
 </template>
 
 <style lang="sass" scoped>

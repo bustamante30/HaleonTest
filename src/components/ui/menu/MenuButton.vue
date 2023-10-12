@@ -21,7 +21,7 @@ function action() {
 
 <template lang="pug">
 span.menu-button
-  sgs-button.default(type="button" :label="menuitem.label" @click="action")
+  sgs-button.default(type="button" :label="menuitem.label" @click="action" :id="`menu-button-${menuitem.label}`")
 </template>
 
 <style lang="sass" scoped>

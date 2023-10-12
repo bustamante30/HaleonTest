@@ -131,12 +131,12 @@ function goBack() {
       template(#footer)
         footer
           .secondary-actions &nbsp;
-            sgs-button.secondary(:label="source === 'cart' || isCartOrder ? 'View Cart' : 'Back'" @click="goBack")
+            sgs-button#view-cart.secondary(:label="source === 'cart' || isCartOrder ? 'View Cart' : 'Back'" @click="goBack")
           .actions
-            sgs-button.secondary(:icon="loadingCart.add || loadingCart.update ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
+            sgs-button#add-to-cart.secondary(:icon="loadingCart.add || loadingCart.update ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
               template(#badge)
                 i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Re-Order Now" @click="reorder" :disabled="disableReorder")
+            sgs-button#reorder-now(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Re-Order Now" @click="reorder" :disabled="disableReorder")
 
   prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal 
     :header="isCartOrder ? 'Update to Cart' : 'Add to Cart'" :closable='false')

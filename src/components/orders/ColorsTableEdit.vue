@@ -69,7 +69,7 @@ function stylify(width: number) {
       header
         h4 Colours
         .actions
-          sgs-button.sm.secondary(@click="addColour" icon="add" label="Add Colour")
+          sgs-button#add-color.sm.secondary(@click="addColour" icon="add" label="Add Colour")
     column()
       template(#header)
         label(:class="{ required: isMandatory }") Colour Name
@@ -88,7 +88,7 @@ function stylify(width: number) {
     column(:headerStyle="stylify(2)" :bodyStyle="stylify(2)")
       template(#body="{ data }")
         .actions
-          sgs-button.sm.alert.secondary(@click="removeColour(data)" icon="delete")
+          sgs-button.sm.alert.secondary(@click="removeColour(data)" icon="delete" :id="`remove-color-${data?.id}`")
 
 </template>
 

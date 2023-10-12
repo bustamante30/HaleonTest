@@ -3,9 +3,9 @@
   app-logo.logo
   h1 Login
   .login.form
-    sgs-button.block(label="Login As A Client" @click="externallogin()")
+    sgs-button#login-client.block(label="Login As A Client" @click="externallogin()")
     .external
-      sgs-button.block(label="Login as SGS & Co User" @click="login()")
+      sgs-button#login-sgs.block(label="Login as SGS & Co User" @click="login()")
 </template>
 
 <script setup>

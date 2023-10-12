@@ -38,7 +38,7 @@ function toggleFilters() {
       prime-auto-complete.search-input(placeholder="Search by Brand, Product, Printer ..." v-model="value" :suggestions="items" @complete="search")
       span.material-icons.outline search
     span.separator
-    sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
+    sgs-button#advanced-search-user.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
     sgs-mask(@click="toggleFilters")
     advanced-search(:sections="config.sections" :filters="filters" @search="search")

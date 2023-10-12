@@ -271,13 +271,13 @@ sgs-scrollpanel.report-issue
         ui.files
           li(v-for="(file, index) in validFiles" :key="file")
             .name {{ file.filename }}
-            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
 
   template(#footer)
     footer
       .actions
-        sgs-button.default.sm(label="Cancel" @click="emit('close')")
-        sgs-button(label="Submit" @click="onSubmit()")
+        sgs-button#close.default.sm(label="Cancel" @click="emit('close')")
+        sgs-button#submit-report(label="Submit" @click="onSubmit()")
 </template>
 
 <style lang="sass" scoped>

@@ -130,7 +130,7 @@ async function handleReport() {
   prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
     template(#header='')
       header.videoheader
-        sgs-button.sm(v-if='chapters && chapters.length' @click='showChapters = !showChapters' :label='`Chapters [${chapters.length}]`' :class='{ secondary: !showChapters, primary: showChapters }')
+        sgs-button#chapters.sm(v-if='chapters && chapters.length' @click='showChapters = !showChapters' :label='`Chapters [${chapters.length}]`' :class='{ secondary: !showChapters, primary: showChapters }')
     demo-video(:chapters='chapters' :showchapters='showChapters')
   prime-dialog.issue(v-model:visible="isReportFormVisible" closable modal :style="{ width: '45rem', overflow: 'hidden' }")
     template(#header)

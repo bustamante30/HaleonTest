@@ -362,12 +362,12 @@ function clearForm() {
           ul.files 
             li(v-for="(file, index) in validFiles" :key="file") 
               .name {{ file.fileName }}
-              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
     template(#footer)
       .actions(:class="{ disclaimer: sendForm.isUrgent }")
         span 
           span(v-if="sendForm.isUrgent") Additional charges may be applicable for urgent orders
-        sgs-button(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
+        sgs-button#send(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
         //sgs-button(label="Close" @click="isFormVisible = false")
 </template>
 

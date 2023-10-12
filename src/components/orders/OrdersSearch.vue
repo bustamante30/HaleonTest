@@ -145,7 +145,7 @@ function toggleFilters() {
       @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @blur="handleBlur" @item-select="keywordSearch" :loading="false"
       :placeholder="placeholder")
       span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
-    sgs-button.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
+    sgs-button#advanced-search.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
   .filters(v-if="isFiltersVisible")
     advanced-search(@close="isFiltersVisible = false" :sections="config.sections" :filters="filters" :printerName="printerName" @search="search")
 </template>
