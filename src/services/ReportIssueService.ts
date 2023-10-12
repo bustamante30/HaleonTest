@@ -17,7 +17,7 @@ class ReportIssueService{
         })
        });
         let request: ReportIssueRequestDto = {
-            open_on_behalf_of_this_user: id,
+            open_on_behalf_of_this_user: reportData.userId,
             which_photon_appication_are_you_reporting_issue_on: reportData.application,
             please_select_your_issue_from_the_following_options: reportData.issueType,
             browser: reportData.browser,
