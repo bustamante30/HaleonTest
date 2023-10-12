@@ -1,8 +1,29 @@
-const mapSgsOrderDetail = (details: any = {}) => {
+interface OrderDetails {
+  printerName: string | null;
+  barcode: string | null;
+  jobDetails: {
+    packagingReference: string | null;
+    variety: string | null;
+  };
+  techSpec: {
+    cust1UpDie: string | null;
+    printProcessDescription: string | null;
+    substrate: string | null;
+    surfaceReversePrint: string | null;
+    plateRelief: string | null;
+    thicknessDesc: string | null;
+    numberAcrossCylinder: number | null;
+    numberAroundCylinder: number | null;
+    dispro: string | null;
+    plateType: string | null;
+    plateTypeId: string | null;
+  };
+  pdfData: string | null;
+}
+
+const mapSgsOrderDetail = (details: OrderDetails) => {
   return {
     printerName: details.printerName != "" ? details.printerName : null,
-    // Bug -203039 - Get API is not returning full description so using description from Search api as such .
-    // description: details.jobDescription;
     barcodes: details.barcode,
     packagingReference: details.jobDetails.packagingReference,
     cust1UpDie: details.techSpec.cust1UpDie,

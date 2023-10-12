@@ -1,3 +1,13 @@
+<template lang="pug">
+.page.login
+  app-logo.logo
+  h1 Login
+  .login.form
+    sgs-button.block(label="Login As A Client" @click="externallogin()")
+    .external
+      sgs-button.block(label="Login as SGS & Co User" @click="login()")
+</template>
+
 <script setup>
 import { computed, onBeforeMount, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -25,16 +35,6 @@ function externallogin() {
   router.push("/b2clogin");
 }
 </script>
-
-<template lang="pug">
-.page.login
-  app-logo.logo
-  h1 Login
-  .login.form
-    sgs-button.block(label="Login As A Client" @click="externallogin()")
-    .external
-      sgs-button.block(label="Login as SGS & Co User" @click="login()")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

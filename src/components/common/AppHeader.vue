@@ -72,7 +72,6 @@ header.app-header
     nav.app-navigation
       a.dashboardLink(@click="redirect('/dashboard')") Dashboard
       sgs-menu(:menu="menu")
-      //- prime-menubar(:model="menu")
       span.separator
       .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
         router-link.cart(to="/cart" v-badge.danger="cartCount || '0'")

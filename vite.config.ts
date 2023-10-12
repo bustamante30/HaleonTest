@@ -11,10 +11,10 @@ export default defineConfig({
     AutoImport({
       imports: ["vue"],
       dts: "./src/auto-imports.d.ts",
-    }) as any,
-    vue() as any,
-    vueJsx() as any,
-    dsv() as any,
+    }),
+    vue(),
+    vueJsx(),
+    dsv(),
   ],
   server: {
     host: "localhost",
@@ -36,7 +36,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      plugins: [terser()] as any[],
+      plugins: [terser()],
       output: {
         manualChunks(id: string | string[]) {
           if (id.includes("@azure/storage-blob")) {

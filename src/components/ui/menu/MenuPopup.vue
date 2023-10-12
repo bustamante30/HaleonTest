@@ -16,7 +16,7 @@ function toggle(event) {
 <template lang="pug">
 span.menu-button(v-if="menuitem")
   sgs-button.default(:label="menuitem.label" @click="toggle" aria-haspopup="true" aria-controls="overlay" icon="expand_more" icon-position="right")
-  prime-menu(ref="menu" id="overlay" :model="menuitem.items" :popup="true")
+  prime-menu#overlay(ref="menu" :model="menuitem.items" :popup="true")
 </template>
 
 <style lang="sass" scoped>

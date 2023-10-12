@@ -2,14 +2,12 @@ import { defineStore } from "pinia";
 import {
   EventType,
   PublicClientApplication,
-  type AccountInfo,
+  type AccountInfo
 } from "@azure/msal-browser";
 import { userB2CSessionStore } from "@/stores/userb2csession";
 import UserService from "@/services/userService";
 import jwt_decode from "jwt-decode";
-import { DateTime } from "luxon";
 import router from "@/router";
-
 import store from "store";
 import type { SearchRequestDto } from "@/models/SearchRequestDto";
 
@@ -27,7 +25,7 @@ const requestScope = {
   scopes: ["openid", "profile", "email", import.meta.env.VITE_B2C_TOKEN_SCOPE],
 };
 
-const printerIdSearch = async (currentB2CUser: any): Promise<number[]> => {
+const printerIdSearch = async (currentB2CUser): Promise<number[]> => {
   if (
     currentB2CUser.userType === "EXT" &&
     currentB2CUser.roleKey.toLowerCase().includes("admin")
@@ -61,7 +59,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       currentB2CUser: userb2cSessionStore.userB2CSession,
       account: null as AccountInfo | null,
       accessTokenUpdatedOn: new Date(),
-      accessTokenValidation: null as any,
+      accessTokenValidation: null,
       redirectAfterLogin: "/dashboard",
       decodedToken: {},
       isValidIdentityProvider: false,

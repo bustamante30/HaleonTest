@@ -98,7 +98,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span(v-else-if="config.type === 'link'")
     a(@click="navigate(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
-    prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%' }")
+    prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :max="config.max" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
   span(v-else-if="config.type === 'lookup'")

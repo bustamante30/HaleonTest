@@ -102,7 +102,7 @@ class ReorderService {
       delete color.lenData;
       let hasPlates = false;
       color?.plateType?.forEach((plateType: any) => {
-        let plateInfo = plateType.plateTypeDescription;
+        const plateInfo = plateType.plateTypeDescription;
         plateType.plateTypeId = plateInfo.value;
         plateType.plateTypeDescription = plateInfo.label;
         if (plateType.sets > 0) hasPlates = true;
@@ -125,7 +125,7 @@ class ReorderService {
         isActive: contact.isActive,
       });
     });
-    let newReorder: SubmitReorder = {
+    const newReorder: SubmitReorder = {
       id: isUpdate ? reorderInfo.id : 0,
       originalOrderId: isUpdate
         ? reorderInfo.originalOrderId
@@ -245,7 +245,7 @@ class ReorderService {
 
     if (advancedSearchParameters) {
       if (advancedSearchParameters.startDate != null) {
-        let dateRange = Object.assign<Array<Date>, Array<Date>>(
+        const dateRange = Object.assign<Array<Date>, Array<Date>>(
           [],
           advancedSearchParameters.startDate,
         );
@@ -519,7 +519,7 @@ class ReorderService {
                 const editionPlates: any[] = [];
                 color.plateType = editionPlates;
                 color.plates.forEach((plate) => {
-                  let editionPlate = JSON.parse(JSON.stringify(plate));
+                  const editionPlate = JSON.parse(JSON.stringify(plate));
                   editionPlate.checkboxId = faker.datatype.uuid();
                   editionPlate.plateTypeDescription = {
                     isActive: true,

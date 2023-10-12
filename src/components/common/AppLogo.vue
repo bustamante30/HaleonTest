@@ -16,6 +16,7 @@ defineProps({
 @import "@/assets/styles/includes"
 .app-logo
   img
-    max-width: 100%
-    height: auto
+    width: 120px
+    height: 19px
+    aspect-ratio: auto 1500/235
 </style>
