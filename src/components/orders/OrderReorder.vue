@@ -28,7 +28,7 @@ const props = defineProps({
 const isCartMessageVisible = ref(false)
 const cartCount = computed(()=> cartStore.cartCount)
 const isOrderInCart = computed(()=> cartStore.isOrderInCart(props.selectedId))
-const colors = computed(() => ordersStore.selectedOrder.colors);
+const colors = computed(() => ordersStore.selectedOrder.editionColors);
 const loading = computed(() => ordersStore.loading)
 const loadingCart = computed(() => cartStore.loading)
 const disableReorder = computed(()=>{

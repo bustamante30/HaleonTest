@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import { useOrdersStore } from './orders'
 import { useNotificationsStore } from './notifications'
+import { faker } from '@faker-js/faker';
 
 export const useCartStore = defineStore("cartStore", {
   state: () => ({
@@ -38,16 +39,7 @@ export const useCartStore = defineStore("cartStore", {
     },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {
-        this.cartOrders[i].thumbNailPath = new URL(
-          "@/assets/images/no_thumbnail.png",
-          import.meta.url
-        );
-        ReorderService.getThumbnail(this.cartOrders[i].originalOrderId)
-          .then((response: string | boolean) => {
-            if(response) this.cartOrders[i].thumbNailPath = response;
-          });
-        ReorderService.decorateColours(this.cartOrders[i].colors);
-        this.cartOrders[i].flattenedColors = this.flattenedColorsArrayDecorator(this.cartOrders[i].colors)
+        ReorderService.decoratePhotonOrder(this.cartOrders[i]);
       }
     },
     async addToCart(order: any) {

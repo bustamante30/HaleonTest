@@ -18,13 +18,14 @@ const props = defineProps({
 })
 const selectedOrder = computed(() => ordersStore.selectedOrder)
 const loadingOrder = computed(() => ordersStore.loading.order)
-const colors = computed(() => ordersStore.flattenedColors())
+const colors = computed(() => ordersStore.selectedOrder.colors)
 
 onMounted(async () => {
   await ordersStore.getOrderById(props.selectedId)
 })
 
-function buy() {
+async function buy() {
+  ordersStore.getEditableColors(props.selectedId, selectedOrder.value)
   const confirmRoute = `/dashboard/${props.selectedId}/reorder`+(selectedOrder.value.statusId==1?`?source=cart`:``)
   console.log(confirmRoute)
   router.push(confirmRoute)

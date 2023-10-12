@@ -21,7 +21,7 @@ const props = defineProps({
 const notificationsStore = useNotificationsStore()
 const confirm = useConfirm();
 const colorsStore = useColorsStore();
-const colors = computed(() => props.order.flattenedColors);
+const colors = computed(() => props.order.colors);
 const isSpecsVisible = ref(false);
 const cartStore = useCartStore();
 
