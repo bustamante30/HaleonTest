@@ -1,22 +1,32 @@
+<template lang="pug">
+.page.login
+  app-logo.logo
+  h1 Login
+  .login.form
+    sgs-button#login-client.block(label="Login As A Client" @click="externallogin()")
+    .external
+      sgs-button#login-sgs.block(label="Login as SGS & Co User" @click="login()")
+</template>
+
 <script setup>
 import { computed, onBeforeMount, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import AppLogo from "@/components/common/AppLogo.vue";
-import { useAuthStore } from '../stores/auth';
-import { useB2CAuthStore } from '../stores/b2cauth';
+import { useAuthStore } from "../stores/auth";
+import { useB2CAuthStore } from "../stores/b2cauth";
 
 const router = useRouter();
 
-const authStore = useAuthStore()
-const authb2cStore = useB2CAuthStore()
+const authStore = useAuthStore();
+const authb2cStore = useB2CAuthStore();
 
 onMounted(async () => {
-  // Clear the Storage on Login page  mount - to aviod using previously stored data 
+  // Clear the Storage on Login page  mount - to aviod using previously stored data
   localStorage.clear();
   sessionStorage.clear();
   authStore.resetLogin();
-  authb2cStore.resetLogin()
-})
+  authb2cStore.resetLogin();
+});
 function login() {
   router.push("/login");
 }
@@ -25,16 +35,6 @@ function externallogin() {
   router.push("/b2clogin");
 }
 </script>
-
-<template lang="pug">
-.page.login
-  app-logo.logo
-  h1 Login
-  .login.form
-    sgs-button.block(label="Login As A Client" @click="externallogin()")
-    .external
-      sgs-button.block(label="Login as SGS & Co User" @click="login()")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

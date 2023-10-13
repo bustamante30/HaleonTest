@@ -7,8 +7,8 @@ data-table(:value="data" ref="dt" paginator :rows="rows" showGridlines)
 <script setup>
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import { DateTime } from 'luxon'
-const rows = ref(10)
+import { DateTime } from "luxon";
+const rows = ref(10);
 const props = defineProps({
   data: {
     type: Array,
@@ -16,26 +16,30 @@ const props = defineProps({
   },
 });
 
-const data = computed(()=> props.data.map(x=>{
-    x.createdAt = DateTime.fromISO(x.createdAt).toLocaleString(DateTime.DATETIME_MED);
-    return x
-}))
+const data = computed(() =>
+  props.data.map((x) => {
+    x.createdAt = DateTime.fromISO(x.createdAt).toLocaleString(
+      DateTime.DATETIME_MED,
+    );
+    return x;
+  }),
+);
 const columns = ref([
   {
-    field: 'auditTypeValue',
-    header: 'Activity',
+    field: "auditTypeValue",
+    header: "Activity",
   },
   {
-    field: 'auditData',
-    header: 'Details',
+    field: "auditData",
+    header: "Details",
   },
   {
-    field: 'createdByUser',
-    header: 'Created By',
+    field: "createdByUser",
+    header: "Created By",
   },
   {
-    field: 'createdAt',
-    header: 'Datetime',
+    field: "createdAt",
+    header: "Datetime",
   },
 ]);
 </script>

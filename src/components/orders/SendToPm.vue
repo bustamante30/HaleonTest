@@ -1,109 +1,117 @@
 <script lang="ts" setup>
-import { faker } from '@faker-js/faker'
-import ColorsTableEdit from './ColorsTableEdit.vue'
-import JSZip from 'jszip';
-import type { UploadFileDto } from '@/models/UploadFileDto';
-import { useUploadFilesStore } from '@/stores/upload-files';
-import { useToast } from 'primevue/usetoast';
-import { useNotificationsStore } from '@/stores/notifications';
-import type { DeleteFileDto } from '@/models/DeleteFileDto';
-import { inject, ref, computed, watch, onMounted } from 'vue'
+import { faker } from "@faker-js/faker";
+import ColorsTableEdit from "./ColorsTableEdit.vue";
+import JSZip from "jszip";
+import type { UploadFileDto } from "@/models/UploadFileDto";
+import { useUploadFilesStore } from "@/stores/upload-files";
+import { useToast } from "primevue/usetoast";
+import { useNotificationsStore } from "@/stores/notifications";
+import type { DeleteFileDto } from "@/models/DeleteFileDto";
+import { inject, ref, computed, watch, onMounted } from "vue";
 import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
-import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
-import { DateTime, Interval } from 'luxon';
+import {
+  FileUploadService,
+  type FileUploadResponse,
+  type FileDelete,
+} from "@/services/FileUploadService";
+import { DateTime, Interval } from "luxon";
 const props = defineProps({
   order: {
     type: Object,
-    default: null
+    default: null,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  OrderValidation:{
+  OrderValidation: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 type ValidFiles = {
-  fileName: string,
-  uri: string
-}
+  fileName: string;
+  uri: string;
+};
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const sendToPmstore = useSendToPmStore();
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 
 onMounted(async () => {
-  sendToPmstore.externalPrinterName =authb2cStore.currentB2CUser.printerName;
-})
-
+  sendToPmstore.externalPrinterName = authb2cStore.currentB2CUser.printerName;
+});
 
 const printerName = computed(() => {
   const user = authb2cStore.currentB2CUser;
 
-  return user?.printerName || '';
+  return user?.printerName || "";
 });
-
 
 const isPrinterAdmin = computed(() => {
   const user = authb2cStore.currentB2CUser;
   return user?.roleKey === "PrinterAdmin";
 });
 
-
-const emit = defineEmits(['create', 'submit'])
-const entering = ref()
-const sendForm = ref(props.order)
-let isFormVisible = ref(false)
-const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const emit = defineEmits(["create", "submit"]);
+const entering = ref();
+const sendForm = ref(props.order);
+let isFormVisible = ref(false);
+const isb2cUserLoggedIn = computed(
+  () => authb2cStore.currentB2CUser.isLoggedIn,
+);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
-const toast = useToast()
+const toast = useToast();
 let validFiles = ref<ValidFiles[]>([]);
 
-watch(() => props.order, (order) => {
-  sendForm.value = { ...order }
-  if (order)
-    isFormVisible.value = true
-  else
-    isFormVisible.value = false
-})
+watch(
+  () => props.order,
+  (order) => {
+    sendForm.value = { ...order };
+    if (order) isFormVisible.value = true;
+    else isFormVisible.value = false;
+  },
+);
 
 function initForm() {
   validFiles.value = [];
   (sendUpload as any).value = [];
-  emit('create')
+  emit("create");
 }
 
 function updateColors(colors: any) {
-  sendForm.value.colors = [...colors]
-  sendToPmstore.updateColors(colors)
-
+  sendForm.value.colors = [...colors];
+  sendToPmstore.updateColors(colors);
 }
 
 async function submit() {
   sendForm.value.printerName = printerName?.value;
-  console.log(sendForm.value)
+  console.log(sendForm.value);
   const isValid = sendToPmstore.validate(sendForm.value, sendUpload.value);
 
   if (isValid) {
     (sendUpload as any).value = [];
-    sendForm.value.expectedDate = formatExpectedDateTime(sendForm.value)
+    sendForm.value.expectedDate = formatExpectedDateTime(sendForm.value);
     const submitResponse = await sendToPmstore.submitorder(sendForm.value);
     if (submitResponse) {
-      notificationsStore.addNotification(`Order Sent`,
-        'Your order is successfully sent to a project manager', { severity: 'success', life: 3000, position: "top-right" })
+      notificationsStore.addNotification(
+        `Order Sent`,
+        "Your order is successfully sent to a project manager",
+        { severity: "success", life: 3000, position: "top-right" },
+      );
       return;
     } else {
-      notificationsStore.addNotification(`Order Not Sent`,
-        'Your order is not sent to a project manager', { severity: 'error', life: 3000, position: "top-right" })
+      notificationsStore.addNotification(
+        `Order Not Sent`,
+        "Your order is not sent to a project manager",
+        { severity: "error", life: 3000, position: "top-right" },
+      );
       return;
     }
-    
   }
 }
 
@@ -111,7 +119,7 @@ async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = (reader.result as any).split(',')[1];
+      const base64String = (reader.result as any).split(",")[1];
       resolve(base64String);
     };
     reader.onerror = reject;
@@ -120,22 +128,22 @@ async function blobToBase64(blob: any) {
 }
 
 async function getUserId() {
-  let userId = '6';
+  let userId = "6";
   if (isUserLoggedIn.value) {
-    userId = (await authStore.currentUser.userId as any);
+    userId = (await authStore.currentUser.userId) as any;
   }
   if (isb2cUserLoggedIn.value) {
-    userId = (await authb2cStore.currentB2CUser.userId as any);
+    userId = (await authb2cStore.currentB2CUser.userId) as any;
   }
-  return userId
+  return userId;
 }
 
 function minSelectableDate() {
-  return DateTime.now().startOf('hour').toJSDate()
+  return DateTime.now().startOf("hour").toJSDate();
 }
 
 function maxSelectableDate() {
-  return DateTime.now().plus({ hour: 72 }).startOf('hour').toJSDate()
+  return DateTime.now().plus({ hour: 72 }).startOf("hour").toJSDate();
 }
 
 function onDragOver(event: any) {
@@ -152,10 +160,18 @@ function handleInput(e: any) {
 }
 
 function isValidFileType(file: any) {
-  return file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.bat') || file.name.toLowerCase().endsWith('.com') ||
-    file.name.toLowerCase().endsWith('.cmd') || file.name.toLowerCase().endsWith('.inf') || file.name.toLowerCase().endsWith('.ipa') ||
-    file.name.toLowerCase().endsWith('.osx') || file.name.toLowerCase().endsWith('.pif') || file.name.toLowerCase().endsWith('.run') ||
-    file.name.toLowerCase().endsWith('.wsh')
+  return (
+    file.name.toLowerCase().endsWith(".exe") ||
+    file.name.toLowerCase().endsWith(".bat") ||
+    file.name.toLowerCase().endsWith(".com") ||
+    file.name.toLowerCase().endsWith(".cmd") ||
+    file.name.toLowerCase().endsWith(".inf") ||
+    file.name.toLowerCase().endsWith(".ipa") ||
+    file.name.toLowerCase().endsWith(".osx") ||
+    file.name.toLowerCase().endsWith(".pif") ||
+    file.name.toLowerCase().endsWith(".run") ||
+    file.name.toLowerCase().endsWith(".wsh")
+  );
 }
 
 async function onDrop(event: any) {
@@ -166,19 +182,22 @@ async function onDrop(event: any) {
       notificationsStore.addNotification(
         `Invalid file type`,
         `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
-        { severity: 'error', position: 'top-right' }
+        { severity: "error", position: "top-right" },
       );
       return null;
     } else {
       const response = await convertAndSendFile(file);
-      if (response.status === 'OK') {
-        validFiles.value.push({ fileName: file.name as string, uri: response.uri });
+      if (response.status === "OK") {
+        validFiles.value.push({
+          fileName: file.name as string,
+          uri: response.uri,
+        });
         return response;
       } else {
         notificationsStore.addNotification(
           `Upload failed`,
           `Your file was not uploaded. Please try again.`,
-          { severity: 'error', position: 'top-right' }
+          { severity: "error", position: "top-right" },
         );
         return null;
       }
@@ -192,23 +211,23 @@ async function onDrop(event: any) {
     notificationsStore.addNotification(
       `Uploaded successfully`,
       `Your files were successfully uploaded`,
-      { severity: 'success', position: 'top-right' }
+      { severity: "success", position: "top-right" },
     );
   }
 }
 
 async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
   const binaryToBase64 = await blobToBase64(file);
-  const fileName = file.name.replace(/[(!$%&[\]{}]/g, '-')
-  const id = await getUserId()
+  const fileName = file.name.replace(/[(!$%&[\]{}]/g, "-");
+  const id = await getUserId();
 
   const formdata = new FormData();
-  formdata.append('file', file)
-  formdata.append('UserId', id)
-  formdata.append('FileName', fileName)
-  formdata.append('Data', '')
-  formdata.append('isSendToPm', 'yes')
-  return await FileUploadService.uploadFile(formdata)
+  formdata.append("file", file);
+  formdata.append("UserId", id);
+  formdata.append("FileName", fileName);
+  formdata.append("Data", "");
+  formdata.append("isSendToPm", "yes");
+  return await FileUploadService.uploadFile(formdata);
 }
 const removeItemByProperty = (index: number) => {
   if (index !== -1) {
@@ -219,18 +238,18 @@ const removeItemByProperty = (index: number) => {
 function formatExpectedDateTime(order) {
   let expectedDateTime: Date = order.expectedDate;
   if (sendForm.value?.expectedDate) {
-    expectedDateTime.setHours(sendForm.value?.expectedDate?.getHours())
-    expectedDateTime.setMinutes(sendForm.value?.expectedDate?.getMinutes())
+    expectedDateTime.setHours(sendForm.value?.expectedDate?.getHours());
+    expectedDateTime.setMinutes(sendForm.value?.expectedDate?.getMinutes());
   }
-  return expectedDateTime
+  return expectedDateTime;
 }
 
 function updateUrgent(date) {
   const selectedDate = DateTime.fromJSDate(date);
   const today = DateTime.now();
   const diff = Interval.fromDateTimes(today, selectedDate);
-  const diffHours = diff.length('hours');
-  const isSameDay = today.hasSame(selectedDate, 'day');
+  const diffHours = diff.length("hours");
+  const isSameDay = today.hasSame(selectedDate, "day");
   if (Math.ceil(diffHours) <= 72 || isSameDay) {
     sendForm.value.isUrgent = true;
   } else {
@@ -238,27 +257,32 @@ function updateUrgent(date) {
   }
 }
 
-
 async function onDeleteClick(file: ValidFiles, index: number) {
   const deleteInfo: FileDelete = {
     isSendToPm: true,
-    uri: file.uri
-  }
-  const deleteResponse = await FileUploadService.deleteFilesToBlobStorage(deleteInfo)
+    uri: file.uri,
+  };
+  const deleteResponse =
+    await FileUploadService.deleteFilesToBlobStorage(deleteInfo);
   if (deleteResponse) {
-    removeItemByProperty(index)
-    notificationsStore.addNotification(`Deleted Successfully`, `Your file ${file.fileName} was successfully deleted`, { severity: 'success', position: 'top-right' })
+    removeItemByProperty(index);
+    notificationsStore.addNotification(
+      `Deleted Successfully`,
+      `Your file ${file.fileName} was successfully deleted`,
+      { severity: "success", position: "top-right" },
+    );
+  } else {
+    notificationsStore.addNotification(
+      `Delete failed`,
+      `Your file ${file.fileName} was not deleted`,
+      { severity: "error", position: "top-right" },
+    );
   }
-  else {
-    notificationsStore.addNotification(`Delete failed`, `Your file ${file.fileName} was not deleted`, { severity: 'error', position: 'top-right' })
-  }
-
 }
 
 function clearForm() {
-  sendToPmstore.clearForm()
+  sendToPmstore.clearForm();
 }
-
 </script>
 
 <template lang="pug">
@@ -338,12 +362,12 @@ function clearForm() {
           ul.files 
             li(v-for="(file, index) in validFiles" :key="file") 
               .name {{ file.fileName }}
-              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
     template(#footer)
       .actions(:class="{ disclaimer: sendForm.isUrgent }")
         span 
           span(v-if="sendForm.isUrgent") Additional charges may be applicable for urgent orders
-        sgs-button(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
+        sgs-button#send(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
         //sgs-button(label="Close" @click="isFormVisible = false")
 </template>
 
@@ -411,7 +435,7 @@ span.input
     right: $s50
     margin: 0
     color: rgba($sgs-gray, 0.4)
-    pointer-events: none       
+    pointer-events: none
 
 .actions
   +flex-fill
@@ -445,7 +469,7 @@ span.input
     content: "*"
     display: inline-block
     padding: 0 $s25
-    color: $sgs-red    
+    color: $sgs-red
 
 .upload
   h4

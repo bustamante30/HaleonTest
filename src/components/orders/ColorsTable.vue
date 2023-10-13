@@ -1,86 +1,96 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import { DateTime } from 'luxon'
-import router from '@/router'
-import { sortBy } from 'lodash'
+import { ref, watch, onMounted } from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import { DateTime } from "luxon";
+import router from "@/router";
+import { sortBy } from "lodash";
 
-import TableActions from '@/components/ui/TableActions.vue'
-import TableCell from '@/components/ui/TableCell.vue'
-import { useOrdersStore } from '@/stores/orders'
-
+import TableActions from "@/components/ui/TableActions.vue";
+import TableCell from "@/components/ui/TableCell.vue";
+import { useOrdersStore } from "@/stores/orders";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: () => ({ cols: [] })
+    default: () => ({ cols: [] }),
   },
   isEditable: {
     type: Boolean,
-    default: false
+    default: false,
   },
   loading: {
     type: Boolean,
-    default: () => false
+    default: () => false,
   },
-})
+});
 
 const ordersStore = useOrdersStore();
 
+const emit = defineEmits(["update"]);
 
-const emit = defineEmits(['update'])
+const selected = ref([]);
 
-const selected = ref([])
-
-const sortedColors = computed(() => sortBy(props.data, props.config.sortBy))
+const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 
 function stylify(width) {
   return width
-    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
 
 function setDefaultValues(obj, defaultValue) {
-  if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
+  if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
     obj[key] = defaultValue;
-
   }
 }
 
 onMounted(() => {
-  let colorData = (props.data && props.data.filter(x => x.sets > 0))
+  let colorData = props.data && props.data.filter((x) => x.sets > 0);
 
   // selected.value = [...colorData]
-})
+});
 
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
-    const prevColorIds = prevColors && prevColors.map(c => c.jobTechSpecColourId)
-    const colorIds = colors.map(c => c.jobTechSpecColourId)
+    const prevColorIds =
+      prevColors && prevColors.map((c) => c.jobTechSpecColourId);
+    const colorIds = colors.map((c) => c.jobTechSpecColourId);
     // If color added sets = 1
     colors.forEach((color) => {
-      if (prevColorIds && !prevColorIds.includes(color.jobTechSpecColourId) && color.sets < 1) {
-        updateColor({ checkboxId: color.jobTechSpecColourId, field: 'sets', value: 1 })
+      if (
+        prevColorIds &&
+        !prevColorIds.includes(color.jobTechSpecColourId) &&
+        color.sets < 1
+      ) {
+        updateColor({
+          checkboxId: color.jobTechSpecColourId,
+          field: "sets",
+          value: 1,
+        });
       }
-    })
+    });
     // If color removed sets = 0
-    prevColors && prevColors.forEach((color) => {
-      if (!colorIds.includes(color.jobTechSpecColourId)) {
-        updateColor({ checkboxId: color.jobTechSpecColourId, field: 'sets', value: 0 })
-      }
-    })
+    prevColors &&
+      prevColors.forEach((color) => {
+        if (!colorIds.includes(color.jobTechSpecColourId)) {
+          updateColor({
+            checkboxId: color.jobTechSpecColourId,
+            field: "sets",
+            value: 0,
+          });
+        }
+      });
   }
-})
+});
 
 function updateColor({ checkboxId, field, value }) {
-  emit('update', { checkboxId, field, value })
+  emit("update", { checkboxId, field, value });
 }
-
 </script>
 
 <template lang="pug">

@@ -1,4 +1,4 @@
-export interface ReportIssueResponseDto{
-        number: string;
-        success: boolean;
-    };
+export interface ReportIssueResponseDto {
+  number: string;
+  success: boolean;
+}

@@ -1,48 +1,53 @@
 <script lang="ts" setup>
 import ReportIssueService from "@/services/ReportIssueService";
-import { useNotificationsStore } from '@/stores/notifications';
-import JSZip from 'jszip';
+import { useNotificationsStore } from "@/stores/notifications";
+import JSZip from "jszip";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
-import { FileUploadService, type FileUploadResponse, type FileDelete } from '@/services/FileUploadService';
-import * as Constants from '@/services/Constants';
+import {
+  FileUploadService,
+  type FileUploadResponse,
+  type FileDelete,
+} from "@/services/FileUploadService";
+import * as Constants from "@/services/Constants";
 
-
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
 const issueTypes = ref(Constants.ISSUE_TYPE);
 const browsers = ref(Constants.BROWSERS);
-const notificationsStore = useNotificationsStore()
-const entering = ref()
+const notificationsStore = useNotificationsStore();
+const entering = ref();
 let validFiles = ref<ValidFiles[]>([]);
-const isb2cUserLoggedIn = computed(() => authb2cStore.currentB2CUser.isLoggedIn);
+const isb2cUserLoggedIn = computed(
+  () => authb2cStore.currentB2CUser.isLoggedIn,
+);
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const userName = isb2cUserLoggedIn ? computed(() => authb2cStore.currentB2CUser.displayName) : computed(() => authStore.currentUser.displayName);;
- 
-
+const userName = isb2cUserLoggedIn
+  ? computed(() => authb2cStore.currentB2CUser.displayName)
+  : computed(() => authStore.currentUser.displayName);
 
 const props = defineProps({
   userName: {
     type: String,
-    default: ""
-  }
+    default: "",
+  },
 });
 type ValidFiles = {
-  filename: string,
-  contentType: string,
-  contents: any
-}
+  filename: string;
+  contentType: string;
+  contents: any;
+};
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const issue = ref({
   userId: null,
-  application: 'Image Carrier Reorder',
+  application: "Image Carrier Reorder",
   issueType: null,
   browser: null,
   browserVersion: null,
   description: null,
-  attachments: []
+  attachments: [],
 });
 const error = ref("");
 const showError = ref(false);
@@ -53,16 +58,16 @@ function onSubmit() {
     notificationsStore.addNotification(
       validationErrors.join("\n"),
       Constants.MANADTORY_FIELDS_MSG,
-      { severity: 'error', position: 'top-right' }
+      { severity: "error", position: "top-right" },
     );
   } else {
-    closeForm()
-    reportIssue(issue.value)
+    closeForm();
+    reportIssue(issue.value);
   }
 }
 
 const closeForm = () => {
-  emit('close');
+  emit("close");
 };
 
 function validateForm() {
@@ -84,18 +89,21 @@ function validateForm() {
 
 async function reportIssue(report?: any) {
   const userName = await getUserName()
-  let result = await ReportIssueService.submitIssue(issue.value, userName, validFiles.value);
+ let result = await ReportIssueService.submitIssue(
+    issue.value,
+    userName,
+    validFiles.value
+  );
   if (result != null && result.success) {
-    notificationsStore.addNotification(
-      '',
-      Constants.REPORT_ISSUE_SUCCESS,
-      { severity: 'success', position: 'top-right' }
-    );
+    notificationsStore.addNotification("", Constants.REPORT_ISSUE_SUCCESS, {
+      severity: "success",
+      position: "top-right",
+    });
   } else {
-    notificationsStore.addNotification(
-      '',
-      Constants.REPORT_ISSUE_FAILURE,
-      { severity: 'error', position: 'top-right' });
+    notificationsStore.addNotification("", Constants.REPORT_ISSUE_FAILURE, {
+      severity: "error",
+      position: "top-right",
+    });
   }
 }
 
@@ -103,7 +111,7 @@ async function blobToBase64(blob: any) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = (reader.result as any).split(',')[1];
+      const base64String = (reader.result as any).split(",")[1];
       resolve(base64String);
     };
     reader.onerror = reject;
@@ -111,15 +119,18 @@ async function blobToBase64(blob: any) {
   });
 }
 
+
+
 async function getUserName() {
-  let userName= '6';
+  let displayName = "6";
   if (isUserLoggedIn.value) {
-    userName = (await authStore.currentUser.displayName as any);
+    userId = (await authStore.currentUser.displayName) as any;
   }
   if (isb2cUserLoggedIn.value) {
-    userName = (await authb2cStore.currentB2CUser.displayName as any);
+    displayName = (await authb2cStore.currentB2CUser.displayName) as any;
   }
-  return userName
+  return displayName;
+
 }
 
 function onDragOver(event: any) {
@@ -137,10 +148,18 @@ function handleInput(e: any) {
 }
 
 function isValidFileType(file: any) {
-  return file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.bat') || file.name.toLowerCase().endsWith('.com') ||
-    file.name.toLowerCase().endsWith('.cmd') || file.name.toLowerCase().endsWith('.inf') || file.name.toLowerCase().endsWith('.ipa') ||
-    file.name.toLowerCase().endsWith('.osx') || file.name.toLowerCase().endsWith('.pif') || file.name.toLowerCase().endsWith('.run') ||
-    file.name.toLowerCase().endsWith('.wsh')
+  return (
+    file.name.toLowerCase().endsWith(".exe") ||
+    file.name.toLowerCase().endsWith(".bat") ||
+    file.name.toLowerCase().endsWith(".com") ||
+    file.name.toLowerCase().endsWith(".cmd") ||
+    file.name.toLowerCase().endsWith(".inf") ||
+    file.name.toLowerCase().endsWith(".ipa") ||
+    file.name.toLowerCase().endsWith(".osx") ||
+    file.name.toLowerCase().endsWith(".pif") ||
+    file.name.toLowerCase().endsWith(".run") ||
+    file.name.toLowerCase().endsWith(".wsh")
+  );
 }
 
 async function onDrop(event: any) {
@@ -150,27 +169,28 @@ async function onDrop(event: any) {
 }
 
 async function addFiles(files: any) {
-
   const uploadPromises = files.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
         Constants.INVALID_FILE,
         Constants.INVALID_FILE_MSG,
-        { severity: 'error', position: 'top-right' }
+        { severity: "error", position: "top-right" },
       );
       return null;
     } else if (file.size > Constants.MAX_FILE_SIZE) {
-      notificationsStore.addNotification(
-        ``,
-        Constants.FILE_SIZE_EXCEEDS,
-        { severity: 'error', position: 'top-right' }
-      );
+      notificationsStore.addNotification(``, Constants.FILE_SIZE_EXCEEDS, {
+        severity: "error",
+        position: "top-right",
+      });
       return null;
-
     } else {
       const response = await convertToBase64(file);
       const parts = file.name.split(".");
-      validFiles.value.push({ filename: file.name as string, contentType: parts.length > 1 ? parts[parts.length - 1] : '', contents: response });
+      validFiles.value.push({
+        filename: file.name as string,
+        contentType: parts.length > 1 ? parts[parts.length - 1] : "",
+        contents: response,
+      });
     }
   });
   const results = await Promise.all(uploadPromises);
@@ -180,11 +200,10 @@ async function addFiles(files: any) {
       notificationsStore.addNotification(
         Constants.UPLOAD_SUCCESSFULL,
         Constants.UPLOAD_SUCCESSFULL_MSG,
-        { severity: 'success', position: 'top-right' }
+        { severity: "success", position: "top-right" },
       );
   }
 }
-
 
 async function convertToBase64(file: any) {
   return await blobToBase64(file);
@@ -196,8 +215,12 @@ const removeItemByProperty = (index: number) => {
 };
 
 async function onDeleteClick(file: ValidFiles, index: number) {
-  removeItemByProperty(index)
-  notificationsStore.addNotification(`Deleted Successfully`, `Your file ${file.filename} was successfully deleted`, { severity: 'success', position: 'top-right' })
+  removeItemByProperty(index);
+  notificationsStore.addNotification(
+    `Deleted Successfully`,
+    `Your file ${file.filename} was successfully deleted`,
+    { severity: "success", position: "top-right" },
+  );
 }
 </script>
 
@@ -251,13 +274,13 @@ sgs-scrollpanel.report-issue
         ui.files
           li(v-for="(file, index) in validFiles" :key="file")
             .name {{ file.filename }}
-            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)")
+            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
 
   template(#footer)
     footer
       .actions
-        sgs-button.default.sm(label="Cancel" @click="emit('close')")
-        sgs-button(label="Submit" @click="onSubmit()")
+        sgs-button#close.default.sm(label="Cancel" @click="emit('close')")
+        sgs-button#submit-report(label="Submit" @click="onSubmit()")
 </template>
 
 <style lang="sass" scoped>
@@ -319,7 +342,7 @@ sgs-scrollpanel.report-issue
     +flex($h: right)
 
 .upload
-  h4 
+  h4
     padding: 0 $s
   .file
     +reset
@@ -337,9 +360,8 @@ sgs-scrollpanel.report-issue
       .delete
         visibility: hidden
         margin-right: $s125
-      &:hover 
+      &:hover
         background: rgba($sgs-blue, 0.1)
         .delete
           visibility: visible
-
 </style>

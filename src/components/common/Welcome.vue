@@ -7,7 +7,7 @@ import Message from 'primevue/message';
 
 <script>
 export default {
-  name: "welcome",
+  name: "Welcome",
   props: ["user"],
   data() {
     return {
@@ -21,4 +21,3 @@ export default {
 .nomargin
   margin-bottom: 0
 </style>
-

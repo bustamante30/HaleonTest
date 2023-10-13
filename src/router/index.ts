@@ -2,8 +2,8 @@ import DashboardPage from "@/pages/DashboardPage.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import authRoutes from "./auth";
 import store from "store";
-import jwt_decode from 'jwt-decode'
-import { DateTime } from 'luxon'
+import jwt_decode from "jwt-decode";
+import { DateTime } from "luxon";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +18,7 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
       component: DashboardPage,
       children: [
@@ -49,21 +49,21 @@ const router = createRouter({
         },
       ],
     },
-     {
-      path: '/faq',
-      name: 'faq',
+    {
+      path: "/faq",
+      name: "faq",
       component: () => import("@/pages/FaqPage.vue"),
     },
     {
-      path: '/help',
-      name: 'help',
+      path: "/help",
+      name: "help",
       component: () => import("@/pages/HelpPage.vue"),
     },
     {
       path: "/users",
       name: "users",
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
       },
       component: () => import("@/pages/users/index.vue"),
       children: [
@@ -83,54 +83,54 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  console.log('Navigating from ', from)
-  console.log('Navigating to',to)
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    const user = store.get("currentUser")
-    const b2cUser = store.get("currentb2cUser")
-    console.log('checking user loggedin', user, b2cUser)
+  console.log("Navigating from ", from);
+  console.log("Navigating to", to);
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    const user = store.get("currentUser");
+    const b2cUser = store.get("currentb2cUser");
+    console.log("checking user loggedin", user, b2cUser);
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
-
-      //validate token 
-      if(validateToken()){
-        console.log("Go to Routes")
-        next() 
-      }else{
-        console.log('Token Invalid - Redirect to Login')
-          next({name: 'loginPage', query: { q: Date.now() }})
+      //validate token
+      if (validateToken()) {
+        console.log("Go to Routes");
+        next();
+      } else {
+        console.log("Token Invalid - Redirect to Login");
+        next({ name: "loginPage", query: { q: Date.now() } });
       }
-
     } else {
-      console.log('Redirect to Login')
-      next({name: 'loginPage', query: { q: Date.now() }})
+      console.log("Redirect to Login");
+      next({ name: "loginPage", query: { q: Date.now() } });
     }
   } else {
-    console.log('Does not require auth',to, from)
-    next() // does not require auth, make sure to always call next()!
+    console.log("Does not require auth", to, from);
+    next(); // does not require auth, make sure to always call next()!
   }
-})
+});
 
-
-const validateToken = () =>{
-  try{
-  const token = store.get("token")
-  const decodedToken : any =  jwt_decode(token)
-  const tokenExpireTime = DateTime.fromMillis(parseInt(decodedToken?.exp+'000',10) )
-  console.log(`Current time ${DateTime.local()}`)
-  console.log(`${tokenExpireTime}`)
-  const  diffInMinutes = tokenExpireTime.diff(DateTime.now(), ["minutes"]).minutes
-  if(diffInMinutes > 0){
-    console.log('Valid Token')
-    return true
+const validateToken = () => {
+  try {
+    const token = store.get("token");
+    const decodedToken: any = jwt_decode(token);
+    const tokenExpireTime = DateTime.fromMillis(
+      parseInt(decodedToken?.exp + "000", 10),
+    );
+    console.log(`Current time ${DateTime.local()}`);
+    console.log(`${tokenExpireTime}`);
+    const diffInMinutes = tokenExpireTime.diff(DateTime.now(), [
+      "minutes",
+    ]).minutes;
+    if (diffInMinutes > 0) {
+      console.log("Valid Token");
+      return true;
+    }
+  } catch (e) {
+    console.log("Invalid Token - Expection ", e);
+    return false;
   }
-
-  }catch(e){
-    console.log('Invalid Token - Expection ',e )
-    return false
-  }
-  console.log('Invalid Token')
-  return false
-}
+  console.log("Invalid Token");
+  return false;
+};
 export default router;

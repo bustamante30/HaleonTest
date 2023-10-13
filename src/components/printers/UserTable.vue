@@ -1,50 +1,44 @@
 <script setup>
-import { computed } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import router from '@/router'
+import { computed } from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import router from "@/router";
 
-import TableActions from '@/components/ui/TableActions.vue'
-import TableCell from '@/components/ui/TableCell.vue'
+import TableActions from "@/components/ui/TableActions.vue";
+import TableCell from "@/components/ui/TableCell.vue";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: () => ({ cols: [] })
+    default: () => ({ cols: [] }),
   },
   className: {
     type: [String, Array],
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['editUser', 'deleteUser', 'resend'])
+const emit = defineEmits(["editUser", "deleteUser", "resend"]);
 
 function stylify(width) {
   return width
-    ? { width: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { width: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
 
 function handleAction(action) {
-  if(action.event === 'edit')
-  {
-  emit('editUser',{event: action.event, data: action.data})
-  }
-  else if(action.event === 'deleteUser')
-  {
-  emit('deleteUser',{event: action.event, data: action.data})
-  }
-  else if(action.event === 'resend')
-  {
-  emit('resend',{event: action.event, data: action.data})
+  if (action.event === "edit") {
+    emit("editUser", { event: action.event, data: action.data });
+  } else if (action.event === "deleteUser") {
+    emit("deleteUser", { event: action.event, data: action.data });
+  } else if (action.event === "resend") {
+    emit("resend", { event: action.event, data: action.data });
   }
 }
-
 </script>
 
 <template lang="pug">

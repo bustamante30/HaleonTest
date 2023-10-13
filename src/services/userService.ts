@@ -1,150 +1,166 @@
-import type { UserClaimDto } from '../models/UserClaimDto';
-import type { UserDto } from '../models/UserDto';
-import type { SearchRequestDto } from '../models/SearchRequestDto';
-import type { UserSearchResponseDto } from '../models/UserSearchResponseDto';
-import type { SearchResponeDto} from  '../models/SearchResponeDto';
-import type { PrinterDto} from  '../models/PrinterDto';
-import ApiService  from '../services/apiService';
-import type { ExternalPrinterCountResponseDto } from  '../models/ExternalPrinterCountResponseDto';
+import type { UserClaimDto } from "../models/UserClaimDto";
+import type { UserDto } from "../models/UserDto";
+import type { SearchRequestDto } from "../models/SearchRequestDto";
+import type { UserSearchResponseDto } from "../models/UserSearchResponseDto";
+import type { SearchResponeDto } from "../models/SearchResponeDto";
+import type { PrinterDto } from "../models/PrinterDto";
+import ApiService from "../services/apiService";
+import type { ExternalPrinterCountResponseDto } from "../models/ExternalPrinterCountResponseDto";
 import { useNotificationsStore } from "@/stores/notifications";
 
-const baseUrl = import.meta.env.VITE_USER_API_BASE_URL ??'https://localhost:7026/';
+const baseUrl =
+  import.meta.env.VITE_USER_API_BASE_URL ?? "https://localhost:7026/";
 
-const httpService = new ApiService(baseUrl)
+const httpService = new ApiService(baseUrl);
 
 class UserService {
+  public static getUserClaimInfo() {
+    return httpService
+      .get<UserClaimDto>("v1/user/RetrieveUserBasicinfo")
+      .then((response: UserClaimDto) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("error getting reorders: ", error);
+        return null;
+      });
+  }
 
-    public static getUserClaimInfo() {
-        return httpService.get<UserClaimDto>('v1/user/RetrieveUserBasicinfo').then((response: UserClaimDto) => {
-            return response
-        }).catch((error: any) => {
-            console.log("error getting reorders: ", error);
-            return null;
-        });
-    }
-
-     public static saveUser(user: UserDto) {
-        console.log("StoreuserReq:" + user);
-    return httpService.post<UserDto>('v1/user', user)
+  public static saveUser(user: UserDto) {
+    console.log("StoreuserReq:" + user);
+    return httpService
+      .post<UserDto>("v1/user", user)
       .then((response: UserDto) => {
         return response;
       })
       .catch((error: any) => {
         const errorresp = error?.response?.data;
         const userNotificationsStore = useNotificationsStore();
-        if(errorresp)
-        {
-          console.log('Validation Error while adding User:', errorresp.detail);
-          userNotificationsStore.addNotification(
-            `Error`,
-            errorresp.detail,
-            { severity: "error" }
-          );
-          throw errorresp; 
+        if (errorresp) {
+          console.log("Validation Error while adding User:", errorresp.detail);
+          userNotificationsStore.addNotification(`Error`, errorresp.detail, {
+            severity: "error",
+          });
+          throw errorresp;
         }
-        console.log('unhandled exception while adding user:', error);
+        console.log("unhandled exception while adding user:", error);
         userNotificationsStore.addNotification(
           `Error`,
           "Something went Wrong. Please contact sgs help desk",
-          { severity: "error" }
+          { severity: "error" },
         );
-        throw  error; 
+        throw error;
       });
   }
 
   public static searchUser(searchRequest: SearchRequestDto) {
-    return httpService.post<SearchResponeDto>('v1/user/search', searchRequest)
+    return httpService
+      .post<SearchResponeDto>("v1/user/search", searchRequest)
       .then((response: SearchResponeDto) => {
-        return response; 
+        return response;
       })
       .catch((error: any) => {
-        console.log('Error searching user:', error);
+        console.log("Error searching user:", error);
         return null;
       });
   }
 
-
   public static searchPrinter(searchRequest: SearchRequestDto) {
-    return httpService.post<SearchResponeDto>('v1/printer/printersearch', searchRequest)
+    return httpService
+      .post<SearchResponeDto>("v1/printer/printersearch", searchRequest)
       .then((response: SearchResponeDto) => {
-        return response; 
+        return response;
       })
       .catch((error: any) => {
-        console.log('Error searching Printer:', error);
+        console.log("Error searching Printer:", error);
         return null;
       });
   }
 
   public static getUserDetails(userId: string) {
-    return httpService.get<UserDto>('v1/user/Retrieve?userId=' + userId).then((response: UserDto) => {
-        return response
-    }).catch((error: any) => {
+    return httpService
+      .get<UserDto>("v1/user/Retrieve?userId=" + userId)
+      .then((response: UserDto) => {
+        return response;
+      })
+      .catch((error: any) => {
         console.log("error getting User Details: ", error);
         return null;
-    });
-}
+      });
+  }
 
-public static SavePrinter(printerData: PrinterDto) {
-  return httpService
-    .post<PrinterDto>('v1/printer', printerData)
-    .then((response: PrinterDto) => {
-      return response;
-    })
-    .catch((error: any) => {
-      const errorresp = error?.response?.data;
-      const notificationsStore = useNotificationsStore();
-      if(errorresp)
-      {
-        console.log('Validation Error adding printer:', errorresp.detail);
+  public static SavePrinter(printerData: PrinterDto) {
+    return httpService
+      .post<PrinterDto>("v1/printer", printerData)
+      .then((response: PrinterDto) => {
+        return response;
+      })
+      .catch((error: any) => {
+        const errorresp = error?.response?.data;
+        const notificationsStore = useNotificationsStore();
+        if (errorresp) {
+          console.log("Validation Error adding printer:", errorresp.detail);
+          notificationsStore.addNotification(`Error`, errorresp.detail, {
+            severity: "error",
+          });
+          throw errorresp;
+        }
+        console.log("Unhandled exception while adding printer:", error);
         notificationsStore.addNotification(
           `Error`,
-          errorresp.detail,
-          { severity: "error" }
+          "Something went Wrong. Please contact sgs help desk",
+          { severity: "error" },
         );
-        throw errorresp; 
-      }
-      console.log('Unhandled exception while adding printer:', error);
-      notificationsStore.addNotification(
-        `Error`,
-        "Something went Wrong. Please contact sgs help desk",
-        { severity: "error" }
-      );
-      throw error; 
-    });
-}
+        throw error;
+      });
+  }
 
-public static DeleteUser(userId: string, printerId: string) {
-  const params = { userId, isActive: false };
-  return httpService
-    .delete<boolean>('v1/user/Delete?userId='+ userId +'&isActive=false'+ '&printerId=' + printerId )
-    .then((response: boolean) => {
-      return response;
-    })
-    .catch((error: any) => {
-      console.log('Error deleting user:', error);
-      return null;
-    });
-}
+  public static DeleteUser(userId: string, printerId: string) {
+    const params = { userId, isActive: false };
+    return httpService
+      .delete<boolean>(
+        "v1/user/Delete?userId=" +
+          userId +
+          "&isActive=false" +
+          "&printerId=" +
+          printerId,
+      )
+      .then((response: boolean) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("Error deleting user:", error);
+        return null;
+      });
+  }
 
-public static ResendInvitation(userId: string) {
-  const params = { userId };
-  return httpService
-    .post<boolean>('v1/user/ResendInvitation?userId='+ userId)
-    .then((response: boolean) => {
-    return response;
-    })
-    .catch((error: any) => {
-      console.log('Error resending invitation:', error);
-    });
-}
+  public static ResendInvitation(userId: string) {
+    const params = { userId };
+    return httpService
+      .post<boolean>("v1/user/ResendInvitation?userId=" + userId)
+      .then((response: boolean) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("Error resending invitation:", error);
+      });
+  }
 
-public static GetExternalUserCount(userId: string, printerId: string) {
-  return httpService.get<ExternalPrinterCountResponseDto>('v1/user/RetrieveExternalUserPrinter?printerId=' + printerId +'&userId=' + userId).then((response: ExternalPrinterCountResponseDto) => {
-      return response
-  }).catch((error: any) => {
-      console.log("error getting User Details: ", error);
-      return null;
-  });
-}
+  public static GetExternalUserCount(userId: string, printerId: string) {
+    return httpService
+      .get<ExternalPrinterCountResponseDto>(
+        "v1/user/RetrieveExternalUserPrinter?printerId=" +
+          printerId +
+          "&userId=" +
+          userId,
+      )
+      .then((response: ExternalPrinterCountResponseDto) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("error getting User Details: ", error);
+        return null;
+      });
+  }
 }
 export default UserService;

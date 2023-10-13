@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import OrderDetails from "@/components/orders/OrderDetails.vue"
+import OrderDetails from "@/components/orders/OrderDetails.vue";
 
 const route = useRoute();
 const id = route.params.id;

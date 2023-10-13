@@ -1,25 +1,28 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   header: {
     type: String,
-    default: null
+    default: null,
   },
   expanded: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-let isExpanded = ref(props.expanded) as any
+let isExpanded = ref(props.expanded) as any;
 
-watch(() => props.expanded, (value) => {
-  isExpanded.value = props.expanded
-})
+watch(
+  () => props.expanded,
+  (value) => {
+    isExpanded.value = props.expanded;
+  },
+);
 
 function toggle() {
-  isExpanded.value = !isExpanded.value
+  isExpanded.value = !isExpanded.value;
 }
 </script>
 
@@ -69,5 +72,4 @@ function toggle() {
       font-size: 0.9rem
     span.expander
       font-size: 0.8rem
-
 </style>

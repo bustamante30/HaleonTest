@@ -1,65 +1,67 @@
 <script setup>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount } from "vue";
 const props = defineProps({
   modelValue: {
     type: [String, Number],
-    default: null
+    default: null,
   },
   options: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   optionLabel: {
     type: String,
-    default: 'label'
+    default: "label",
   },
   optionValue: {
     type: String,
-    default: 'value'
+    default: "value",
   },
   edit: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 const defaultOptions = computed(() => {
-  const { modelValue, options } = props
-  return modelValue && !options.length ? [{ label: modelValue, value: modelValue }] : []
-})
+  const { modelValue, options } = props;
+  return modelValue && !options.length
+    ? [{ label: modelValue, value: modelValue }]
+    : [];
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
 const selected = computed(() => {
-  const { options, modelValue } = props
-  const allOptions = [...defaultOptions.value, ...options]
+  const { options, modelValue } = props;
+  const allOptions = [...defaultOptions.value, ...options];
   if (allOptions && allOptions.length && modelValue) {
-    const option = allOptions.find(option => option?.value === modelValue)
-    return option ? option : null
+    const option = allOptions.find((option) => option?.value === modelValue);
+    return option ? option : null;
   } else {
-    return null
+    return null;
   }
-})
+});
 
-let editMode = ref(false)
+let editMode = ref(false);
 
 onBeforeMount(() => {
-  editMode.value = props.edit
-})
+  editMode.value = props.edit;
+});
 
 function update(event) {
-  emit('update:modelValue', event)
-  editMode.value = false
+  emit("update:modelValue", event);
+  editMode.value = false;
 }
 
 function escPressed(event) {
-  editMode.value = false
+  editMode.value = false;
   // console.log(event)
 }
 
 function switchToEditMode() {
   // console.log('switching to edit ' + props.modelValue)
-  editMode.value = true
+  editMode.value = true;
 }
 </script>
 

@@ -2,13 +2,13 @@
 const props = defineProps({
   scroll: {
     type: Boolean,
-    default: true
+    default: true,
   },
   top: {
     type: Number,
-    default: 0
-  }
-})
+    default: 0,
+  },
+});
 </script>
 
 <template lang="pug">

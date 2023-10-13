@@ -13,9 +13,9 @@
 const props = defineProps({
   tokens: {
     type: Array,
-    defult: () => []
-  }
-})
+    defult: () => [],
+  },
+});
 </script>
 
 <style lang="sass" scoped>
@@ -46,5 +46,4 @@ const props = defineProps({
       margin-left: $s50
       &:hover
         opacity: 1
-
 </style>

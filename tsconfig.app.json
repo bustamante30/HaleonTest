@@ -1,6 +1,13 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["dev.env.ts", "env.d.ts", "src/**/*", "src/**/*.vue", "tsconfig.cypress-ct.json"],
+  "include": [
+    "dev.env.ts",
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "tsconfig.cypress-ct.json",
+    "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"
+  ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
@@ -11,6 +18,11 @@
       "@/*": ["./src/*"]
     },
     "allowJs": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "types": ["vue"],
+    "skipLibCheck": true,
   }
 }

@@ -2,21 +2,21 @@
 const props = defineProps({
   menuitem: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const menu = ref()
+const menu = ref();
 
 function toggle(event) {
-  menu.value.toggle(event)
+  menu.value.toggle(event);
 }
 </script>
 
 <template lang="pug">
 span.menu-button(v-if="menuitem")
-  sgs-button.default(:label="menuitem.label" @click="toggle" aria-haspopup="true" aria-controls="overlay" icon="expand_more" icon-position="right")
-  prime-menu(ref="menu" id="overlay" :model="menuitem.items" :popup="true")
+  sgs-button.default(:label="menuitem.label" @click="toggle" icon="expand_more" icon-position="right"  :id="`menu-button-${menuitem.label}`")
+  prime-menu(ref="menu" :model="menuitem.items" :popup="true")
 </template>
 
 <style lang="sass" scoped>

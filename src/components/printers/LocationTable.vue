@@ -1,34 +1,33 @@
 <script setup>
-import { computed } from 'vue'
-import { DateTime } from 'luxon'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import router from '@/router'
+import { computed } from "vue";
+import { DateTime } from "luxon";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import router from "@/router";
 
-import TableActions from '@/components/ui/TableActions.vue'
-import TableCell from '@/components/ui/TableCell.vue'
+import TableActions from "@/components/ui/TableActions.vue";
+import TableCell from "@/components/ui/TableCell.vue";
 
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   config: {
     type: Object,
-    default: () => ({ cols: [] })
+    default: () => ({ cols: [] }),
   },
   className: {
     type: String,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
 function stylify(width) {
   return width
-    ? { width: `${width}rem`, flex: 'none' }
-    : { width: 'auto', flex: '1' }
+    ? { width: `${width}rem`, flex: "none" }
+    : { width: "auto", flex: "1" };
 }
-
 </script>
 
 <template lang="pug">
