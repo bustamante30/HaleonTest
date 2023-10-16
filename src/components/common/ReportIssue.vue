@@ -138,10 +138,10 @@ function validateForm() {
 }
 
 async function reportIssue() {
-  const id = await getUserId();
+  const userName = await getUserName();
   let result = await ReportIssueService.submitIssue(
     issue.value,
-    parseInt(id),
+    userName,
     validFiles.value,
   );
   if (result != null && result.success) {
@@ -169,15 +169,15 @@ async function blobToBase64(blob) {
   });
 }
 
-async function getUserId() {
-  let userId = "6";
+async function getUserName() {
+  let displayName = "";
   if (isUserLoggedIn.value) {
-    userId = await authStore.currentUser.userId;
+    displayName = await authStore.currentUser.displayName;
   }
   if (isb2cUserLoggedIn.value) {
-    userId = await authb2cStore.currentB2CUser.userId.toString();
+    displayName = await authb2cStore.currentB2CUser.displayName;
   }
-  return userId;
+  return displayName;
 }
 
 function onDragOver(event: DragEvent) {
