@@ -1,6 +1,6 @@
 <template lang="pug">
 form.advanced-search(@submit.prevent="onSubmit")
-  button.close-button(@click.prevent="closeForm" type="button" @click="emit('close')")   
+  button.close-button(type="button" @click.prevent="closeForm" @click="emit('close')")   
     i.pi.pi-times
   sgs-scrollpanel
     template(#header)
@@ -12,18 +12,18 @@ form.advanced-search(@submit.prevent="onSubmit")
     template(#subheader)
     sgs-panel(v-if="formattedDates && formattedDates.length" :header="`Recent Searches [${formattedDates.length}]`")
       ul.recent-searches
-        li(v-for="item in formattedDates")
+        li(v-for="item,i in formattedDates" :key=i)
           a(@click="handleDateClick(item.id)") {{ item.date }}
     .form-fields(v-if="advancedFilters")
-      .field-group(v-for="section in sections")
+      .field-group(v-for="section,i in sections" :key=i)
         h4(v-if="section.label") {{ section.label }}
-        .f(v-for="filter in section.filters")
+        .f(v-for="filter,j in section.filters" :key=j)
           label(v-if="filter.label") {{ filter.label }}
-          prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :inputId="printerLoc" :options="printerLocations" appendTo="body" optionLabel="label" optionValue="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
-          prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :inputId="filter.name" selectionMode="range" appendTo="body")
-          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" :disabled="user.isExternal" emptyMessage="No results found")
-          prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults.length ? printerSiteResults : [advancedFilters[filter.name]]" emptyMessage="No results found" )
-          prime-inputtext.sm(v-else v-model="advancedFilters[filter.name]" :name="filter.name" :id="filter.name" :disabled="filter.disabled")
+          prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :input-id="printerLoc" :options="printerLocations" append-to="body" option-label="label" option-value="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
+          prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :input-id="filter.name" selection-mode="range" append-to="body")
+          prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" complete-on-focus=true append-to="body" :disabled="user.isExternal" empty-message="No results found" @complete="searchPrinter($event)")
+          prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults.length ? printerSiteResults : [advancedFilters[filter.name]]" empty-message="No results found" )
+          prime-inputtext.sm(v-else :id="filter.name" v-model="advancedFilters[filter.name]" :name="filter.name" :disabled="filter.disabled")
     template(#footer)
       footer
         .secondaryactions
@@ -32,6 +32,7 @@ form.advanced-search(@submit.prevent="onSubmit")
           sgs-button#submit-search(label="Search" type="submit")
 </template>
 
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import { type Ref, ref, onBeforeMount, computed, watch } from "vue";
 import "primevue/resources/themes/saga-blue/theme.css";
@@ -65,19 +66,10 @@ const props = defineProps({
 const user = { isExternal: props.printerName.length > 0 };
 const searchhistoryStore = useSearchhistoryStore();
 const ordersStore = useOrdersStore();
-let formattedDates: Ref<{ id: any; date: string }[]> = ref([]);
-
+let formattedDates: Ref<{ id: unknown; date: string }[]> = ref([]);
 const emit = defineEmits(["reset", "search", "close"]);
-
 const printerResults: Ref<string[]> = ref([]);
 const printerSiteResults: Ref<string[]> = ref([]);
-const imageCarrierCodeTypes = ref([
-  { label: "UPC Code", value: "UPC" },
-  { label: "QR Code", value: "QR" },
-  { label: "EAN Code", value: "EAN" },
-  { label: "Data Matrix Code", value: "DATA_MATRIX" },
-]);
-
 const printerLocations = ref([
   {
     label:
@@ -95,7 +87,7 @@ let printerLoc = ref("AL");
 
 const error = ref("");
 const showError = ref(false);
-let advancedFilters: Ref<any> = ref({});
+let advancedFilters: Ref = ref({});
 const searchDate = computed(() => searchhistoryStore.searchDate);
 const searchFieldReference = computed(
   () => searchhistoryStore.searchFieldReference,
@@ -107,10 +99,14 @@ const closeForm = () => {
     form.style.display = "none";
   }
 };
+interface DataObject {
+  timestamp: string;
+  userId: string;
+}
 
 onBeforeMount(async () => {
   ordersStore.initAdvancedFilters();
-  (advancedFilters as any).value = { ...props.filters };
+  advancedFilters.value = { ...props.filters };
   await searchhistoryStore.getSearchDate(true).then(() => {
     formatDate();
   });
@@ -125,17 +121,17 @@ onBeforeMount(async () => {
 watch(
   () => props.filters,
   (value) => {
-    (advancedFilters as any).value = { ...value };
+    advancedFilters.value = { ...value };
   },
 );
 
 async function formatDate() {
   if (searchDate.value && searchDate.value.length > 0) {
     searchDate.value.forEach((data) => {
-      const localDate = dayjs.utc((data as any).timestamp).local();
+      const localDate = dayjs.utc((data as DataObject).timestamp).local();
       const formattedLocalDate = localDate.format("ddd, MMM D, YYYY h:mm:ss A");
       return formattedDates.value.push({
-        id: (data as any).userId,
+        id: (data as DataObject).userId,
         date: formattedLocalDate,
       });
     });
@@ -189,11 +185,10 @@ function reset() {
   advancedFilters.value["imageCarrierCode"] = null;
   advancedFilters.value["printerPlateCode"] = null;
   advancedFilters.value["startDate"] = [];
-  // searchPrinterSites()
   ordersStore.initAdvancedFilters();
 }
 
-async function search(advancedSearchParameters?: any) {
+async function search(advancedSearchParameters?) {
   await searchhistoryStore.setSearchHistory(advancedSearchParameters, true);
   advancedSearchParameters = {
     ...advancedSearchParameters,
@@ -202,17 +197,9 @@ async function search(advancedSearchParameters?: any) {
   emit("search", advancedSearchParameters);
 }
 
-async function searchPrinter(value?: any) {
+async function searchPrinter(value?) {
   if (value.query && value.query.length > 1) {
     printerResults.value = await SuggesterService.getPrinterList(value.query);
-  }
-}
-async function searchPrinterSites() {
-  if (advancedFilters.value?.printerName) {
-    printerSiteResults.value = await SuggesterService.getPrinterSiteList(
-      advancedFilters.value?.printerName,
-      "",
-    );
   }
 }
 
@@ -245,7 +232,7 @@ function validateForm() {
       field !== "printerName" && field !== "printerSite" && field !== "status",
   );
   for (const field of additionalFields) {
-    const value = (advancedFilters.value as any)[field];
+    const value = advancedFilters.value[field];
     if (
       value != undefined &&
       value != "" &&
