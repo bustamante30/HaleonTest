@@ -1,8 +1,11 @@
 {
   "singleQuote": true,
-  "semi": false,
+   "semi": true,
+  "jsxSingleQuote": true,
   "trailingComma": "all",
   "tabWidth": 2,
   "useTabs": false,
-  "vueIndentScriptAndStyle": true
+  "vueIndentScriptAndStyle": true,
+  "arrowParens": "always",
+  "parser": "babel"
 }
