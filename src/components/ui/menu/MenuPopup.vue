@@ -1,3 +1,4 @@
+<!-- eslint-disable no-undef -->
 <script setup>
 const props = defineProps({
   menuitem: {
@@ -14,8 +15,8 @@ function toggle(event) {
 </script>
 
 <template lang="pug">
-span.menu-button(v-if="menuitem")
-  sgs-button.default(:label="menuitem.label" @click="toggle" icon="expand_more" icon-position="right"  :id="`menu-button-${menuitem.label}`")
+span.menu-button(v-if="props.menuitem")
+  sgs-button.default(:id="`menu-button-${menuitem.label}`" :label="menuitem.label" icon="expand_more" icon-position="right"  @click="toggle")
   prime-menu(ref="menu" :model="menuitem.items" :popup="true")
 </template>
 
