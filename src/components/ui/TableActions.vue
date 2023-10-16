@@ -1,7 +1,17 @@
+<template lang="pug">
+span.table-action(v-if="actions.length>0")
+  sgs-button#table-actions.sm.default(icon="unfold_more" @click="toggleMenu")
+  prime-menu(ref="menu" :model="items" popup)
+    template(#item="{ item }")
+      span.menu-item
+        span.material-icons {{ item.icon }}
+        span {{ item.label }}
+</template>
+
 <script setup>
 import { ref, computed } from "vue";
-import { get } from "lodash";
 import { DateTime } from "luxon";
+import { useNotificationsStore } from "@/stores/notifications";
 import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
@@ -16,7 +26,7 @@ const props = defineProps({
 });
 
 const menu = ref();
-
+const notificationsStore = useNotificationsStore();
 const emit = defineEmits(["select", "action"]);
 
 const items = computed(() => {
@@ -32,20 +42,6 @@ const items = computed(() => {
     };
   });
 });
-
-function formatDate(date) {
-  return DateTime.fromJSDate(date).toFormat("dd LLL, yyyy h:mm a");
-}
-
-function resolvePath(config, data) {
-  let path = config.path;
-  config.pathParams.forEach((param, i) => {
-    const placeholder = `$${i + 1}`;
-    const value = get(data, param);
-    path = path.replace(placeholder, value);
-  });
-  return path;
-}
 
 async function toggleMenu(event) {
   const removeIndex = items.value.findIndex((x) => x.validate);
@@ -72,16 +68,6 @@ async function toggleMenu(event) {
   if (items.value.length > 0) menu.value.toggle(event);
 }
 </script>
-
-<template lang="pug">
-span.table-action(v-if="actions.length>0")
-  sgs-button#table-actions.sm.default(icon="unfold_more" @click="toggleMenu")
-  prime-menu(ref="menu" :model="items" popup)
-    template(#item="{ item }")
-      span.menu-item
-        span.material-icons {{ item.icon }}
-        span {{ item.label }}
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

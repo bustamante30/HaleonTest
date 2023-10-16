@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, computed, onBeforeMount } from "vue";
 const props = defineProps({
@@ -54,20 +55,18 @@ function update(event) {
   editMode.value = false;
 }
 
-function escPressed(event) {
+function escPressed() {
   editMode.value = false;
-  // console.log(event)
 }
 
 function switchToEditMode() {
-  // console.log('switching to edit ' + props.modelValue)
   editMode.value = true;
 }
 </script>
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :modelValue="modelValue" @update:modelValue="update" :options="[...defaultOptions, ...options]" :optionLabel="optionLabel" :optionValue="optionValue" filter placeholder="Select Plate Type...")
+  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...options]" :option-label="optionLabel" :option-value="optionValue" filter placeholder="Select Plate Type..." @update:model-value="update")
   .readonly(v-else)
     span.value(v-if="selected") {{ selected.label }}
     span.value(v-else-if="modelValue === 256") Mixed

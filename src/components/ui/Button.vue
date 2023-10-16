@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template lang="pug">
 button(:disabled="disabled" :class="{ rounded: rounded, icon: icon && !label }")
   i.icon.material-icons.outline(v-if="icon && iconPosition === 'left'" :class="[icon, iconClass]") {{ icon }}
