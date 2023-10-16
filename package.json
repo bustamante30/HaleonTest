@@ -15,7 +15,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
-    "pre-commit": "git diff-index --cached HEAD --name-only --diff-filter=ACMRTUXB | xargs npx prettier --check || (npx lint-staged --allow-empty && git update-index --refresh)",
+    "pre-commit": "git diff-index --cached --quiet HEAD -- || (git diff-index --cached HEAD --name-only --diff-filter=ACMRTUXB | xargs npx prettier --check || (npx lint-staged --allow-empty && git update-index --refresh))",
     "prepare": "husky install"
   },
   "lint-staged": {

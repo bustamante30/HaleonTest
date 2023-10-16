@@ -1,3 +1,29 @@
+<template lang="pug">
+#image-carrier
+  sgs-scrollpanel(:scroll="false")
+    template(#header)
+      app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
+    prime-toast
+    prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple")
+      template(#message="{ message }")
+        .message
+          h4 {{ message.summary }}
+          // eslint-disable-next-line vue/no-v-html
+          .detail(v-html="message.detail") 
+    router-view
+  prime-dialog.demo(:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
+    template(#header='')
+      header.videoheader
+        sgs-button#chapters.sm(v-if='chapters && chapters.length' :label='`Chapters [${chapters.length}]`' :class='{ secondary: !showChapters, primary: showChapters }' @click='showChapters = !showChapters')
+    demo-video(:chapters='chapters' :showchapters='showChapters')
+  prime-dialog.issue(:visible="isReportFormVisible" closable modal :style="{ width: '45rem', overflow: 'hidden' }")
+    template(#header)
+      header
+        h4 Report an Issue - Image Carrier Reorder
+    report-issue(@close="isReportFormVisible = false")
+
+</template>
+
 <script lang="ts" setup>
 import { useNotificationsStore } from "@/stores/notifications";
 import { useToast } from "primevue/usetoast";
@@ -7,6 +33,7 @@ import { useAuthStore } from "./stores/auth";
 import { useB2CAuthStore } from "./stores/b2cauth";
 import AppHeader from "@/components/common/AppHeader.vue";
 import DemoVideo from "./components/common/DemoVideo.vue";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import csvFile from "./components/common/videos/demo.csv";
 import ReportIssue from "./components/common/ReportIssue.vue";
@@ -16,11 +43,8 @@ const route = useRoute();
 const notificationsStore = useNotificationsStore();
 const toast = useToast();
 const router = useRouter();
-
-const messages = computed(() => notificationsStore.messages);
 const notification = computed(() => notificationsStore.notification);
-
-const { inc, count } = useCounter();
+const { inc } = useCounter();
 const { idle, lastActive } = useIdle(30 * 60 * 1000); // 30 min
 
 const authStore = useAuthStore();
@@ -31,7 +55,7 @@ const isb2cUserLoggedIn = computed(
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const isLoginPage = computed(() => {
   console.log(router?.currentRoute?.value?.path);
-  return (router?.currentRoute as any)?.value?.path === "/";
+  return router?.currentRoute?.value?.path === "/";
 });
 const isB2CLoginPage = computed(() => {
   var encodedStr = route.query["useremail"];
@@ -41,10 +65,10 @@ const isB2CLoginPage = computed(() => {
   }
   console.log("Query param - " + decodedStr);
   authb2cStore.setUseremail(decodedStr);
-  return (router?.currentRoute as any)?.value?.path === "/b2clogin";
+  return router?.currentRoute?.value?.path === "/b2clogin";
 });
 const isError = computed(() => {
-  return (router?.currentRoute as any)?.value?.path === "/error";
+  return router?.currentRoute?.value?.path === "/error";
 });
 const refreshTokenTimer = ref();
 let isReportFormVisible = ref(false);
@@ -59,7 +83,7 @@ let chapters = ref(csvFile);
 let isDemoVisible = ref(false);
 let showChapters = ref(false);
 
-watch(notification, (notification: any) => {
+watch(notification, (notification) => {
   if (notification) {
     toast.add(notification);
     if (notification.life)
@@ -114,31 +138,6 @@ async function handleReport() {
   }
 }
 </script>
-
-<template lang="pug">
-#image-carrier
-  sgs-scrollpanel(:scroll="false")
-    template(#header)
-      app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
-    prime-toast
-    prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple")
-      template(#message="{ message }")
-        .message
-          h4 {{ message.summary }}
-          .detail(v-html="message.detail") 
-    router-view
-  prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
-    template(#header='')
-      header.videoheader
-        sgs-button#chapters.sm(v-if='chapters && chapters.length' @click='showChapters = !showChapters' :label='`Chapters [${chapters.length}]`' :class='{ secondary: !showChapters, primary: showChapters }')
-    demo-video(:chapters='chapters' :showchapters='showChapters')
-  prime-dialog.issue(v-model:visible="isReportFormVisible" closable modal :style="{ width: '45rem', overflow: 'hidden' }")
-    template(#header)
-      header
-        h4 Report an Issue - Image Carrier Reorder
-    report-issue(@close="isReportFormVisible = false")
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
