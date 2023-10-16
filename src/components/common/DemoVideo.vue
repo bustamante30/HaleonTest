@@ -1,3 +1,14 @@
+<template lang="pug">
+.demo-video 
+  sgs-scrollpanel.chapters(v-if="props.showChapters")
+    ul
+      li.chapter(v-for="chapter in chapters" :key=chapter['Marker Name'] v-tooltip.right="{ value: chapter['Marker Name']}" :class="{ current: isCurrentChapter(chapter) }")
+        i.material-icons.outline play_arrow
+        a.name(@click="currentChapter = chapter") {{ chapter['Marker Name'] }}
+        span.time {{ chapter['In'] }}
+  figure.video
+    video(:src="videour", type="video/mp4", autoplay, controls)
+</template>
 <script setup>
 import { ref, computed, onMounted } from "vue";
 const props = defineProps({
@@ -49,18 +60,6 @@ onMounted(async () => {
   videoUrl.value = await showDialog();
 });
 </script>
-
-<template lang="pug">
-.demo-video 
-  sgs-scrollpanel.chapters(v-if="showChapters")
-    ul
-      li.chapter(v-for="chapter in chapters" :class="{ current: isCurrentChapter(chapter) }" v-tooltip.right="{ value: chapter['Marker Name']}")
-        i.material-icons.outline play_arrow
-        a.name(@click="currentChapter = chapter") {{ chapter['Marker Name'] }}
-        span.time {{ chapter['In'] }}
-  figure.video
-    video(:src="videour", type="video/mp4", autoplay, controls)
-</template>
 
 <style lang="sass" scoped>
 @use "sass:math"
