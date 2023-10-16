@@ -2,7 +2,7 @@
 .demo-video 
   sgs-scrollpanel.chapters(v-if="props.showChapters")
     ul
-      li.chapter(v-for="chapter in chapters" :key=chapter['Marker Name'] v-tooltip.right="{ value: chapter['Marker Name']}" :class="{ current: isCurrentChapter(chapter) }")
+      li.chapter(v-for="chapter,i in chapters" :key=i v-tooltip.right="{ value: chapter['Marker Name']}" :class="{ current: isCurrentChapter(chapter) }")
         i.material-icons.outline play_arrow
         a.name(@click="currentChapter = chapter") {{ chapter['Marker Name'] }}
         span.time {{ chapter['In'] }}
