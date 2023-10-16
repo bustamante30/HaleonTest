@@ -1,14 +1,52 @@
+<template lang="pug">
+.cart-order
+  h2
+    span {{ order.brandName }}
+    span.separator |
+    span {{ order.description }}
+  .summary
+    .thumbnail
+      prime-image.image(:src="order.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+    .details
+      .f
+        label Item Code
+        span {{ order.itemCode }}
+      .f
+        label Pack Type
+        span {{ order.packType }}
+      .f
+        label Product Weight
+        span {{ order.weight }}
+      .f
+        label Printer
+        span {{ order.printerName }}
+      .f
+        label Shipping Address
+        span  {{ getShippingAddress(order)}}
+      a.specs(@click="toggleColors") View Specs
+      .colors(v-if="isSpecsVisible")
+        colors-table.p-datatable-sm(:config="config" :data="colors")
+      footer
+        .secondary-actions
+        .actions
+          sgs-button.sm.secondary(:id="`view-order-${order.id}`" label="View Order"  @click="goto(`/dashboard/${order.id}`)" )
+          sgs-button.sm.secondary(:id="`audit-order-${order.id}`" v-tooltip.bottom="{ value: 'View Audit' }"  icon="visibility"  @click="auditOrder(order)" )
+          sgs-button.sm.alert.secondary(:id="`discard-order-${order.id}`"  v-tooltip.bottom="{ value: 'Discard Order' }"  icon="delete"  @click="discardOrder(order)" )
+  prime-dialog.audit(:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
+    template(#header)
+      header
+        h4 Reorder Audit - {{auditReorderId}}
+    reorder-audit.audit(:data="auditData")
+</template>
+
 <script setup>
 import { ref, computed } from "vue";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import ReorderAudit from "@/components/orders/ReorderAudit.vue";
 import config from "@/data/config/color-table";
-import { useColorsStore } from "@/stores/colors";
 import router from "@/router";
 import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
-import { useNotificationsStore } from "@/stores/notifications";
-import { renderToString } from "@vue/test-utils";
 import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
@@ -18,9 +56,7 @@ const props = defineProps({
   },
 });
 
-const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
-const colorsStore = useColorsStore();
 const colors = computed(() => props.order.colors);
 const isSpecsVisible = ref(false);
 const cartStore = useCartStore();
@@ -58,12 +94,7 @@ async function discardOrder(order) {
     reject: () => {},
   });
 }
-function pendingOrderSets(colors) {
-  let result = true;
-  for (let i = 0; i < colors.length; i++)
-    if (colors[i].sets > 0) result = false;
-  return result;
-}
+
 function getShippingAddress(order) {
   if (!order.customerContacts) {
     return "No printer site provided";
@@ -73,47 +104,6 @@ function getShippingAddress(order) {
     : "";
 }
 </script>
-
-<template lang="pug">
-.cart-order
-  h2
-    span {{ order.brandName }}
-    span.separator |
-    span {{ order.description }}
-  .summary
-    .thumbnail
-      prime-image.image(:src="order.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-    .details
-      .f
-        label Item Code
-        span {{ order.itemCode }}
-      .f
-        label Pack Type
-        span {{ order.packType }}
-      .f
-        label Product Weight
-        span {{ order.weight }}
-      .f
-        label Printer
-        span {{ order.printerName }}
-      .f
-        label Shipping Address
-        span  {{ getShippingAddress(order)}}
-      a.specs(@click="toggleColors") View Specs
-      .colors(v-if="isSpecsVisible")
-        colors-table.p-datatable-sm(:config="config" :data="colors")
-      footer
-        .secondary-actions
-        .actions
-          sgs-button.sm.secondary(label="View Order" @click="goto(`/dashboard/${order.id}`)" :id="`view-order-${order.id}`")
-          sgs-button.sm.secondary(icon="visibility" @click="auditOrder(order)" v-tooltip.bottom="{ value: 'View Audit' }"  :id="`audit-order-${order.id}`")
-          sgs-button.sm.alert.secondary(icon="delete" @click="discardOrder(order)" v-tooltip.bottom="{ value: 'Discard Order' }"  :id="`discard-order-${order.id}`")
-  prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
-    template(#header)
-      header
-        h4 Reorder Audit - {{auditReorderId}}
-    reorder-audit.audit(:data="auditData")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
