@@ -297,14 +297,6 @@ function createPmOrder() {
   sendToPmStore.getPlateTypes();
 }
 
-function resetSets(orderToAdd: any) {
-  orderToAdd.colors.forEach((color) => {
-    color.sets = 0;
-    color.plateType.forEach((plate) => {
-      plate.sets = 0;
-    });
-  });
-}
 async function addToCart(order: any) {
   confirm.require({
     message: "Do you want to add more orders to the cart?",
@@ -337,15 +329,7 @@ async function addToCart(order: any) {
           );
         }
       } else {
-        let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-        resetSets(orderToAdd);
-        if (await cartStore.addToCart(orderToAdd)) {
-          notificationsStore.addNotification(
-            `Success`,
-            "Order added to the cart successfully",
-            { severity: "success" },
-          );
-        }
+        addOrderToCart(order.sgsId);
       }
       ordersStore.loading.ordersList = false;
     },
@@ -441,28 +425,34 @@ async function addMultipleToCart(values: any) {
         );
       }
     } else {
-      let orderToAdd = await ordersStore.getOrderById(order.sgsId);
-      resetSets(orderToAdd);
-      if (await cartStore.addToCart(orderToAdd)) {
-        notificationsStore.addNotification(
-          `Sucesss`,
-          "Success adding the order #" + order.sgsId,
-          { severity: "success" },
-        );
-      } else {
-        notificationsStore.addNotification(
-          `Error`,
-          "Error adding to the cart #" + order.sgsId,
-          { severity: "error" },
-        );
-      }
+      addOrderToCart(order.sgsId);
       order.selected = false;
     }
   }
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
 }
-
+async function addOrderToCart(sgsId: any) {
+  ordersStore.getOrderById(sgsId).then((orderToAdd: any) => {
+    ordersStore.getEditableColors(sgsId, orderToAdd).then((result: any) => {
+      console.log("order with lens:", orderToAdd);
+      cartStore.addToCart(orderToAdd).then((result: boolean) => {
+        if (result)
+          notificationsStore.addNotification(
+            `Sucesss`,
+            "Success adding the order #" + sgsId,
+            { severity: "success" },
+          );
+        else
+          notificationsStore.addNotification(
+            `Error`,
+            "Error adding to the cart #" + sgsId,
+            { severity: "error" },
+          );
+      });
+    });
+  });
+}
 async function handleOrderValidation(data: any) {
   const result = await ReorderService.validateOrder(data.originalOrderId);
   if (result === false && showMyOrders.value === false) {
