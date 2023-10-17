@@ -1,11 +1,29 @@
+<template lang="pug">
+span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="config.title ? get(data, config.field) : null")
+  span.thumb(v-if="config.thumb")
+    img(:src="get(data, config.thumb)")
+  span(v-if="config.type === 'date'") {{ formatDate(get(data, config.field)) }}
+  span(v-else-if="config.type === 'badge'")
+    span.badge(v-if="get(data, config.field)" :class="get(data, config.field).key") {{ get(data, config.field).label }}
+  span(v-else-if="config.type === 'link'")
+    a(@click="navigate(config, data)") {{ get(data, config.field) }}
+  span.image(v-else-if="config.type === 'image'")
+    prime-image(:src="get(data, config.field)" alt="Image" preview :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
+  span(v-else-if="config.type === 'edit-sets'")
+    prime-inputnumber.sm(show-buttons button-layout="horizontal" :step="1" :min="0" :max="config.max" :model-value="value" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @update:model-value="update")
+  span(v-else-if="config.type === 'lookup'")
+    sgs-lookup(:model-value="value && value.value ? value.value : null" :edit="data.isEditable" :options="optionValues" :option-label="optionLabelKey" :option-value="optionValueKey" @update:model=value="update")
+  span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
+  span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
+
+</template>
+
 <script setup>
 import { get } from "lodash";
 import { DateTime } from "luxon";
 import { computed } from "vue";
 import SgsLookup from "@/components/ui/Lookup.vue";
 import router from "@/router";
-import ReorderService from "@/services/ReorderService";
-import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
   config: {
@@ -27,8 +45,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update", "ordervalidation"]);
-const notificationsStore = useNotificationsStore();
-
 const value = computed(() => get(props.data, props.config.field));
 // const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
 const optionKey = computed(() => get(props.config, "options.key") || null);
@@ -87,26 +103,6 @@ async function navigate(config, data) {
   }
 }
 </script>
-
-<template lang="pug">
-span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="config.title ? get(data, config.field) : null")
-  span.thumb(v-if="config.thumb")
-    img(:src="get(data, config.thumb)")
-  span(v-if="config.type === 'date'") {{ formatDate(get(data, config.field)) }}
-  span(v-else-if="config.type === 'badge'")
-    span.badge(v-if="get(data, config.field)" :class="get(data, config.field).key") {{ get(data, config.field).label }}
-  span(v-else-if="config.type === 'link'")
-    a(@click="navigate(config, data)") {{ get(data, config.field) }}
-  span.image(v-else-if="config.type === 'image'")
-    prime-image(:src="get(data, config.field)" alt="Image" preview :imageStyle="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
-  span(v-else-if="config.type === 'edit-sets'")
-    prime-inputnumber.sm(showButtons buttonLayout="horizontal" :step="1" :min="0" :max="config.max" :modelValue="value" @update:modelValue="update" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus")
-  span(v-else-if="config.type === 'lookup'")
-    sgs-lookup(:modelValue="value && value.value ? value.value : null" :edit="data.isEditable" @update:modelValue="update" :options="optionValues" :optionLabel="optionLabelKey" :optionValue="optionValueKey")
-  span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
-  span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

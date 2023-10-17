@@ -1,21 +1,13 @@
-import Message from 'primevue/message';
-
+<!-- eslint-disable vue/multi-word-component-names -->
 <template lang="pug">
 .p-message-info
   message.nomargin(:closable='true' sticky='' life=3000) Welcome To Image Carrier Reorder
 </template>
 
-<script>
-export default {
-  name: "Welcome",
-  props: ["user"],
-  data() {
-    return {
-      dialogVisible: true,
-    };
-  },
-};
+<script setup>
+import Message from "primevue/message";
 </script>
+
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 .nomargin

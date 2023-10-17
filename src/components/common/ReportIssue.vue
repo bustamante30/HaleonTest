@@ -1,19 +1,71 @@
+<template lang="pug">
+sgs-scrollpanel.report-issue
+  .form
+    .hint
+      p
+        small Report an Issue to the support team
+        small
+          label.required Indicates required
+      p
+        span Please describe the nature of your problem in the fields below
+    .f
+      label.required
+        span Open on behalf of this user
+        span.tip(v-tooltip.right="{ value: 'Individual reporting the issue' }")
+          i.material-icons help_outline
+      strong.value {{ props.userName? props.userName : loggedInUserName }}
+    .f
+      label.required
+        span Which Photon Application are you reporting an issue on?
+      strong.value {{ issue.application }}
+    .f
+      label.required
+        span Please select your issue from the following options
+      prime-dropdown(v-model="issue.issueType" :options="issueTypes" placeholder="-- None --")
+    .field-group
+      .f
+        label.required
+          span Browser
+        prime-dropdown(v-model="issue.browser" :options="browsers" placeholder="-- None --"  )
+      .f
+        label.required
+          span Browser Versions
+        prime-inputtext(v-model="issue.browserVersion")
+    .f
+      label.required
+        span Briefly describe the issue
+        span.tip(v-tooltip.right="{ value: 'Tell us what issue you are experiencing' }")
+          i.material-icons help_outline
+      prime-textarea(v-model="issue.description")
+    .f
+      label
+        span Include support material (screen image / recording) if needed
+      label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+        input#files(type="file" multiple @input="handleInput($event)")
+        span Drag &amp; Drop files here ...
+      .upload(v-if="validFiles.length > 0")
+        h4 Uploaded Files:
+        ui.files
+          li(v-for="(file, index) in validFiles" :key="file")
+            .name {{ file.filename }}
+            sgs-button.delete.alert.secondary.sm(:id="`delete-file-${index}`" icon="delete" @click="onDeleteClick(file,index)")
+
+  template(#footer)
+    footer
+      .actions
+        sgs-button#close.default.sm(label="Cancel" @click="emit('close')")
+        sgs-button#submit-report(label="Submit" @click="onSubmit()")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script lang="ts" setup>
 import ReportIssueService from "@/services/ReportIssueService";
 import { useNotificationsStore } from "@/stores/notifications";
-import JSZip from "jszip";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-import { useSendToPmStore } from "@/stores/send-to-pm";
-import {
-  FileUploadService,
-  type FileUploadResponse,
-  type FileDelete,
-} from "@/services/FileUploadService";
 import * as Constants from "@/services/Constants";
 
 const emit = defineEmits(["close"]);
-
 const issueTypes = ref(Constants.ISSUE_TYPE);
 const browsers = ref(Constants.BROWSERS);
 const notificationsStore = useNotificationsStore();
@@ -23,7 +75,7 @@ const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const userName = isb2cUserLoggedIn
+const loggedInUserName = isb2cUserLoggedIn
   ? computed(() => authb2cStore.currentB2CUser.displayName)
   : computed(() => authStore.currentUser.displayName);
 
@@ -36,7 +88,7 @@ const props = defineProps({
 type ValidFiles = {
   filename: string;
   contentType: string;
-  contents: any;
+  contents: unknown;
 };
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -49,8 +101,6 @@ const issue = ref({
   description: null,
   attachments: [],
 });
-const error = ref("");
-const showError = ref(false);
 
 function onSubmit() {
   const validationErrors = validateForm();
@@ -62,7 +112,7 @@ function onSubmit() {
     );
   } else {
     closeForm();
-    reportIssue(issue.value);
+    reportIssue();
   }
 }
 
@@ -87,7 +137,7 @@ function validateForm() {
   return errorMessages;
 }
 
-async function reportIssue(report?: any) {
+async function reportIssue() {
   const userName = await getUserName();
   let result = await ReportIssueService.submitIssue(
     issue.value,
@@ -107,11 +157,11 @@ async function reportIssue(report?: any) {
   }
 }
 
-async function blobToBase64(blob: any) {
+async function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = (reader.result as any).split(",")[1];
+      const base64String = (reader.result as string).split(",")[1];
       resolve(base64String);
     };
     reader.onerror = reject;
@@ -120,31 +170,28 @@ async function blobToBase64(blob: any) {
 }
 
 async function getUserName() {
-  let displayName = "" ;
+  let displayName = "";
   if (isUserLoggedIn.value) {
-    displayName = (await authStore.currentUser.displayName) as any;
+    displayName = await authStore.currentUser.displayName;
   }
   if (isb2cUserLoggedIn.value) {
-    displayName = (await authb2cStore.currentB2CUser.displayName) as any;
+    displayName = await authb2cStore.currentB2CUser.displayName;
   }
   return displayName;
 }
 
-function onDragOver(event: any) {
+function onDragOver(event: DragEvent) {
   event.preventDefault();
-}
-function onDragEnter(event: any) {
-  event.preventDefault();
-}
-function onDragLeave(event: any) {
-  event.preventDefault();
-}
-function handleInput(e: any) {
-  const files = Array.from(e.target.files);
-  addFiles(files);
 }
 
-function isValidFileType(file: any) {
+function handleInput(e) {
+  const files = e.target.files;
+  if (files) {
+    addFiles(Array.from(files));
+  }
+}
+
+function isValidFileType(file) {
   return (
     file.name.toLowerCase().endsWith(".exe") ||
     file.name.toLowerCase().endsWith(".bat") ||
@@ -159,14 +206,14 @@ function isValidFileType(file: any) {
   );
 }
 
-async function onDrop(event: any) {
+async function onDrop(event) {
   event.preventDefault();
   const fileList = Array.from(event.dataTransfer.files);
   addFiles(fileList);
 }
 
-async function addFiles(files: any) {
-  const uploadPromises = files.map(async (file: any) => {
+async function addFiles(files) {
+  const uploadPromises = files.map(async (file) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
         Constants.INVALID_FILE,
@@ -202,7 +249,7 @@ async function addFiles(files: any) {
   }
 }
 
-async function convertToBase64(file: any) {
+async function convertToBase64(file) {
   return await blobToBase64(file);
 }
 const removeItemByProperty = (index: number) => {
@@ -220,65 +267,6 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   );
 }
 </script>
-
-<template lang="pug">
-sgs-scrollpanel.report-issue
-  .form
-    .hint
-      p
-        small Report an Issue to the support team
-        small
-          label.required Indicates required
-      p
-        span Please describe the nature of your problem in the fields below
-    .f
-      label.required
-        span Open on behalf of this user
-        span.tip(v-tooltip.right="{ value: 'Individual reporting the issue' }")
-          i.material-icons help_outline
-      strong.value {{ userName }}
-    .f
-      label.required
-        span Which Photon Application are you reporting an issue on?
-      strong.value {{ issue.application }}
-    .f
-      label.required
-        span Please select your issue from the following options
-      prime-dropdown(:options="issueTypes" v-model="issue.issueType" placeholder="-- None --")
-    .field-group
-      .f
-        label.required
-          span Browser
-        prime-dropdown(:options="browsers" v-model="issue.browser" placeholder="-- None --"  )
-      .f
-        label.required
-          span Browser Versions
-        prime-inputtext(v-model="issue.browserVersion")
-    .f
-      label.required
-        span Briefly describe the issue
-        span.tip(v-tooltip.right="{ value: 'Tell us what issue you are experiencing' }")
-          i.material-icons help_outline
-      prime-textarea(v-model="issue.description")
-    .f
-      label
-        span Include support material (screen image / recording) if needed
-      label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
-        input#files(type="file" multiple @input="handleInput($event)")
-        span Drag &amp; Drop files here ...
-      .upload(v-if="validFiles.length > 0")
-        h4 Uploaded Files:
-        ui.files
-          li(v-for="(file, index) in validFiles" :key="file")
-            .name {{ file.filename }}
-            sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
-
-  template(#footer)
-    footer
-      .actions
-        sgs-button#close.default.sm(label="Cancel" @click="emit('close')")
-        sgs-button#submit-report(label="Submit" @click="onSubmit()")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

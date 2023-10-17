@@ -1,11 +1,12 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template lang="pug">
+.block 
+  spinner
+</template>
+
 <script setup>
 import Spinner from "@/components/ui/Spinner.vue";
 </script>
-
-<template lang="pug">
-.block 
-    spinner
-</template>
 
 <style>
 .block {

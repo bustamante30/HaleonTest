@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import MenuButton from "./menu/MenuButton.vue";
 import MenuPopup from "./menu/MenuPopup.vue";
@@ -12,9 +13,10 @@ const props = defineProps({
 
 <template lang="pug">
 .menu
-  template(v-for="menuitem, i in menu" :key="i")
+  // eslint-disable-next-line vue/no-v-for-template-key
+  template(v-for="menuitem, i in props.menu" :key="i")
     menu-popup(v-if="menuitem.items" :menuitem="menuitem")
-    menu-button(v-else="menuitem.items" :menuitem="menuitem")
+    menu-button(v-else :menuitem="menuitem")
 </template>
 
 <style lang="sass" scoped>

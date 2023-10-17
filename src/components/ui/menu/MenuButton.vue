@@ -1,3 +1,8 @@
+<template lang="pug">
+span.menu-button
+  sgs-button.default(:id="`menu-button-${menuitem.label}`" type="button" :label="menuitem.label" @click="action")
+</template>
+
 <script setup>
 import router from "@/router";
 
@@ -18,11 +23,6 @@ function action() {
   }
 }
 </script>
-
-<template lang="pug">
-span.menu-button
-  sgs-button.default(type="button" :label="menuitem.label" @click="action" :id="`menu-button-${menuitem.label}`")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

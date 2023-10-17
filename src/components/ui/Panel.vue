@@ -1,3 +1,17 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template lang="pug">
+.panel
+  header.panel-header(@click="toggle")
+    h4(v-if="header") {{ header }}
+    slot(name="header")
+    span.expander
+      span.material-icons.outline(v-if="isExpanded") expand_less
+      span.material-icons.outline(v-else) expand_more
+
+  main.panel-content(v-if="isExpanded")
+    slot
+</template>
+
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 
@@ -12,11 +26,11 @@ const props = defineProps({
   },
 });
 
-let isExpanded = ref(props.expanded) as any;
+let isExpanded = ref(props.expanded);
 
 watch(
   () => props.expanded,
-  (value) => {
+  () => {
     isExpanded.value = props.expanded;
   },
 );
@@ -25,19 +39,6 @@ function toggle() {
   isExpanded.value = !isExpanded.value;
 }
 </script>
-
-<template lang="pug">
-.panel
-  header.panel-header(@click="toggle")
-    h4(v-if="header") {{ header }}
-    slot(name="header")
-    span.expander
-      span.material-icons.outline(v-if="isExpanded") expand_less
-      span.material-icons.outline(v-else) expand_more
-
-  main.panel-content(v-if="isExpanded")
-    slot
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

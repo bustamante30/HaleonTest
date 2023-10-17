@@ -1,7 +1,7 @@
 <template lang="pug">
 .filter-tokens
-  template(v-for="token in tokens")
-    .token(v-if="token && token.value && (token.type === 'imageCarrierCodeType' ? token.code : true)" )
+  template(v-for="token in props.tokens")
+    .token(v-if="token && token.value && (token.type === 'imageCarrierCodeType' ? token.code : true)" :key="token.value" )
       label {{ token.short }}
       span.value(v-if="token.type === 'imageCarrierCodeType'") {{ token.value.type }} - {{ token.value.code }}
       span.value(v-else) {{ token.value }}
@@ -13,7 +13,7 @@
 const props = defineProps({
   tokens: {
     type: Array,
-    defult: () => [],
+    default: () => [],
   },
 });
 </script>

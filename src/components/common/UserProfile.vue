@@ -1,14 +1,18 @@
+<template lang="pug">
+.user-profile
+  span.avatar(@click="togglePopup()") {{ initials }}
+  .mask(v-if="isPopupVisible" @click="togglePopup")
+  .popup(v-if="isPopupVisible")
+    h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}
+      h6 {{ authb2cStore.currentB2CUser.email ? authb2cStore.currentB2CUser.email : (authStore.currentUser.email ||'User@gmail.com') }}
+      footer
+        sgs-button#logout.sm(label="Logout" @click="logout()")
+</template>
+
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
-
-const props = defineProps({
-  user: {
-    type: Object,
-    default: () => ({ initials: "AL" }),
-  },
-});
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -49,6 +53,11 @@ const initials = computed(() => {
 
 const isPopupVisible = ref(false);
 
+watch(
+  () => [isUserLoggedIn, isb2cUserLoggedIn],
+  () => {},
+);
+
 function togglePopup() {
   isPopupVisible.value = !isPopupVisible.value;
 }
@@ -61,24 +70,7 @@ async function logout() {
     await authb2cStore.logout();
   }
 }
-
-watch(
-  () => [isUserLoggedIn, isb2cUserLoggedIn],
-  ([]) => {},
-);
 </script>
-
-<template lang="pug">
-.user-profile
-  span.avatar(@click="togglePopup()") {{ initials }}
-  .mask(v-if="isPopupVisible" @click="togglePopup")
-  .popup(v-if="isPopupVisible")
-   h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}
-    h6 {{ authb2cStore.currentB2CUser.email ? authb2cStore.currentB2CUser.email : (authStore.currentUser.email ||'User@gmail.com') }}
-    footer
-      sgs-button#logout.sm(label="Logout" @click="logout()")
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

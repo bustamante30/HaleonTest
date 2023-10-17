@@ -202,7 +202,7 @@ export const useOrdersStore = defineStore("ordersStore", {
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
       const order =
-        orderType === "success" || state.isCancel === true
+        orderType === "success" || state.isCancel
           ? state.successfullReorder
           : state.selectedOrder;
 

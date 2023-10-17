@@ -1,3 +1,17 @@
+<template lang="pug">
+header.app-header
+  app-logo.logo(:size="1.5")
+  .tools
+    nav.app-navigation
+      a.dashboardLink(@click="redirect('/dashboard')") Dashboard
+      sgs-menu(:menu="menu")
+      span.separator
+      .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
+        router-link.cart(v-badge.danger="cartCount || '0'" to="/cart")
+          span.material-icons.outline shopping_cart      
+    user-profile
+</template>
+
 <script setup>
 import AppLogo from "./AppLogo.vue";
 import UserProfile from "./UserProfile.vue";
@@ -64,20 +78,6 @@ async function redirect(path) {
   router.push(`${path}?q=${Date.now()}`);
 }
 </script>
-
-<template lang="pug">
-header.app-header
-  app-logo.logo(:size="1.5")
-  .tools
-    nav.app-navigation
-      a.dashboardLink(@click="redirect('/dashboard')") Dashboard
-      sgs-menu(:menu="menu")
-      span.separator
-      .reorder-cart(v-tooltip.bottom="{ value: 'Reorder Cart' }")
-        router-link.cart(to="/cart" v-badge.danger="cartCount || '0'")
-          span.material-icons.outline shopping_cart      
-    user-profile
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
