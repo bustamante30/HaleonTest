@@ -12,7 +12,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(show-buttons button-layout="horizontal" :step="1" :min="0" :max="config.max" :model-value="value" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @update:model-value="update")
   span(v-else-if="config.type === 'lookup'")
-    sgs-lookup(:model-value="value && value.value ? value.value : null" :edit="data.isEditable" :options="optionValues" :option-label="optionLabelKey" :option-value="optionValueKey" @update:model=value="update")
+    sgs-lookup(:model-value="value && value.value ? value.value : null" :edit="data.isEditable" :options="optionValues" :option-label="optionLabelKey" :option-value="optionValueKey" @update:model-value="update")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
   span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
 
