@@ -1,9 +1,26 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+.section.providers
+  .identity-provider
+    .fields
+      .f
+        h2.m-b-15.flex-center Identity Provider
+        .providers.m-b-15.flex-center
+          .provider(v-for="(p, i) in providers" :key="i")
+            prime-radiobutton.square.sm(v-model="identityProviderId" name="provider" :inputId="p.value" :value="p.value")
+            label {{ p.label }}
+      .federateds.m-b-15.flex-center(v-if="identityProviderId !== 1")
+        .f.radio(v-for="platform,i in federated" :key="i")
+          prime-radiobutton.square(v-model="identityTypeId" name="federated" :inputId="platform.value" :value="platform.value")
+          label(:for="platform.value") {{ platform.label }}
+</template>
+
+<!-- eslint-disable no-undef -->
 <script lang="ts" setup>
-import { computed, ref } from "vue";
 import { providers, federated } from "@/data/config/identitiy-providers";
 import { useUsersStore } from "@/stores/users";
 
-const props = defineProps({
+defineProps({
   data: {
     type: Object,
     default: () => ({ type: "photon", settings: {} }),
@@ -13,33 +30,7 @@ const props = defineProps({
 const usersStore = useUsersStore();
 const identityProviderId = computed(() => usersStore.identityProviderId);
 const identityTypeId = computed(() => usersStore.identityTypeId);
-let provider = ref({
-  identityProviderId: 2,
-  identityTypeId: 3,
-});
-
-// const providerName = computed(() => {
-//   const result = providers.find((p: any) => p.value === provider.value)
-//   console.log("providers:" + providers)
-//   return result ? result.label : null
-// })
 </script>
-
-<template lang="pug">
-.section.providers
-  .identity-provider
-    .fields
-      .f
-        h2.m-b-15.flex-center Identity Provider
-        .providers.m-b-15.flex-center
-          .provider(v-for="(p, i) in providers")
-            prime-radiobutton.square.sm(v-model="identityProviderId" name="provider" :inputId="p.value" :value="p.value")
-            label {{ p.label }}
-      .federateds.m-b-15.flex-center(v-if="identityProviderId !== 1")
-        .f.radio(v-for="platform in federated")
-          prime-radiobutton.square(v-model="identityTypeId" name="federated" :inputId="platform.value" :value="platform.value")
-          label(:for="platform.value") {{ platform.label }}
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

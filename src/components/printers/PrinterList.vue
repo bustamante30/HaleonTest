@@ -1,14 +1,38 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+.list(v-if="printers && printers.data")
+  sgs-scrollpanel.printers
+    template(#header)
+      header
+        .search
+          .input
+            prime-auto-complete.search-input(v-model="query" placeholder="Search Printers ..." name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="searchPrinter")
+            span.material-icons.outline search
+        sgs-button#add-printer.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
+    .printer(v-for="(printer, i) in printers.data" :key=i :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")
+      span {{ printer.name }}
+      span.summary
+        small.users {{ printer.summary.admins }} Users
+        small.identity-provider {{ printer.summary.identityProvider }}
+    template(#footer)
+      prime-paginator(
+        :totalRecords="printers.total"
+        :rows="printers.perPage"
+        :pageLinkSize="3"
+        template="PrevPageLink CurrentPageReport NextPageLink"
+        @update:first="getPrinters")
+
+  printer-form(v-if="isPrinterFormVisible" @save="saveprinter"  @close="isPrinterFormVisible = false")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import { faker } from "@faker-js/faker";
-import { ref, onBeforeMount, watch } from "vue";
 import PrinterForm from "./PrinterForm.vue";
-import { useAuthStore } from "@/stores/auth";
-import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useUsersStore } from "@/stores/users";
 import router from "@/router";
 import { useNotificationsStore } from "@/stores/notifications";
 
-const props = defineProps({
+defineProps({
   printers: {
     type: Object,
     default: () => {
@@ -33,7 +57,6 @@ const props = defineProps({
 const notificationsStore = useNotificationsStore();
 const usersStore = useUsersStore();
 const emit = defineEmits(["select", "fetch", "searchPrinter"]);
-
 let isPrinterFormVisible = ref(false);
 const query = ref();
 
@@ -70,32 +93,6 @@ async function saveprinter(printerFormRequest) {
   }
 }
 </script>
-
-<template lang="pug">
-.list(v-if="printers && printers.data")
-  sgs-scrollpanel.printers
-    template(#header)
-      header
-        .search
-          .input
-            prime-auto-complete.search-input(placeholder="Search Printers ..." v-model="query" name="search_printers" inputId="search_printers" :suggestions="suggestions" @complete="searchPrinter")
-            span.material-icons.outline search
-        sgs-button#add-printer.sm(label="Add Printer" icon="add" @click="isPrinterFormVisible = true")
-    .printer(v-for="(printer, i) in printers.data" :class="{ selected: selected && (printer.id === selected.id) }" @click="selectPrinter(printer.id)")
-      span {{ printer.name }}
-      span.summary
-        small.users {{ printer.summary.admins }} Users
-        small.identity-provider {{ printer.summary.identityProvider }}
-    template(#footer)
-      prime-paginator(
-        :totalRecords="printers.total"
-        :rows="printers.perPage"
-        :pageLinkSize="3"
-        @update:first="getPrinters"
-        template="PrevPageLink CurrentPageReport NextPageLink")
-
-  printer-form(v-if="isPrinterFormVisible" @save="saveprinter"  @close="isPrinterFormVisible = false")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

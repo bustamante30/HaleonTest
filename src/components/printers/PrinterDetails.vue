@@ -1,13 +1,37 @@
+<!-- eslint-disable vue/v-on-event-hyphenation --><!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+sgs-scrollpanel.section.printer-details(:scroll="false")
+  template(#header)
+    header
+      h2 {{ role && role === 'super' ? printer.name : 'Manage Users' }}
+      nav.tabs
+        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users')")
+          span.f(v-if=printer && printer.summary) Users [{{ printer.summary.users }}]
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
+          span(v-if=printer && printer.summary) Internal Users [{{ printer.summary.internalUsers }}]
+        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings')")
+          span Settings
+  .toolbar(v-if="['users', 'internal'].includes(tab)")
+    .actions
+      .search
+        .input
+          prime-auto-complete.search-input(v-model="query" placeholder="Search Users ..." name="search_users" inputId="search_users" :suggestions="suggestions" @complete="search")
+          span.material-icons.outline search
+      sgs-button#add-user.sm(label="Add User" icon="add" @click="create")
+  .content
+    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" :className="[ user ? 'lay-low' : '']" @editUser="edit" @deleteUser="deleteUser" @resend="resend")
+    user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
+    printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import { ref, watch, computed } from "vue";
 import { config as userConfig } from "@/data/config/user-table";
 import { config as internalUserConfig } from "@/data/config/internal-user-table";
 import UserTable from "./UserTable.vue";
 import PrinterProviders from "./PrinterProvider.vue";
-import { useUsersStore } from "@/stores/users";
-import router from "@/router";
 
-const props = defineProps({
+defineProps({
   printer: {
     type: Object,
     default: () => {},
@@ -25,13 +49,12 @@ const props = defineProps({
     default: () => [],
   },
 });
-const usersStore = useUsersStore();
-//printer = computed(() => usersStore.selected);
 const emit = defineEmits([
   "createUser",
   "editUser",
   "searchUser",
   "deleteUser",
+  "resend",
 ]);
 
 const tab = ref("users");
@@ -47,13 +70,12 @@ function selectTab(tabName) {
   tab.value = tabName;
 }
 
-function create(path) {
+function create() {
   emit("createUser");
 }
 
 function edit(user) {
   emit("editUser", user);
-  // router.push(`/users/${user.data.id}?role=super`)
 }
 
 function search(query) {
@@ -68,31 +90,6 @@ function resend(user) {
   emit("resend", user);
 }
 </script>
-
-<template lang="pug">
-sgs-scrollpanel.section.printer-details(:scroll="false")
-  template(#header)
-    header
-      h2 {{ role && role === 'super' ? printer.name : 'Manage Users' }}
-      nav.tabs
-        a.tab(:class="{ selected: tab === 'users'}" @click="selectTab('users')")
-          span.f(v-if=printer && printer.summary) Users [{{ printer.summary.users }}]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'internal'}" @click="selectTab('internal')")
-          span(v-if=printer && printer.summary) Internal Users [{{ printer.summary.internalUsers }}]
-        a.tab(v-if="role && role === 'super'" :class="{ selected: tab === 'settings'}" @click="selectTab('settings')")
-          span Settings
-  .toolbar(v-if="['users', 'internal'].includes(tab)")
-    .actions
-      .search
-        .input
-          prime-auto-complete.search-input(placeholder="Search Users ..." v-model="query" name="search_users" inputId="search_users" :suggestions="suggestions" @complete="search")
-          span.material-icons.outline search
-      sgs-button#add-user.sm(label="Add User" icon="add" @click="create")
-  .content
-    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" @editUser="edit" @deleteUser="deleteUser" @resend="resend" :className="[ user ? 'lay-low' : '']")
-    user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
-    printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

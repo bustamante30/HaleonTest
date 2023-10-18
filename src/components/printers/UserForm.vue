@@ -1,10 +1,45 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+.page.details
+  sgs-mask
+  .container(v-if="user")
+    sgs-scrollpanel(:top="0")
+      template(#header)
+        header
+          h1.title(v-if="title") {{ title }}
+          a.close(@click="handleClose")
+            span.material-icons.outline close
+      .card.summary
+        .card.details
+          .f
+            label(for="firstname") First Name
+            prime-inputtext(id="firstname" v-model="userForm.firstName" name="firstname")
+          .f
+            label(for="lastname") Last Name
+            prime-inputtext(id="lastname" v-model="userForm.lastName" name="lastname")
+          .f
+            label(for="email") Email
+            prime-inputtext(id="email" v-model="userForm.email" name="email")
+          .f.checkbox
+            prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
+            label(for="admin") Admin
+          .ext(v-if="currentUserType !== 'EXT'")
+            .user(v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref='isPrimaryPMDiv')
+              .f.checkbox
+                prime-checkbox.square(v-model=userForm.isPrimaryPM :binary=true name=primaryPM inputId=primaryPM)
+                label(for=primaryPM) Is Primary PM?
+      template(#footer)
+        footer
+          .secondary-actions &nbsp;
+          .actions
+            sgs-button#save-user(label="Save" @click="save")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import { ref, inject, computed, onBeforeMount, reactive, watch } from "vue";
-import SuggesterService from "@/services/SuggesterService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from "@/router";
-import { useUsersStore } from "@/stores/users";
 import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
@@ -25,7 +60,6 @@ watch(
     userForm.value = { ...props.user };
   },
 );
-const usersStore = useUsersStore();
 const notificationsStore = useNotificationsStore();
 
 const isPrimaryPMDiv = ref("");
@@ -35,7 +69,6 @@ const emit = defineEmits(["save"]);
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 let currentUserType = "";
-let userRole = "";
 if (authStore.currentUser.email != "") {
   if (
     authStore.currentUser?.userType !== undefined &&
@@ -58,18 +91,7 @@ function handleClose() {
   if (currentUserType === "INT") {
     router.push("/users?role=super");
   } else if (currentUserType === "EXT") {
-    //usersStore.user.id = null;
     router.push("/users");
-  }
-}
-
-//Function is used to verify the email id is external or internal
-//Any email with sgsco.com domain is considered as internal.
-function verifyInternalEmail() {
-  if (currentUserType !== "EXT") {
-    var email = userForm.value.email.trim().toLowerCase();
-    var display = email.endsWith("@sgsco.com") ? "block" : "none";
-    isPrimaryPMDiv.value.style.display = display;
   }
 }
 
@@ -105,47 +127,6 @@ function save() {
   emit("save", userForm);
 }
 </script>
-
-<template lang="pug">
-.page.details
-  sgs-mask
-  .container(v-if="user")
-    sgs-scrollpanel(:top="0")
-      template(#header)
-        header
-          h1.title(v-if="title") {{ title }}
-          a.close(@click="handleClose")
-            span.material-icons.outline close
-
-      .card.summary
-        .card.details
-          .f
-            label(for="firstname") First Name
-            prime-inputtext(v-model="userForm.firstName" name="firstname" id="firstname")
-          .f
-            label(for="lastname") Last Name
-            prime-inputtext(v-model="userForm.lastName" name="lastname" id="lastname")
-          .f
-            label(for="email") Email
-            prime-inputtext(v-model="userForm.email" name="email" id="email")
-          .f.checkbox
-            prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
-            label(for="admin") Admin
-          
-          <div v-if="currentUserType !== 'EXT'">
-            <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref="isPrimaryPMDiv">
-            .f.checkbox
-              prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
-              label(for="primaryPM") Is Primary PM?
-            </div>
-          </div>
-          
-      template(#footer)
-        footer
-          .secondary-actions &nbsp;
-          .actions
-            sgs-button#save-user(label="Save" @click="save")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
