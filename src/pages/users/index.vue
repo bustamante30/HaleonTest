@@ -1,7 +1,23 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<!-- eslint-disable vue/v-on-event-hyphenation -->
+<template lang="pug">
+.page.users
+  sgs-scrollpanel(:scroll="false")
+    template(v-if="role && role === 'super'" #header)
+      header.page-title
+        h1 Manage Users
+    main(:class="{ super: role && role === 'super' }")
+      .printers(v-if="role && role === 'super'")
+        printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
+      .users-content
+        sgs-scrollpanel(v-if="selected")
+          printer-details(:printer="selected" :user="user" :role="role" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" @searchUser ="searchUser")
+  router-view
+</template>
+
 <script setup>
 import { computed, ref, watch, provide, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import AppHeader from "@/components/common/AppHeader.vue";
 import PrinterList from "@/components/printers/PrinterList.vue";
 import PrinterDetails from "@/components/printers/PrinterDetails.vue";
 import { useUsersStore } from "@/stores/users";
@@ -44,7 +60,6 @@ async function selectPrinter(printer) {
 
 async function getPrinters(event) {
   const page = event ? event / 20 : 0;
-  // const perPage = (printers && printers.value ? printers.value.perPage : 20)
   await usersStore.getPrinters(page);
 }
 
@@ -57,7 +72,6 @@ function editUser(user) {
 }
 
 function searchUser(query) {
-  //getting printerId value
   if (authStore.currentUser.email != "") {
     if (
       authStore.currentUser?.userType !== undefined &&
@@ -152,21 +166,6 @@ function resend(user) {
   );
 }
 </script>
-<template lang="pug">
-.page.users
-  sgs-scrollpanel(:scroll="false")
-    template(v-if="role && role === 'super'" #header)
-      header.page-title
-        h1 Manage Users
-    main(:class="{ super: role && role === 'super' }")
-      .printers(v-if="role && role === 'super'")
-        printer-list(:printers="printers" :selected="selected" @select="selectPrinter" @fetch="getPrinters" @searchPrinter="searchPrinter")
-      .users-content
-        sgs-scrollpanel(v-if="selected")
-          printer-details(:printer="selected" @createUser="createUser" @editUser="editUser" @deleteUser="deleteUser" @resend="resend" :user="user" :role="role" @searchUser ="searchUser")
-  router-view
-</template>
-
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 .page.users

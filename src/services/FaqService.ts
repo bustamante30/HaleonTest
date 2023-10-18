@@ -7,11 +7,11 @@ export class FaqService {
   public static getFaq() {
     return httpService
       .get("v1/Faq")
-      .then((response: any) => {
+      .then((response) => {
         console.log("Get Successfully");
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error submitting files:", error);
         return false;
       });

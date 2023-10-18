@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import { useOrdersStore } from "./orders";
@@ -91,6 +92,7 @@ export const useCartStore = defineStore("cartStore", {
       console.log(colors);
       colors?.length &&
         colors?.forEach((color: any) => {
+          // eslint-disable-next-line no-unsafe-optional-chaining
           (color?.plateTypes).forEach((plate: any) => {
             flattenedColors.push({
               clientPlateColourRef: color.clientPlateColourRef,

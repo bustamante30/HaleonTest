@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
 import { faker } from "@faker-js/faker";
@@ -390,7 +391,7 @@ class ReorderService {
   public static getPdfs(sgsId: string) {
     return httpService
       .get<string>(`v1/Reorder/${sgsId.split("-")[0]}/pdfs`)
-      .then((response: Object) => {
+      .then((response: any) => {
         return response;
       })
       .catch((error: any) => {

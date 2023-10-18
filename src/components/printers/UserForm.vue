@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/attribute-hyphenation -->
 <template lang="pug">
 .page.details
   sgs-mask
@@ -21,21 +20,26 @@
             label(for="email") Email
             prime-inputtext(id="email" v-model="userForm.email" name="email")
           .f.checkbox
+            // eslint-disable-next-line vue/attribute-hyphenation
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
-          .ext(v-if="currentUserType !== 'EXT'")
-            .user(v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref='isPrimaryPMDiv')
-              .f.checkbox
-                prime-checkbox.square(v-model=userForm.isPrimaryPM :binary=true name=primaryPM inputId=primaryPM)
-                label(for=primaryPM) Is Primary PM?
+
+          // eslint-disable-next-line vue-pug/no-parsing-error
+          <div v-if="currentUserType !== 'EXT'">
+            <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref="isPrimaryPMDiv">
+            .f.checkbox
+              prime-checkbox.square(v-model="userForm.isPrimaryPM" :binary="true" name="primaryPM" inputId="primaryPM")
+              label(for="primaryPM") Is Primary PM?
+            </div>
+          </div>
+
       template(#footer)
         footer
           .secondary-actions &nbsp;
           .actions
             sgs-button#save-user(label="Save" @click="save")
 </template>
-
-<!-- eslint-disable no-undef -->
+<!-- eslint-disable @typescript-eslint/no-unused-vars --><!-- eslint-disable no-undef -->
 <script setup>
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";

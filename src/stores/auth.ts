@@ -2,8 +2,6 @@ import { defineStore } from "pinia";
 import { PublicClientApplication, type AccountInfo } from "@azure/msal-browser";
 import { useUserSessionStore } from "./usersession";
 import UserService from "@/services/userService";
-import jwt_decode from "jwt-decode";
-import { DateTime } from "luxon";
 import store from "store";
 import router from "@/router";
 
@@ -31,7 +29,7 @@ export const useAuthStore = defineStore("auth", {
       msalInstance: new PublicClientApplication(authConfig),
       accessToken: "",
       accessTokenUpdatedOn: new Date(),
-      accessTokenValidation: null as any,
+      accessTokenValidation: null,
       redirectAfterLogin: "/dashboard",
       isValidIdentityProvider: true,
     };
@@ -125,7 +123,7 @@ export const useAuthStore = defineStore("auth", {
           console.error(error);
         });
     },
-    async updateUserStore(tokenResponse: any) {
+    async updateUserStore(tokenResponse) {
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
@@ -133,6 +131,7 @@ export const useAuthStore = defineStore("auth", {
       const user = await UserService.getUserClaimInfo();
       if (user !== null) {
         localStorage.setItem("Claims", user.claims);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.currentUser = { ...this.currentUser, ...user } as any;
         localStorage.setItem("userType", this.currentUser.userType);
         this.currentUser.isLoggedIn = true;

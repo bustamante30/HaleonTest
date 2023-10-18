@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import type { SearchHistoryDto } from "@/models/SearchHistoryDto";
 import type { SearchFieldDto } from "@/models/SearchFieldDto";
@@ -53,7 +54,7 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
             }
           }
         });
-        const result = await SearchHistoryService.setSearchHistory(
+        await SearchHistoryService.setSearchHistory(
           searchRequest,
           isAdvanceSearch,
         );
@@ -74,7 +75,7 @@ export const useSearchhistoryStore = defineStore("searchHistory", {
           Value: keywordSearchValue,
         }));
       if (searchRequest.length > 0) {
-        const result = await SearchHistoryService.setSearchHistory(
+        await SearchHistoryService.setSearchHistory(
           searchRequest,
           isAdvanceSearch,
         );

@@ -14,7 +14,7 @@ class SearchHistoryService {
       .then((response: SearchFieldDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting search field: ", error);
         return [];
       });
@@ -28,7 +28,7 @@ class SearchHistoryService {
       .then((response: SearchDateDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting search field: ", error);
         return [];
       });
@@ -45,7 +45,7 @@ class SearchHistoryService {
       .then((response: SearchHistoryDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting search history: ", error);
         return [];
       });
@@ -63,7 +63,7 @@ class SearchHistoryService {
       .then((response: SearchHistoryDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error setting search history: ", error);
         return [];
       });

@@ -1,14 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UploadFileDto } from "@/models/UploadFileDto";
 import type { DeleteFileDto } from "@/models/DeleteFileDto";
 import ApiService from "../services/apiService";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
-
 const httpService = new ApiService(baseUrl);
-
-interface SubmitResponse {
-  success: boolean;
-}
 
 interface SendToPM {
   printerName?: string;

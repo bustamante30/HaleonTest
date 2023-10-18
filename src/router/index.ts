@@ -113,6 +113,7 @@ router.beforeEach((to, from, next) => {
 const validateToken = () => {
   try {
     const token = store.get("token");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decodedToken: any = jwt_decode(token);
     const tokenExpireTime = DateTime.fromMillis(
       parseInt(decodedToken?.exp + "000", 10),

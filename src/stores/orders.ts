@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   mapPhotonOrderDetail,
   validation,
@@ -479,11 +480,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             Array.isArray(result.reorderedData) &&
             result.reorderedData.length > 0
           ) {
-            const reorderedData = handleSortPagination(
-              result.reorderedData,
-              filters,
-              this.pageState,
-            );
+            // TODO: need to check if this is required
+            // const reorderedData = handleSortPagination(
+            //   result.reorderedData,
+            //   filters,
+            //   this.pageState,
+            // );
             result = {
               reorderedData: result.reorderedData,
               totalRecords: result.reorderedData.length,
@@ -609,16 +611,16 @@ export const useOrdersStore = defineStore("ordersStore", {
       );
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
-        const totalSets =
-          colour.plateType &&
-          colour.plateType.length &&
-          sum(
-            colour.plateType.map((plate: any) =>
-              plate.checkboxId === params.checkboxId
-                ? params.value
-                : plate.sets,
-            ),
-          );
+        // const totalSets =
+        //   colour.plateType &&
+        //   colour.plateType.length &&
+        //   sum(
+        //     colour.plateType.map((plate: any) =>
+        //       plate.checkboxId === params.checkboxId
+        //         ? params.value
+        //         : plate.sets,
+        //     ),
+        //   );
         this.selectedOrder.editionColors[selectedIndex] = {
           ...colour,
           plateType: [
@@ -783,7 +785,9 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     mapColorAndCustomerDetailsToOrder(
       details: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       statusId: number,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       plateTypes: any[],
     ) {
       const colors = Array.from((details && details?.colors) || []);
