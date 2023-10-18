@@ -1,12 +1,40 @@
+<template lang="pug">
+.colours-table.edit
+  data-table.p-datatable-sm(:value="colours")
+    template(#header)
+      header
+        h4 Colours
+        .actions
+          sgs-button#add-color.sm.secondary(icon="add" label="Add Colour" @click="addColour")
+    column()
+      template(#header)
+        label(:class="{ required: isMandatory }") Colour Name
+      template(#body="{ data }")
+        prime-inputtext.sm(v-model="data.name" placeholder="Enter color name" @change="emit('update', colours)")
+    column()
+      template(#header)
+        label(:class="{ required: isMandatory }") Plate Type
+      template(#body="{ data }")
+        prime-dropdown#plate-type(v-model="data.plateType" name="plate_type" :options="sendToPmstore.imageCarrierPlateTypes" option-label="plateTypeName" option-value="plateTypeName" placeholder="Select plate type"  @change="emit('update', colours)")
+    column( :header-style="stylify(5)" :body-style="stylify(5)")
+      template(#header)
+        label(:class="{ required: isMandatory }") Quantity
+      template(#body="{ data }")
+        prime-inputnumber.sm(v-model="data.quantity" show-buttons button-layout="horizontal" :step="1" :min="1" :max="10" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @change="emit('update', colours)")
+    column(:header-style="stylify(2)" :body-style="stylify(2)")
+      template(#body="{ data }")
+        .actions
+          sgs-button.sm.alert.secondary(:id="`remove-color-${data?.id}`" icon="delete" @click="removeColour(data)")
+</template>
+<!-- eslint-disable @typescript-eslint/no-explicit-any --><!-- eslint-disable no-undef -->
 <script lang="ts" setup>
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { faker } from "@faker-js/faker";
-import { ref, onBeforeMount, watch } from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useSendToPmStore } from "@/stores/send-to-pm";
-import { useNotificationsStore } from "@/stores/notifications";
 
-const props = defineProps({
+defineProps({
   isMandatory: {
     type: Boolean,
     default: false,
@@ -15,32 +43,8 @@ const props = defineProps({
 
 const colours = ref([] as any[]);
 const sendToPmstore = useSendToPmStore();
-const notificationsStore = useNotificationsStore();
 
 const emit = defineEmits(["update"]);
-
-onBeforeMount(() => {
-  // addColour()
-});
-
-function addColour() {
-  if (colours.value.length < 10) {
-    const newColour: any = {
-      id: faker.datatype.uuid(),
-      name: null,
-      quantity: 1,
-      plateType: null,
-    };
-    colours.value.push(newColour);
-    emit("update", colours.value);
-  } else {
-    notificationsStore.addNotification(
-      "Add Colours Limit Exceeded",
-      "Cannot add more than 10 colors",
-      { severity: "error", position: "top-right" },
-    );
-  }
-}
 
 function removeColour(
   colour: any = {
@@ -61,36 +65,6 @@ function stylify(width: number) {
     : { minWidth: "auto", maxWidth: "auto", flex: "1" };
 }
 </script>
-
-<template lang="pug">
-.colours-table.edit
-  data-table.p-datatable-sm(:value="colours")
-    template(#header)
-      header
-        h4 Colours
-        .actions
-          sgs-button#add-color.sm.secondary(@click="addColour" icon="add" label="Add Colour")
-    column()
-      template(#header)
-        label(:class="{ required: isMandatory }") Colour Name
-      template(#body="{ data }")
-        prime-inputtext.sm(v-model="data.name" @change="emit('update', colours)" placeholder="Enter color name")
-    column()
-      template(#header)
-        label(:class="{ required: isMandatory }") Plate Type
-      template(#body="{ data }")
-        prime-dropdown#plate-type(v-model="data.plateType" name="plate_type" :options="sendToPmstore.imageCarrierPlateTypes" optionLabel="plateTypeName" optionValue="plateTypeName" @change="emit('update', colours)"  placeholder="Select plate type")
-    column( :headerStyle="stylify(5)" :bodyStyle="stylify(5)")
-      template(#header)
-        label(:class="{ required: isMandatory }") Quantity
-      template(#body="{ data }")
-        prime-inputnumber.sm(v-model="data.quantity" showButtons buttonLayout="horizontal" :step="1" :min="1" :max="10" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" @change="emit('update', colours)")
-    column(:headerStyle="stylify(2)" :bodyStyle="stylify(2)")
-      template(#body="{ data }")
-        .actions
-          sgs-button.sm.alert.secondary(@click="removeColour(data)" icon="delete" :id="`remove-color-${data?.id}`")
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

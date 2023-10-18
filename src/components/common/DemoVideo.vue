@@ -1,6 +1,6 @@
 <template lang="pug">
 .demo-video 
-  sgs-scrollpanel.chapters(v-if="props.showChapters")
+  sgs-scrollpanel.chapters(v-if="showChapters")
     ul
       li.chapter(v-for="chapter,i in chapters" :key=i v-tooltip.right="{ value: chapter['Marker Name']}" :class="{ current: isCurrentChapter(chapter) }")
         i.material-icons.outline play_arrow
@@ -11,7 +11,7 @@
 </template>
 <script setup>
 import { ref, computed, onMounted } from "vue";
-const props = defineProps({
+defineProps({
   src: {
     type: String,
     default: null,

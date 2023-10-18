@@ -13,7 +13,7 @@ sgs-scrollpanel.report-issue
         span Open on behalf of this user
         span.tip(v-tooltip.right="{ value: 'Individual reporting the issue' }")
           i.material-icons help_outline
-      strong.value {{ props.userName? props.userName : loggedInUserName }}
+      strong.value {{ userName? userName : loggedInUserName }}
     .f
       label.required
         span Which Photon Application are you reporting an issue on?
@@ -79,7 +79,7 @@ const loggedInUserName = isb2cUserLoggedIn
   ? computed(() => authb2cStore.currentB2CUser.displayName)
   : computed(() => authStore.currentUser.displayName);
 
-const props = defineProps({
+defineProps({
   userName: {
     type: String,
     default: "",
@@ -161,7 +161,8 @@ async function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = (reader.result as string).split(",")[1];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const base64String = (reader.result as any).split(",")[1];
       resolve(base64String);
     };
     reader.onerror = reject;

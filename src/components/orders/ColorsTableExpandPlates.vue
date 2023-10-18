@@ -1,9 +1,22 @@
+<!-- eslint-disable vue/no-template-shadow -->
+<template lang="pug">
+.plates
+  data-table.plate-details.p-datatable-sm(:value="data" :data-key="config.dataKey")
+    column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :header-style="stylify(col.width)" :body-style="stylify(col.width)" :frozen="col.freeze ? true : false" :align-frozen="col.freeze")
+      template(#body="{ data }")
+        table-cell(:config="col" :data="data" :data-key="config.dataKey" :options="options" @update="updatePlate")
+    column
+      template(#body="{ data }")
+        sgs-button.sm.alert.secondary(:id="`remove-plate-${data[config?.dataKey]}`" icon="delete" @click="removePlate(data)")
+  .actions
+    sgs-button#add-plate.sm(icon="add" label="Add Plate Type" @click="addPlate")
+</template>
+
 <script lang="ts" setup>
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import TableActions from "@/components/ui/TableActions.vue";
 import TableCell from "@/components/ui/TableCell.vue";
-import { inject, computed } from "vue";
+import { inject } from "vue";
 
 const props = defineProps({
   colourId: {
@@ -24,9 +37,9 @@ const options = inject("options");
 
 const emit = defineEmits(["update", "add", "remove"]);
 
-const platesCount = computed(() => props.data && props.data.length);
+// const platesCount = computed(() => props.data && props.data.length);
 
-function stylify(width: any) {
+function stylify(width) {
   return width
     ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
     : { width: "auto", flex: "1" };
@@ -39,6 +52,7 @@ function updatePlate({
 }: {
   checkboxId: number;
   field: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }) {
   const { colourId } = props;
@@ -52,25 +66,12 @@ function addPlate() {
   if (colourId) emit("add", { colourId });
 }
 
-function removePlate(plate: any) {
+function removePlate(plate) {
   const { checkboxId } = plate;
   const { colourId } = props;
   emit("remove", { colourId, checkboxId });
 }
 </script>
-
-<template lang="pug">
-.plates
-  data-table.plate-details.p-datatable-sm(:value="data" :data-key="config.dataKey")
-    column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
-      template(#body="{ data }")
-        table-cell(:config="col" :data="data" :data-key="config.dataKey" @update="updatePlate" :options="options")
-    column
-      template(#body="{ data }")
-        sgs-button.sm.alert.secondary(@click="removePlate(data)" icon="delete" :id="`remove-plate-${data[config?.dataKey]}`")
-  .actions
-    sgs-button#add-plate.sm(icon="add" label="Add Plate Type" @click="addPlate")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

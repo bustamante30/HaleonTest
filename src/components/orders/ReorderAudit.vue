@@ -1,9 +1,12 @@
 <template lang="pug">
-data-table(:value="data" ref="dt" paginator :rows="rows" showGridlines)
+// eslint-disable-next-line vue/attribute-hyphenation
+data-table(ref="dt" :value="data" paginator :rows="rows" showGridlines)
     column(v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" )
     template(#empty)
         div No Audits found.
 </template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";

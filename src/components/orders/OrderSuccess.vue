@@ -1,5 +1,59 @@
+<template lang="pug">
+.order-success(v-if="selectedOrder")
+  sgs-scrollpanel
+    template(#header)
+      header(:class="{'cancelled': isOrderCancel }")
+        h1.title {{ isOrderCancel ? 'Order Cancel' : 'Thank you for your order' }}
+    .card.disclaimer
+      h1 Order Number: {{ selectedOrder.id }}
+      p(v-if="!isOrderCancel")
+        | The following plate re-order has been placed. &nbsp;
+        br/
+        | Your order is expected to be delivered on &nbsp;
+        em(v-if="selectedOrder.expectedDate") {{ expectedDate }}
+    .card.context
+      .f
+        label Order Date
+        span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
+      .f(v-if="selectedOrder.originalOrderId")
+        label Order Initated By
+        span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
+      .f(v-if="selectedOrder.weight")
+        label Weight
+        span {{ selectedOrder.weight }}
+      .f(v-if=" !isOrderCancel && selectedOrder.po")
+        label Purchase Order #
+        span {{ selectedOrder.po }}
+      .f(v-if="selectedOrder.itemCode")
+        label Item Code
+        span {{ selectedOrder.itemCode }}
+      .f(v-if="selectedOrder.brandName")
+        label Client
+        span {{ selectedOrder.brandName }}
+      .f(v-if="selectedOrder.description")
+        label Description
+        span {{ selectedOrder.description }}
+      .f(v-if="selectedOrder.packType")
+        label Pack Type
+        span {{ selectedOrder.packType }}
+      .f(v-if="selectedOrder.printerName")
+        label Printer Name
+        span {{ selectedOrder.printerName }}
+      .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
+        label Shipping Address
+        span {{ selectedOrder.customerContacts[0].shippingAddress}}
+    .card(v-if="colors && colors.length>0")
+      h3 Image Carrier Specs
+      colors-table.p-datatable-sm(:config="config" :data="colors")
+    template(#footer)
+      footer
+        .secondary-actions
+        .actions
+          sgs-button#cancel-order(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
+          sgs-button#close(label="Close" @click="handleClose()")
+</template>
+
 <script setup>
-import Image from "primevue/image";
 import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from "@/stores/cart";
@@ -75,61 +129,6 @@ watch(ordersStore.selectedOrder, (value) => {
   selectedOrder.value = value;
 });
 </script>
-
-<template lang="pug">
-.order-success(v-if="selectedOrder")
-  sgs-scrollpanel
-    template(#header)
-      header(:class="{'cancelled': isOrderCancel }")
-        h1.title {{ isOrderCancel ? 'Order Cancel' : 'Thank you for your order' }}
-    .card.disclaimer
-      h1 Order Number: {{ selectedOrder.id }}
-      p(v-if="!isOrderCancel")
-        | The following plate re-order has been placed. &nbsp;
-        br/
-        | Your order is expected to be delivered on &nbsp;
-        em(v-if="selectedOrder.expectedDate") {{ expectedDate }}
-    .card.context
-      .f
-        label Order Date
-        span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
-      .f(v-if="selectedOrder.originalOrderId")
-        label Order Initated By
-        span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
-      .f(v-if="selectedOrder.weight")
-        label Weight
-        span {{ selectedOrder.weight }}
-      .f(v-if=" !isOrderCancel && selectedOrder.po")
-        label Purchase Order #
-        span {{ selectedOrder.po }}
-      .f(v-if="selectedOrder.itemCode")
-        label Item Code
-        span {{ selectedOrder.itemCode }}
-      .f(v-if="selectedOrder.brandName")
-        label Client
-        span {{ selectedOrder.brandName }}
-      .f(v-if="selectedOrder.description")
-        label Description
-        span {{ selectedOrder.description }}
-      .f(v-if="selectedOrder.packType")
-        label Pack Type
-        span {{ selectedOrder.packType }}
-      .f(v-if="selectedOrder.printerName")
-        label Printer Name
-        span {{ selectedOrder.printerName }}
-      .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
-        label Shipping Address
-        span {{ selectedOrder.customerContacts[0].shippingAddress}}
-    .card(v-if="colors && colors.length>0")
-      h3 Image Carrier Specs
-      colors-table.p-datatable-sm(:config="config" :data="colors")
-    template(#footer)
-      footer
-        .secondary-actions
-        .actions
-          sgs-button#cancel-order(v-if="isOrderCancel" label="Select if this is correct" @click="handleCancelOrder()")
-          sgs-button#close(label="Close" @click="handleClose()")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

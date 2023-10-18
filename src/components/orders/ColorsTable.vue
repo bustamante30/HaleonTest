@@ -1,14 +1,24 @@
+<!-- eslint-disable vue/no-v-model-argument -->
+<!-- eslint-disable vue/no-template-shadow -->
+<template lang="pug">
+data-table.colors-table(v-model:selection="selected" :value="sortedColors" scrollable scroll-height="flex" :rows="30" data-key="jobTechSpecColourId" :lazy="true" :loading="loading" :style="{ minHeight: '25rem'}")
+  column(v-if="isEditable" selection-mode="multiple" header-style="width: 3rem")
+  column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :header-style="stylify(col.width)" :body-style="stylify(col.width)" :frozen="col.freeze ? true : false" :align-frozen="col.freeze")
+    template(#body="{ data }")
+      table-cell(:config="col" :data="data" @update="updateColor")
+  column(v-if="config.actions" :header-style="stylify(4)" :body-style="stylify(4)" :frozen="true" align-frozen="right")
+    template(#body="{ data }")
+      table-actions(:actions="config.actions(data)" :data="data")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import { ref, watch, onMounted } from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import { DateTime } from "luxon";
-import router from "@/router";
 import { sortBy } from "lodash";
 
 import TableActions from "@/components/ui/TableActions.vue";
 import TableCell from "@/components/ui/TableCell.vue";
-import { useOrdersStore } from "@/stores/orders";
 
 const props = defineProps({
   data: {
@@ -28,13 +38,8 @@ const props = defineProps({
     default: () => false,
   },
 });
-
-const ordersStore = useOrdersStore();
-
 const emit = defineEmits(["update"]);
-
 const selected = ref([]);
-
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 
 function stylify(width) {
@@ -42,18 +47,6 @@ function stylify(width) {
     ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
     : { width: "auto", flex: "1" };
 }
-
-function setDefaultValues(obj, defaultValue) {
-  if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
-    obj[key] = defaultValue;
-  }
-}
-
-onMounted(() => {
-  let colorData = props.data && props.data.filter((x) => x.sets > 0);
-
-  // selected.value = [...colorData]
-});
 
 watch(selected, (colors, prevColors) => {
   if (prevColors) {
@@ -92,19 +85,6 @@ function updateColor({ checkboxId, field, value }) {
   emit("update", { checkboxId, field, value });
 }
 </script>
-
-<template lang="pug">
-data-table.colors-table(:value="sortedColors" v-model:selection="selected" scrollable scrollHeight="flex" :rows="30" dataKey="jobTechSpecColourId" :lazy="true" :loading="loading" :style="{ minHeight: '25rem'}")
-  //- template(#loading)
-  //-   i.pi.pi-spin.pi-cog.spinning
-  column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
-  column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
-    template(#body="{ data }")
-      table-cell(:config="col" :data="data" @update="updateColor")
-  column(v-if="config.actions" :headerStyle="stylify(4)" :bodyStyle="stylify(4)" :frozen="true" alignFrozen="right")
-    template(#body="{ data }")
-      table-actions(:actions="config.actions(data)" :data="data")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

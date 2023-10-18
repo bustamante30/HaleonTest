@@ -1,15 +1,26 @@
+<!-- eslint-disable vue/attribute-hyphenation --><!-- eslint-disable vue/no-template-shadow --><!-- eslint-disable vue/no-v-model-argument -->
+<template lang="pug">
+data-table.colors-table.p-datatable-sm(v-model:selection="selected" v-model:expandedRows="expandedRows" :value="sortedColors" scrollable scrollHeight="flex" :rows="30" :dataKey="config.dataKey" :loading="loading" :style="{ minHeight: '25rem'}")
+  column(expander headerStyle="width: 3rem")
+  column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
+  column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
+    template(#body="{ data }")
+      table-cell(:config="col" :data="data" @update="updateColor")
+  column(v-if="config.actions" :headerStyle="stylify(4)" :bodyStyle="stylify(4)" :frozen="true" alignFrozen="right")
+    template(#body="{ data }")
+      table-actions(:actions="config.actions(data)" :data="data")
+  template(#expansion="{ data }")
+    colors-table-plates(:data="data.plateType" :config="config.plates" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
+</template>
+
+<!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch } from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import { DateTime } from "luxon";
-import router from "@/router";
 import { sum, sortBy } from "lodash";
-
 import TableActions from "@/components/ui/TableActions.vue";
 import TableCell from "@/components/ui/TableCell.vue";
 import ColorsTablePlates from "./ColorsTableExpandPlates.vue";
-
 import { useOrdersStore } from "@/stores/orders";
 import { useRoute } from "vue-router";
 const route = useRoute();
@@ -37,7 +48,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update"]);
 
-const selected = ref([] as any[]);
+const selected = ref([] as never[]);
 const expandedRows = ref([]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
@@ -61,7 +72,7 @@ onBeforeMount(() => {
   }
   selected.value = props?.data?.filter((c: any) => {
     return c.totalSets;
-  });
+  }) as never[];
 });
 
 function stylify(width: any) {
@@ -111,43 +122,33 @@ function removePlate(params: any) {
 async function updatePlate(params: any) {
   await ordersStore.updatePlate(params);
   if (params?.field === "sets") {
-    const isAlreadySelected = selected?.value.find(
+    const isAlreadySelected = selected.value.find(
       (c: any) => c.checkboxId === params?.colourId,
     );
     if (params?.value) {
       const colour = props.data.find(
         (c: any) => c.checkboxId === params?.colourId,
       );
-      if (!isAlreadySelected) selected.value = [...selected?.value, colour];
+      if (selected && selected.value && !isAlreadySelected) {
+        selected.value = [...(selected.value as any[]), colour] as never[];
+      }
     } else {
       if (isAlreadySelected) {
         const colour = selected?.value?.find(
           (c: any) => c.checkboxId === params?.colourId,
         );
-        const totalSets = sum(colour.plateType.map((plate: any) => plate.sets));
+        const totalSets = sum(
+          (colour as any)?.plateType?.map((plate: any) => plate?.sets) || [],
+        );
         if (!totalSets)
           selected.value = selected?.value?.filter(
             (c: any) => c.checkboxId !== params?.colourId,
-          );
+          ) as never[];
       }
     }
   }
 }
 </script>
-
-<template lang="pug">
-data-table.colors-table.p-datatable-sm(:value="sortedColors" v-model:selection="selected" v-model:expandedRows="expandedRows" scrollable scrollHeight="flex" :rows="30" :dataKey="config.dataKey" :loading="loading" :style="{ minHeight: '25rem'}")
-  column(expander headerStyle="width: 3rem")
-  column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
-  column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
-    template(#body="{ data }")
-      table-cell(:config="col" :data="data" @update="updateColor")
-  column(v-if="config.actions" :headerStyle="stylify(4)" :bodyStyle="stylify(4)" :frozen="true" alignFrozen="right")
-    template(#body="{ data }")
-      table-actions(:actions="config.actions(data)" :data="data")
-  template(#expansion="{ data }")
-    colors-table-plates(:data="data.plateType" :config="config.plates" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

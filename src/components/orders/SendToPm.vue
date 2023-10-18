@@ -1,14 +1,93 @@
+<!-- eslint-disable vue/no-v-model-argument -->
+<template lang="pug">
+.send-to-pm
+  .cta(:class="{'m-0':OrderValidation}")
+    small(v-if="!OrderValidation") Urgent/ Missing Order?&nbsp;
+    a(@click.prevent="initForm()")
+      small Send to PM
+
+  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM" @hide="clearForm")
+    .hint
+      h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
+      h4(v-else style="margin-left: 18px;") Enter at least one field
+      .urgent
+        h5 Urgent Order? (within 3 days)
+        .switch
+          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
+          span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
+    .content   
+      main      
+        .fields         
+          .field-group
+            .f
+              label(for="name") Printer
+              strong {{ sendToPmstore.externalPrinterName }}
+            .f
+              label(for="brand") Brand
+              prime-inputtext#brand(v-model="sendForm.brand" name="brand")
+            .f
+              label(for="purchase_order") Purchase Order #
+              prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
+            .f
+              label(for="pack_type") Pack Type
+              prime-dropdown#code-type(v-model="sendForm.packType" name="pack_type" :options="sendToPmstore.imageCarrierPackTypes" option-label="label" option-value="value")
+            .f
+              label(for="description") Product Description
+              prime-inputtext#description(v-model="sendForm.description" name="description")
+            .f
+              label(for="item_code") Item Code
+              prime-inputtext#item_code(v-model="sendForm.itemCode" name="item_code")
+            .f
+              label(for="plate_id") Plate ID
+              prime-inputtext#plate_id(v-model="sendForm.plateId" name="plate_id")
+            .f
+              label(for="date" :class="{ required: sendForm.isUrgent }") 
+                span Delivery Date 
+                span.warn(v-if="sendForm.isUrgent") &nbsp;(Urgent Order)
+              span.input.calendar(name="date")
+                prime-calendar.sm(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
+                span.material-icons calendar_month
+            .f
+              label(for="time" :class="{ required: sendForm.isUrgent }") Delivery time
+              span.input.calendar(name="time")
+                prime-calendar(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
+            .f
+              label(for="code") Code #
+              .field-group
+                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" option-label="label" option-value="value")
+                prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
+            .f
+              label(for="job_number") SGS Reference Number
+              prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
+        .fields
+        .divider
+        colors-table-edit(:is-mandatory="sendForm.isUrgent" @update="updateColors")
+        .divider
+        .fields
+          .f
+            label(for="comments") Comments
+            prime-textarea#comments(v-model="sendForm.comments" name="comments" rows="10")
+      aside
+        label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+          input(type="file" multiple)
+          span Drag &amp; Drop files here ...
+        .upload(v-if="sendUpload && sendUpload.length > 0")
+          h4 Uploaded Files:
+          ul.files 
+            li(v-for="(file, index) in validFiles" :key="file") 
+              .name {{ file.fileName }}
+              sgs-button.delete.alert.secondary.sm(:id="`delete-file-${index}`" icon="delete" @click="onDeleteClick(file,index)")
+    template(#footer)
+      .actions(:class="{ disclaimer: sendForm.isUrgent }")
+        span 
+          span(v-if="sendForm.isUrgent") Additional charges may be applicable for urgent orders
+        sgs-button#send(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :icon-class="loading ? 'spin' : ''" icon-position="right" @click="submit")
+</template>
+
+<!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
-import { faker } from "@faker-js/faker";
 import ColorsTableEdit from "./ColorsTableEdit.vue";
-import JSZip from "jszip";
-import type { UploadFileDto } from "@/models/UploadFileDto";
-import { useUploadFilesStore } from "@/stores/upload-files";
-import { useToast } from "primevue/usetoast";
 import { useNotificationsStore } from "@/stores/notifications";
-import type { DeleteFileDto } from "@/models/DeleteFileDto";
-import { inject, ref, computed, watch, onMounted } from "vue";
-import SendToPMService from "@/services/SendToPmService";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -27,6 +106,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // eslint-disable-next-line vue/prop-name-casing
   OrderValidation: {
     type: Boolean,
     default: false,
@@ -50,12 +130,6 @@ const printerName = computed(() => {
 
   return user?.printerName || "";
 });
-
-const isPrinterAdmin = computed(() => {
-  const user = authb2cStore.currentB2CUser;
-  return user?.roleKey === "PrinterAdmin";
-});
-
 const emit = defineEmits(["create", "submit"]);
 const entering = ref();
 const sendForm = ref(props.order);
@@ -65,7 +139,6 @@ const isb2cUserLoggedIn = computed(
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
-const toast = useToast();
 let validFiles = ref<ValidFiles[]>([]);
 
 watch(
@@ -83,7 +156,7 @@ function initForm() {
   emit("create");
 }
 
-function updateColors(colors: any) {
+function updateColors(colors) {
   sendForm.value.colors = [...colors];
   sendToPmstore.updateColors(colors);
 }
@@ -115,25 +188,13 @@ async function submit() {
   }
 }
 
-async function blobToBase64(blob: any) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = (reader.result as any).split(",")[1];
-      resolve(base64String);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 async function getUserId() {
-  let userId = "6";
+  let userId;
   if (isUserLoggedIn.value) {
-    userId = (await authStore.currentUser.userId) as any;
+    userId = await authStore.currentUser.userId;
   }
   if (isb2cUserLoggedIn.value) {
-    userId = (await authb2cStore.currentB2CUser.userId) as any;
+    userId = await authb2cStore.currentB2CUser.userId;
   }
   return userId;
 }
@@ -142,24 +203,11 @@ function minSelectableDate() {
   return DateTime.now().startOf("hour").toJSDate();
 }
 
-function maxSelectableDate() {
-  return DateTime.now().plus({ hour: 72 }).startOf("hour").toJSDate();
+function onDragOver(event) {
+  event.preventDefault();
 }
 
-function onDragOver(event: any) {
-  event.preventDefault();
-}
-function onDragEnter(event: any) {
-  event.preventDefault();
-}
-function onDragLeave(event: any) {
-  event.preventDefault();
-}
-function handleInput(e: any) {
-  const files = e.target.files;
-}
-
-function isValidFileType(file: any) {
+function isValidFileType(file) {
   return (
     file.name.toLowerCase().endsWith(".exe") ||
     file.name.toLowerCase().endsWith(".bat") ||
@@ -216,8 +264,7 @@ async function onDrop(event: any) {
   }
 }
 
-async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
-  const binaryToBase64 = await blobToBase64(file);
+async function convertAndSendFile(file): Promise<FileUploadResponse> {
   const fileName = file.name.replace(/[(!$%&[\]{}]/g, "-");
   const id = await getUserId();
 
@@ -284,92 +331,6 @@ function clearForm() {
   sendToPmstore.clearForm();
 }
 </script>
-
-<template lang="pug">
-.send-to-pm
-  .cta(:class="{'m-0':props.OrderValidation}")
-    small(v-if="!props.OrderValidation") Urgent/ Missing Order?&nbsp;
-    a(@click.prevent="initForm()")
-      small Send to PM
-
-  prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM" @hide="clearForm")
-    .hint
-      h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
-      h4(v-else style="margin-left: 18px;") Enter at least one field
-      .urgent
-        h5 Urgent Order? (within 3 days)
-        .switch
-          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
-          span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
-    .content   
-      main      
-        .fields         
-          .field-group
-            .f
-              label(for="name") Printer
-              strong {{ sendToPmstore.externalPrinterName }}
-            .f
-              label(for="brand") Brand
-              prime-inputtext#brand(v-model="sendForm.brand" name="brand")
-            .f
-              label(for="purchase_order") Purchase Order #
-              prime-inputtext#purchase_order(v-model="sendForm.purchaseOrder" name="purchase_order")
-            .f
-              label(for="pack_type") Pack Type
-              prime-dropdown#code-type(v-model="sendForm.packType" name="pack_type" :options="sendToPmstore.imageCarrierPackTypes" optionLabel="label" optionValue="value")
-            .f
-              label(for="description") Product Description
-              prime-inputtext#description(v-model="sendForm.description" name="description")
-            .f
-              label(for="item_code") Item Code
-              prime-inputtext#item_code(v-model="sendForm.itemCode" name="item_code")
-            .f
-              label(for="plate_id") Plate ID
-              prime-inputtext#plate_id(v-model="sendForm.plateId" name="plate_id")
-            .f
-              label(for="date" :class="{ required: sendForm.isUrgent }") 
-                span Delivery Date 
-                span.warn(v-if="sendForm.isUrgent") &nbsp;(Urgent Order)
-              span.input.calendar(name="date")
-                prime-calendar.sm(v-model="sendForm.expectedDate" :minDate="minSelectableDate()" @update:modelValue="updateUrgent" appendTo="body" hourFormat="12" required="true")
-                span.material-icons calendar_month
-            .f
-              label(for="time" :class="{ required: sendForm.isUrgent }") Delivery time
-              span.input.calendar(name="time")
-                prime-calendar(v-model="sendForm.expectedDate" :minDate="minSelectableDate()" @update:modelValue="updateUrgent" timeOnly appendTo="body" hourFormat="12" required="true")
-            .f
-              label(for="code") Code #
-              .field-group
-                prime-dropdown#code-type(v-model="sendForm.carrierCode.type" name="code-type" :options="sendToPmstore.imageCarrierCodeTypes" optionLabel="label" optionValue="value")
-                prime-inputtext#code(v-model="sendForm.carrierCode.code" name="code")
-            .f
-              label(for="job_number") SGS Reference Number
-              prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
-        .fields
-        .divider
-        colors-table-edit(@update="updateColors" :isMandatory="sendForm.isUrgent")
-        .divider
-        .fields
-          .f
-            label(for="comments") Comments
-            prime-textarea#comments(v-model="sendForm.comments" name="comments" rows="10")
-      aside
-        label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
-          input(type="file" multiple @input="handleInput($event)")
-          span Drag &amp; Drop files here ...
-        .upload(v-if="sendUpload && sendUpload.length > 0")
-          h4 Uploaded Files:
-          ul.files 
-            li(v-for="(file, index) in validFiles" :key="file") 
-              .name {{ file.fileName }}
-              sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
-    template(#footer)
-      .actions(:class="{ disclaimer: sendForm.isUrgent }")
-        span 
-          span(v-if="sendForm.isUrgent") Additional charges may be applicable for urgent orders
-        sgs-button#send(:label="sendForm.isUrgent ? 'Send as Urgent' : 'Send'" :class="{ alert: sendForm.isUrgent }" :icon="loading ? 'progress_activity' : 'send'" :iconClass="loading ? 'spin' : ''" @click="submit" iconPosition="right")
-        //sgs-button(label="Close" @click="isFormVisible = false")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

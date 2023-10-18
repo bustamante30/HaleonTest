@@ -1,6 +1,66 @@
+<template lang="pug">
+.order-confirmation
+  sgs-scrollpanel
+    template(#header)
+      header
+        h1.title Please confirm your order
+        a.close(@click="router.push('/dashboard')")
+          span.material-icons.outline close
+    .card.context
+      .thumbnail(v-if="selection && selection.thumbNailPath")
+        prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+      .details
+        .f
+          label Client
+          span {{ selection.brandName }}
+        .f
+          label Description
+          span {{ selection.description }}
+        .f
+          label Item Code
+          span {{ selection.itemCode }}
+        .f
+          label Pack Type
+          span {{ selection.packType }}
+        .f
+          label Printer
+          span {{ selection.printerName }}
+        .f.shipping
+          label Shipping Adress
+          div(v-if="checkCustomerDetails()")
+            span {{ getShippingAddress() }}
+          div(v-if="selection.customerContacts && selection.customerContacts.length>1")
+            prime-dropdown.sm.address(
+v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" append-to="body" 
+          option-label="shippingAddress" option-value="shippingAddress")
+    .card.colors
+      h3 Plates
+      .details
+        colors-table.p-datatable-sm(:config="config" :data="colors")
+    template(#footer)
+      footer
+        .secondary-actions
+          sgs-button#back.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder?source=${'confirm'}`)")
+        .actions
+          sgs-button#confirm(label="Confirm" @click="confirm()")
+
+  // eslint-disable-next-line vue/no-v-model-argument
+  prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
+    order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
+    span.error-message(v-if="errorMessage !== ''") 
+      span(v-if="errorMessage !== ''") {{ errorMessage }}
+    template(#footer)
+      footer
+        .secondary-actions &nbsp;
+        .actions
+          sgs-button#cancel-po.default.sm(label="Cancel" @click="cancelPOForm")
+          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
+          
+
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import Image from "primevue/image";
-import { ref, computed, reactive, onMounted, onBeforeMount } from "vue";
 import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from "@/stores/cart";
 import ColorsTable from "./ColorsTable.vue";
@@ -183,65 +243,6 @@ function checkCustomerDetails() {
   );
 }
 </script>
-
-<template lang="pug">
-.order-confirmation
-  sgs-scrollpanel
-    template(#header)
-      header
-        h1.title Please confirm your order
-        a.close(@click="router.push('/dashboard')")
-          span.material-icons.outline close
-    .card.context
-      .thumbnail(v-if="selection && selection.thumbNailPath")
-        prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-      .details
-        .f
-          label Client
-          span {{ selection.brandName }}
-        .f
-          label Description
-          span {{ selection.description }}
-        .f
-          label Item Code
-          span {{ selection.itemCode }}
-        .f
-          label Pack Type
-          span {{ selection.packType }}
-        .f
-          label Printer
-          span {{ selection.printerName }}
-        .f.shipping
-          label Shipping Adress
-          div(v-if="checkCustomerDetails()")
-            span {{ getShippingAddress() }}
-          div(v-if="selection.customerContacts && selection.customerContacts.length>1")
-            prime-dropdown.sm.address(v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" appendTo="body" 
-          optionLabel="shippingAddress" optionValue="shippingAddress")
-    .card.colors
-      h3 Plates
-      .details
-        colors-table.p-datatable-sm(:config="config" :data="colors")
-    template(#footer)
-      footer
-        .secondary-actions
-          sgs-button#back.default(label="Back" @click="router.push(`/dashboard/${props.selectedId}/reorder?source=${'confirm'}`)")
-        .actions
-          sgs-button#confirm(label="Confirm" @click="confirm()")
-
-  prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
-    order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
-    span.error-message(v-if="errorMessage !== ''") 
-      span(v-if="errorMessage !== ''") {{ errorMessage }}
-    template(#footer)
-      footer
-        .secondary-actions &nbsp;
-        .actions
-          sgs-button#cancel-po.default.sm(label="Cancel" @click="cancelPOForm")
-          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
-          
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
