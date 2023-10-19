@@ -202,12 +202,9 @@ export const useOrdersStore = defineStore("ordersStore", {
   }),
   getters: {
     flattenedColors: (state) => (orderType?: string) => {
-      const order =
-        orderType === "success" || state.isCancel
-          ? state.successfullReorder
-          : state.selectedOrder;
-
-      return flattenColors(order?.editionColors);
+      if (orderType === "success" || state.isCancel)
+        return flattenColors(state.successfullReorder?.colors);
+      else return flattenColors(state.selectedOrder?.editionColors);
     },
   },
   actions: {
@@ -826,10 +823,25 @@ export const useOrdersStore = defineStore("ordersStore", {
                 },
               ];
               order.editionColors.push(colorCopy);
-              if (expectedColors === order.editionColors.length) {
-                console.log(expectedColors);
-                resolve({ status: "finished", order: order });
+            }
+            if (expectedColors === order.editionColors.length) {
+              if (expectedColors === 0) {
+                const notificationsStore = useNotificationsStore();
+                const authStore = useAuthStore();
+                let message = `Sorry we have experienced an issue on our end.  Please contact a PM directly, click the following`;
+                let link: string = `/dashboard?showPM=true`;
+                const b2cAuth = useB2CAuthStore();
+                if (authStore.currentUser.isLoggedIn) {
+                  message = `Sorry your order cannot be processed through Photon.  Please go into MySGS directly to place your order`;
+                  link = ``;
+                }
+                notificationsStore.addNotification("Warning", message, {
+                  severity: "warn",
+                  life: 15000,
+                  link,
+                });
               }
+              resolve({ status: "finished", order: order });
             }
           });
         });
