@@ -800,28 +800,38 @@ export const useOrdersStore = defineStore("ordersStore", {
         const editionColors: any[] = [];
         order.editionColors = editionColors;
       }
-      order.colors.forEach((color) => {
-        ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
-          for (let i = 0; i < res.length; i++) {
-            const colorCopy: any = JSON.parse(JSON.stringify(color));
-            colorCopy.lenPath = res[i].lenPath;
-            colorCopy.lenData = res[i].lenData;
-            colorCopy.checkboxId = faker.datatype.uuid();
-            colorCopy.totalSets = 0;
-            colorCopy.plateType = [
-              {
-                checkboxId: faker.datatype.uuid(),
-                plateTypeId: null,
-                plateTypeDescription: {
-                  isActive: true,
-                  label: null,
-                  value: null,
+      return new Promise((resolve, reject) => {
+        let expectedColors = order.colors.length;
+        order.colors.forEach((color) => {
+          ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
+            expectedColors += res.length - 1;
+            console.log(expectedColors);
+            console.log(res.length);
+            for (let i = 0; i < res.length; i++) {
+              const colorCopy: any = JSON.parse(JSON.stringify(color));
+              colorCopy.lenPath = res[i].lenPath;
+              colorCopy.lenData = res[i].lenData;
+              colorCopy.checkboxId = faker.datatype.uuid();
+              colorCopy.totalSets = 0;
+              colorCopy.plateType = [
+                {
+                  checkboxId: faker.datatype.uuid(),
+                  plateTypeId: null,
+                  plateTypeDescription: {
+                    isActive: true,
+                    label: null,
+                    value: null,
+                  },
+                  sets: 0,
                 },
-                sets: 0,
-              },
-            ];
-            order.editionColors.push(colorCopy);
-          }
+              ];
+              order.editionColors.push(colorCopy);
+              if (expectedColors === order.editionColors.length) {
+                console.log(expectedColors);
+                resolve({ status: "finished", order: order });
+              }
+            }
+          });
         });
       });
     },
