@@ -328,12 +328,17 @@ export const useOrdersStore = defineStore("ordersStore", {
           }
         } else {
           // MySGS Order loaded from dashboard
-          this.selectedOrder = this.orders.find(
-            (order: any) => order.sgsId === reorderId,
-          );
+          // this.selectedOrder = this.orders.find(
+          //   (order: any) => order.sgsId === reorderId,
+          // );
           const details = jsonify(
             await ReorderService.getOrderDetails(reorderId),
           );
+          this.selectedOrder = details;
+          this.selectedOrder.description = details.jobDescription;
+          this.selectedOrder.brandName = details.jobDetails.brand;
+          this.selectedOrder.itemCode = details.jobDetails.endUserReference;
+          this.selectedOrder.packType = details.jobDetails.packageType.name;
           const editionColors: any[] = [];
           this.selectedOrder.editionColors = editionColors;
           console.log(this.selectedOrder);
