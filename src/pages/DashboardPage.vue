@@ -137,7 +137,7 @@ const isValidIdentityProvider = computed(() => {
   }
   return false;
 });
-const userFilterConfig = computed(() => filterConfig("user"));
+const userFilterConfig = computed(() => filterConfig());
 const loadingOrders = computed(() => ordersStore.loading.ordersList);
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
