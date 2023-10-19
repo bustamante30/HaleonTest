@@ -72,7 +72,7 @@ app.component("PrimeMultiSelect", MultiSelect);
 app.component("PrimePanel", Panel);
 app.component("PrimeOverlayPanel", OverlayPanel);
 app.component("PrimeImage", Image);
-app.component("Message", Message);
+app.component("PrimeMessage", Message);
 app.component("PrimePagination", Paginator);
 app.component("PrimeTextarea", Textarea);
 app.component("PrimeToast", Toast);

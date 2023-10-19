@@ -1,3 +1,12 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template>
+  <div v-if="b2cUserLoggedIn">
+    <a>Please wait while we are loading profile information</a>
+  </div>
+  <div v-else>
+    <a> Please wait you will be redirected to External login page....</a>
+  </div>
+</template>
 <script setup="ts">
 import { onMounted, watch, computed } from "vue";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -23,14 +32,6 @@ watch(b2cUserLoggedIn, () => {
   }
 });
 </script>
-<template>
-  <div v-if="b2cUserLoggedIn">
-    <a>Please wait while we are loading profile information</a>
-  </div>
-  <div v-else>
-    <a> Please wait you will be redirected to External login page....</a>
-  </div>
-</template>
 <style scoped>
 a {
   text-align: center;

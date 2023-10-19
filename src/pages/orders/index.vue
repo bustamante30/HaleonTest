@@ -1,5 +1,4 @@
-<script setup></script>
-
+<!-- eslint-disable vue/multi-word-component-names -->
 <template lang="pug">
 .page.orders
   router-view

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ReportIssueRequestDto } from "../models/ReportIssueRequestDto";
 import type { ReportIssueResponseDto } from "../models/ReportIssueResponseDto";
 import { type AttachmentDto } from "../models/AttachmentDto";

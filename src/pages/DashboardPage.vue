@@ -1,11 +1,77 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
+<!-- eslint-disable vue/no-unused-vars -->
+<!-- eslint-disable vue/no-v-model-argument -->
+<!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+.page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
+  sgs-scrollpanel(v-if="isValidIdentityProvider" :scroll="false")
+    main
+      sgs-scrollpanel(:scroll="false")
+        template(#header)
+          welcome(:user="username")
+          header
+            .title 
+              h1(v-if="searchExecuted") Search Results 
+              h1(v-if="!searchExecuted") Recent Orders 
+            .date-range(v-if="!searchExecuted")
+              prime-dropdown.sm.rangeFilter(
+v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
+                optionLabel="label" optionValue="value" @change="changeDateFilter")
+            .statuses(v-if="!searchExecuted")
+              prime-listbox.sm(id="statusListbox" v-model="selectedStatus" aria-label="status" :options="statusList" optionLabel="name" @change="searchByStatus" )
+            .my-orders(v-if="!searchExecuted")
+              .switch
+                label(for="my-orders") My orders
+                prime-input-switch.checkbox.sm(v-model="showMyOrders" inputId="my-orders" @change="handleOrderToggle")
+            .search
+              orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
+            .send-to-pm
+              template(v-if="userType === 'EXT'")
+                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
+          .search-tag(v-if="searchTags.length > 0")
+            .tag(v-for="(tag ,index) in searchTags" :key="tag")
+              span {{tag}}
+              span.pi.pi-times.icon(@click="clearSearchTags(index)") 
+            .tag(v-if="searchTags.length > 0")
+              span Clear All
+              span.pi.pi-times.icon(@click="clearAllSearchTags") 
+        orders-table(
+:config="config" :data="orders" :userType="userType" :showMultipleSelection="showMultipleSelection" :status="selectedStatus" :loading="loadingOrders" @add="addToCart"
+        @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder" @addMultipleToCart="addMultipleToCart" @ordervalidation ="handleOrderValidation")
+      prime-confirm-dialog
+        template(#message="slotProps")
+          div.dialogLayout
+            i(:class="slotProps.message.icon" style="font-size: 1.5rem;margin-right:0.5rem;")
+            p(:class="pl-2") {{ slotProps.message.message }}
+      prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
+        template(#header)
+          header
+            h4 Reorder Audit - {{auditReorderId}}
+        reorder-audit.audit(:data="auditData")
+      prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
+        template(#message="slotProps")
+        span.sendtoPm 
+          | Sorry something went wrong on our end. Please contact a PM directly, or please go to  
+          send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder" ) 
+          | to place your request
+      prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
+        template(#message="slotProps")
+        span.sendtoPm 
+          | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
+          send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder") 
+          | to place your request
+         
+    router-view
+</template>
+
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
+<!-- eslint-disable no-undef -->
 <script setup lang="ts">
-import { computed, watch, provide, ref, onMounted } from "vue";
 import OrdersTable from "@/components/orders/OrdersTable.vue";
 import OrdersSearch from "@/components/orders/OrdersSearch.vue";
 import ReorderAudit from "@/components/orders/ReorderAudit.vue";
 import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
-import { filter, keys } from "lodash";
 import { filterConfig } from "@/data/config/order-filters";
 import { useOrdersStore } from "@/stores/orders";
 import { useCartStore } from "@/stores/cart";
@@ -43,14 +109,6 @@ const userType = computed(() => {
   }
 });
 
-const printerName = computed(() => {
-  if (
-    authb2cStore.currentB2CUser.printerName != "" &&
-    authb2cStore.currentB2CUser.userType === "EXT"
-  )
-    return authb2cStore.currentB2CUser.printerName;
-});
-
 const username = computed(
   () =>
     `${authStore.currentUser.firstName || "John"} ${
@@ -79,10 +137,8 @@ const isValidIdentityProvider = computed(() => {
   }
   return false;
 });
-const userFilterConfig = computed(() => filterConfig("user"));
+const userFilterConfig = computed(() => filterConfig());
 const loadingOrders = computed(() => ordersStore.loading.ordersList);
-const searchHistory = computed(() => ordersStore.searchHistory);
-
 const pmOrder = computed(() => sendToPmStore.newOrder);
 const savingPmOrder = computed(() => sendToPmStore.loading);
 const roleKey = computed(() => {
@@ -95,7 +151,6 @@ const roleKey = computed(() => {
 });
 const showMultipleSelection = ref(false);
 const searchExecuted = ref(false);
-// Freetext tags
 const searchTags = ref([]);
 
 provide("options", options);
@@ -126,7 +181,7 @@ watch(
     createPmOrder();
   },
 );
-watch(currentUser, (value) => {
+watch(currentUser, () => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
@@ -134,7 +189,7 @@ watch(currentUser, (value) => {
   }
   isAdminAddDraftTab();
 });
-watch(currentB2CUser, (value) => {
+watch(currentB2CUser, () => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
@@ -291,10 +346,6 @@ const initClearAllSearchTags = () => {
   selectedStatus.value = statusList.value[0];
 };
 
-function getSearchHistory() {
-  ordersStore.getSearchHistory(history);
-}
-
 function createPmOrder() {
   sendToPmStore.initNewOrder();
   sendToPmStore.getCodeTypes();
@@ -402,7 +453,7 @@ const auditOrder = async (order) => {
   console.log(audit.result);
 };
 
-async function addMultipleToCart(values: any) {
+async function addMultipleToCart() {
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
@@ -416,12 +467,6 @@ async function addMultipleToCart(values: any) {
         sgsJobId.value = order.sgsId;
         showCartConfirmDialog.value = true;
         sendToPmStore.isValidated = true;
-
-        // notificationsStore.addNotification(
-        //   `Error`,
-        //   `Sorry, something went wrong on our end. #${order.sgsId} was unable to be  added to your cart.Please contact a PM directly, or please go to SendToPM`,
-        //   { severity: "error" }
-        // );
       } else {
         notificationsStore.addNotification(
           `Info`,
@@ -439,7 +484,7 @@ async function addMultipleToCart(values: any) {
 }
 async function addOrderToCart(sgsId: any) {
   ordersStore.getOrderById(sgsId).then((orderToAdd: any) => {
-    ordersStore.getEditableColors(sgsId, orderToAdd).then((result: any) => {
+    ordersStore.getEditableColors(sgsId, orderToAdd).then(() => {
       console.log("order with lens:", orderToAdd);
       cartStore.addToCart(orderToAdd).then((result: boolean) => {
         if (result)
@@ -479,66 +524,6 @@ async function handleOrderValidation(data: any) {
   }
 }
 </script>
-
-<template lang="pug">
-.page.dashboard(:class="{ 'dark':!isValidIdentityProvider }")
-  sgs-scrollpanel(:scroll="false" v-if="isValidIdentityProvider")
-    main
-      sgs-scrollpanel(:scroll="false")
-        template(#header)
-          welcome(:user="username")
-          header
-            .title 
-              h1(v-if="searchExecuted") Search Results 
-              h1(v-if="!searchExecuted") Recent Orders 
-            .date-range(v-if="!searchExecuted")
-              prime-dropdown.sm.rangeFilter(v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
-                optionLabel="label" optionValue="value" @change="changeDateFilter")
-            .statuses(v-if="!searchExecuted")
-              prime-listbox.sm(id="statusListbox" aria-label="status" v-model="selectedStatus" :options="statusList" optionLabel="name" @change="searchByStatus" )
-            .my-orders(v-if="!searchExecuted")
-              .switch
-                label(for="my-orders") My orders
-                prime-input-switch.checkbox.sm(v-model="showMyOrders" @change="handleOrderToggle" inputId="my-orders")
-            .search
-              orders-search(:config="userFilterConfig" :filters="filters" @search="search" @searchkeyword="searchKeyword" :userType="userType")
-            .send-to-pm
-              template(v-if="userType === 'EXT'")
-                send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
-          .search-tag(v-if="searchTags.length > 0")
-            .tag(v-for="(tag ,index) in searchTags" :key="tag")
-              span {{tag}}
-              span.pi.pi-times.icon(@click="clearSearchTags(index)") 
-            .tag(v-if="searchTags.length > 0")
-              span Clear All
-              span.pi.pi-times.icon(@click="clearAllSearchTags") 
-        orders-table(:config="config" :data="orders" :userType="userType" @add="addToCart" @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder"
-        @addMultipleToCart="addMultipleToCart" :showMultipleSelection="showMultipleSelection" :loading="loadingOrders" :status="selectedStatus" @ordervalidation ="handleOrderValidation")
-      prime-confirm-dialog
-        template(#message="slotProps")
-          div.dialogLayout
-            i(:class="slotProps.message.icon" style="font-size: 1.5rem;margin-right:0.5rem;")
-            p(:class="pl-2") {{ slotProps.message.message }}
-      prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
-        template(#header)
-          header
-            h4 Reorder Audit - {{auditReorderId}}
-        reorder-audit.audit(:data="auditData")
-      prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
-        template(#message="slotProps")
-        span.sendtoPm 
-          | Sorry something went wrong on our end. Please contact a PM directly, or please go to  
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true" ) 
-          | to place your request
-      prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
-        template(#message="slotProps")
-        span.sendtoPm 
-          | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder" :OrderValidation="true") 
-          | to place your request
-         
-    router-view
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

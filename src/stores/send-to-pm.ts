@@ -1,13 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { useNotificationsStore } from "./notifications";
-import SuggesterService from "@/services/SuggesterService";
 import SendToPMService from "@/services/SendToPmService";
-import type { SearchRequestSendToPmDto } from "../models/SearchRequestDto";
-import UserService from "@/services/userService";
-
-function timeout(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export const useSendToPmStore = defineStore("sendToPmStore", {
   state: () => ({
@@ -84,7 +78,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
     },
     validateColors(colors) {
       let isValid = true;
-      colors.forEach((color: any, index) => {
+      colors.forEach((color: any) => {
         if (!(color.name && color.plateType && color.quantity)) isValid = false;
       });
       return isValid;

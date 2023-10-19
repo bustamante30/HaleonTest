@@ -1,3 +1,64 @@
+<!-- eslint-disable vue/no-v-model-argument -->
+<template lang="pug">
+.page.details(v-if="selectedOrder")
+  sgs-mask
+  .container
+    sgs-scrollpanel(:top="0")
+      template(#header)
+        header
+          h1.title
+            span Re-Order:&nbsp;
+            span {{ selectedOrder.brandName }}
+          a.close(@click="router.push('/dashboard')")
+            span.material-icons.outline close
+      .card.summary(v-if="selectedOrder")
+        .thumbnail
+          prime-image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+        .card.details
+          .f
+            label Item Code
+            span {{ selectedOrder.itemCode }}
+          .f
+            label Client
+            span {{ selectedOrder.brandName }}
+          .f
+            label Description
+            span {{ selectedOrder.description }}
+          .f
+            label Pack Type
+            span {{ selectedOrder.packType }}
+          .f
+            label Product Weight
+            span {{ selectedOrder.weight ?  selectedOrder.weight:'NA'}}
+          .f
+            label Printer
+            span {{ selectedOrder.printerName }}
+      .card
+        colors-table(:config="config" :data="colors" :is-editable="true" :loading="loading.order" @update="updateColor")
+      template(#footer)
+        footer
+          .secondary-actions &nbsp;
+            sgs-button#view-cart.secondary(:label="source === 'cart' || isCartOrder ? 'View Cart' : 'Back'" @click="goBack")
+          .actions
+            sgs-button#add-to-cart.secondary(:icon="loadingCart.add || loadingCart.update ? 'progress_activity' : 'shopping_cart'" :icon-class="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" :disabled="disableReorder" @click="addToCart")
+              template(#badge)
+                i(v-if="cartCount > 0" v-badge.danger="cartCount")
+            sgs-button#reorder-now(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" label="Re-Order Now" :disabled="disableReorder" @click="reorder")
+
+  prime-dialog(
+v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal 
+    :header="isCartOrder ? 'Update to Cart' : 'Add to Cart'" :closable='false')
+    .cart-message
+      .icon
+        span.material-icons.outline check_circle
+      .details
+        p {{ `Order ${ isCartOrder ? 'updated in' : 'added to'} cart successfully` }}
+        div.cartDialog
+          router-link(to="/cart") View Cart
+          router-link(to="/dashboard") Close
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
 import { useCartStore } from "@/stores/cart";
 import { useNotificationsStore } from "@/stores/notifications";
@@ -5,15 +66,12 @@ import { useOrdersStore } from "@/stores/orders";
 import { useRoute } from "vue-router";
 import ColorsTable from "./ColorsTableExpand.vue";
 import config from "@/data/config/color-table-edit";
-import ReorderService from "../../services/ReorderService";
 import router from "@/router";
 
 const route = useRoute();
-
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore();
 const notificationsStore = useNotificationsStore();
-
 const props = defineProps({
   selectedId: {
     type: String,
@@ -24,12 +82,10 @@ const props = defineProps({
     default: () => ({ cart: false, reorder: false }),
   },
 });
-
 const isCartMessageVisible = ref(false);
 const cartCount = computed(() => cartStore.cartCount);
 const isOrderInCart = computed(() => cartStore.isOrderInCart(props.selectedId));
 const colors = computed(() => ordersStore.selectedOrder.editionColors);
-const loading = computed(() => ordersStore.loading);
 const loadingCart = computed(() => cartStore.loading);
 const disableReorder = computed(() => {
   const totalSets = colors.value && colors.value.filter((x) => x.totalSets);
@@ -41,10 +97,6 @@ const selectedOrder = computed(() => ordersStore.selectedOrder);
 const isCartOrder = computed(
   () => isOrderInCart.value || selectedOrder?.statusId === 1,
 );
-
-function buy() {
-  router.push(`/dashboard/${props.selectedId}/confirm`);
-}
 
 function updateColor(color) {
   ordersStore.updateColor(color);
@@ -91,65 +143,6 @@ function goBack() {
   else router.push(`/dashboard/${props.selectedId}`);
 }
 </script>
-
-<template lang="pug">
-.page.details(v-if="selectedOrder")
-  sgs-mask
-  .container
-    sgs-scrollpanel(:top="0")
-      template(#header)
-        header
-          h1.title
-            span Re-Order:&nbsp;
-            span {{ selectedOrder.brandName }}
-          a.close(@click="router.push('/dashboard')")
-            span.material-icons.outline close
-      .card.summary(v-if="selectedOrder")
-        .thumbnail
-          prime-image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-        .card.details
-          .f
-            label Item Code
-            span {{ selectedOrder.itemCode }}
-          .f
-            label Client
-            span {{ selectedOrder.brandName }}
-          .f
-            label Description
-            span {{ selectedOrder.description }}
-          .f
-            label Pack Type
-            span {{ selectedOrder.packType }}
-          .f
-            label Product Weight
-            span {{ selectedOrder.weight ?  selectedOrder.weight:'NA'}}
-          .f
-            label Printer
-            span {{ selectedOrder.printerName }}
-      .card
-        colors-table(:config="config" :data="colors" :isEditable="true" :loading="loading.order" @update="updateColor")
-      template(#footer)
-        footer
-          .secondary-actions &nbsp;
-            sgs-button#view-cart.secondary(:label="source === 'cart' || isCartOrder ? 'View Cart' : 'Back'" @click="goBack")
-          .actions
-            sgs-button#add-to-cart.secondary(:icon="loadingCart.add || loadingCart.update ? 'progress_activity' : 'shopping_cart'" :iconClass="loading.cart ? 'spin' : ''" :label="`${ isCartOrder ? 'Update' : 'Add to' } cart`" @click="addToCart" :disabled="disableReorder")
-              template(#badge)
-                i(v-if="cartCount > 0" v-badge.danger="cartCount")
-            sgs-button#reorder-now(:icon="loading.reorder ? 'progress_activity' : ''" :iconClass="loading.reorder ? 'spin' : ''" label="Re-Order Now" @click="reorder" :disabled="disableReorder")
-
-  prime-dialog(v-model:visible="isCartMessageVisible" position="bottomleft" :style="{ width: '21rem' }" modal 
-    :header="isCartOrder ? 'Update to Cart' : 'Add to Cart'" :closable='false')
-    .cart-message
-      .icon
-        span.material-icons.outline check_circle
-      .details
-        p {{ `Order ${ isCartOrder ? 'updated in' : 'added to'} cart successfully` }}
-        div.cartDialog
-          router-link(to="/cart") View Cart
-          router-link(to="/dashboard") Close
-</template>
-
 <style lang="sass">
 @import "@/assets/styles/includes"
 

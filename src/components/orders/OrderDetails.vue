@@ -1,3 +1,41 @@
+<template lang="pug">
+.page.details
+  sgs-mask(@click="router.push('/dashboard')")
+  .container
+    sgs-spinner(v-if="loadingOrder")
+    sgs-scrollpanel(v-else-if="selectedOrder")
+      template(#header)
+        header
+          h1.title
+            span {{ selectedOrder.brandName ? selectedOrder.brandName : 'N/A' }} / {{ selectedOrder.description ? selectedOrder.description : 'N/A'}}
+          a.close(@click="router.push('/dashboard')")
+            span.material-icons.outline close
+      .card.context
+        .details
+          h4
+            span Item Code: {{ selectedOrder.itemCode ? selectedOrder.itemCode : 'N/A'}}
+            span.separator |
+            span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
+            span.separator |
+            span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }} 
+      .card.summary(v-if="selectedOrder")
+        .thumbnail
+          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          sgs-button#thumbnail.sm(label="View PDF" @click="viewPreview")
+        .details
+          colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
+      .card
+        order-shirttail(:data="selectedOrder.details")
+      .card#preview(ref="preview")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
+          iframe.pdf(:src="pdfUri")
+      template(#footer)
+        footer
+          .secondary-actions &nbsp;
+          .actions
+            sgs-button#reorder(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
+</template>
+
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
@@ -32,75 +70,11 @@ async function buy() {
   console.log(confirmRoute);
   router.push(confirmRoute);
 }
-function getPDFFileName(pdfUri) {
-  // Split the URI by '/' to separate the parts
-  const uriParts = pdfUri.split("/");
-
-  // Get the last part, which is the full PDF file name
-  const fullFileName = uriParts[uriParts.length - 1];
-
-  // Use a regular expression to extract the actual file name
-  const fileNameMatch = fullFileName.match(/([^/?#]+)(\?|$)/);
-
-  if (fileNameMatch) {
-    // The first capturing group (fileNameMatch[1]) contains the file name
-    return fileNameMatch[1];
-  } else {
-    // If the regular expression didn't match, return the full file name
-    return fullFileName;
-  }
-}
 
 function viewPreview() {
   preview?.value?.scrollIntoView();
 }
 </script>
-
-<template lang="pug">
-.page.details
-  sgs-mask(@click="router.push('/dashboard')")
-  .container
-    sgs-spinner(v-if="loadingOrder")
-    sgs-scrollpanel(v-else-if="selectedOrder")
-      template(#header)
-        header
-          h1.title
-            span {{ selectedOrder.brandName ? selectedOrder.brandName : 'N/A' }} / {{ selectedOrder.description ? selectedOrder.description : 'N/A'}}
-          a.close(@click="router.push('/dashboard')")
-            span.material-icons.outline close
-      .card.context
-        .details
-          h4
-            span Item Code: {{ selectedOrder.itemCode ? selectedOrder.itemCode : 'N/A'}}
-            span.separator |
-            span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
-            span.separator |
-            span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }} 
-      .card.summary(v-if="selectedOrder")
-        .thumbnail
-          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :imageStyle="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button#thumbnail.sm(label="View PDF" @click="viewPreview")
-        .details
-          colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
-      .card
-        order-shirttail(:data="selectedOrder.details")
-      .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :header="`${pdfName}`")
-          //vue-pdf-embed(:source="pdfUris")
-          //embed.pdf(:src="pdfUris" type="application/pdf" width="100%" height="500px")
-          iframe.pdf(:src="pdfUri")
-
-      
-        //- sgs-panel(v-for="(pdfUris, i) in selectedOrder.pdfUris" :header="`PDF-${i + 1}`")
-        //-   iframe.pdf(:src="pdfUris")
-        //iframe#preview.pdf(ref="preview" :src="selectedOrder.pdfUris[0]")
-      template(#footer)
-        footer
-          .secondary-actions &nbsp;
-          .actions
-            //- sgs-button.alert(label="Cancel Order" @click="router.push(`/${selectedId}/cancel`)")
-            sgs-button#reorder(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
-</template>
 
 <style lang="sass">
 @import "@/assets/styles/includes"

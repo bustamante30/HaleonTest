@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   mapPhotonOrderDetail,
   validation,
@@ -476,11 +477,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             Array.isArray(result.reorderedData) &&
             result.reorderedData.length > 0
           ) {
-            const reorderedData = handleSortPagination(
-              result.reorderedData,
-              filters,
-              this.pageState,
-            );
+            // TODO: need to check if this is required
+            // const reorderedData = handleSortPagination(
+            //   result.reorderedData,
+            //   filters,
+            //   this.pageState,
+            // );
             result = {
               reorderedData: result.reorderedData,
               totalRecords: result.reorderedData.length,
@@ -606,16 +608,16 @@ export const useOrdersStore = defineStore("ordersStore", {
       );
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
-        const totalSets =
-          colour.plateType &&
-          colour.plateType.length &&
-          sum(
-            colour.plateType.map((plate: any) =>
-              plate.checkboxId === params.checkboxId
-                ? params.value
-                : plate.sets,
-            ),
-          );
+        // const totalSets =
+        //   colour.plateType &&
+        //   colour.plateType.length &&
+        //   sum(
+        //     colour.plateType.map((plate: any) =>
+        //       plate.checkboxId === params.checkboxId
+        //         ? params.value
+        //         : plate.sets,
+        //     ),
+        //   );
         this.selectedOrder.editionColors[selectedIndex] = {
           ...colour,
           plateType: [
@@ -780,7 +782,9 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     mapColorAndCustomerDetailsToOrder(
       details: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       statusId: number,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       plateTypes: any[],
     ) {
       const colors = Array.from((details && details?.colors) || []);
@@ -793,7 +797,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         const editionColors: any[] = [];
         order.editionColors = editionColors;
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         let expectedColors = order.colors.length;
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
@@ -826,7 +830,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const authStore = useAuthStore();
                 let message = `Sorry we have experienced an issue on our end.  Please contact a PM directly, click the following`;
                 let link: string = `/dashboard?showPM=true`;
-                const b2cAuth = useB2CAuthStore();
                 if (authStore.currentUser.isLoggedIn) {
                   message = `Sorry your order cannot be processed through Photon.  Please go into MySGS directly to place your order`;
                   link = ``;

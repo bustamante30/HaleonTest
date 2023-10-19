@@ -1,17 +1,60 @@
+<template lang="pug">
+.order-conformation-form(v-if="checkoutForm" @change.prevent="updateCheckout")
+  .details
+    .f
+      label Delivery Date *
+      span.input.calendar
+        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
+        span.material-icons calendar_month
+    .f
+      label Delivery time *
+      span.input.calendar    
+        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
+
+
+    .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
+      label
+        span(v-if="i === 0") Purchase Order #
+      span.input.po
+        .input-text
+          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" maxlength="26" @update:model-value="updateCheckout")
+        a(v-if="i === 0" :class="{ disabled: checkoutForm.purchaseOrder.length >= 10 }" @click="addPurchaseOrder()")
+          span Add&nbsp;
+          i.material-icons add
+        a.remove(v-else @click="removePurchaseOrder(i)")
+          i.material-icons delete_outline
+
+
+  .notes(v-if="showNotes()")
+    .f
+      label Notes
+      span.input.notes
+        prime-textarea(v-model="checkoutForm.notes")
+  aside
+    label.doc-label Attach Documents
+    label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+      input(type="file" multiple)
+      span Drag &amp; Drop files here ...
+    .upload(v-if="validFiles && validFiles.length > 0")
+      h4 Uploaded Files:
+      ul.files 
+        li(v-for="(file, index) in validFiles" :key="file") 
+          .name {{ file.fileName }}
+          sgs-button.delete.alert.secondary.sm(:id="`delete-file-${index}`" icon="delete" @click="onDeleteClick(file,index)")
+
+</template>
+
 <script lang="ts" setup>
 import { DateTime } from "luxon";
 import { onBeforeMount, computed, ref, watch } from "vue";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useAuthStore } from "@/stores/auth";
-import SendToPMService from "@/services/SendToPmService";
 import {
   FileUploadService,
   type FileUploadResponse,
   type FileDelete,
 } from "@/services/FileUploadService";
-import type { UploadFileDto } from "@/models/UploadFileDto";
-import type { DeleteFileDto } from "@/models/DeleteFileDto";
 
 type ValidFiles = {
   fileName: string;
@@ -20,6 +63,7 @@ type ValidFiles = {
 const props = defineProps({
   checkout: {
     type: Object,
+    // eslint-disable-next-line vue/require-valid-default-prop
     default: {
       expectedDate: null,
       purchaseOrder: null,
@@ -38,7 +82,6 @@ const isb2cUserLoggedIn = computed(
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 let entering = ref();
-const sendUpload = ref([]);
 const checkoutForm = ref();
 let validFiles = ref<ValidFiles[]>([]);
 onBeforeMount(() => {
@@ -85,11 +128,6 @@ function minSelectableDate() {
 function showNotes(): boolean {
   return authb2cStore.currentB2CUser.userType === "EXT";
 }
-
-const isExpectedTimeDisabled = computed(() => {
-  return !checkoutForm.value.expectedDate;
-});
-
 const isValidFileType = (file: File) => {
   const forbiddenExtensions = [
     ".exe",
@@ -109,31 +147,18 @@ const isValidFileType = (file: File) => {
   );
 };
 
-async function blobToBase64(blob: any) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = (reader.result as any).split(",")[1];
-      resolve(base64String);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 async function getUserId() {
-  let userId = "6";
+  let userId;
   if (isUserLoggedIn.value) {
-    userId = (await authStore.currentUser.userId) as any;
+    userId = await authStore.currentUser.userId;
   }
   if (isb2cUserLoggedIn.value) {
-    userId = (await authb2cStore.currentB2CUser.userId) as any;
+    userId = await authb2cStore.currentB2CUser.userId;
   }
   return userId;
 }
 
-async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
-  const binaryToBase64 = await blobToBase64(file);
+async function convertAndSendFile(file): Promise<FileUploadResponse> {
   const fileName = file.name.replace(/[(!$%&[\]{}]/g, "-");
   const id = await getUserId();
 
@@ -146,13 +171,12 @@ async function convertAndSendFile(file: any): Promise<FileUploadResponse> {
   return await FileUploadService.uploadFile(formdata);
 }
 
-async function onDrop(event: any) {
+async function onDrop(event) {
   event.preventDefault();
   const uploadFiles = Array.from(event.dataTransfer.files);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
-      // rename the File
-
       notificationsStore.addNotification(
         `Invalid file type`,
         `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
@@ -219,70 +243,10 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   updateCheckout();
 }
 
-function onDragOver(event: any) {
+function onDragOver(event) {
   event.preventDefault();
-}
-
-function onDragEnter(event: any) {
-  event.preventDefault();
-}
-
-function onDragLeave(event: any) {
-  event.preventDefault();
-}
-
-function handleInput(e: any) {
-  const files = e.target.files;
 }
 </script>
-
-<template lang="pug">
-.order-conformation-form(v-if="checkoutForm" @change.prevent="updateCheckout")
-  .details
-    .f
-      label Delivery Date *
-      span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" appendTo="body" hourFormat="12" required="true")
-        span.material-icons calendar_month
-    .f
-      label Delivery time *
-      span.input.calendar    
-        prime-calendar(v-model="checkoutForm.expectedDate" @update:modelValue="updateCheckout" :minDate="minSelectableDate()" timeOnly appendTo="body" hourFormat="12" required="true")
-    
-
-    .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
-      label
-        span(v-if="i === 0") Purchase Order #
-      span.input.po
-        .input-text
-          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" @update:modelValue="updateCheckout" maxlength="26")
-          //-span.error(v-if="validatePurchaseOrder(i)") {{ validatePurchaseOrder(i) }}
-        a(v-if="i === 0" @click="addPurchaseOrder()" :class="{ disabled: checkoutForm.purchaseOrder.length >= 10 }")
-          span Add&nbsp;
-          i.material-icons add
-        a.remove(v-else @click="removePurchaseOrder(i)")
-          i.material-icons delete_outline
-
-
-  .notes(v-if="showNotes()")
-    .f
-      label Notes
-      span.input.notes
-        //- TODO Prepopulate
-        prime-textarea(v-model="checkoutForm.notes")
-  aside
-    label.doc-label Attach Documents
-    label.drop-zone(for="files" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false" :class="{ highlight: entering }")
-      input(type="file" multiple @input="handleInput($event)")
-      span Drag &amp; Drop files here ...
-    .upload(v-if="validFiles && validFiles.length > 0")
-      h4 Uploaded Files:
-      ul.files 
-        li(v-for="(file, index) in validFiles" :key="file") 
-          .name {{ file.fileName }}
-          sgs-button.delete.alert.secondary.sm(icon="delete" @click="onDeleteClick(file,index)" :id="`delete-file-${index}`")
-
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

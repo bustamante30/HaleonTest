@@ -1,8 +1,20 @@
+<template lang="pug">
+.orders-search
+  .search
+    .input
+      prime-auto-complete.search-input(v-model="value" placeholder="Search by Brand, Product, Printer ..." :suggestions="items" @complete="search")
+      span.material-icons.outline search
+    span.separator
+    sgs-button#advanced-search-user.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
+  .filters(v-if="isFiltersVisible")
+    sgs-mask(@click="toggleFilters")
+    advanced-search(:sections="config.sections" :filters="filters" @search="search")
+</template>
+<!-- eslint-disable no-undef -->
 <script setup>
-import { computed, ref } from "vue";
 import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 
-const props = defineProps({
+defineProps({
   config: {
     type: Object,
     default: () => {
@@ -31,34 +43,9 @@ function toggleFilters() {
 }
 </script>
 
-<template lang="pug">
-.orders-search
-  .search
-    .input
-      prime-auto-complete.search-input(placeholder="Search by Brand, Product, Printer ..." v-model="value" :suggestions="items" @complete="search")
-      span.material-icons.outline search
-    span.separator
-    sgs-button#advanced-search-user.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
-  .filters(v-if="isFiltersVisible")
-    sgs-mask(@click="toggleFilters")
-    advanced-search(:sections="config.sections" :filters="filters" @search="search")
-</template>
-
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 .orders-search
   +flex($h: right)
   width: 40rem
-  // .search
-  //   +flex
-  //   flex: 1
-  //   .input
-  //     flex: 1
-  //     position: relative
-  //     span.material-icons
-  //       +absolute-w
-  //       +flex(center, center)
-  //       left: $s50
-  //       font-size: 1.5rem
-  //       opacity: 0.6
 </style>

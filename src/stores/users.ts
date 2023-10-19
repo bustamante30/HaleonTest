@@ -1,17 +1,13 @@
-import { genLocations, genPrinters } from "@/data/mock/printers";
-import { genUsers } from "@/data/mock/users";
-import { faker } from "@faker-js/faker";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { chunk } from "lodash";
 import router from "@/router";
-import SuggesterService from "@/services/SuggesterService";
 import type { UserDto } from "../models/UserDto";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import UserService from "@/services/userService";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { UserSearchResponseDto } from "../models/UserSearchResponseDto";
-import type { SearchResponeDto } from "../models/SearchResponeDto";
 import type { PrinterDto } from "../models/PrinterDto";
 
 const authStore = useAuthStore();
@@ -222,9 +218,6 @@ export const useUsersStore = defineStore("users", {
         data: this.all && this.all[page] ? this.all[page] : [],
       };
 
-      // const all  = await searchPrinter(Number(authb2cStore.currentB2CUser.printerId),0,'')
-      // this.getPrinterById(authb2cStore.currentB2CUser.printerId.toString())
-
       this.selected = this.printers.data[0];
       if (this.userTypeValue !== "EXT") {
         if (requestPrinterId === undefined) {
@@ -242,8 +235,8 @@ export const useUsersStore = defineStore("users", {
         let prtId = 0;
         let userId = 0;
         let userType = "";
-        let searchKey = "";
-        let printerName = "";
+        // let searchKey = "";
+        // let printerName = "";
 
         //validating the user type.
         if (authStore.currentUser.email != "") {
@@ -298,21 +291,21 @@ export const useUsersStore = defineStore("users", {
           this.identityTypeName = printer.identityTypeName;
         }
 
-        if (
-          searchUserValue !== undefined &&
-          searchUserValue !== null &&
-          searchUserValue != ""
-        ) {
-          searchKey = searchUserValue;
-        }
+        // if (
+        //   searchUserValue !== undefined &&
+        //   searchUserValue !== null &&
+        //   searchUserValue != ""
+        // ) {
+        //   searchKey = searchUserValue;
+        // }
 
-        if (userType === "EXT") {
-          printerName = authb2cStore.currentB2CUser.printerName;
-        } else if (userType === "INT") {
-          if (printer != null || printer != undefined) {
-            printerName = printer.name;
-          }
-        }
+        // if (userType === "EXT") {
+        //   printerName = authb2cStore.currentB2CUser.printerName;
+        // } else if (userType === "INT") {
+        //   if (printer != null || printer != undefined) {
+        //     printerName = printer.name;
+        //   }
+        // }
 
         if (userType === "INT") {
           userId = 0;
@@ -451,6 +444,7 @@ export const useUsersStore = defineStore("users", {
           authb2cStore.currentB2CUser?.userType !== null &&
           authb2cStore.currentB2CUser?.userType != ""
         ) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           userType = authb2cStore.currentB2CUser.userType;
         }
       }

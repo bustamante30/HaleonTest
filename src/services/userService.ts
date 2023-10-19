@@ -1,7 +1,6 @@
 import type { UserClaimDto } from "../models/UserClaimDto";
 import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
-import type { UserSearchResponseDto } from "../models/UserSearchResponseDto";
 import type { SearchResponeDto } from "../models/SearchResponeDto";
 import type { PrinterDto } from "../models/PrinterDto";
 import ApiService from "../services/apiService";
@@ -20,7 +19,7 @@ class UserService {
       .then((response: UserClaimDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting reorders: ", error);
         return null;
       });
@@ -33,7 +32,7 @@ class UserService {
       .then((response: UserDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         const errorresp = error?.response?.data;
         const userNotificationsStore = useNotificationsStore();
         if (errorresp) {
@@ -59,7 +58,7 @@ class UserService {
       .then((response: SearchResponeDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error searching user:", error);
         return null;
       });
@@ -71,7 +70,7 @@ class UserService {
       .then((response: SearchResponeDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error searching Printer:", error);
         return null;
       });
@@ -83,7 +82,7 @@ class UserService {
       .then((response: UserDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting User Details: ", error);
         return null;
       });
@@ -95,7 +94,7 @@ class UserService {
       .then((response: PrinterDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         const errorresp = error?.response?.data;
         const notificationsStore = useNotificationsStore();
         if (errorresp) {
@@ -116,7 +115,6 @@ class UserService {
   }
 
   public static DeleteUser(userId: string, printerId: string) {
-    const params = { userId, isActive: false };
     return httpService
       .delete<boolean>(
         "v1/user/Delete?userId=" +
@@ -128,20 +126,19 @@ class UserService {
       .then((response: boolean) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error deleting user:", error);
         return null;
       });
   }
 
   public static ResendInvitation(userId: string) {
-    const params = { userId };
     return httpService
       .post<boolean>("v1/user/ResendInvitation?userId=" + userId)
       .then((response: boolean) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error resending invitation:", error);
       });
   }
@@ -157,7 +154,7 @@ class UserService {
       .then((response: ExternalPrinterCountResponseDto) => {
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("error getting User Details: ", error);
         return null;
       });

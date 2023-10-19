@@ -1,15 +1,61 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
+<template lang="pug">
+.page.details
+  sgs-mask
+  .container
+    sgs-scrollpanel(:top="0")
+      template(#header)
+        header
+          h1.title Add Printer
+          a.close(@click="emit('close')")
+            span.material-icons.outline close
+
+      .card.summary
+        .card.details
+          .f
+            label Printer Name
+            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" emptyMessage="No results found" :required="true" @complete="searchPrinter($event)")
+          .fields
+            .f
+              label Identity Provider
+              prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
+            template(v-if="printerForm.provider !== 1")
+              .f.radio(v-for="platform,i in federated" :key="i")
+                prime-radiobutton.square(v-model="printerForm.federatedProvider" name="federated" :inputId="platform.value" :value="platform.value")
+                label(:for="platform.value") {{ platform.label }}
+          h5 Admin
+          .f
+            label First Name
+            prime-inputtext(v-model="printerForm.adminFirstName")
+          .f
+            label Last Name
+            prime-inputtext(v-model="printerForm.adminLastName")
+          .f
+            label Email
+            prime-inputtext(v-model="printerForm.adminEmail")
+          h5 Primary PM
+          .f
+            label First Name
+            prime-inputtext(v-model="printerForm.primaryPMFirstName")
+          .f
+            label Last Name
+            prime-inputtext(v-model="printerForm.primaryPMLastName")
+          .f
+            label Email
+            prime-inputtext(v-model="printerForm.primaryPMEmail")
+      template(#footer)
+        footer
+          .secondary-actions &nbsp;
+          .actions
+            sgs-button#save-printer(label="Save" @click="save()")
+</template>
+
 <script setup>
 import { ref } from "vue";
-import router from "@/router";
 import { providers, federated } from "@/data/config/identitiy-providers";
-import { useUsersStore } from "@/stores/users";
 import SuggesterService from "@/services/SuggesterService";
 import { useNotificationsStore } from "@/stores/notifications";
-
-const toast = ref(null); // Ref to control the toast visibility
-
 const emit = defineEmits(["save", "close"]);
-const usersStore = useUsersStore();
 const printerResults = ref([]);
 const notificationsStore = useNotificationsStore();
 
@@ -18,14 +64,12 @@ const printerForm = ref({
   name: null,
   provider: 1,
   federatedProvider: null,
-  //admin: null,
   adminFirstName: null,
   adminLastName: null,
   adminEmail: null,
   primaryPMFirstName: null,
   primaryPMLastName: null,
   primaryPMEmail: null,
-  //email: null,
 });
 
 async function searchPrinter(value) {
@@ -107,62 +151,9 @@ function save() {
     );
     return;
   }
-
-  //emitting to printerlist form
   emit("save", printerForm);
 }
 </script>
-
-<template lang="pug">
-.page.details
-  sgs-mask
-  .container
-    sgs-scrollpanel(:top="0")
-      template(#header)
-        header
-          h1.title Add Printer
-          a.close(@click="emit('close')")
-            span.material-icons.outline close
-
-      .card.summary
-        .card.details
-          .f
-            label Printer Name
-            prime-auto-complete(v-model="printerForm.name" :suggestions="printerResults" completeOnFocus=true appendTo="body" @complete="searchPrinter($event)" emptyMessage="No results found" :required="true")
-          .fields
-            .f
-             label Identity Provider
-             prime-dropdown(v-model="printerForm.provider" :options="providers" optionLabel="label" optionValue="value" placeholder="Select Provider ...")
-            template(v-if="printerForm.provider !== 1")
-              .f.radio(v-for="platform in federated")
-                prime-radiobutton.square(v-model="printerForm.federatedProvider" name="federated" :inputId="platform.value" :value="platform.value")
-                label(:for="platform.value") {{ platform.label }}
-          h5 Admin
-          .f
-            label First Name
-            prime-inputtext(v-model="printerForm.adminFirstName")
-          .f
-            label Last Name
-            prime-inputtext(v-model="printerForm.adminLastName")
-          .f
-            label Email
-            prime-inputtext(v-model="printerForm.adminEmail")
-          h5 Primary PM
-          .f
-            label First Name
-            prime-inputtext(v-model="printerForm.primaryPMFirstName")
-          .f
-            label Last Name
-            prime-inputtext(v-model="printerForm.primaryPMLastName")
-          .f
-            label Email
-            prime-inputtext(v-model="printerForm.primaryPMEmail")
-      template(#footer)
-        footer
-          .secondary-actions &nbsp;
-          .actions
-            sgs-button#save-printer(label="Save" @click="save()")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

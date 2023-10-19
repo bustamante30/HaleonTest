@@ -1,3 +1,11 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template>
+  <div v-if="userLoggedIn">
+    <a>Please wait while we are loading profile information</a>
+  </div>
+  <div v-else><a> Please wait you will be redirected to login page....</a></div>
+</template>
+
 <script setup="ts">
 import { onMounted, computed, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
@@ -17,18 +25,12 @@ onMounted(async () => {
   }
 });
 
-watch(userLoggedIn, (value) => {
+watch(userLoggedIn, () => {
   if (authStore.currentUser.isLoggedIn) {
     router.push({ name: "dashboard" });
   }
 });
 </script>
-<template>
-  <div v-if="userLoggedIn">
-    <a>Please wait while we are loading profile information</a>
-  </div>
-  <div v-else><a> Please wait you will be redirected to login page....</a></div>
-</template>
 <style scoped>
 a {
   text-align: center;

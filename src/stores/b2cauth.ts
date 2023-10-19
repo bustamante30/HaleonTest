@@ -208,7 +208,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.error(error);
         });
     },
-    async updateUserStore(tokenResponse: any) {
+    async updateUserStore(tokenResponse) {
       this.currentB2CUser.isValidDomain = true;
       console.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
@@ -221,6 +221,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       );
       if (user !== null) {
         localStorage.setItem("Claims", user.claims);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.currentB2CUser = { ...this.currentB2CUser, ...user } as any;
         localStorage.setItem("userType", this.currentB2CUser.userType);
         this.currentB2CUser.printerUserIds = await printerIdSearch(
@@ -252,8 +253,9 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         router.push("/error");
       }
     },
-    getIdentityUsingToken(decodedToken: any) {
+    getIdentityUsingToken(decodedToken) {
       let identityProvider = "";
+      // eslint-disable-next-line no-prototype-builtins
       if (decodedToken.hasOwnProperty("idp")) {
         if (decodedToken.idp.includes("google")) {
           identityProvider = "Google";

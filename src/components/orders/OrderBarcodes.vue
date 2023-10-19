@@ -1,9 +1,17 @@
+<!-- eslint-disable vue/no-template-shadow -->
+<template lang="pug">
+.barcodes
+  data-table.p-datatable-sm(:value="data" scrollable scroll-height="300px")
+    column(v-for="col, i in config.cols" :key=i :header="col.label" :header-style="columnStyle(col.width)" :body-style="columnStyle(col.width)")
+      template(#body="{ data }")
+        span {{ data[col.name] }}
+</template>
+
 <script lang="ts" setup>
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import { ref, computed, reactive, onMounted } from "vue";
 
-const props = defineProps({
+defineProps({
   data: {
     type: Array,
     default: () => [],
@@ -19,24 +27,7 @@ const columnStyle = (width: number) => {
     ? { minWidth: `${width}rem`, maxWidth: `${width}rem`, flex: "none" }
     : { width: "auto", flex: "1" };
 };
-
-function checkData(data: any) {
-  console.log("Data prop received:", data);
-}
-
-// Lifecycle hook to call the checkData function after the component is mounted
-onMounted(() => {
-  checkData(props.data);
-});
 </script>
-
-<template lang="pug">
-.barcodes
-  data-table.p-datatable-sm(:value="data" scrollable scrollHeight="300px")
-    column(v-for="col, i in config.cols" :header="col.label" :headerStyle="columnStyle(col.width)" :bodyStyle="columnStyle(col.width)")
-      template(#body="{ data }")
-        span {{ data[col.name] }}
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

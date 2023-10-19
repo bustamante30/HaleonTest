@@ -1,3 +1,11 @@
+<template lang="pug">
+data-table.p-datatable-sm.search-history(:value="limitedData" scrollable scroll-height="flex" :rows="30")
+  column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :header-style="stylify(col.width)" :body-style="stylify(col.width)" :frozen="col.freeze ? true : false" :align-frozen="col.freeze")
+    // eslint-disable-next-line vue/no-template-shadow
+    template(#body="{ data }")
+      table-cell(:config="col" :data="data")
+</template>
+
 <script lang="ts" setup>
 import { slice } from "lodash";
 import { computed } from "vue";
@@ -12,7 +20,9 @@ const props = defineProps({
   },
   config: {
     type: Object,
-    default: { cols: [] },
+    default: () => {
+      [];
+    },
   },
   limit: {
     type: Number,
@@ -28,13 +38,6 @@ function stylify(width: number) {
     : { width: "auto", flex: "1" };
 }
 </script>
-
-<template lang="pug">
-data-table.p-datatable-sm.search-history(:value="limitedData" scrollable scrollHeight="flex" :rows="30")
-  column(v-for="(col, i) in config.cols" :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
-    template(#body="{ data }")
-      table-cell(:config="col" :data="data")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

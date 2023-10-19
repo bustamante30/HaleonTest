@@ -1,30 +1,251 @@
+<!-- eslint-disable vue/no-v-model-argument -->
+<!-- eslint-disable vue/no-template-shadow -->
+<!-- eslint-disable vue/component-name-in-template-casing -->
+<template lang="pug">
+.orders-table
+  data-table.p-datatable-sm(
+      v-model:first="current"
+      v-model:filters="columnFilters"
+      :value="data"
+      paginator
+      responsive-layout="scroll"
+      :rows="10"
+      class="small-icons frozen-columns"
+      filter-display="menu"
+      :global-filter-fields="['brandName','description', 'packType', 'orderDate']"
+      :loading="loading"
+      :total-records="totalRecords"
+      :lazy="true"
+      scrollable
+      scroll-height="flex"
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink"
+      @sort="sortColumn"
+      @page="onPage($event)"
+    )
+      template(#empty)
+        div No records found.
+      template(#loading)
+        sgs-spinner.spinner(v-if="loading")
+      //- Add to cart Selection column
+      Column(
+        v-if="showMultipleSelection"
+        field="selected"
+        header=""
+        class="frozen-column"
+        :header-style="{ width: `50px`, flex: 'none' }"
+        :body-style="{ width: `50px`, flex: 'none' }"
+      )
+        template(#header)
+          div.headerAddToCart
+            Button.centered(
+              type="button"
+              label="Add"
+              icon="pi pi-shopping-cart"
+              class="custom-button"
+              severity="secondary"
+              @click="emit('addMultipleToCart', data)"
+            )
+        template(#body="{ data }")
+          div.centered
+            prime-checkbox.square(v-model="data.selected" :binary="true")
+        
+      //- ThumbNail column
+      Column(
+        field="thumbNailPath"
+        header="ThumbNail"
+        freeze="left"
+        class="frozen-column"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[0]" :data="data")
+      
+      //- Brand Name column with contains filter
+      Column(
+        field="brandName"
+        header="Brand Name"
+        filter-field="brandName"
+        freeze="left"
+        :sortable="true"
+        :header-style="stylify(config.cols[1].width)"
+        :body-style="stylify(config.cols[1].width)"
+        :show-filter-match-modes="false"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[1]" :data="data")
+        template(#filter="{ filterModel }")
+          prime-inputtext.input(
+            v-model="filterModel.value"
+            type="text"
+            class="custom-button"
+            placeholder="Search by Brand"
+          )
+        template(#filterclear="{ filterModel }")
+          Button#filter-brand-name-clear(
+            type="button"
+            icon="pi pi-times"
+            class="custom-button"
+            severity="secondary"
+            @click="clearFilter('brandName', filterModel)"
+          )
+        template(#filterapply="{ filterModel }")
+          Button#filter-brand-name-apply(
+            type="button"
+            icon="pi pi-check"
+            class="custom-button"
+            severity="success"
+            @click="customFilter('brandName', filterModel)"
+          )
+      
+      //- Product Description column with contains filter
+      Column(
+        field="description"
+        header="Product Description"
+        filter-field="description"
+        freeze="left"
+        :sortable="true"
+        :header-style="{ maxWidth: `300px`, flex: 'none' }"
+        :body-style="{ maxWidth: `300px`, flex: 'none' }"
+        :show-filter-match-modes="false"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[2]" :data="data" @ordervalidation ="handleOrderValidation")
+        template(#filter="{ filterModel }")
+          prime-inputtext.input(
+            v-model="filterModel.value"
+            type="text"
+            class="custom-button"
+            placeholder="Search by Description"
+          )
+        template(#filterclear="{ filterModel }")
+          Button#filter-description-clear(
+            type="button"
+            icon="pi pi-times"
+            class="custom-button"
+            severity="secondary"
+            @click="clearFilter('description', filterModel)"
+          )
+        template(#filterapply="{ filterModel }")
+          Button#filter-description-apply(
+            type="button"
+            icon="pi pi-check"
+            class="custom-button"
+            severity="success"
+            @click="customFilter('description', filterModel)"
+          )
+      
+      //- Order Date column with date range filter
+      Column(
+        field="orderDate"
+        sort-field="OrderDate"
+        header="Order Date"
+        :sortable="true"
+        filter-field="orderDate"
+        :header-style="stylify(config.cols[3].width)"
+        :body-style="stylify(config.cols[3].width)"
+        :show-filter-match-modes="false"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[3]" :data="data")
+
+      //- Product Weight column
+      Column(
+        field="productWeight"
+        header="Product Weight"
+        :sortable="true"
+        :header-style="stylify(config.cols[4].width)"
+        :body-style="stylify(config.cols[4].width)"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[4]" :data="data")
+      
+      //- Item Code column
+      Column(
+        field="itemCode"
+        header="Item Code"
+        :sortable="true"
+        :header-style="stylify(config.cols[5].width)"
+        :body-style="stylify(config.cols[5].width)"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[5]" :data="data")
+      
+      //- Printer Name column
+      Column(
+        field="printerName"
+        header="Printer Name"
+        :sortable="true"
+        :header-style="stylify(config.cols[6].width)"
+        :body-style="stylify(config.cols[6].width)"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[6]" :data="data")
+      
+      //- PackType column
+      Column(
+        field="packType"
+        header="PackType"
+        filter-field="packType"
+        :sortable="true"
+        :header-style="stylify(config.cols[8].width)"
+        :body-style="stylify(config.cols[8].width)"
+        :show-filter-match-modes="false"
+      )
+        template(#body="{ data }")
+          table-cell(:config="config.cols[8]" :data="data")
+        template(#filter="{ filterModel }")
+          prime-inputtext.input(
+            v-model="filterModel.value"
+            type="text"
+            class="custom-button"
+            placeholder="Search by PackType"
+          )
+        template(#filterclear="{ filterModel }")
+          Button#filter-packtype-clear(
+            type="button"
+            icon="pi pi-times"
+            class="custom-button"
+            severity="secondary"
+            @click="clearFilter('packType', filterModel)"
+          )
+        template(#filterapply="{ filterModel }")
+          Button#filter-packtype-apply(
+            type="button"
+            icon="pi pi-check"
+            class="custom-button"
+            severity="success"
+            @click="customFilter('packType', filterModel)"
+          )
+
+      //- My SGS # column
+      Column(
+        field="mySgsNumber"
+        :header="setSgsNumberHeader()"
+        :sortable="true"
+        :header-style="stylify(config.cols[9].width)"
+        :body-style="stylify(config.cols[9].width)"
+      )
+        template(#body="{ data }")
+          table-cell( :config="config.cols[9]" :data="data")
+          //- Action column
+      Column(
+        field="actions"
+        width="6rem"
+      )
+        template(#body="{ data }")
+          table-actions(:actions="config.actions(data, userType)" :data="data" @action="handleAction" )
+</template>
+
+<!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import {
-  ref,
-  watch,
-  reactive,
-  onMounted,
-  nextTick,
-  getCurrentInstance,
-  computed,
-} from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import { DateTime } from "luxon";
-import router from "@/router";
-
 import TableActions from "@/components/ui/TableActions.vue";
 import TableCell from "@/components/ui/TableCell.vue";
-import FilterTokens from "@/components/ui/FilterTokens.vue";
-import Dropdown from "primevue/dropdown";
-import Calendar from "primevue/calendar";
-import InputText from "primevue/inputtext";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
+import { FilterMatchMode } from "primevue/api";
 import Button from "primevue/button";
 import filterStore from "@/stores/filterStore";
 import { useOrdersStore } from "@/stores/orders";
 import { orderStatusLabels } from "@/data/config/keylabelpairconfig";
-import { filter } from "lodash";
 
 const props = defineProps({
   data: {
@@ -46,13 +267,13 @@ const props = defineProps({
   currentPage: {
     type: Object,
     default: () => {
-      value: 0;
+      0;
     },
   },
   status: {
     type: Object,
     default: () => {
-      value: 4;
+      4;
     },
   },
   userType: {
@@ -94,12 +315,8 @@ watch(selected, (value) => {
   selected = value;
 });
 
-const showTextbox = ref(false);
 const orderStore = useOrdersStore();
 const dropdownOptions = ref<string[]>([]);
-const showStartDateCalendar = ref(false);
-const showEndDateCalendar = ref(false);
-
 const columnFilters = ref({
   brandName: { value: "", matchMode: FilterMatchMode.CONTAINS },
   description: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -114,22 +331,14 @@ const mutationMap: { [key: string]: string } = {
   packType: "setPackTypeFilter",
 };
 
-const showCalendar = ref(false);
-const sortFields = ref<string[]>([]);
-
-const initFilters = () => {
-  columnFilters.value = { ...columnFilters.value };
-};
-
 const clearFilter = async (fieldName: string, filterModel: any) => {
   filterModel.value = null;
+  // eslint-disable-next-line no-prototype-builtins
   if (mutationMap.hasOwnProperty(fieldName)) {
     const mutationName = mutationMap[fieldName];
     filterStore.commit(mutationName, null);
   }
-  //orderStore.getOrders();
   orderStore.setFilters(orderStore.filters);
-  // router.push('/dashboard')
 };
 
 function getFormattedValue(
@@ -148,6 +357,7 @@ async function customFilter(
   filterMatchMode: string,
 ) {
   const fieldName = field as keyof typeof columnFilters.value;
+  // eslint-disable-next-line no-prototype-builtins
   if (mutationMap.hasOwnProperty(fieldName)) {
     columnFilters.value[fieldName] = {
       value: getFormattedValue(filterModel.value, filterMatchMode),
@@ -187,253 +397,6 @@ function handleOrderValidation(data: any) {
   emit("ordervalidation", data);
 }
 </script>
-
-<template lang="pug">
-.orders-table
-  data-table.p-datatable-sm(
-      :value="data"
-      paginator
-      responsiveLayout="scroll"
-      :rows="10"
-      v-model:first="current"
-      v-model:filters="columnFilters"
-      class="small-icons"
-      filterDisplay="menu"
-      @sort="sortColumn"
-      :globalFilterFields="['brandName','description', 'packType', 'orderDate']"
-      class="frozen-columns"
-      :paginator="true"
-      :loading="loading"
-      :totalRecords="totalRecords"
-      :lazy="true"
-      scrollable
-      scrollHeight="flex"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink"
-      @page="onPage($event)"
-    )
-      template(#empty)
-        div No records found.
-      template(#loading)
-        sgs-spinner.spinner(v-if="loading")
-      //- Add to cart Selection column
-      Column(
-        v-if="showMultipleSelection"
-        field="selected"
-        header=""
-        class="frozen-column"
-        :headerStyle="{ width: `50px`, flex: 'none' }"
-        :bodyStyle="{ width: `50px`, flex: 'none' }"
-      )
-        template(#header)
-          div.headerAddToCart
-            Button.centered(
-              type="button"
-              label="Add"
-              icon="pi pi-shopping-cart"
-              @click="emit('addMultipleToCart', data)"
-              class="custom-button"
-              severity="secondary"
-            )
-        template(#body="{ data }")
-          div.centered
-            prime-checkbox.square(v-model="data.selected" :binary="true")
-        
-      //- ThumbNail column
-      Column(
-        field="thumbNailPath"
-        header="ThumbNail"
-        freeze="left"
-        class="frozen-column"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[0]" :data="data")
-      
-      //- Brand Name column with contains filter
-      Column(
-        field="brandName"
-        header="Brand Name"
-        filterField="brandName"
-        freeze="left"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[1].width)"
-        :bodyStyle="stylify(config.cols[1].width)"
-        :showFilterMatchModes="false"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[1]" :data="data")
-        template(#filter="{ filterModel }")
-          prime-inputtext.input(
-            v-model="filterModel.value"
-            type="text"
-            class="custom-button"
-            placeholder="Search by Brand"
-          )
-        template(#filterclear="{ filterModel }")
-          Button#filter-brand-name-clear(
-            type="button"
-            icon="pi pi-times"
-            @click="clearFilter('brandName', filterModel)"
-            class="custom-button"
-            severity="secondary"
-          )
-        template(#filterapply="{ filterModel, filterCallback }")
-          Button#filter-brand-name-apply(
-            type="button"
-            icon="pi pi-check"
-            @click="customFilter('brandName', filterModel)"
-            class="custom-button"
-            severity="success"
-          )
-      
-      //- Product Description column with contains filter
-      Column(
-        field="description"
-        header="Product Description"
-        filterField="description"
-        freeze="left"
-        :sortable="true"
-        :headerStyle="{ maxWidth: `300px`, flex: 'none' }"
-        :bodyStyle="{ maxWidth: `300px`, flex: 'none' }"
-        :showFilterMatchModes="false"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[2]" :data="data" @ordervalidation ="handleOrderValidation")
-        template(#filter="{ filterModel }")
-          prime-inputtext.input(
-            v-model="filterModel.value"
-            type="text"
-            class="custom-button"
-            placeholder="Search by Description"
-          )
-        template(#filterclear="{ filterModel }")
-          Button#filter-description-clear(
-            type="button"
-            icon="pi pi-times"
-            @click="clearFilter('description', filterModel)"
-            class="custom-button"
-            severity="secondary"
-          )
-        template(#filterapply="{ filterModel, filterCallback }")
-          Button#filter-description-apply(
-            type="button"
-            icon="pi pi-check"
-            @click="customFilter('description', filterModel)"
-            class="custom-button"
-            severity="success"
-          )
-      
-      //- Order Date column with date range filter
-      Column(
-        field="orderDate"
-        sortField="OrderDate"
-        header="Order Date"
-        :sortable="true"
-        filterField="orderDate"
-        :headerStyle="stylify(config.cols[3].width)"
-        :bodyStyle="stylify(config.cols[3].width)"
-        :showFilterMatchModes="false"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[3]" :data="data")
-
-      //- Product Weight column
-      Column(
-        field="productWeight"
-        header="Product Weight"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[4].width)"
-        :bodyStyle="stylify(config.cols[4].width)"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[4]" :data="data")
-      
-      //- Item Code column
-      Column(
-        field="itemCode"
-        header="Item Code"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[5].width)"
-        :bodyStyle="stylify(config.cols[5].width)"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[5]" :data="data")
-      
-      //- Printer Name column
-      Column(
-        field="printerName"
-        header="Printer Name"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[6].width)"
-        :bodyStyle="stylify(config.cols[6].width)"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[6]" :data="data")
-      
-      //- Printer Location column
-      //- Column(
-      //-   field="printerLocation"
-      //-   header="Printer Location"
-      //-   :sortable="true"
-      //-   :headerStyle="stylify(config.cols[7].width)"
-      //-   :bodyStyle="stylify(config.cols[7].width)"
-      //- )
-      //-   template(#body="{ data }")
-      //-     table-cell(:config="config.cols[7]" :data="data")
-      
-      //- PackType column
-      Column(
-        field="packType"
-        header="PackType"
-        filterField="packType"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[8].width)"
-        :bodyStyle="stylify(config.cols[8].width)"
-        :showFilterMatchModes="false"
-      )
-        template(#body="{ data }")
-          table-cell(:config="config.cols[8]" :data="data")
-        template(#filter="{ filterModel }")
-          prime-inputtext.input(
-            v-model="filterModel.value"
-            type="text"
-            class="custom-button"
-            placeholder="Search by PackType"
-          )
-        template(#filterclear="{ filterModel }")
-          Button#filter-packtype-clear(
-            type="button"
-            icon="pi pi-times"
-            @click="clearFilter('packType', filterModel)"
-            class="custom-button"
-            severity="secondary"
-          )
-        template(#filterapply="{ filterModel, filterCallback }")
-          Button#filter-packtype-apply(
-            type="button"
-            icon="pi pi-check"
-            @click="customFilter('packType', filterModel)"
-            class="custom-button"
-            severity="success"
-          )
-
-      //- My SGS # column
-      Column(
-        field="mySgsNumber"
-        :header="setSgsNumberHeader()"
-        :sortable="true"
-        :headerStyle="stylify(config.cols[9].width)"
-        :bodyStyle="stylify(config.cols[9].width)"
-      )
-        template(#body="{ data }")
-          table-cell( :config="config.cols[9]" :data="data")
-          //- Action column
-      Column(
-        field="actions"
-        width="6rem"
-      )
-        template(#body="{ data }")
-          table-actions(:actions="config.actions(data, userType)" :data="data" @action="handleAction" )
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

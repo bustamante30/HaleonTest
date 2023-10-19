@@ -8,6 +8,7 @@ const id = route.params.id;
 
 <template lang="pug">
 .page.order-detail
+  // eslint-disable-next-line vue/attribute-hyphenation
   order-reorder(:selectedId="id")
 </template>
 

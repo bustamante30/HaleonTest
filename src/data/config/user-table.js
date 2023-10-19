@@ -31,7 +31,7 @@ const config = {
       width: 3,
     },
   ],
-  actions: (user) => {
+  actions: () => {
     return [
       { icon: "redo", label: "Resend Invitation", event: "resend" },
       { icon: "edit", label: "Edit", event: "edit" },

@@ -12,7 +12,7 @@ export const useUploadFilesStore = defineStore("upload-files", {
       this.uploadedFiles = files;
     },
     async getSasPathDemoVideo() {
-      this.sasTokenUrl = await FileUploadService.getDemoVideo();
+      this.sasTokenUrl = (await FileUploadService.getDemoVideo()) as string;
     },
   },
 });

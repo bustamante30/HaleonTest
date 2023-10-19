@@ -26,7 +26,7 @@ export class FileUploadService {
         console.log("Upload Successfully");
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error submitting files:", error);
         return {
           status: "Failed",
@@ -42,7 +42,7 @@ export class FileUploadService {
         console.log("Deleted Successfully");
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error submitting files:", error);
         return false;
       });
@@ -51,11 +51,11 @@ export class FileUploadService {
   public static getDemoVideo() {
     return httpService
       .get("v1/GetDemoVideo")
-      .then((response: any) => {
+      .then((response) => {
         console.log("Get Successfully");
         return response;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         console.log("Error submitting files:", error);
         return false;
       });

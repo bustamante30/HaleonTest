@@ -41,7 +41,7 @@ const brands = [
 
 const history = [];
 
-const genSearchItem = (i) => {
+const genSearchItem = () => {
   const brand = faker.helpers.arrayElement(brands.map((b) => b.name));
   const brandKeyword = brand.split(" ")[0];
   const description = faker.helpers.arrayElement([

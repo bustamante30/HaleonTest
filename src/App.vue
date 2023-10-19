@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-model-argument -->
 <template lang="pug">
 #image-carrier
   sgs-scrollpanel(:scroll="false")
@@ -7,6 +8,7 @@
       template(#message="{ message }")
         .message
           h4 {{ message.summary }}
+          // eslint-disable-next-line vue/no-v-html
           .detail(v-html="message.detail") 
           router-link(v-if="message.link!==''" :to="message.link") Link
     prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple")
@@ -16,12 +18,12 @@
           // eslint-disable-next-line vue/no-v-html
           .detail(v-html="message.detail") 
     router-view
-  prime-dialog.demo(:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
+  prime-dialog.demo(v-model:visible='isDemoVisible' closable='closable' modal='modal' :style="{ width: '98vw', height: '98vh' }")
     template(#header='')
       header.videoheader
         sgs-button#chapters.sm(v-if='chapters && chapters.length' :label='`Chapters [${chapters.length}]`' :class='{ secondary: !showChapters, primary: showChapters }' @click='showChapters = !showChapters')
     demo-video(:chapters='chapters' :showchapters='showChapters')
-  prime-dialog.issue(:visible="isReportFormVisible" closable modal :style="{ width: '45rem', overflow: 'hidden' }")
+  prime-dialog.issue(v-model:visible="isReportFormVisible" closable modal :style="{ width: '45rem', overflow: 'hidden' }")
     template(#header)
       header
         h4 Report an Issue - Image Carrier Reorder

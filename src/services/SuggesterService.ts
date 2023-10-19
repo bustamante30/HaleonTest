@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type AiCustomerSearchDto } from "../models/AiCustomerSearchDto";
 import ApiService from "../services/apiService";
 

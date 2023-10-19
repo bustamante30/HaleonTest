@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 
 export const useNotificationsStore = defineStore("notifications", {
@@ -13,9 +14,8 @@ export const useNotificationsStore = defineStore("notifications", {
       life = 3000,
       position = "bottom-left",
       group: string,
-      link = null,
     ) {
-      this.messages.push({ severity, summary, detail, life });
+      this.messages.push({ severity, summary, detail, life, position, group });
     },
     addNotification(summary: string, detail: string, options?: any) {
       options = {

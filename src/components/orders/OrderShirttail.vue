@@ -1,23 +1,23 @@
+<template lang="pug">
+.order-shirttail
+  sgs-panel(v-for="(section, i) in config.sections" :key=i :header="section.label")
+    order-barcodes(v-if="section && section.type === 'barcodes'" :config="section.tableConfig" :data="getFieldData('barcodes')")
+    .fields(v-if="section && section.fields")
+      .f(v-for="(field, j) in section.fields" :key=j)
+        label {{ field.label }}
+        span.value {{ getFieldData(field.name) }}
+</template>
+
 <script lang="ts" setup>
 import { config } from "@/data/config/shirttail";
 import { get } from "lodash";
 import { useOrdersStore } from "@/stores/orders";
-import { ref, computed, reactive, onMounted } from "vue";
-import Dialog from "primevue/dialog";
+import { computed } from "vue";
 import OrderBarcodes from "./OrderBarcodes.vue";
-
-const props = defineProps({
-  data: {
-    type: Object,
-    default: () => {},
-  },
-});
-
 const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder);
-const colors = computed(() => ordersStore.selectedOrder.colors);
 
-function getFieldData(fieldName: string): any {
+function getFieldData(fieldName: string) {
   console.log("selected orders", selectedOrder.value);
   const fieldValue = get(selectedOrder.value, fieldName);
   if (fieldValue === null || fieldValue === "") {
@@ -40,17 +40,6 @@ function getFieldData(fieldName: string): any {
   return get(selectedOrder.value, fieldName);
 }
 </script>
-
-<template lang="pug">
-.order-shirttail
-  sgs-panel(v-for="(section, i) in config.sections" :header="section.label")
-    order-barcodes(v-if="section && section.type === 'barcodes'" :config="section.tableConfig" :data="getFieldData('barcodes')")
-    .fields(v-if="section && section.fields")
-      .f(v-for="field in section.fields")
-        label {{ field.label }}
-        span.value {{ getFieldData(field.name) }}
-    
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

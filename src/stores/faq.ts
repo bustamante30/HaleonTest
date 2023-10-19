@@ -4,16 +4,16 @@ export const useFaqStore = defineStore("faq-store", {
   state: () => ({
     faqs: {
       results: [],
-    } as any,
+    },
   }),
   actions: {
-    setFaqs(faqs: any) {
+    setFaqs(faqs) {
       this.faqs = faqs;
     },
     async loadFaqs() {
       // If FAQs not present in store then fetch the FAQ from server
       if (this.faqs.results?.length === 0) {
-        const faq: any = await FaqService.getFaq();
+        const faq = await FaqService.getFaq();
         this.setFaqs(faq);
       }
 

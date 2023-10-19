@@ -1,5 +1,19 @@
+<template lang="pug">
+.orders-search(:class="{ focused: isSearchFocused }")
+  .search
+    .input
+      prime-auto-complete.search-input.free-text(
+v-model="searchedValue" :suggestions="filteredSuggestions" input-id='keyword'
+      complete-on-focus :loading="false" :placeholder="placeholder" @keyup.enter="keywordSearch($event)" @focus="handleFocus" @blur="handleBlur"
+      @item-select="keywordSearch")
+      span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
+    sgs-button#advanced-search.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
+  .filters(v-if="isFiltersVisible")
+    advanced-search(:sections="config.sections" :filters="filters" :printer-name="printerName" @close="isFiltersVisible = false" @search="search")
+</template>
+
 <script setup>
-import { computed, ref, onMounted, watch } from "vue";
+import { computed, ref, onMounted } from "vue";
 import AdvancedSearch from "@/components/orders/AdvancedSearch.vue";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import { debounce } from "lodash";
@@ -20,7 +34,7 @@ const props = defineProps({
   },
   value: {
     type: String,
-    defulat: null,
+    default: null,
   },
   userType: {
     type: String,
@@ -38,11 +52,9 @@ const printerName = computed(() =>
 );
 const emit = defineEmits(["search", "searchkeyword"]);
 const searchhistoryStore = useSearchhistoryStore();
-const searchDate = computed(() => searchhistoryStore.searchDate);
 const searchHistory = computed(() => searchhistoryStore.searchHistory);
 const filteredSuggestions = ref([]);
 const searchedValue = ref();
-const dateRefId = ref("");
 const notificationsStore = useNotificationsStore();
 const placeholder = computed(() =>
   isExternalUser.value
@@ -58,9 +70,8 @@ const isSearchFocused = ref(false);
 onMounted(async () => {
   await searchhistoryStore.getSearchField();
 });
-async function handleFocus(item) {
+async function handleFocus() {
   isSearchFocused.value = true;
-  // User Id from claims
   let userId;
   if (authStore.currentUser.isLoggedIn) {
     userId = authStore.currentUser.userId;
@@ -98,9 +109,9 @@ const keywordSearch = debounce(async (event) => {
       searchedValue.value = "";
       document.getElementById("keyword").blur();
     } else {
-      // Notify User
       notificationsStore.addNotification(
         `Error`,
+        // eslint-disable-next-line no-useless-escape
         `Only the following special characters are allowed -, _, /, \, # , ., , +, &, (, ), " ",.  Please correct and try your search again`,
         { severity: "error", position: "top-right" },
       );
@@ -113,20 +124,9 @@ async function search(filters) {
   emit("search", filters);
 }
 
-async function addToHistory() {
-  loadingSuggestions.value = true;
-  if (searchedValue.value) {
-    console.log("API from addToHistory");
-    await searchhistoryStore.setKeywordSearchHistory(
-      searchedValue.value,
-      false,
-    );
-  }
-  loadingSuggestions.value = false;
-}
-
 const validateSearch = (text) => {
   // Allowed chars are - Alpha numeric , given special chars and spaces
+  // eslint-disable-next-line no-useless-escape
   const regex = /^[-_\/#.,+&():;<>\)\"a-zA-Z0-9\s]+$/;
   return regex.test(text);
 };
@@ -136,19 +136,6 @@ function toggleFilters() {
   isFiltersVisible.value = !isFiltersVisible.value;
 }
 </script>
-
-<template lang="pug">
-.orders-search(:class="{ focused: isSearchFocused }")
-  .search
-    .input
-      prime-auto-complete.search-input.free-text(v-model="searchedValue" :suggestions="filteredSuggestions" inputId='keyword'
-      @keyup.enter="keywordSearch($event)" completeOnFocus @focus="handleFocus" @blur="handleBlur" @item-select="keywordSearch" :loading="false"
-      :placeholder="placeholder")
-      span.material-icons.outline.search-icon(@click="keywordSearch({query:searchedValue.value})") search
-    sgs-button#advanced-search.sm(label="Advanced Search" icon="filter_list" @click="toggleFilters")
-  .filters(v-if="isFiltersVisible")
-    advanced-search(@close="isFiltersVisible = false" :sections="config.sections" :filters="filters" :printerName="printerName" @search="search")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

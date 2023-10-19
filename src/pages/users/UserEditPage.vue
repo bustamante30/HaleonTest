@@ -1,5 +1,9 @@
+<template lang="pug">
+.page.user-edit
+  user-form(:user="user" :title="`${printer.name}: Edit ${userName}`" @save="saveUser")
+</template>
+<!-- eslint-disable no-undef -->
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useUsersStore } from "@/stores/users";
 import UserForm from "@/components/printers/UserForm.vue";
@@ -77,20 +81,15 @@ async function saveUser(value) {
   }
 }
 
-const showSuccess = (summary, severity) => {
-  toast.add({
-    severity: severity,
-    summary: summary,
-    detail: "Message Content",
-    life: 3000,
-  });
-};
+// const showSuccess = (summary, severity) => {
+//   toast.add({
+//     severity: severity,
+//     summary: summary,
+//     detail: "Message Content",
+//     life: 3000,
+//   });
+// };
 </script>
-
-<template lang="pug">
-.page.user-edit
-  user-form(:user="user" :title="`${printer.name}: Edit ${userName}`" @save="saveUser")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
