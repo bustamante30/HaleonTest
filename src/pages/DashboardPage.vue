@@ -120,7 +120,12 @@ watch(
     init();
   },
 );
-
+watch(
+  () => route.query["showPM"],
+  () => {
+    createPmOrder();
+  },
+);
 watch(currentUser, (value) => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
