@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-model-argument -->
 <template lang="pug">
 .cart-order
   h2
@@ -32,7 +33,7 @@
           sgs-button.sm.secondary(:id="`view-order-${order.id}`" label="View Order"  @click="goto(`/dashboard/${order.id}`)" )
           sgs-button.sm.secondary(:id="`audit-order-${order.id}`" v-tooltip.bottom="{ value: 'View Audit' }"  icon="visibility"  @click="auditOrder(order)" )
           sgs-button.sm.alert.secondary(:id="`discard-order-${order.id}`"  v-tooltip.bottom="{ value: 'Discard Order' }"  icon="delete"  @click="discardOrder(order)" )
-  prime-dialog.audit(:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
+  prime-dialog.audit(v-model:visible="isAuditVisible" closable modal :style="{ width: '75rem', overflow: 'hidden' }")
     template(#header)
       header
         h4 Reorder Audit - {{auditReorderId}}
