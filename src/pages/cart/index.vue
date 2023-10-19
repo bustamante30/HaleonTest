@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template lang="pug">
 .page.cart
   sgs-mask
@@ -11,10 +12,7 @@
       sgs-spinner(v-if="loading.cart")
       .shopping-cart(v-else-if="cart")
         .orders
-          cart-order(v-for="(order, i) in cart" :order="order")
-        .checkout
-
-
+          cart-order(v-for="(order, i) in cart" :key="i" :order="order")
 </template>
 
 <script setup>

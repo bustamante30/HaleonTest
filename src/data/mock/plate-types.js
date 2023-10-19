@@ -1,14 +1,3 @@
-import { faker } from "@faker-js/faker";
-
-// const types = [
-//   'Rubber Plate',
-//   'Photopolymer Plate',
-//   'Sheet Photopolymer',
-//   'Liquid Photopolymer',
-//   'Dry Thermal Photopolymer Plate',
-//   'Digital Photopolymer Plate',
-// ]
-
 const types = [
   "A Nyloprint WS83",
   "A Nyloprint WS94",

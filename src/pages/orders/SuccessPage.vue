@@ -1,25 +1,17 @@
-<script setup>
-import { useRoute } from "vue-router";
-import router from "@/router";
-import SuccessDetails from "@/components/orders/OrderSuccess.vue";
-
-const route = useRoute();
-
-const id = route.params.id;
-
-function back() {
-  router.push("/dashboard");
-}
-</script>
-
 <template lang="pug">
 .page.success
   sgs-mask
   .container
+    // eslint-disable-next-line vue/attribute-hyphenation
     success-details(:selectedId="id")
 </template>
 
-<script setup></script>
+<script setup>
+import { useRoute } from "vue-router";
+import SuccessDetails from "@/components/orders/OrderSuccess.vue";
+const route = useRoute();
+const id = route.params.id;
+</script>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

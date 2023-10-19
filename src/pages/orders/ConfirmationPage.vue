@@ -1,10 +1,7 @@
 <script setup>
 import { useRoute } from "vue-router";
-import router from "@/router";
 import ConfirmDetails from "@/components/orders/OrderConfirm.vue";
-
 const route = useRoute();
-
 const id = route.params.id;
 </script>
 
@@ -12,6 +9,7 @@ const id = route.params.id;
 .page.order-confirm
   sgs-mask
   .container
+    // eslint-disable-next-line vue/attribute-hyphenation
     confirm-details(:selectedId = "id")
 </template>
 

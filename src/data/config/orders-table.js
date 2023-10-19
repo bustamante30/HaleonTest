@@ -1,4 +1,4 @@
-export default {
+const tableConfig = {
   cols: [
     {
       header: "Thumbnail",
@@ -69,9 +69,18 @@ export default {
           { icon: "add", label: "Add to Cart", event: "add" },
           { icon: "redo", label: "Order Again", event: "reorder" },
         ];
+      case 1:
+        if (
+          userType === "INT" ||
+          (userType === "EXT" && role === "PrinterAdmin")
+        ) {
+          return [{ icon: "visibility", label: "Audit", event: "audit" }];
+        }
+        break;
       case 2:
+        // eslint-disable-next-line no-case-declarations
         let actions = [];
-        if (userType !== "INT")
+        if (userType !== "INT") {
           actions.push({
             icon: "backspace",
             label: "Cancel Order",
@@ -79,30 +88,27 @@ export default {
             validate: true,
             field: "submittedDate",
           });
+        }
 
         if (
           userType === "INT" ||
           (userType === "EXT" && role === "PrinterAdmin")
-        )
+        ) {
           actions.push({ icon: "visibility", label: "Audit", event: "audit" });
-
+        }
         return actions;
       case 3:
         if (
           userType === "INT" ||
           (userType === "EXT" && role === "PrinterAdmin")
-        )
+        ) {
           return [{ icon: "visibility", label: "Audit", event: "audit" }];
-
-      case 1:
-        if (
-          userType === "INT" ||
-          (userType === "EXT" && role === "PrinterAdmin")
-        )
-          return [{ icon: "visibility", label: "Audit", event: "audit" }];
+        }
+        break;
       default:
         return [];
     }
-    return [];
   },
 };
+
+export default tableConfig;

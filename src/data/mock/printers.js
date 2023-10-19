@@ -12,7 +12,7 @@ function genLocations() {
   return locations;
 }
 
-function genPrinter(i, isAdmin) {
+function genPrinter() {
   const locations = faker.datatype.number({ min: 3, max: 100 });
   return {
     id: faker.datatype.uuid(),

@@ -1,4 +1,4 @@
-function filterConfig(role) {
+function filterConfig() {
   return {
     sections: [
       {

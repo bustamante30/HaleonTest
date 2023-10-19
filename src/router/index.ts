@@ -55,11 +55,6 @@ const router = createRouter({
       component: () => import("@/pages/FaqPage.vue"),
     },
     {
-      path: "/help",
-      name: "help",
-      component: () => import("@/pages/HelpPage.vue"),
-    },
-    {
       path: "/users",
       name: "users",
       meta: {

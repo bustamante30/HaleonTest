@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-function generateColor(i) {
+function generateColor() {
   const refIdSuffix = faker.datatype.boolean()
     ? faker.helpers.arrayElement(["-1", "-2"])
     : "";

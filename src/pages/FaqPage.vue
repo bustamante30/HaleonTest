@@ -1,3 +1,15 @@
+<!-- eslint-disable vue/no-v-html -->
+<template lang="pug">
+sgs-scrollpanel.project-job-detail
+  template(#header)
+  .projects.page
+    header
+      h1 FAQ
+    .main
+      prime-panel(v-for="faq,i in faqs" :key="i" :header="faq.question" toggleable)
+        .section(v-html="faq.answer")
+</template>
+
 <script setup>
 import { onMounted, ref } from "vue";
 import { useFaqStore } from "@/stores/faq";
@@ -9,19 +21,6 @@ onMounted(async () => {
   faqs.value = faq.results;
 });
 </script>
-
-<template lang="pug">
-sgs-scrollpanel.project-job-detail
-  template(#header)
-  .projects.page
-    header
-      h1 FAQ
-    .main
-      prime-panel(v-for="faq in faqs" :header="faq.question" toggleable)
-        .section(v-html="faq.answer")
-          
-
-</template>
 
 <style lang="sass" scoped></style>
 <style lang="sass" scoped>

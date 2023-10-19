@@ -800,7 +800,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         const editionColors: any[] = [];
         order.editionColors = editionColors;
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         let expectedColors = order.colors.length;
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {

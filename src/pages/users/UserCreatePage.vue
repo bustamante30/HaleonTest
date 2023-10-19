@@ -1,6 +1,10 @@
+<template lang="pug">
+.page.user-create
+  user-form(:user="user" :title="`${printer.name}: New User`" @save="saveUser")
+</template>
+
+<!-- eslint-disable no-undef -->
 <script setup>
-import { ref, computed, onBeforeMount, onMounted } from "vue";
-import { useRoute } from "vue-router";
 import { useUsersStore } from "@/stores/users";
 import UserForm from "@/components/printers/UserForm.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -8,11 +12,9 @@ import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from "@/router";
 import { useNotificationsStore } from "@/stores/notifications";
 
-const route = useRoute();
 const usersStore = useUsersStore();
 const notificationsStore = useNotificationsStore();
 
-const id = route.params.id;
 const printer = computed(() => usersStore.selected);
 const user = computed(() => usersStore.user);
 const authStore = useAuthStore();
@@ -70,11 +72,6 @@ async function saveUser(userRequest) {
   }
 }
 </script>
-
-<template lang="pug">
-.page.user-create
-  user-form(:user="user" :title="`${printer.name}: New User`" @save="saveUser")
-</template>
 
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"

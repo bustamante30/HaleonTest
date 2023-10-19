@@ -82,7 +82,7 @@ function generateCustomers() {
   });
 }
 
-function generateBarcode(index) {
+function generateBarcode() {
   return {
     number: faker.datatype.number({ min: 100000000000, max: 999999999999 }),
     type: "UPC-A",
