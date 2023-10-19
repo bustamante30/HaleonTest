@@ -8,6 +8,7 @@
       template(#message="{ message }")
         .message
           h4 {{ message.summary }}
+          // eslint-disable-next-line vue/no-v-html
           .detail(v-html="message.detail") 
           router-link(v-if="message.link!==''" :to="message.link") Link
     prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple")

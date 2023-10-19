@@ -830,7 +830,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const authStore = useAuthStore();
                 let message = `Sorry we have experienced an issue on our end.  Please contact a PM directly, click the following`;
                 let link: string = `/dashboard?showPM=true`;
-                const b2cAuth = useB2CAuthStore();
                 if (authStore.currentUser.isLoggedIn) {
                   message = `Sorry your order cannot be processed through Photon.  Please go into MySGS directly to place your order`;
                   link = ``;

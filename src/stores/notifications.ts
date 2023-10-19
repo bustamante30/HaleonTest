@@ -14,7 +14,6 @@ export const useNotificationsStore = defineStore("notifications", {
       life = 3000,
       position = "bottom-left",
       group: string,
-      link = null,
     ) {
       this.messages.push({ severity, summary, detail, life, position, group });
     },
