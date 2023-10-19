@@ -33,6 +33,7 @@ import { faker } from "@faker-js/faker";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useSendToPmStore } from "@/stores/send-to-pm";
+import { useNotificationsStore } from "@/stores/notifications";
 
 defineProps({
   isMandatory: {
@@ -43,8 +44,28 @@ defineProps({
 
 const colours = ref([] as any[]);
 const sendToPmstore = useSendToPmStore();
+const notificationsStore = useNotificationsStore();
 
 const emit = defineEmits(["update"]);
+
+function addColour() {
+  if (colours.value.length < 10) {
+    const newColour: any = {
+      id: faker.datatype.uuid(),
+      name: null,
+      quantity: 1,
+      plateType: null,
+    };
+    colours.value.push(newColour);
+    emit("update", colours.value);
+  } else {
+    notificationsStore.addNotification(
+      "Add Colours Limit Exceeded",
+      "Cannot add more than 10 colors",
+      { severity: "error", position: "top-right" },
+    );
+  }
+}
 
 function removeColour(
   colour: any = {
