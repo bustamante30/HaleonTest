@@ -297,7 +297,7 @@ function updateUrgent(date) {
   const diff = Interval.fromDateTimes(today, selectedDate);
   const diffHours = diff.length("hours");
   const isSameDay = today.hasSame(selectedDate, "day");
-  if (Math.ceil(diffHours) <= 72 || isSameDay) {
+  if (Math.ceil(diffHours) <= 24 || isSameDay) {
     sendForm.value.isUrgent = true;
   } else {
     sendForm.value.isUrgent = false;
