@@ -11,7 +11,7 @@
       h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
       h4(v-else style="margin-left: 18px;") Enter at least one field
       .urgent
-        h5 Urgent Order? (within 3 days)
+        h5 Urgent Order? (within 24 hours)
         .switch
           prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
           span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
