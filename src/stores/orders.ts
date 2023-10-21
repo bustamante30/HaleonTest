@@ -507,20 +507,25 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
     },
     async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
-      const barcodeDetails = photonOrder
-        ? JSON.parse(
-            JSON.stringify(
-              await ReorderService.getPhotonBarcode(photonOrder?.id),
-            ),
-          )
-        : null;
-      const shirttailDetails = photonOrder
-        ? JSON.parse(
-            JSON.stringify(
-              await ReorderService.getPhotonShirttail(photonOrder?.id),
-            ),
-          )
-        : null;
+      let promises: Promise<any>[] = [];
+      let barcodeDetails, shirttailDetails;
+      if (photonOrder) {
+        promises.push(
+          ReorderService.getPhotonBarcode(photonOrder?.id).then((data) => {
+            barcodeDetails = JSON.parse(JSON.stringify(data));
+          }),
+        );
+        promises.push(
+          ReorderService.getPhotonShirttail(photonOrder?.id).then((data) => {
+            shirttailDetails = JSON.parse(JSON.stringify(data));
+          }),
+        );
+      } else {
+        barcodeDetails = null;
+        shirttailDetails = null;
+      }
+      await Promise.allSettled(promises);
+
       this.selectedOrder = this.selectedOrder || {};
       this.selectedOrder = {
         ...this.selectedOrder,
