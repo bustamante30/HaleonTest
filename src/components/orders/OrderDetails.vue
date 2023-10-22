@@ -63,6 +63,9 @@ onMounted(async () => {
 });
 
 async function buy() {
+  if (selectedOrder.value.statusId != 1) {
+    selectedOrder.value.id = 0;
+  }
   ordersStore.getEditableColors(props.selectedId, selectedOrder.value);
   const confirmRoute =
     `/dashboard/${props.selectedId}/reorder` +

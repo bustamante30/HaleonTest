@@ -87,9 +87,12 @@ async function navigate(config, data) {
     data.orderStatus === "Completed"
   ) {
     let jobNumber = "";
+    config.pathParams = [];
     if (data.originalOrderId != null) {
       jobNumber = data.originalOrderId;
+      config.pathParams.push("originalOrderId");
     } else if (data.sgsId != null) {
+      config.pathParams.push("sgsId");
       jobNumber = data.sgsId;
     }
 
