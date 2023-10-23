@@ -11,8 +11,6 @@ span.table-action(v-if="actions.length>0")
 <script setup>
 import { ref, computed } from "vue";
 import { DateTime } from "luxon";
-import { useNotificationsStore } from "@/stores/notifications";
-import ReorderService from "@/services/ReorderService";
 
 const props = defineProps({
   actions: {
@@ -26,7 +24,6 @@ const props = defineProps({
 });
 
 const menu = ref();
-const notificationsStore = useNotificationsStore();
 const emit = defineEmits(["select", "action"]);
 
 const items = computed(() => {
@@ -52,20 +49,14 @@ async function toggleMenu(event) {
     const subTime = DateTime.fromMillis(new Date(submittedDate).getTime());
     const diff = currentTime.diff(subTime, ["minutes"]).minutes;
     if (diff > 10) {
-      const result = await ReorderService.submitReorder(item, 4, true);
-      if (!result) {
-        notificationsStore.addNotification(
-          `Error`,
-          "Error completing the order",
-          { severity: "error" },
-        );
-      } else {
-        items.value.splice(removeIndex, 1);
-      }
+      items.value.splice(removeIndex, 1);
+      if (items.value.length > 0) menu.value.toggle(event);
+    } else {
+      menu.value.toggle(event);
     }
+  } else {
+    menu.value.toggle(event);
   }
-
-  if (items.value.length > 0) menu.value.toggle(event);
 }
 </script>
 

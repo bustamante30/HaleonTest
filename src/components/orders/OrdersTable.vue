@@ -232,7 +232,7 @@
         width="6rem"
       )
         template(#body="{ data }")
-          table-actions(:actions="config.actions(data, userType)" :data="data" @action="handleAction" )
+          table-actions(:actions="config.actions(data, userType, role)" :data="data" @action="handleAction" )
 </template>
 
 <!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
@@ -279,6 +279,10 @@ const props = defineProps({
   userType: {
     type: String,
     default: () => "INT",
+  },
+  role: {
+    type: String,
+    default: () => "",
   },
 });
 const totalRecords = computed(() => orderStore.totalRecords);
