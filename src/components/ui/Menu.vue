@@ -15,8 +15,8 @@ const props = defineProps({
 .menu
   // eslint-disable-next-line vue/no-v-for-template-key
   template(v-for="menuitem, i in props.menu" :key="i")
-    menu-popup(v-if="menuitem.items" :menuitem="menuitem")
-    menu-button(v-else :menuitem="menuitem")
+    menu-popup(v-if="menuitem.items" :key="'popup-'+i" :menuitem="menuitem")
+    menu-button(v-else :key="'button-' + i" :menuitem="menuitem")
 </template>
 
 <style lang="sass" scoped>
