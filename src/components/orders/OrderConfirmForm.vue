@@ -2,12 +2,12 @@
 .order-conformation-form(v-if="checkoutForm" @change.prevent="updateCheckout")
   .details
     .f
-      label Delivery Date *
+      label.required Delivery Date
       span.input.calendar
         prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
         span.material-icons calendar_month
     .f
-      label Delivery time *
+      label.required Delivery time
       span.input.calendar    
         prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
 
@@ -272,6 +272,12 @@ function onDragOver(event) {
       width: 10rem
       font-weight: 500
       display: inline-block
+      &.required
+        &:after
+          content: "*"
+          display: inline-block
+          padding: 0 $s25
+          color: $sgs-red
     span.input
       flex: 1
       position: relative

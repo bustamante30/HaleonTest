@@ -121,30 +121,28 @@ function removePlate(params: any) {
 
 async function updatePlate(params: any) {
   await ordersStore.updatePlate(params);
-  if (params?.field === "sets") {
-    const isAlreadySelected = selected.value.find(
+  const isAlreadySelected = selected.value.find(
+    (c: any) => c.checkboxId === params?.colourId,
+  );
+  if (params?.value) {
+    const colour = props.data.find(
       (c: any) => c.checkboxId === params?.colourId,
     );
-    if (params?.value) {
-      const colour = props.data.find(
+    if (selected && selected.value && !isAlreadySelected) {
+      selected.value = [...(selected.value as any[]), colour] as never[];
+    }
+  } else {
+    if (isAlreadySelected) {
+      const colour = selected?.value?.find(
         (c: any) => c.checkboxId === params?.colourId,
       );
-      if (selected && selected.value && !isAlreadySelected) {
-        selected.value = [...(selected.value as any[]), colour] as never[];
-      }
-    } else {
-      if (isAlreadySelected) {
-        const colour = selected?.value?.find(
-          (c: any) => c.checkboxId === params?.colourId,
-        );
-        const totalSets = sum(
-          (colour as any)?.plateType?.map((plate: any) => plate?.sets) || [],
-        );
-        if (!totalSets)
-          selected.value = selected?.value?.filter(
-            (c: any) => c.checkboxId !== params?.colourId,
-          ) as never[];
-      }
+      const totalSets = sum(
+        (colour as any)?.plateType?.map((plate: any) => plate?.sets) || [],
+      );
+      if (!totalSets)
+        selected.value = selected?.value?.filter(
+          (c: any) => c.checkboxId !== params?.colourId,
+        ) as never[];
     }
   }
 }

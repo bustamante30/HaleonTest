@@ -177,8 +177,8 @@ watch(
 );
 watch(
   () => route.query["showPM"],
-  () => {
-    createPmOrder();
+  (showPM) => {
+    if (showPM === "true") createPmOrder();
   },
 );
 watch(currentUser, () => {
