@@ -119,7 +119,6 @@ function validatePOForm() {
     return false;
   }
 
-  checkDuplicatePONumbers();
   let validSpecialCharacters = [
     "-",
     "_",
@@ -184,11 +183,13 @@ function checkDuplicatePONumbers() {
       Constants.DUPLICATE_PO_NUMBER + " " + duplicates,
       { severity: "error", position: "top-right" },
     );
+    return false;
   }
+  return true;
 }
 
 async function placeOrder() {
-  if (validatePOForm()) {
+  if (validatePOForm() && checkDuplicatePONumbers()) {
     ordersStore.loading.reorder = true;
     if (ordersStore.selectedOrder.statusId === 1) {
       // add reorder flow

@@ -114,7 +114,6 @@ onBeforeMount(async () => {
 
   if (props.printerName.length > 0) {
     advancedFilters.value["printerName"] = props.printerName;
-    //searchPrinterSites();
   }
 });
 
@@ -122,6 +121,9 @@ watch(
   () => props.filters,
   (value) => {
     advancedFilters.value = { ...value };
+    if (props.printerName.length > 0) {
+      advancedFilters.value["printerName"] = props.printerName;
+    }
   },
 );
 
@@ -173,8 +175,6 @@ async function handleDateClick(dateRefId: number): Promise<void> {
 function reset() {
   advancedFilters.value["itemNumber"] = null;
   advancedFilters.value["orderDate"] = [];
-  advancedFilters.value["printerName"] =
-    props.printerName.length > 0 ? props.printerName : null;
   advancedFilters.value["printerSite"] = null;
   advancedFilters.value["printerReference"] = null;
   advancedFilters.value["poNumber"] = null;

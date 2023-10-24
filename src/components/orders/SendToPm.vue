@@ -13,7 +13,7 @@
       .urgent
         h5 Urgent Order? (within 24 hours)
         .switch
-          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
+          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent" @change="handleUrgentToggle")
           span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
     .content   
       main      
@@ -302,6 +302,10 @@ function updateUrgent(date) {
   } else {
     sendForm.value.isUrgent = false;
   }
+}
+
+function handleUrgentToggle() {
+  sendForm.value.expectedDate = null;
 }
 
 async function onDeleteClick(file: ValidFiles, index: number) {
