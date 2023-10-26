@@ -8,6 +8,7 @@ import axios, {
 class ApiService {
   private baseUrl: string;
   private cancelTokenSource: CancelTokenSource | null = null;
+  private previousRequestConfig: AxiosRequestConfig | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -18,9 +19,16 @@ class ApiService {
     cancelRequest = false,
   ): Promise<T> {
     try {
-      if (cancelRequest) {
-        // Cancel the previous request if it's in progress
-        if (this.cancelTokenSource) {
+      if (cancelRequest && this.previousRequestConfig) {
+        const { method: previousMethod, url: previousUrl } =
+          this.previousRequestConfig;
+        const { method, url } = config;
+        // Cancel the previous request only if it's in progress and has the same method and URL
+        if (
+          this.cancelTokenSource &&
+          previousMethod === method &&
+          previousUrl === url
+        ) {
           this.cancelTokenSource.cancel("Request canceled by the user");
         }
       }
@@ -28,6 +36,7 @@ class ApiService {
       this.cancelTokenSource = axios.CancelToken.source();
       // Attach the cancel token to the request configuration
       config.cancelToken = this.cancelTokenSource.token;
+      this.previousRequestConfig = config;
 
       const response: AxiosResponse<T> = await axios(config);
       return response?.data;

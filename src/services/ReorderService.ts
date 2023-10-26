@@ -131,7 +131,7 @@ class ReorderService {
     });
     const newReorder: SubmitReorder = {
       id: isUpdate ? reorderInfo.id : 0,
-      originalOrderId: isUpdate
+      originalOrderId: reorderInfo.originalOrderId
         ? reorderInfo.originalOrderId
         : reorderInfo.sgsId,
       brandName: reorderInfo.brandName,

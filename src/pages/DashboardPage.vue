@@ -12,7 +12,7 @@
           header
             .title 
               h1(v-if="searchExecuted") Search Results 
-              h1(v-if="!searchExecuted") Recent Orders 
+              h1(v-if="!searchExecuted") Recent Orders
             .date-range(v-if="!searchExecuted")
               prime-dropdown.sm.rangeFilter(
 v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
@@ -36,7 +36,7 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(
-:config="config" :data="orders" :userType="userType" :showMultipleSelection="showMultipleSelection" :status="selectedStatus" :loading="loadingOrders" @add="addToCart"
+:config="config" :data="orders" :userType="userType" :role ="roleKey" :showMultipleSelection="showMultipleSelection" :status="selectedStatus" :loading="loadingOrders" @add="addToCart"
         @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder" @addMultipleToCart="addMultipleToCart" @ordervalidation ="handleOrderValidation")
       prime-confirm-dialog
         template(#message="slotProps")
@@ -177,8 +177,8 @@ watch(
 );
 watch(
   () => route.query["showPM"],
-  () => {
-    createPmOrder();
+  (showPM) => {
+    if (showPM === "true") createPmOrder();
   },
 );
 watch(currentUser, () => {

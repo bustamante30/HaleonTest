@@ -244,7 +244,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     async getOrderById(reorderId: any) {
       /* 1.Reset previously loaded order
-         2.SGS | Photon | Cart?
+         2.SGS | Cart?
          3.Fetch / load order object with direct props
          4.Fetch / load additional details - shirttail, barcode, len etc
          5.Decorate for display
@@ -259,89 +259,49 @@ export const useOrdersStore = defineStore("ordersStore", {
       };
 
       if (reorderId) {
-        const isPhotonOrder =
-          !isNaN(parseFloat(reorderId)) && isFinite(reorderId);
-        if (isPhotonOrder) {
-          const cartStore = useCartStore();
-          const cartOrder = cartStore.cartOrders.find(
-            (order: any) => order.id === reorderId,
+        const cartStore = useCartStore();
+        const cartOrder = cartStore.cartOrders.find(
+          (order: any) => order.id === reorderId,
+        );
+        const isCartOrder = !!cartOrder;
+        if (isCartOrder) {
+          // Photon order loaded from cart
+          const plateTypes = (await cartOrder?.plateTypes?.length)
+            ? mapPlateTypes(cartOrder)
+            : mapColorPlateTypes(cartOrder.colors);
+          this.options.plateTypeDescription = plateTypes.filter(
+            (plateType: any) => plateType.value !== 256,
           );
-          const isCartOrder = !!cartOrder;
-          if (isCartOrder) {
-            // Photon order loaded from cart
-            const plateTypes = (await cartOrder?.plateTypes?.length)
-              ? mapPlateTypes(cartOrder)
-              : mapColorPlateTypes(cartOrder.colors);
-            this.options.plateTypeDescription = plateTypes.filter(
-              (plateType: any) => plateType.value !== 256,
-            );
-            this.selectedOrder = cartOrder;
-            const statusId = this.selectedOrder
-              ? this.selectedOrder?.statusId
-              : 1;
-            this.mapColorAndCustomerDetailsToOrder(
-              this.selectedOrder,
-              statusId,
-              plateTypes,
-            );
-            await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
-            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
-              if (response) this.selectedOrder.pdfData = response;
-            });
-          } else {
-            // Photon order loaded from dashboard
-            const photonOrder = this.orders.find(
-              (order: any) => order.sgsId === reorderId,
-            );
-            const photonOrderDetails = jsonify(
-              photonOrder
-                ? await ReorderService.getPhotonReorderDetails(photonOrder?.id)
-                : null,
-            );
-            ReorderService.getThumbnail(photonOrder?.originalOrderId).then(
-              (response: string | boolean) => {
-                if (response) this.selectedOrder.thumbNailPath = response;
-              },
-            );
-            this.getPdfData(photonOrder?.originalOrderId).then(
-              (response: any) => {
-                if (response) this.selectedOrder.pdfData = response;
-              },
-            );
-            const details = { ...photonOrder, ...photonOrderDetails };
-            const plateTypes = await mapColorPlateTypes(details?.colors);
-            this.options.plateTypeDescription = plateTypes?.filter(
-              (plateType: any) => plateType.value !== 256,
-            );
-            this.selectedOrder = details;
-            ReorderService.decoratePhotonOrder(this.selectedOrder);
-            const statusId = this.selectedOrder
-              ? this.selectedOrder?.statusId
-              : 1;
-            if (statusId && plateTypes.length)
-              this.mapColorAndCustomerDetailsToOrder(
-                details,
-                statusId,
-                plateTypes,
-              );
-            await this.getBarcodeAndShirtailForPhotonOrder(photonOrder);
-          }
+          this.selectedOrder = cartOrder;
+          const statusId = this.selectedOrder
+            ? this.selectedOrder?.statusId
+            : 1;
+          this.mapColorAndCustomerDetailsToOrder(
+            this.selectedOrder,
+            statusId,
+            plateTypes,
+          );
+          await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
+          this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
+            if (response) this.selectedOrder.pdfData = response;
+          });
         } else {
-          // MySGS Order loaded from dashboard
-          this.selectedOrder = this.orders.find(
-            (order: any) => order.sgsId === reorderId,
+          // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
+          this.selectedOrder = this.orders?.find(
+            (order: any) =>
+              order.sgsId === reorderId || order.originalOrderId === reorderId,
           );
           const details = jsonify(
             await ReorderService.getOrderDetails(reorderId),
           );
-          // this.selectedOrder = details;
-          // this.selectedOrder.description = details?.jobDescription;
-          // this.selectedOrder.brandName = details?.jobDetails.brand;
-          // this.selectedOrder.itemCode = details?.jobDetails.endUserReference;
-          // this.selectedOrder.packType = details?.jobDetails.packageType.name;
+          this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
+          this.selectedOrder.originalOrderId = details?.jobId;
+          this.selectedOrder.description = details?.jobDescription;
+          this.selectedOrder.brandName = details?.jobDetails?.brand;
+          this.selectedOrder.itemCode = details?.jobDetails?.endUserReference;
+          this.selectedOrder.packType = details?.jobDetails?.packageType?.name;
           const editionColors: any[] = [];
           this.selectedOrder.editionColors = editionColors;
-          console.log(this.selectedOrder);
           const plateTypes = await mapPlateTypes(details);
           this.options.plateTypeDescription = plateTypes?.filter(
             (plateType: any) => plateType.value !== 256,
@@ -507,20 +467,25 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
     },
     async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
-      const barcodeDetails = photonOrder
-        ? JSON.parse(
-            JSON.stringify(
-              await ReorderService.getPhotonBarcode(photonOrder?.id),
-            ),
-          )
-        : null;
-      const shirttailDetails = photonOrder
-        ? JSON.parse(
-            JSON.stringify(
-              await ReorderService.getPhotonShirttail(photonOrder?.id),
-            ),
-          )
-        : null;
+      let promises: Promise<any>[] = [];
+      let barcodeDetails, shirttailDetails;
+      if (photonOrder) {
+        promises.push(
+          ReorderService.getPhotonBarcode(photonOrder?.id).then((data) => {
+            barcodeDetails = JSON.parse(JSON.stringify(data));
+          }),
+        );
+        promises.push(
+          ReorderService.getPhotonShirttail(photonOrder?.id).then((data) => {
+            shirttailDetails = JSON.parse(JSON.stringify(data));
+          }),
+        );
+      } else {
+        barcodeDetails = null;
+        shirttailDetails = null;
+      }
+      await Promise.allSettled(promises);
+
       this.selectedOrder = this.selectedOrder || {};
       this.selectedOrder = {
         ...this.selectedOrder,

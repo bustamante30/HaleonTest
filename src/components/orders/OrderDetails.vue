@@ -64,6 +64,9 @@ onMounted(async () => {
 });
 
 async function buy() {
+  if (selectedOrder.value.statusId != 1) {
+    selectedOrder.value.id = 0;
+  }
   const confirmRoute =
     `/dashboard/${props.selectedId}/reorder` +
     (selectedOrder.value.statusId == 1 ? `?source=cart` : ``);

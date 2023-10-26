@@ -11,9 +11,9 @@
       h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
       h4(v-else style="margin-left: 18px;") Enter at least one field
       .urgent
-        h5 Urgent Order? (within 3 days)
+        h5 Urgent Order? (within 24 hours)
         .switch
-          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent")
+          prime-input-switch.checkbox.sm(v-model="sendForm.isUrgent" @change="handleUrgentToggle")
           span {{ sendForm.isUrgent ? 'Yes' : 'No'  }}  
     .content   
       main      
@@ -297,11 +297,15 @@ function updateUrgent(date) {
   const diff = Interval.fromDateTimes(today, selectedDate);
   const diffHours = diff.length("hours");
   const isSameDay = today.hasSame(selectedDate, "day");
-  if (Math.ceil(diffHours) <= 72 || isSameDay) {
+  if (Math.ceil(diffHours) <= 24 || isSameDay) {
     sendForm.value.isUrgent = true;
   } else {
     sendForm.value.isUrgent = false;
   }
+}
+
+function handleUrgentToggle() {
+  sendForm.value.expectedDate = null;
 }
 
 async function onDeleteClick(file: ValidFiles, index: number) {
