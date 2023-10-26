@@ -369,12 +369,16 @@ async function addToCart(order: any) {
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
-      const result = await ReorderService.validateOrder(order.sgsId);
+      const result = await ReorderService.validateOrder(
+        order.originalOrderId ? order.originalOrderId : order.sgsId,
+      );
       if (result === false) {
         if (userType.value === "EXT") {
           sendToPmStore.externalPrinterName =
             authb2cStore.currentB2CUser.printerName;
-          sgsJobId.value = order.sgsId;
+          sgsJobId.value = order.originalOrderId
+            ? order.originalOrderId
+            : order.sgsId;
           showCartConfirmDialog.value = true;
           sendToPmStore.isValidated = true;
         } else {
@@ -385,14 +389,18 @@ async function addToCart(order: any) {
           );
         }
       } else {
-        addOrderToCart(order.sgsId);
+        addOrderToCart(
+          order.originalOrderId ? order.originalOrderId : order.sgsId,
+        );
       }
       ordersStore.loading.ordersList = false;
     },
   });
 }
 async function reorder(order: any) {
-  const result = await ReorderService.validateOrder(order.sgsId);
+  const result = await ReorderService.validateOrder(
+    order.originalOrderId ? order.originalOrderId : order.sgsId,
+  );
   if (result === false) {
     if (userType.value === "EXT") {
       sendToPmStore.externalPrinterName =
@@ -458,7 +466,7 @@ async function addMultipleToCart() {
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   for (let i = 0; i < ordersToAdd.length; i++) {
     let order = ordersToAdd[i];
-
+    order.sgsId = order.originalOrderId ? order.originalOrderId : order.sgsId;
     const result = await ReorderService.validateOrder(order.sgsId);
     if (result === false) {
       if (userType.value === "EXT") {
