@@ -49,11 +49,6 @@ const props = defineProps({
 
 const emit = defineEmits(["update", "ordervalidation"]);
 const value = computed(() => get(props.data, props.config.field));
-// const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
-//const optionKey = computed(() => get(props.config, "options.key") || null);
-//const optionValues = computed(() =>
-//  optionKey.value ? get(props.options, optionKey.value) : [],
-//);
 const optionLabelKey = computed(
   () => get(props.config, "options.label") || "label",
 );

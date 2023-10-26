@@ -18,7 +18,6 @@
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import TableCell from "@/components/ui/TableCell.vue";
-import { onBeforeMount } from "vue";
 
 const props = defineProps({
   colourId: {
@@ -34,14 +33,8 @@ const props = defineProps({
     default: () => {},
   },
 });
-//const options = inject("options");
 
 const emit = defineEmits(["update", "add", "remove"]);
-
-onBeforeMount(() => {
-  console.log(props.data);
-});
-// const platesCount = computed(() => props.data && props.data.length);
 
 function stylify(width) {
   return width

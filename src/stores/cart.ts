@@ -34,7 +34,6 @@ export const useCartStore = defineStore("cartStore", {
     async getCart() {
       this.loading.cart = true;
       this.cartOrders = await ReorderService.getCart();
-      debugger;
       this.decorateCartOrders();
       this.loading.cart = false;
     },

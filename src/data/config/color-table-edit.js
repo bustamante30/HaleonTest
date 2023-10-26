@@ -69,7 +69,6 @@ export default {
         field: "plateThicknessId",
         type: "lookup",
         options: { label: "thicknessDesc", value: "thicknessId" },
-        width: 12,
       },
       {
         header: "Quantity",
