@@ -104,7 +104,7 @@ class ReorderService {
       delete color.fullPlateList;
       delete color.fullThicknessList;
       let hasPlates = false;
-      for (let plateType of color?.plateDetails) {
+      for (const plateType of color.plateDetails) {
         delete plateType.plateList;
         delete plateType.thicknessList;
         if (plateType.sets > 0) {
