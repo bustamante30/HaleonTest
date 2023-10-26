@@ -716,6 +716,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       color.totalSets = 0;
       for (let i = 0; i < color.plateDetails.length; i++)
         color.totalSets += color.plateDetails[i].sets;
+      color.sets = color.totalSets;
     },
     reorder(order: any) {
       router.push(`/dashboard/${order.sgsId}`);

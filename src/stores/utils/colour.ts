@@ -99,7 +99,9 @@ const flattenColors = (colors: any[] = []) => {
   const flattenedColors = [] as any[];
   colors?.length &&
     colors?.forEach((color: any) => {
-      color.plateType = !color?.plates ? color.plateDetails : color.plates;
+      color.plateType = !color?.plateDetails
+        ? color.plates
+        : color.plateDetails;
       color?.plateType.forEach((plate) => {
         flattenedColors.push({
           clientPlateColourRef: color.clientPlateColourRef,
