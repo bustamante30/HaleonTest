@@ -50,7 +50,7 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 
 const selected = ref([] as never[]);
-const expandedRows = ref([]);
+const expandedRows = ref([] as never[]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 

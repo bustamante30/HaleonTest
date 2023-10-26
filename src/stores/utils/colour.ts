@@ -72,10 +72,27 @@ const validation = (colour: any) => {
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateTypeId,
     ) != null;
+  const hasEmptyPlateThickness =
+    colour.plateDetails.find(
+      (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
+    ) != null;
   const isValid =
-    hasUniquePlates && totalSets <= 10 && !hasEmptyPlateDescription;
-  console.log({ isValid, hasEmptyPlateDescription, hasUniquePlates });
-  return { isValid, hasEmptyPlateDescription, hasUniquePlates };
+    hasUniquePlates &&
+    totalSets <= 10 &&
+    !hasEmptyPlateDescription &&
+    !hasEmptyPlateThickness;
+  console.log({
+    isValid,
+    hasEmptyPlateDescription,
+    hasUniquePlates,
+    hasEmptyPlateThickness,
+  });
+  return {
+    isValid,
+    hasEmptyPlateDescription,
+    hasUniquePlates,
+    hasEmptyPlateThickness,
+  };
 };
 
 const flattenColors = (colors: any[] = []) => {

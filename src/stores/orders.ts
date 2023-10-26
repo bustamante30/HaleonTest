@@ -467,7 +467,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
     },
     async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
-      let promises: Promise<any>[] = [];
+      const promises: Promise<any>[] = [];
       let barcodeDetails, shirttailDetails;
       if (photonOrder) {
         promises.push(
@@ -557,11 +557,11 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
         if (colour) {
-          const plateType = [...colour.plateType].map((plate) => {
+          const plateType = [...colour.plateDetails].map((plate) => {
             const p = toRaw(plate);
             return { ...p, [field]: value };
           });
-          this.selectedOrder.editionColors[selectedIndex].plateType = [
+          this.selectedOrder.editionColors[selectedIndex].plateDetails = [
             ...plateType,
           ];
           this.updateComputedColorFields(
@@ -576,14 +576,13 @@ export const useOrdersStore = defineStore("ordersStore", {
       const selectedIndex = colours.findIndex(
         (c) => c.checkboxId === params.colourId,
       );
-      debugger;
       if (selectedIndex >= 0) {
         this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
           checkboxId: faker.datatype.uuid(),
           id: 0,
           plateTypeId: null,
           plateTypeDescription: null,
-          PlateThicknessId: null,
+          plateThicknessId: null,
           plateThicknessDescription: null,
           sets: 0,
           isEditable: true,
@@ -603,14 +602,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
         if (colour) {
-          const plateType =
-            colour.plateType &&
-            colour.plateType.filter(
+          const plateDetails =
+            colour.plateDetails &&
+            colour.plateDetails.filter(
               (plate: any) => plate.checkboxId !== params.checkboxId,
             );
           this.selectedOrder.editionColors[selectedIndex] = {
             ...colour,
-            plateType,
+            plateDetails,
           };
           this.updateComputedColorFields(
             this.selectedOrder.editionColors[selectedIndex],
@@ -687,8 +686,12 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     validateColour(colour: any) {
       const notificationsStore = useNotificationsStore();
-      const { isValid, hasEmptyPlateDescription, hasUniquePlates } =
-        validation(colour);
+      const {
+        isValid,
+        hasEmptyPlateDescription,
+        hasUniquePlates,
+        hasEmptyPlateThickness,
+      } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
           "Warning",
@@ -698,7 +701,13 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (hasEmptyPlateDescription)
         notificationsStore.addNotification(
           "Warning",
-          `Please select the plate type from the available plate list`,
+          `Please select the plate type from the available plate type list`,
+          { severity: "warn" },
+        );
+      if (hasEmptyPlateThickness)
+        notificationsStore.addNotification(
+          "Warning",
+          `Please select the plate thickness from the available plate thickness list`,
           { severity: "warn" },
         );
       return isValid;
@@ -846,8 +855,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                   }
                 });
               });
-              console.log("hola");
-              console.log(order.editionColors);
               resolve({ status: "finished", order: order });
             }
           });

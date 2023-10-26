@@ -24,7 +24,6 @@ import { DateTime } from "luxon";
 import { computed } from "vue";
 import SgsLookup from "@/components/ui/Lookup.vue";
 import router from "@/router";
-import { onMounted } from "vue";
 const props = defineProps({
   config: {
     type: Object,
@@ -46,10 +45,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-});
-
-onMounted(async () => {
-  //debugger;
 });
 
 const emit = defineEmits(["update", "ordervalidation"]);

@@ -57,7 +57,6 @@ onBeforeMount(() => {
 });
 
 function update(event) {
-  debugger;
   emit("update:modelValue", event);
   editMode.value = false;
 }

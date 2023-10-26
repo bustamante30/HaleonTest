@@ -6,7 +6,7 @@
       template(#body="{ data }")
         table-cell(v-if="col.field==='plateTypeId'" :config="col" :data="data" :data-key="config.dataKey" :options="data.plateList" :empty="'Select Plate Type...'" @update="updatePlate")
         table-cell(v-else-if="col.field==='plateThicknessId'" :config="col" :data="data" :data-key="config.dataKey" :options="data.thicknessList" :empty="'Select Thickness...'" @update="updatePlate")
-        table-cell(v-else :config="col" :data="data" :data-key="config.dataKey" :options="options" @update="updatePlate")
+        table-cell(v-else :config="col" :data="data" :data-key="config.dataKey" @update="updatePlate")
     column
       template(#body="{ data }")
         sgs-button.sm.alert.secondary(:id="`remove-plate-${data[config?.dataKey]}`" icon="delete" @click="removePlate(data)")
@@ -65,7 +65,6 @@ function updatePlate({
 }
 
 function addPlate() {
-  debugger;
   const { colourId } = props;
   // console.log('add plate', { colourId })
   if (colourId) emit("add", { colourId });

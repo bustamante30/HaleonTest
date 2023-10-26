@@ -103,8 +103,10 @@ class ReorderService {
       delete color.lenData;
       delete color.fullPlateList;
       delete color.fullThicknessList;
+      delete color.checkboxId;
       let hasPlates = false;
       for (const plateType of color.plateDetails) {
+        delete plateType.checkboxId;
         delete plateType.plateList;
         delete plateType.thicknessList;
         if (plateType.sets > 0) {
@@ -115,6 +117,7 @@ class ReorderService {
       if (hasPlates) color.plates = color.plateDetails;
       else color.plates = [];
       delete color.plateType;
+      delete color.plateDetails;
       color.sets = color.totalSets;
     });
     reorderInfo.customerContacts.forEach((contact: any) => {
@@ -497,61 +500,7 @@ class ReorderService {
       });
   }
   public static async decoratePhotonOrder(order: any) {
-    console.log(order.colors);
     this.decorateColours(order.colors);
-    //transform cart colors to the structure used in the ui
-    order.editionColors = JSON.parse(JSON.stringify(order.colors));
-    //remove duplicate colors for first page
-    const distinctColors = order.colors.filter((thing, i, arr) => {
-      return (
-        arr.indexOf(
-          arr.find((t) => t.sequenceNumber === thing.sequenceNumber),
-        ) === i
-      );
-    });
-    order.colors = distinctColors;
-    //make editable the colors:
-    order.editionColors.forEach((color) => {
-      ReorderService.getLen(order.originalOrderId, color.sequenceNumber).then(
-        (res) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res.lenPath == color.lenPath) {
-              color.lenData = res[i].lenData;
-              color.checkboxId = faker.datatype.uuid();
-              if (color.plates.length == 0) {
-                color.plateType = [
-                  {
-                    checkboxId: faker.datatype.uuid(),
-                    plateTypeId: null,
-                    plateTypeDescription: {
-                      isActive: true,
-                      label: null,
-                      value: null,
-                    },
-                    sets: 0,
-                  },
-                ];
-              } else {
-                const editionPlates: any[] = [];
-                color.plateType = editionPlates;
-                color.plates.forEach((plate) => {
-                  const editionPlate = JSON.parse(JSON.stringify(plate));
-                  editionPlate.checkboxId = faker.datatype.uuid();
-                  editionPlate.plateTypeDescription = {
-                    isActive: true,
-                    label: plate.plateTypeDescription,
-                    value: plate.plateTypeId,
-                  };
-                  color.plateType.push(editionPlate);
-                });
-                console.log(color.plateType);
-              }
-              break;
-            }
-          }
-        },
-      );
-    });
     order.thumbNailPath = new URL(
       "@/assets/images/no_thumbnail.png",
       import.meta.url,
@@ -561,6 +510,141 @@ class ReorderService {
         if (response) order.thumbNailPath = response;
       },
     );
+    return new Promise((resolve) => {
+      //transform cart colors to the structure used in the ui
+      order.editionColors = JSON.parse(JSON.stringify(order.colors));
+      //remove duplicate colors for first page
+      const distinctColors = order.colors.filter((thing, i, arr) => {
+        return (
+          arr.indexOf(
+            arr.find((t) => t.sequenceNumber === thing.sequenceNumber),
+          ) === i
+        );
+      });
+      order.colors = distinctColors;
+      //make editable the colors:
+      const sequenceList = distinctColors.map(
+        (plate: any) => plate.sequenceNumber,
+      );
+      let lenProcessed = 0;
+      for (const sequence of sequenceList) {
+        ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
+          lenProcessed += res.length;
+          for (let i = 0; i < res.length; i++) {
+            for (const color of order.editionColors) {
+              if (res[i].lenPath == color.lenPath) {
+                color.lenData = res[i].lenData;
+                color.checkboxId = faker.datatype.uuid();
+                if (color.plates.length == 0) {
+                  color.plateDetails = [
+                    {
+                      id: 0,
+                      checkboxId: faker.datatype.uuid(),
+                      plateTypeId: null,
+                      plateTypeDescription: null,
+                      sets: 0,
+                      loading: true,
+                    },
+                  ];
+                } else {
+                  const editionPlates: any[] = [];
+                  color.plateDetails = editionPlates;
+                  color.plates.forEach((plate) => {
+                    plate.checkboxId = faker.datatype.uuid();
+                    plate.loading = true;
+                    color.plateDetails.push(plate);
+                  });
+                  delete color.plates;
+                  console.log(color.plateDetails);
+                }
+              }
+            }
+          }
+          if (lenProcessed === order.editionColors.length) {
+            ReorderService.getOrderAvailablePlates(order.originalOrderId).then(
+              (result) => {
+                order.editionColors.forEach((color) => {
+                  const availablePlateInfo = result.colorAvailablePlates.find(
+                    (i) => i.colorSequence === color.sequenceNumber,
+                  );
+                  if (availablePlateInfo != null) {
+                    switch (availablePlateInfo.availablePlates.length) {
+                      case 0: {
+                        color.plateDetails.forEach((plate) => {
+                          plate.plateList = result.plateList;
+                        });
+                        break;
+                      }
+                      case 1: {
+                        color.plateDetails.forEach((plate) => {
+                          if (plate.id === 0)
+                            plate.plateList =
+                              availablePlateInfo.availablePlates;
+                          else plate.plateList = result.plateList;
+                        });
+                        color.plateDetails[0].plateTypeId =
+                          availablePlateInfo.availablePlates[0].plateTypeId;
+                        color.plateDetails[0].plateTypeDescription =
+                          availablePlateInfo.availablePlates[0].plateTypeName;
+                        break;
+                      }
+                      default: {
+                        color.plateDetails.forEach((plate) => {
+                          if (plate.id === 0)
+                            plate.plateList =
+                              availablePlateInfo.availablePlates;
+                          else plate.plateList = result.plateList;
+                        });
+                        break;
+                      }
+                    }
+                    color.fullPlateList = result.plateList;
+                    switch (availablePlateInfo.availableThicknesses.length) {
+                      case 0:
+                        color.plateDetails.forEach((plate) => {
+                          plate.thicknessList = result.thicknessList;
+                          plate.loading = false;
+                        });
+                        break;
+                      case 1:
+                        color.plateDetails.forEach((plate) => {
+                          if (plate.id === 0)
+                            plate.thicknessList =
+                              availablePlateInfo.availableThicknesses;
+                          else plate.thicknessList = result.thicknessList;
+                          plate.loading = false;
+                        });
+                        color.plateDetails[0].plateThicknessId =
+                          availablePlateInfo.availableThicknesses[0].thicknessId;
+                        color.plateDetails[0].plateThicknessDescription =
+                          availablePlateInfo.availableThicknesses[0].thicknessDesc;
+                        break;
+                      default:
+                        color.plateDetails.forEach((plate) => {
+                          if (plate.id === 0)
+                            plate.thicknessList =
+                              availablePlateInfo.availableThicknesses;
+                          else plate.thicknessList = result.thicknessList;
+                          plate.loading = false;
+                        });
+                        break;
+                    }
+                    color.fullThicknessList = result.thicknessList;
+                  } else {
+                    color.plateDetails.forEach((plate) => {
+                      plate.plateList = result.plateList;
+                      plate.thicknessList = result.thicknessList;
+                      plate.loading = false;
+                    });
+                  }
+                });
+              },
+            );
+            resolve({ status: "finished", order: order });
+          }
+        });
+      }
+    });
   }
 }
 
