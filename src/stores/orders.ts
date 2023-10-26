@@ -467,7 +467,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.decorateOrders();
     },
     async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
-      let promises: Promise<any>[] = [];
+      const promises: Promise<any>[] = [];
       let barcodeDetails, shirttailDetails;
       if (photonOrder) {
         promises.push(
@@ -742,7 +742,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         color.totalSets += color.plateType[i].sets;
     },
     reorder(order: any) {
-      router.push(`/dashboard/${order.sgsId}`);
+      router.push(
+        `/dashboard/${
+          order.originalOrderId ? order.originalOrderId : order.sgsId
+        }`,
+      );
     },
     async cancelOrder(orderId: number, isActive: boolean) {
       return await ReorderService.cancelOrder(orderId, isActive);

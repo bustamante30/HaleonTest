@@ -16,7 +16,7 @@ const tableConfig = {
       field: "description",
       type: "link",
       path: "/dashboard/$1",
-      pathParams: ["sgsId"],
+      pathParams: ["originalOrderId"],
       freeze: "left",
       width: 10,
       title: true,
