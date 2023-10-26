@@ -77,7 +77,7 @@ interface Color {
   commonColourRef: string;
   isActive: boolean;
   totalSets?: number;
-  plateTypes?: PlateType[];
+  plates?: PlateType[];
 }
 
 interface CustomerContact {
@@ -101,15 +101,18 @@ class ReorderService {
     ///code added to resolve the iisue with the plate details:
     newColors.forEach((color: any) => {
       delete color.lenData;
+      delete color.fullPlateList;
+      delete color.fullThicknessList;
       let hasPlates = false;
-      color?.plateType?.forEach((plateType: any) => {
-        const plateInfo = plateType.plateTypeDescription;
-        plateType.plateTypeId = plateInfo.value;
-        plateType.plateTypeDescription = plateInfo.label;
-        if (plateType.sets > 0) hasPlates = true;
-      });
+      for (let plateType of color?.plateDetails) {
+        delete plateType.plateList;
+        delete plateType.thicknessList;
+        if (plateType.sets > 0) {
+          hasPlates = true;
+        }
+      }
       ///api expects plates and sets fields:
-      if (hasPlates) color.plates = color.plateType;
+      if (hasPlates) color.plates = color.plateDetails;
       else color.plates = [];
       delete color.plateType;
       color.sets = color.totalSets;
@@ -315,6 +318,18 @@ class ReorderService {
         return null;
       });
   }
+  public static getOrderAvailablePlates(sgsId: string) {
+    return httpService
+      .get<any>("v1/Reorder/info/availablePlates?jobnumber=" + sgsId)
+      .then((response: any) => {
+        console.log(response);
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("error getting OrderAvailablePlates: ", error);
+        return null;
+      });
+  }
 
   public static getCartCount() {
     return httpService
@@ -403,7 +418,7 @@ class ReorderService {
   public static decorateColours(colors: Color[] | undefined) {
     if (colors)
       colors.forEach((color) => {
-        color.plateTypes = color.plateTypes?.sort(
+        color.plates = color.plates?.sort(
           (a, b) => a.plateTypeId - b.plateTypeId,
         );
         color.newColour = color.isNew ? "New" : "Common";
