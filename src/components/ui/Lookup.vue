@@ -22,6 +22,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  empty: {
+    type: String,
+    default: "",
+  },
 });
 
 const defaultOptions = computed(() => {
@@ -37,7 +41,9 @@ const selected = computed(() => {
   const { options, modelValue } = props;
   const allOptions = [...defaultOptions.value, ...options];
   if (allOptions && allOptions.length && modelValue) {
-    const option = allOptions.find((option) => option?.value === modelValue);
+    const option = allOptions.find(
+      (option) => option[props.optionValue] === modelValue,
+    );
     return option ? option : null;
   } else {
     return null;
@@ -66,12 +72,11 @@ function switchToEditMode() {
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...options]" :option-label="optionLabel" :option-value="optionValue" filter placeholder="Select Plate Type..." @update:model-value="update")
+  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...options]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
   .readonly(v-else)
-    span.value(v-if="selected") {{ selected.label }}
-    span.value(v-else-if="modelValue === 256") Mixed
+    span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
-    a.change(@click="switchToEditMode()") Change
+    a.change(v-if="options.length>1" @click="switchToEditMode()") Change
 </template>
 
 <style lang="sass" scoped>

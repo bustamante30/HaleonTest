@@ -10,7 +10,7 @@ data-table.colors-table.p-datatable-sm(v-model:selection="selected" v-model:expa
     template(#body="{ data }")
       table-actions(:actions="config.actions(data)" :data="data")
   template(#expansion="{ data }")
-    colors-table-plates(:data="data.plateType" :config="config.plates" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
+    colors-table-plates(:data="data.plateDetails" :config="config.plates" :plates="getPlates(data)" :thicknesses="data.thicknessList" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
 </template>
 
 <!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
@@ -23,6 +23,7 @@ import TableCell from "@/components/ui/TableCell.vue";
 import ColorsTablePlates from "./ColorsTableExpandPlates.vue";
 import { useOrdersStore } from "@/stores/orders";
 import { useRoute } from "vue-router";
+import { onBeforeMount } from "vue";
 const route = useRoute();
 
 const ordersStore = useOrdersStore();
@@ -49,7 +50,7 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 
 const selected = ref([] as never[]);
-const expandedRows = ref([]);
+const expandedRows = ref([] as never[]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 
@@ -107,6 +108,10 @@ watch(selected, (colors, prevColors) => {
   }
 });
 
+function getPlates(datos) {
+  if (datos["useFullList"]) return datos["fullPlateList"];
+  else return datos["plateList"];
+}
 function updateColor({ checkboxId, field, value }: any) {
   emit("update", { checkboxId, field, value });
 }
