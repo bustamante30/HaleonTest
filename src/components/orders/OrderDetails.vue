@@ -66,7 +66,11 @@ async function buy() {
   if (selectedOrder.value.statusId != 1) {
     selectedOrder.value.id = 0;
   }
-  ordersStore.getEditableColors(props.selectedId, selectedOrder.value);
+  ordersStore
+    .getEditableColors(props.selectedId, selectedOrder.value)
+    .then((res: any) => {
+      if (res.order === null) router.push(`/dashboard/`);
+    });
   const confirmRoute =
     `/dashboard/${props.selectedId}/reorder` +
     (selectedOrder.value.statusId == 1 ? `?source=cart` : ``);
