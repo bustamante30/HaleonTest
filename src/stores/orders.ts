@@ -779,17 +779,20 @@ export const useOrdersStore = defineStore("ordersStore", {
               if (expectedColors === 0) {
                 const notificationsStore = useNotificationsStore();
                 const authStore = useAuthStore();
-                let message = `Sorry we have experienced an issue on our end.  Please contact a PM directly, click the following`;
+                let message = `Your order cannot be processed. This request must be sent directly to a PM. To request it, please click `;
                 let link: string = `/dashboard?showPM=true`;
+                let linkLabel: string = `Here`;
                 if (authStore.currentUser.isLoggedIn) {
-                  message = `Sorry your order cannot be processed through Photon.  Please go into MySGS directly to place your order`;
+                  message = `Your order cannot be processed through this portal.  Please go into MySGS directly to place your order`;
                   link = ``;
                 }
                 notificationsStore.addNotification("Warning", message, {
                   severity: "warn",
                   life: 15000,
                   link,
+                  linkLabel,
                 });
+                resolve({ status: "finished", order: null });
               }
               //get the list of plates per colour
               ReorderService.getOrderAvailablePlates(
