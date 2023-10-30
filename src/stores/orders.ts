@@ -342,17 +342,18 @@ export const useOrdersStore = defineStore("ordersStore", {
       const b2cAuth = useB2CAuthStore();
       if (authStore.currentUser.isLoggedIn) {
         // get printer Name
-        authStore.currentUser.prtLocation.forEach((printer: any) => {
+        authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
             printerIds.push(printer.printerId);
           }
         });
+
         filters.roleKey = authStore.currentUser.roleKey;
         filters.userType = authStore.currentUser.userType;
       }
       if (b2cAuth.currentB2CUser.isLoggedIn) {
-        b2cAuth.currentB2CUser.prtLocation.forEach((printer: any) => {
+        b2cAuth.currentB2CUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
             printerIds.push(printer.printerId);
@@ -557,11 +558,11 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
         if (colour) {
-          const plateType = [...colour.plateType].map((plate) => {
+          const plateType = [...colour.plateDetails].map((plate) => {
             const p = toRaw(plate);
             return { ...p, [field]: value };
           });
-          this.selectedOrder.editionColors[selectedIndex].plateType = [
+          this.selectedOrder.editionColors[selectedIndex].plateDetails = [
             ...plateType,
           ];
           this.updateComputedColorFields(
@@ -577,33 +578,21 @@ export const useOrdersStore = defineStore("ordersStore", {
         (c) => c.checkboxId === params.colourId,
       );
       if (selectedIndex >= 0) {
-        const colour = this.selectedOrder.editionColors[selectedIndex];
-        // const totalSets =
-        //   colour.plateType &&
-        //   colour.plateType.length &&
-        //   sum(
-        //     colour.plateType.map((plate: any) =>
-        //       plate.checkboxId === params.checkboxId
-        //         ? params.value
-        //         : plate.sets,
-        //     ),
-        //   );
-        this.selectedOrder.editionColors[selectedIndex] = {
-          ...colour,
-          plateType: [
-            ...colour.plateType,
-            {
-              checkboxId: faker.datatype.uuid(),
-              id: 0,
-              plateTypeId: 0,
-              plateTypeDescription: { label: "", value: "" },
-              plateThicknessId: 0,
-              plateThicknessDescription: "",
-              sets: 0,
-              isEditable: true,
-            } as any,
-          ],
-        };
+        this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
+          checkboxId: faker.datatype.uuid(),
+          id: 0,
+          plateTypeId: null,
+          plateTypeDescription: null,
+          plateThicknessId: null,
+          plateThicknessDescription: null,
+          sets: 0,
+          isEditable: true,
+          plateList:
+            this.selectedOrder.editionColors[selectedIndex].fullPlateList,
+          thicknessList:
+            this.selectedOrder.editionColors[selectedIndex].fullThicknessList,
+          loading: false,
+        });
       }
     },
     removePlate(params: any) {
@@ -614,14 +603,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
         if (colour) {
-          const plateType =
-            colour.plateType &&
-            colour.plateType.filter(
+          const plateDetails =
+            colour.plateDetails &&
+            colour.plateDetails.filter(
               (plate: any) => plate.checkboxId !== params.checkboxId,
             );
           this.selectedOrder.editionColors[selectedIndex] = {
             ...colour,
-            plateType,
+            plateDetails,
           };
           this.updateComputedColorFields(
             this.selectedOrder.editionColors[selectedIndex],
@@ -638,79 +627,57 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (selectedIndex >= 0) {
         const colour = this.selectedOrder.editionColors[selectedIndex];
         if (colour) {
-          const colorFirstPlateType = colour.plateType[0];
-          const totalSets =
-            colour.plateType &&
-            colour.plateType.length &&
-            sum(
-              colour.plateType.map((plate: any) => {
-                return plate.checkboxId === params.checkboxId &&
-                  params.field === "sets"
-                  ? params.value
-                  : plate.sets;
-              }),
-            );
-          const plateDetails = [...colour.plateType].map((plate) =>
-            toRaw(plate),
+          const plateToUpdate = colour.plateDetails.find(
+            (c) => c.checkboxId === params.checkboxId,
           );
-          let plateToReplace =
-            plateDetails &&
-            plateDetails.find(
-              (plate) => plate.checkboxId === params.checkboxId,
-            );
-          if (plateToReplace) {
-            if (params.field === "plateTypeDescription") {
-              const plateType = this.options?.plateTypeDescription?.find(
-                (plateType) => plateType.value === params.value,
-              );
-              const hasPlateType = plateDetails.find((plateType) => {
-                // console.log(plateType.plateTypeDescription.value, params.value, plateType.plateTypeDescription.value === params.value)
-                return plateType.plateTypeDescription.value === params.value;
-              });
-              const { plateThicknessDescription, plateThicknessId } =
-                colorFirstPlateType;
-              if (hasPlateType) {
-                notificationsStore.addNotification(
-                  "Warning",
-                  `Plate type ${plateType.label} already exists for this colour`,
-                  { severity: "warn", life: null },
-                );
+          if (plateToUpdate != null) {
+            plateToUpdate[params.field] = params.value;
+            switch (params.field) {
+              case "plateTypeId": {
+                plateToUpdate.plateTypeDescription = colour.fullPlateList.find(
+                  (p) => p.plateTypeId === params.value,
+                )?.plateTypeName;
+                const plateOcurrences = colour.plateDetails.filter(
+                  (plateType) => {
+                    return plateType[params.field] === params.value;
+                  },
+                ).length;
+                if (plateOcurrences > 1) {
+                  notificationsStore.addNotification(
+                    "Warning",
+                    `Plate type already exists for this colour`,
+                    { severity: "warn", life: 3000 },
+                  );
+                }
+                break;
               }
-              plateToReplace = {
-                ...plateToReplace,
-                plateTypeId: plateType.value,
-                [params.field]: {
-                  ...plateType,
-                  plateThicknessDescription,
-                  plateThicknessId,
-                },
-                sets: totalSets >= 10 ? 0 : 1,
-              };
-              // console.log('plateTypeDescription', plateToReplace, plateType, params.field)
-            } else if (params.field === "sets") {
-              if (totalSets > 10) {
-                notificationsStore.addNotification(
-                  "Warning",
-                  `You cannot have more than 10 sets reordered for 1 colour`,
-                  { severity: "warn" },
+              case "plateThicknessId": {
+                plateToUpdate.plateThicknessDescription =
+                  colour.fullThicknessList.find(
+                    (p) => p.thicknessId === params.value,
+                  )?.thicknessDesc;
+                break;
+              }
+              case "sets": {
+                const totalSets = sum(
+                  colour.plateDetails.map((plate: any) => {
+                    return plate.checkboxId === params.checkboxId &&
+                      params.field === "sets"
+                      ? params.value
+                      : plate.sets;
+                  }),
                 );
-                return;
-              } else {
-                plateToReplace = {
-                  ...plateToReplace,
-                  [params.field]: params.value,
-                };
+                if (totalSets > 10) {
+                  notificationsStore.addNotification(
+                    "Warning",
+                    `You cannot have more than 10 sets reordered for 1 colour`,
+                    { severity: "warn" },
+                  );
+                  return;
+                }
+                break;
               }
             }
-            const newPlates = plateDetails.map((plate) =>
-              plate.checkboxId === plateToReplace?.checkboxId
-                ? plateToReplace
-                : plate,
-            );
-            this.selectedOrder.editionColors[selectedIndex].plateType = [
-              ...newPlates,
-            ] as any[];
-
             this.updateComputedColorFields(
               this.selectedOrder.editionColors[selectedIndex],
             );
@@ -720,26 +687,37 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
     validateColour(colour: any) {
       const notificationsStore = useNotificationsStore();
-      const { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates } =
-        validation(colour);
+      const {
+        isValid,
+        hasEmptyPlateDescription,
+        hasUniquePlates,
+        hasEmptyPlateThickness,
+      } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
           "Warning",
           `You have selected the same plate type for ${colour.colourName}`,
           { severity: "warn" },
         );
-      if (hasEmptyPlateDescription || hasMixed)
+      if (hasEmptyPlateDescription)
         notificationsStore.addNotification(
           "Warning",
-          `Please confirm the plate type from the available plate list`,
+          `Please select the plate type from the available plate type list`,
+          { severity: "warn" },
+        );
+      if (hasEmptyPlateThickness)
+        notificationsStore.addNotification(
+          "Warning",
+          `Please select the plate thickness from the available plate thickness list`,
           { severity: "warn" },
         );
       return isValid;
     },
     updateComputedColorFields(color: any) {
       color.totalSets = 0;
-      for (let i = 0; i < color.plateType.length; i++)
-        color.totalSets += color.plateType[i].sets;
+      for (let i = 0; i < color.plateDetails.length; i++)
+        color.totalSets += color.plateDetails[i].sets;
+      color.sets = color.totalSets;
     },
     reorder(order: any) {
       router.push(
@@ -784,16 +762,15 @@ export const useOrdersStore = defineStore("ordersStore", {
               colorCopy.lenData = res[i].lenData;
               colorCopy.checkboxId = faker.datatype.uuid();
               colorCopy.totalSets = 0;
-              colorCopy.plateType = [
+              colorCopy.plateDetails = [
                 {
                   checkboxId: faker.datatype.uuid(),
                   plateTypeId: null,
-                  plateTypeDescription: {
-                    isActive: true,
-                    label: null,
-                    value: null,
-                  },
+                  plateTypeDescription: null,
+                  plateThicknessId: null,
+                  plateThicknessDescription: null,
                   sets: 0,
+                  loading: true,
                 },
               ];
               order.editionColors.push(colorCopy);
@@ -817,6 +794,51 @@ export const useOrdersStore = defineStore("ordersStore", {
                 });
                 resolve({ status: "finished", order: null });
               }
+              //get the list of plates per colour
+              ReorderService.getOrderAvailablePlates(
+                order.originalOrderId ? order.originalOrderId : order.sgsId,
+              ).then((result) => {
+                order.editionColors.forEach((color) => {
+                  color.fullPlateList = result.plateList;
+                  color.fullThicknessList = result.thicknessList;
+                  const availablePlateInfo = result.colorAvailablePlates.find(
+                    (i) => i.colorSequence === color.sequenceNumber,
+                  );
+                  if (availablePlateInfo != null) {
+                    color.plateDetails.forEach((plate) => {
+                      plate.plateList =
+                        availablePlateInfo.availablePlates.length === 0
+                          ? result.plateList
+                          : availablePlateInfo.availablePlates;
+                      if (availablePlateInfo.availablePlates.length === 1) {
+                        plate.plateTypeId =
+                          availablePlateInfo.availablePlates[0].plateTypeId;
+                        plate.plateTypeDescription =
+                          availablePlateInfo.availablePlates[0].plateTypeName;
+                      }
+                      plate.thicknessList =
+                        availablePlateInfo.availableThicknesses.length === 0
+                          ? result.thicknessList
+                          : availablePlateInfo.availableThicknesses;
+                      if (
+                        availablePlateInfo.availableThicknesses.length === 1
+                      ) {
+                        plate.plateThicknessId =
+                          availablePlateInfo.availableThicknesses[0].thicknessId;
+                        plate.plateThicknessDescription =
+                          availablePlateInfo.availableThicknesses[0].thicknessDesc;
+                      }
+                      plate.loading = false;
+                    });
+                  } else {
+                    color.plateDetails.forEach((plate) => {
+                      plate.plateList = result.plateList;
+                      plate.thicknessList = result.thicknessList;
+                      plate.loading = false;
+                    });
+                  }
+                });
+              });
               resolve({ status: "finished", order: order });
             }
           });
