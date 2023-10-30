@@ -23,7 +23,6 @@ import TableCell from "@/components/ui/TableCell.vue";
 import ColorsTablePlates from "./ColorsTableExpandPlates.vue";
 import { useOrdersStore } from "@/stores/orders";
 import { useRoute } from "vue-router";
-import { onBeforeMount } from "vue";
 const route = useRoute();
 
 const ordersStore = useOrdersStore();

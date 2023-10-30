@@ -795,62 +795,37 @@ export const useOrdersStore = defineStore("ordersStore", {
                 order.originalOrderId ? order.originalOrderId : order.sgsId,
               ).then((result) => {
                 order.editionColors.forEach((color) => {
+                  color.fullPlateList = result.plateList;
+                  color.fullThicknessList = result.thicknessList;
                   const availablePlateInfo = result.colorAvailablePlates.find(
                     (i) => i.colorSequence === color.sequenceNumber,
                   );
                   if (availablePlateInfo != null) {
-                    switch (availablePlateInfo.availablePlates.length) {
-                      case 0: {
-                        color.plateDetails.forEach((plate) => {
-                          plate.plateList = result.plateList;
-                        });
-                        break;
-                      }
-                      case 1: {
-                        color.plateDetails.forEach((plate) => {
-                          plate.plateList = availablePlateInfo.availablePlates;
-                        });
-                        color.plateDetails[0].plateTypeId =
+                    color.plateDetails.forEach((plate) => {
+                      plate.plateList =
+                        availablePlateInfo.availablePlates.length === 0
+                          ? result.plateList
+                          : availablePlateInfo.availablePlates;
+                      if (availablePlateInfo.availablePlates.length === 1) {
+                        plate.plateTypeId =
                           availablePlateInfo.availablePlates[0].plateTypeId;
-                        color.plateDetails[0].plateTypeDescription =
+                        plate.plateTypeDescription =
                           availablePlateInfo.availablePlates[0].plateTypeName;
-                        break;
                       }
-                      default: {
-                        color.plateDetails.forEach((plate) => {
-                          plate.plateList = availablePlateInfo.availablePlates;
-                        });
-                        break;
-                      }
-                    }
-                    color.fullPlateList = result.plateList;
-                    switch (availablePlateInfo.availableThicknesses.length) {
-                      case 0:
-                        color.plateDetails.forEach((plate) => {
-                          plate.thicknessList = result.thicknessList;
-                          plate.loading = false;
-                        });
-                        break;
-                      case 1:
-                        color.plateDetails.forEach((plate) => {
-                          plate.thicknessList =
-                            availablePlateInfo.availableThicknesses;
-                          plate.loading = false;
-                        });
-                        color.plateDetails[0].plateThicknessId =
+                      plate.thicknessList =
+                        availablePlateInfo.availableThicknesses.length === 0
+                          ? result.thicknessList
+                          : availablePlateInfo.availableThicknesses;
+                      if (
+                        availablePlateInfo.availableThicknesses.length === 1
+                      ) {
+                        plate.plateThicknessId =
                           availablePlateInfo.availableThicknesses[0].thicknessId;
-                        color.plateDetails[0].plateThicknessDescription =
+                        plate.plateThicknessDescription =
                           availablePlateInfo.availableThicknesses[0].thicknessDesc;
-                        break;
-                      default:
-                        color.plateDetails.forEach((plate) => {
-                          plate.thicknessList =
-                            availablePlateInfo.availableThicknesses;
-                          plate.loading = false;
-                        });
-                        break;
-                    }
-                    color.fullThicknessList = result.thicknessList;
+                      }
+                      plate.loading = false;
+                    });
                   } else {
                     color.plateDetails.forEach((plate) => {
                       plate.plateList = result.plateList;
