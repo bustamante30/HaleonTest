@@ -342,17 +342,18 @@ export const useOrdersStore = defineStore("ordersStore", {
       const b2cAuth = useB2CAuthStore();
       if (authStore.currentUser.isLoggedIn) {
         // get printer Name
-        authStore.currentUser.prtLocation.forEach((printer: any) => {
+        authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
             printerIds.push(printer.printerId);
           }
         });
+
         filters.roleKey = authStore.currentUser.roleKey;
         filters.userType = authStore.currentUser.userType;
       }
       if (b2cAuth.currentB2CUser.isLoggedIn) {
-        b2cAuth.currentB2CUser.prtLocation.forEach((printer: any) => {
+        b2cAuth.currentB2CUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
             printerIds.push(printer.printerId);

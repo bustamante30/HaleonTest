@@ -5,6 +5,10 @@ import axios, {
   type CancelTokenSource,
 } from "axios";
 
+interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
+  headers: any;
+}
+
 class ApiService {
   private baseUrl: string;
   private cancelTokenSource: CancelTokenSource | null = null;
@@ -12,6 +16,30 @@ class ApiService {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    this.initializeInterceptors();
+  }
+
+  private initializeInterceptors() {
+    axios.interceptors.request.use((config: ExtendedAxiosRequestConfig) => {
+      const authType = localStorage.getItem("AuthType");
+      const claims = localStorage.getItem("Claims");
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Authorization-Scheme": authType,
+        Claims: claims,
+      };
+      return config;
+    });
+
+    axios.interceptors.response.use(
+      (response: AxiosResponse) => {
+        return response;
+      },
+      (error) => {
+        return Promise.reject(error);
+      },
+    );
   }
 
   private async request<T>(
@@ -23,7 +51,6 @@ class ApiService {
         const { method: previousMethod, url: previousUrl } =
           this.previousRequestConfig;
         const { method, url } = config;
-        // Cancel the previous request only if it's in progress and has the same method and URL
         if (
           this.cancelTokenSource &&
           previousMethod === method &&
@@ -32,9 +59,7 @@ class ApiService {
           this.cancelTokenSource.cancel("Request canceled by the user");
         }
       }
-      // Create a new cancel token source
       this.cancelTokenSource = axios.CancelToken.source();
-      // Attach the cancel token to the request configuration
       config.cancelToken = this.cancelTokenSource.token;
       this.previousRequestConfig = config;
 
@@ -58,21 +83,12 @@ class ApiService {
     config?: AxiosRequestConfig,
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
-    const authType = localStorage.getItem("AuthType");
-    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: "get",
       url: fullUrl,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Authorization-Scheme": authType,
-        Claims: claims,
-      },
+      params: params,
     };
-    if (params) {
-      requestConfig.params = params;
-    }
     return this.request<T>(requestConfig);
   }
 
@@ -83,18 +99,11 @@ class ApiService {
     cancelRequest = false,
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
-    const authType = localStorage.getItem("AuthType");
-    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: "post",
       url: fullUrl,
       data: data,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Authorization-Scheme": authType,
-        Claims: claims,
-      },
     };
 
     return this.request<T>(requestConfig, cancelRequest);
@@ -106,18 +115,11 @@ class ApiService {
     config?: AxiosRequestConfig,
   ): Promise<T> {
     const fullUrl = `${this.baseUrl}${url}`;
-    const authType = localStorage.getItem("AuthType");
-    const claims = localStorage.getItem("Claims");
     const requestConfig: AxiosRequestConfig = {
       ...config,
       method: "delete",
       url: fullUrl,
       data: data,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Authorization-Scheme": authType,
-        Claims: claims,
-      },
     };
 
     return this.request<T>(requestConfig);

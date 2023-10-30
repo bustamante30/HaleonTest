@@ -105,6 +105,11 @@ const tableConfig = {
           return [{ icon: "visibility", label: "Audit", event: "audit" }];
         }
         break;
+      case 4:
+        return [
+          { icon: "add", label: "Add to Cart", event: "add" },
+          { icon: "redo", label: "Order Again", event: "reorder" },
+        ];
       default:
         return [];
     }
