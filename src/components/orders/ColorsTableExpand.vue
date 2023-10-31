@@ -59,7 +59,7 @@ onBeforeMount(() => {
   if (source !== "confirm" && source !== "cart") {
     props.data?.forEach((color: any) => {
       const { checkboxId } = color;
-      color.plateType?.forEach((plateType: any) => {
+      color.plateDetails?.forEach((plateType: any) => {
         updatePlate({
           colourId: color.checkboxId,
           checkboxId: plateType.checkboxId,
@@ -141,7 +141,7 @@ async function updatePlate(params: any) {
         (c: any) => c.checkboxId === params?.colourId,
       );
       const totalSets = sum(
-        (colour as any)?.plateType?.map((plate: any) => plate?.sets) || [],
+        (colour as any)?.plateDetails?.map((plate: any) => plate?.sets) || [],
       );
       if (!totalSets)
         selected.value = selected?.value?.filter(

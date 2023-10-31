@@ -730,6 +730,100 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    async getLenFiles(order: any) {
+      return new Promise((resolve) => {
+        //make editable the colors:
+        const sequenceList = order.colors.map(
+          (plate: any) => plate.sequenceNumber,
+        );
+        let lenProcessed = 0;
+        for (const sequence of sequenceList) {
+          ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
+            lenProcessed += res.length;
+            for (let i = 0; i < res.length; i++) {
+              for (const color of order.editionColors) {
+                if (res[i].lenPath == color.lenPath) {
+                  color.lenData = res[i].lenData;
+                  color.checkboxId = faker.datatype.uuid();
+                  color.sets = color.totalSets;
+                  if (color.plates.length == 0) {
+                    color.plateDetails = [
+                      {
+                        id: 0,
+                        checkboxId: faker.datatype.uuid(),
+                        plateTypeId: null,
+                        plateTypeDescription: null,
+                        sets: 0,
+                        loading: true,
+                      },
+                    ];
+                  } else {
+                    const editionPlates: any[] = [];
+                    color.plateDetails = editionPlates;
+                    color.plates.forEach((plate) => {
+                      plate.checkboxId = faker.datatype.uuid();
+                      plate.loading = true;
+                      color.plateDetails.push(plate);
+                    });
+                    delete color.plates;
+                    console.log(color.plateDetails);
+                  }
+                }
+              }
+            }
+            if (lenProcessed === order.editionColors.length) {
+              this.getAvailablePlates(order);
+              resolve({ status: "finished", order: order });
+            }
+          });
+        }
+      });
+    },
+    async getAvailablePlates(order: any) {
+      //get the list of plates per colour
+      ReorderService.getOrderAvailablePlates(
+        order.originalOrderId ? order.originalOrderId : order.sgsId,
+      ).then((result) => {
+        order.editionColors.forEach((color) => {
+          color.fullPlateList = result.plateList;
+          color.fullThicknessList = result.thicknessList;
+          const availablePlateInfo = result.colorAvailablePlates.find(
+            (i) => i.colorSequence === color.sequenceNumber,
+          );
+          if (availablePlateInfo != null) {
+            color.plateDetails.forEach((plate) => {
+              plate.plateList =
+                availablePlateInfo.availablePlates.length === 0
+                  ? result.plateList
+                  : availablePlateInfo.availablePlates;
+              if (availablePlateInfo.availablePlates.length === 1) {
+                plate.plateTypeId =
+                  availablePlateInfo.availablePlates[0].plateTypeId;
+                plate.plateTypeDescription =
+                  availablePlateInfo.availablePlates[0].plateTypeName;
+              }
+              plate.thicknessList =
+                availablePlateInfo.availableThicknesses.length === 0
+                  ? result.thicknessList
+                  : availablePlateInfo.availableThicknesses;
+              if (availablePlateInfo.availableThicknesses.length === 1) {
+                plate.plateThicknessId =
+                  availablePlateInfo.availableThicknesses[0].thicknessId;
+                plate.plateThicknessDescription =
+                  availablePlateInfo.availableThicknesses[0].thicknessDesc;
+              }
+              plate.loading = false;
+            });
+          } else {
+            color.plateDetails.forEach((plate) => {
+              plate.plateList = result.plateList;
+              plate.thicknessList = result.thicknessList;
+              plate.loading = false;
+            });
+          }
+        });
+      });
+    },
     async getEditableColors(jobNumber: string, order: any) {
       if (!order.editionColors) {
         const editionColors: any[] = [];
@@ -767,7 +861,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const authStore = useAuthStore();
                 let message = `Your order cannot be processed. This request must be sent directly to a PM. To request it, please click `;
                 let link: string = `/dashboard?showPM=true`;
-                let linkLabel: string = `Here`;
+                const linkLabel: string = `Here`;
                 if (authStore.currentUser.isLoggedIn) {
                   message = `Your order cannot be processed through this portal.  Please go into MySGS directly to place your order`;
                   link = ``;
@@ -780,51 +874,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 });
                 resolve({ status: "finished", order: null });
               }
-              //get the list of plates per colour
-              ReorderService.getOrderAvailablePlates(
-                order.originalOrderId ? order.originalOrderId : order.sgsId,
-              ).then((result) => {
-                order.editionColors.forEach((color) => {
-                  color.fullPlateList = result.plateList;
-                  color.fullThicknessList = result.thicknessList;
-                  const availablePlateInfo = result.colorAvailablePlates.find(
-                    (i) => i.colorSequence === color.sequenceNumber,
-                  );
-                  if (availablePlateInfo != null) {
-                    color.plateDetails.forEach((plate) => {
-                      plate.plateList =
-                        availablePlateInfo.availablePlates.length === 0
-                          ? result.plateList
-                          : availablePlateInfo.availablePlates;
-                      if (availablePlateInfo.availablePlates.length === 1) {
-                        plate.plateTypeId =
-                          availablePlateInfo.availablePlates[0].plateTypeId;
-                        plate.plateTypeDescription =
-                          availablePlateInfo.availablePlates[0].plateTypeName;
-                      }
-                      plate.thicknessList =
-                        availablePlateInfo.availableThicknesses.length === 0
-                          ? result.thicknessList
-                          : availablePlateInfo.availableThicknesses;
-                      if (
-                        availablePlateInfo.availableThicknesses.length === 1
-                      ) {
-                        plate.plateThicknessId =
-                          availablePlateInfo.availableThicknesses[0].thicknessId;
-                        plate.plateThicknessDescription =
-                          availablePlateInfo.availableThicknesses[0].thicknessDesc;
-                      }
-                      plate.loading = false;
-                    });
-                  } else {
-                    color.plateDetails.forEach((plate) => {
-                      plate.plateList = result.plateList;
-                      plate.thicknessList = result.thicknessList;
-                      plate.loading = false;
-                    });
-                  }
-                });
-              });
+              this.getAvailablePlates(order);
               resolve({ status: "finished", order: order });
             }
           });
