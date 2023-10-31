@@ -273,14 +273,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             (plateType: any) => plateType.value !== 256,
           );
           this.selectedOrder = cartOrder;
-          const statusId = this.selectedOrder
-            ? this.selectedOrder?.statusId
-            : 1;
-          this.mapColorAndCustomerDetailsToOrder(
-            this.selectedOrder,
-            statusId,
-            plateTypes,
-          );
+          this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
           await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
           this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
             if (response) this.selectedOrder.pdfData = response;
@@ -319,11 +312,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.getPdfData(details.jobId).then((response: any) => {
             if (response) this.selectedOrder.pdfData = response;
           });
-          this.mapColorAndCustomerDetailsToOrder(
-            details,
-            (this.selectedOrder as any)["statusId"],
-            plateTypes,
-          );
+          this.mapColorAndCustomerDetailsToOrder(details);
         }
       }
 
@@ -732,14 +721,11 @@ export const useOrdersStore = defineStore("ordersStore", {
     getSearchHistory(history: any) {
       this.searchHistory = [...history];
     },
-    mapColorAndCustomerDetailsToOrder(
-      details: any,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      statusId: number,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      plateTypes: any[],
-    ) {
+    mapColorAndCustomerDetailsToOrder(details: any) {
       const colors = Array.from((details && details?.colors) || []);
+      colors.map((color) => {
+        (color as any).newColour = (color as any).isNew ? "New" : "Common";
+      });
       (this.selectedOrder as any)["colors"] = colors;
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;

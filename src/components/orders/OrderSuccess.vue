@@ -120,7 +120,6 @@ async function handleCancelOrder() {
         "10 mins window closed for Re-Order cancellation",
         { severity: "error" },
       );
-      // Handle error or show a notification
     }
   }
 }
