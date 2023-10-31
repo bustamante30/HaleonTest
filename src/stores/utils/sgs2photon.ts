@@ -26,6 +26,7 @@ const mapSgsOrderDetail = (details: OrderDetails) => {
     printerName: details.printerName != "" ? details.printerName : null,
     barcodes: details.barcode,
     packagingReference: details.jobDetails.packagingReference,
+    /*
     cust1UpDie: details.techSpec.cust1UpDie,
     printProcess: details.techSpec.printProcessDescription,
     substrate: details.techSpec.substrate,
@@ -37,6 +38,7 @@ const mapSgsOrderDetail = (details: OrderDetails) => {
     dispro: details.techSpec.dispro,
     plateType: details.techSpec.plateType,
     plateTypeId: details.techSpec.plateTypeId,
+    */
     pdfData: details.pdfData,
     variety: details.jobDetails.variety,
     thumbNailPath: new URL("@/assets/images/no_thumbnail.png", import.meta.url)
