@@ -18,6 +18,7 @@ export type UserState = {
   identityProviderName?: Ref<string>;
   identityTypeName?: Ref<string>;
   prtLocation: Ref<Array<string>>;
+  internalUserPrinters: Ref<Array<string>>;
 };
 
 export const useUserSessionStore = defineStore("userSession", () => {
@@ -38,6 +39,7 @@ export const useUserSessionStore = defineStore("userSession", () => {
     identityProviderName: ref(""),
     identityTypeName: ref(""),
     prtLocation: ref([]),
+    internalUserPrinters: ref([]),
   });
   return { userSession };
 });

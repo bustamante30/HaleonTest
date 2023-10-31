@@ -60,9 +60,15 @@ export default {
     cols: [
       {
         header: "Plate Type",
-        field: "plateTypeDescription",
+        field: "plateTypeId",
         type: "lookup",
-        options: { key: "plateTypeDescription" },
+        options: { label: "plateTypeName", value: "plateTypeId" },
+      },
+      {
+        header: "Plate Thickness (1/1000)",
+        field: "plateThicknessId",
+        type: "lookup",
+        options: { label: "thicknessDesc", value: "thicknessId" },
       },
       {
         header: "Quantity",

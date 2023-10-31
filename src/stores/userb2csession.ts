@@ -19,6 +19,7 @@ export type UserState = {
   identityProviderName: Ref<string>;
   identityTypeName: Ref<string>;
   prtLocation: Ref<Array<string>>;
+  internalUserPrinters: Ref<Array<string>>;
 };
 
 export const userB2CSessionStore = defineStore("userb2csession", () => {
@@ -41,6 +42,7 @@ export const userB2CSessionStore = defineStore("userb2csession", () => {
     identityTypeName: ref(""),
     prtLocation: ref([]),
     printerUserIds: [] as number[],
+    internalUserPrinters: ref([]),
   });
   return { userB2CSession };
 });
