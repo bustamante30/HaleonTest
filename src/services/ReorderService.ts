@@ -318,7 +318,7 @@ class ReorderService {
 
   public static getCartCount() {
     return httpService
-      .get<any>("v1/Reorder/getCartCount")
+      .get<any>("v1/Reorder/cart-count")
       .then((response: any) => {
         return response;
       })
@@ -329,7 +329,7 @@ class ReorderService {
   }
   public static getPhotonReorderDetails(id: string) {
     return httpService
-      .get<any>("v1/Reorder/getPhotonReorderDetails?orderId=" + id)
+      .get<any>("v1/Reorder/photon-reorder-details?orderId=" + id)
       .then((response: any) => {
         return response;
       })
@@ -341,7 +341,7 @@ class ReorderService {
 
   public static getCart() {
     return httpService
-      .get<any>("v1/Reorder/getUserCart")
+      .get<any>("v1/Reorder/user-cart")
       .then((response: any) => {
         return response;
       })
