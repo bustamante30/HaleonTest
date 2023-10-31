@@ -63,9 +63,6 @@ const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const loggedInUserName = isb2cUserLoggedIn
-  ? computed(() => authb2cStore.currentB2CUser.displayName)
-  : computed(() => authStore.currentUser.displayName);
 
 defineProps({
   userName: {
