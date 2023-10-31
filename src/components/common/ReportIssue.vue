@@ -3,21 +3,9 @@ sgs-scrollpanel.report-issue
   .form
     .hint
       p
-        small Report an Issue to the support team
+        span Please describe the nature of your problem in the fields below
         small
           label.required Indicates required
-      p
-        span Please describe the nature of your problem in the fields below
-    .f
-      label.required
-        span Open on behalf of this user
-        span.tip(v-tooltip.right="{ value: 'Individual reporting the issue' }")
-          i.material-icons help_outline
-      strong.value {{ userName? userName : loggedInUserName }}
-    .f
-      label.required
-        span Which Photon Application are you reporting an issue on?
-      strong.value {{ issue.application }}
     .f
       label.required
         span Please select your issue from the following options
@@ -75,9 +63,6 @@ const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const loggedInUserName = isb2cUserLoggedIn
-  ? computed(() => authb2cStore.currentB2CUser.displayName)
-  : computed(() => authStore.currentUser.displayName);
 
 defineProps({
   userName: {
