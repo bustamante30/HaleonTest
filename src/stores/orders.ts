@@ -274,7 +274,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           );
           this.selectedOrder = cartOrder;
           this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
-          await this.getBarcodeAndShirtailForPhotonOrder(cartOrder);
+          await this.getBarcodeAndShirtail(cartOrder);
           this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
             if (response) this.selectedOrder.pdfData = response;
           });
@@ -313,6 +313,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             if (response) this.selectedOrder.pdfData = response;
           });
           this.mapColorAndCustomerDetailsToOrder(details);
+          this.getBarcodeAndShirtail(this.selectedOrder);
         }
       }
 
@@ -456,29 +457,33 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.loading.ordersList = false;
       this.decorateOrders();
     },
-    async getBarcodeAndShirtailForPhotonOrder(photonOrder: any) {
-      const promises: Promise<any>[] = [];
+    async getBarcodeAndShirtail(order: any) {
       let barcodeDetails, shirttailDetails;
-      if (photonOrder) {
+      if (order) {
+        let jobNumber = "";
+        if (!order.originalOrderId) {
+          jobNumber = order.sgsId;
+        } else {
+          jobNumber = order.originalOrderId;
+        }
+        const promises: Promise<any>[] = [];
         promises.push(
-          ReorderService.getPhotonBarcode(photonOrder?.id).then((data) => {
+          ReorderService.getBarcode(jobNumber).then((data) => {
             barcodeDetails = JSON.parse(JSON.stringify(data));
           }),
         );
         promises.push(
-          ReorderService.getPhotonShirttail(photonOrder?.id).then((data) => {
+          ReorderService.getShirttail(jobNumber).then((data) => {
             shirttailDetails = JSON.parse(JSON.stringify(data));
           }),
         );
+        await Promise.allSettled(promises);
       } else {
         barcodeDetails = null;
         shirttailDetails = null;
       }
-      await Promise.allSettled(promises);
-
-      this.selectedOrder = this.selectedOrder || {};
       this.selectedOrder = {
-        ...this.selectedOrder,
+        ...order,
         ...mapPhotonOrderDetail(shirttailDetails, barcodeDetails),
       };
     },

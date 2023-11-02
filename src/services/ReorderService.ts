@@ -432,9 +432,9 @@ class ReorderService {
       });
   }
 
-  public static getPhotonBarcode(id: number) {
+  public static getBarcode(id: string) {
     return httpService
-      .get<any>("v1/Reorder/barcode?photonId=" + id)
+      .get<any>("v1/Reorder/barcode?orderId=" + id)
       .then((response: any) => {
         return response;
       })
@@ -444,9 +444,9 @@ class ReorderService {
       });
   }
 
-  public static getPhotonShirttail(id: number) {
+  public static getShirttail(id: string) {
     return httpService
-      .get<any>("v1/Reorder/shirttail?photonId=" + id)
+      .get<any>("v1/Reorder/shirttail?orderId=" + id)
       .then((response: any) => {
         return response;
       })

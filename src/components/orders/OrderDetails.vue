@@ -25,7 +25,7 @@
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
-        order-shirttail(:data="selectedOrder.details")
+        order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
         sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
           iframe.pdf(:src="pdfUri")
