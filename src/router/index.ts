@@ -47,6 +47,11 @@ const router = createRouter({
           name: "order-success",
           component: () => import("@/pages/orders/SuccessPage.vue"),
         },
+        {
+          path: "photon/:pid",
+          name: "photon-success",
+          component: () => import("@/pages/orders/PhotonSuccessPage.vue"),
+        },
       ],
     },
     {
