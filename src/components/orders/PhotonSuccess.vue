@@ -86,7 +86,7 @@ onBeforeMount(async () => {
       await ReorderService.getPhotonReorderDetails(props.selectedId),
     ),
   );
-  if (orderDetails.statusId == 4) {
+  if (orderDetails?.statusId == 4) {
     await ordersStore.setOrderInStore(orderDetails);
     expectedDate.value = formatExpectedDateTime(orderDetails);
   } else {

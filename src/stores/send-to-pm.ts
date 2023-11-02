@@ -140,7 +140,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
       if (errorMessage.length > 0)
         notificationsStore.addNotification(
           "Please fill the required fields : ",
-          errorMessage.join("\n"),
+          errorMessage.join(""),
           {
             severity: "warn",
             group: "multiple",
