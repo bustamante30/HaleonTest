@@ -36,5 +36,8 @@ export const useNotificationsStore = defineStore("notifications", {
         }, options.life);
       }
     },
+    removeNotification() {
+      this.notification = null;
+    },
   },
 });
