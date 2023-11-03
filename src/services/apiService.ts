@@ -62,7 +62,6 @@ class ApiService {
       this.cancelTokenSource = axios.CancelToken.source();
       config.cancelToken = this.cancelTokenSource.token;
       this.previousRequestConfig = config;
-
       const response: AxiosResponse<T> = await axios(config);
       return response?.data;
     } catch (error: any) {
@@ -70,7 +69,8 @@ class ApiService {
         console.log("Request canceled:", error.message);
         return Promise.reject("Request canceled by the user");
       } else if (error?.response?.data) {
-        throw error;
+        return error?.response?.data;
+        //throw error;
       } else {
         throw new Error(`Request failed: ${error}`);
       }

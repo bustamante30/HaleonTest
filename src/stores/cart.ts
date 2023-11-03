@@ -15,6 +15,7 @@ export const useCartStore = defineStore("cartStore", {
       add: false,
       discard: false,
     },
+    notificationsStore: useNotificationsStore(),
   }),
   getters: {
     cartCount: (state) => {
@@ -33,9 +34,20 @@ export const useCartStore = defineStore("cartStore", {
     },
     async getCart() {
       this.loading.cart = true;
-      this.cartOrders = await ReorderService.getCart();
-      this.decorateCartOrders();
+      let response = await ReorderService.getCart();
+      if (response.result) {
+        this.cartOrders = response.data;
+        this.decorateCartOrders();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       this.loading.cart = false;
+      return true;
     },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {

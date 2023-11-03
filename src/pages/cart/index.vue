@@ -27,7 +27,9 @@ const cartCount = computed(() => cartStore.cartCount);
 const loading = computed(() => cartStore.loading);
 
 onBeforeMount(() => {
-  cartStore.getCart();
+  cartStore.getCart().then((result) => {
+    if (!result) router.push("/dashboard");
+  });
 });
 </script>
 
