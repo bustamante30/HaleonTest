@@ -742,6 +742,9 @@ export const useOrdersStore = defineStore("ordersStore", {
           (plate: any) => plate.sequenceNumber,
         );
         let lenProcessed = 0;
+        const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
+          order.originalOrderId ? order.originalOrderId : order.sgsId,
+        );
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
             lenProcessed += res.length;
@@ -777,18 +780,19 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             }
             if (lenProcessed === order.editionColors.length) {
-              this.getAvailablePlates(order);
+              this.getAvailablePlates(order, asyncAvailablePlatesCall);
               resolve({ status: "finished", order: order });
             }
           });
         }
       });
     },
-    async getAvailablePlates(order: any) {
+    async getAvailablePlates(
+      order: any,
+      asyncAvailablePlatesCall: Promise<any>,
+    ) {
       //get the list of plates per colour
-      ReorderService.getOrderAvailablePlates(
-        order.originalOrderId ? order.originalOrderId : order.sgsId,
-      ).then((result) => {
+      asyncAvailablePlatesCall.then((result) => {
         order.editionColors.forEach((color) => {
           color.fullPlateList = result.plateList;
           color.fullThicknessList = result.thicknessList;
@@ -836,6 +840,9 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
       return new Promise((resolve) => {
         let expectedColors = order.colors.length;
+        const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
+          order.originalOrderId ? order.originalOrderId : order.sgsId,
+        );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
@@ -879,7 +886,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 });
                 resolve({ status: "finished", order: null });
               }
-              this.getAvailablePlates(order);
+              this.getAvailablePlates(order, asyncAvailablePlatesCall);
               resolve({ status: "finished", order: order });
             }
           });
