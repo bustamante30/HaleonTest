@@ -553,7 +553,6 @@ class ReorderService {
   public static async addOrdersToCart(
     cartAddRequest: Array<CartAddRequestDto>,
   ) {
-    debugger;
     return httpService
       .post<CartResponseDto[]>("v1/Reorder/addToCartBulk", cartAddRequest)
       .then((response: CartResponseDto[]) => {

@@ -462,7 +462,6 @@ const auditOrder = async (order) => {
 };
 
 async function addMultipleToCart() {
-  debugger;
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
   //  for (let i = 0; i < ordersToAdd.length; i++) {
