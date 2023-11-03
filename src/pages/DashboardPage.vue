@@ -559,8 +559,7 @@ async function addMultipleToCart() {
           if (cartResponse.status === "Success") {
             notificationsStore.addNotification(
               `Sucesss`,
-              "These orders has been added to cart successfully - order#" +
-                cartResponse.originalOrderId,
+              cartResponse.message + "",
               { severity: "success" },
             );
           } else {
