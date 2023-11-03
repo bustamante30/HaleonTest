@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { CartAddRequestDto } from "@/models/CartAddRequestDto";
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
+import type { CartResponseDto } from "@/models/CartResponseDto";
+
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
 
 const httpService = new ApiService(baseUrl);
@@ -519,6 +522,20 @@ class ReorderService {
       );
     });
     order.colors = distinctColors;
+  }
+
+  public static async addOrdersToCart(
+    cartAddRequest: Array<CartAddRequestDto>,
+  ) {
+    return httpService
+      .post<CartResponseDto[]>("v1/Reorder/addToCartBulk", cartAddRequest)
+      .then((response: CartResponseDto[]) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("Error while adding order to Cart:", error);
+        return false;
+      });
   }
 }
 
