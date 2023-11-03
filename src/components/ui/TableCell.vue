@@ -12,7 +12,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(show-buttons button-layout="horizontal" :step="1" :min="0" :max="config.max" :model-value="value" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @update:model-value="update")
   span(v-else-if="config.type === 'lookup'")
-    sgs-lookup(:model-value="value && value.value ? value.value : null" :edit="data.isEditable" :options="optionValues" :option-label="optionLabelKey" :option-value="optionValueKey" @update:model-value="update")
+    sgs-lookup(:model-value="value" :edit="data.isEditable" :options="options" :option-label="optionLabelKey" :option-value="optionValueKey" :empty="empty" @update:model-value="update")
   span(v-else-if="config.tooltip" v-tooltip.top="{ value: value, disabled: !config.tooltip }") {{ value }}
   span(v-else :class="{ disabled:(value === null || value === '' || value === undefined)}") {{ (value === null || value === '' || value === undefined) ? 'N/A' : value }}
 
@@ -24,7 +24,6 @@ import { DateTime } from "luxon";
 import { computed } from "vue";
 import SgsLookup from "@/components/ui/Lookup.vue";
 import router from "@/router";
-
 const props = defineProps({
   config: {
     type: Object,
@@ -39,18 +38,17 @@ const props = defineProps({
     default: "id",
   },
   options: {
-    type: Object,
-    default: () => {},
+    type: Array,
+    default: () => [],
+  },
+  empty: {
+    type: String,
+    default: "",
   },
 });
 
 const emit = defineEmits(["update", "ordervalidation"]);
 const value = computed(() => get(props.data, props.config.field));
-// const id = computed(() => props.config && props.config.field ? props.config.field.replace(/\./ig, '_') : 'field')
-const optionKey = computed(() => get(props.config, "options.key") || null);
-const optionValues = computed(() =>
-  optionKey.value ? get(props.options, optionKey.value) : [],
-);
 const optionLabelKey = computed(
   () => get(props.config, "options.label") || "label",
 );

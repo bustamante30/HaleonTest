@@ -25,7 +25,7 @@
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
-        order-shirttail(:data="selectedOrder.details")
+        order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
         sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
           iframe.pdf(:src="pdfUri")
@@ -60,13 +60,15 @@ const colors = computed(() => ordersStore.selectedOrder.colors);
 
 onMounted(async () => {
   await ordersStore.getOrderById(props.selectedId);
+  if (selectedOrder.value.statusId == 1)
+    ordersStore.getLenFiles(selectedOrder.value);
+  else ordersStore.getEditableColors(props.selectedId, selectedOrder.value);
 });
 
 async function buy() {
   if (selectedOrder.value.statusId != 1) {
     selectedOrder.value.id = 0;
   }
-  ordersStore.getEditableColors(props.selectedId, selectedOrder.value);
   const confirmRoute =
     `/dashboard/${props.selectedId}/reorder` +
     (selectedOrder.value.statusId == 1 ? `?source=cart` : ``);

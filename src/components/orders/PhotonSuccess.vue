@@ -2,19 +2,15 @@
 .order-success(v-if="selectedOrder")
   sgs-scrollpanel
     template(#header)
-      header(:class="{'cancelled': isOrderCancel }")
-        h1.title {{ isOrderCancel ? 'Order Cancel' : 'Thank you for your order' }}
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
-      p(v-if="!isOrderCancel")
-        | The following plate re-order has been placed. &nbsp;
-        br/
-        | Your order is expected to be delivered on &nbsp;
-        em(v-if="selectedOrder.expectedDate") {{ expectedDate }}
     .card.context
       .f
         label Order Date
         span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
+      .f(v-if="selectedOrder.expectedDate")
+        label Expected Delivery Date
+        span {{ expectedDate }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
         span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
@@ -53,44 +49,67 @@
           sgs-button#close(label="Close" @click="handleClose()")
 </template>
 
+<!-- eslint-disable no-undef -->
 <script setup>
-import { computed, onBeforeMount, watch, ref, onMounted } from "vue";
 import { useOrdersStore } from "@/stores/orders";
-import { useCartStore } from "@/stores/cart";
 import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
 import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
+
 const router = useRouter();
 const ordersStore = useOrdersStore();
-const cartStore = useCartStore();
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
-
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const isOrderCancel = computed(() => ordersStore.isCancel);
 const colors = computed(() =>
   ordersStore.flattenedColors("success").filter((color) => color.sets),
 );
+
 const expectedDate = ref("");
+const props = defineProps({
+  selectedId: {
+    type: String,
+    default: () => "",
+  },
+});
 
 onBeforeMount(async () => {
-  let x = ordersStore.selectedOrder?.expectedDate?.toString();
-  if (ordersStore.selectedOrder?.expectedDate instanceof Date)
-    x = ordersStore.selectedOrder?.expectedDate?.toISOString();
-  expectedDate.value = DateTime.fromISO(x).toFormat("dd LLL, yyyy hh:mm a");
-});
-
-onMounted(async () => {
-  const index = cartStore.cartOrders.indexOf(ordersStore.successfullReorder, 0);
-  if (index > -1) {
-    cartStore.cartOrders.splice(index, 1);
+  let orderDetails = JSON.parse(
+    JSON.stringify(
+      await ReorderService.getPhotonReorderDetails(props.selectedId),
+    ),
+  );
+  if (orderDetails?.statusId == 4) {
+    await ordersStore.setOrderInStore(orderDetails);
+    expectedDate.value = formatExpectedDateTime(orderDetails);
+  } else {
+    notificationsStore.addNotification(
+      "The order number is incorrect or the order was not confirmed in photon.",
+      "Please check the link and try again.",
+      { severity: "error", life: null, position: "top-right" },
+    );
   }
 });
+
+watch(ordersStore.selectedOrder, async (value) => {
+  selectedOrder.value = value;
+  expectedDate.value = formatExpectedDateTime(value);
+});
+
+function formatExpectedDateTime(order) {
+  if (order?.expectedDate) {
+    const formattedDate = DateTime.fromISO(order.expectedDate);
+    return formattedDate.toFormat("dd LLL, yyyy hh:mm a");
+  }
+  return "";
+}
 
 async function handleClose() {
   const form = document.querySelector(".page.success");
@@ -99,34 +118,6 @@ async function handleClose() {
   }
   router.push(`/dashboard?q=${Date.now()}`);
 }
-
-async function handleCancelOrder() {
-  if (selectedOrder.value) {
-    const cancelResult = await ordersStore.cancelOrder(
-      selectedOrder.value.id,
-      true,
-    );
-    if (cancelResult) {
-      notificationsStore.addNotification(
-        `Success`,
-        "Order Cancelled successfully",
-        { severity: "success" },
-      );
-      await router.push(`/dashboard?q=${Date.now()}`);
-      await ordersStore.getOrders();
-    } else {
-      notificationsStore.addNotification(
-        `Error`,
-        "10 mins window closed for Re-Order cancellation",
-        { severity: "error" },
-      );
-    }
-  }
-}
-
-watch(ordersStore.selectedOrder, (value) => {
-  selectedOrder.value = value;
-});
 </script>
 
 <style lang="sass" scoped>

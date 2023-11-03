@@ -10,7 +10,7 @@ data-table.colors-table.p-datatable-sm(v-model:selection="selected" v-model:expa
     template(#body="{ data }")
       table-actions(:actions="config.actions(data)" :data="data")
   template(#expansion="{ data }")
-    colors-table-plates(:data="data.plateType" :config="config.plates" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
+    colors-table-plates(:data="data.plateDetails" :config="config.plates" :plates="getPlates(data)" :thicknesses="data.thicknessList" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
 </template>
 
 <!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
@@ -49,7 +49,7 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 
 const selected = ref([] as never[]);
-const expandedRows = ref([]);
+const expandedRows = ref([] as never[]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 
@@ -59,7 +59,7 @@ onBeforeMount(() => {
   if (source !== "confirm" && source !== "cart") {
     props.data?.forEach((color: any) => {
       const { checkboxId } = color;
-      color.plateType?.forEach((plateType: any) => {
+      color.plateDetails?.forEach((plateType: any) => {
         updatePlate({
           colourId: color.checkboxId,
           checkboxId: plateType.checkboxId,
@@ -107,6 +107,10 @@ watch(selected, (colors, prevColors) => {
   }
 });
 
+function getPlates(datos) {
+  if (datos["useFullList"]) return datos["fullPlateList"];
+  else return datos["plateList"];
+}
 function updateColor({ checkboxId, field, value }: any) {
   emit("update", { checkboxId, field, value });
 }
@@ -137,7 +141,7 @@ async function updatePlate(params: any) {
         (c: any) => c.checkboxId === params?.colourId,
       );
       const totalSets = sum(
-        (colour as any)?.plateType?.map((plate: any) => plate?.sets) || [],
+        (colour as any)?.plateDetails?.map((plate: any) => plate?.sets) || [],
       );
       if (!totalSets)
         selected.value = selected?.value?.filter(

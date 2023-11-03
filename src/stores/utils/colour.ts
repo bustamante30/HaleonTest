@@ -40,7 +40,8 @@ const colorDecorator = (colors: any[], masterPlateTypes: any[]) => {
 const mapPlateTypes = (details: any) => {
   return details?.plateTypes?.map((plateType: any) => {
     const thickness = details?.plateThicknesses?.find(
-      (thickness: any) => thickness?.thicknessId === plateType?.plateTypeId,
+      (thickness: any) =>
+        thickness?.thicknessId === plateType?.plateThicknessId,
     );
     return {
       label: plateType?.plateTypeName,
@@ -58,40 +59,50 @@ const mapPlateTypes = (details: any) => {
 
 const validation = (colour: any) => {
   const totalSets =
-    colour.plateType &&
-    colour.plateType.length &&
-    sum(colour.plateType.map((plate: any) => plate.sets));
+    colour.plateDetails &&
+    colour.plateDetails.length &&
+    sum(colour.plateDetails.map((plate: any) => plate.sets));
   const plateTypes =
-    colour.plateType &&
-    colour.plateType.map((plate: any) => plate.plateTypeDescription.value);
+    colour.plateDetails &&
+    colour.plateDetails.map((plate: any) => plate.plateTypeId);
   const hasUniquePlates =
     !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
-  const hasMixed =
-    colour.plateType &&
-    colour.plateType.find(
-      (plate: any) =>
-        plate.sets > 0 && plate.plateTypeDescription.value === 256,
-    ); // 256 = Mixed plateTypeId
+  console.log(colour);
   const hasEmptyPlateDescription =
-    colour.plateType &&
-    colour.plateType.find(
-      (plate: any) => plate.sets > 0 && !plate.plateTypeDescription.value,
-    ); // 256 = Mixed plateTypeId
+    colour.plateDetails.find(
+      (plate: any) => plate.sets > 0 && !plate.plateTypeId,
+    ) != null;
+  const hasEmptyPlateThickness =
+    colour.plateDetails.find(
+      (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
+    ) != null;
   const isValid =
     hasUniquePlates &&
     totalSets <= 10 &&
-    !hasMixed &&
-    !hasEmptyPlateDescription;
-  console.log({ isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates });
-  return { isValid, hasEmptyPlateDescription, hasMixed, hasUniquePlates };
+    !hasEmptyPlateDescription &&
+    !hasEmptyPlateThickness;
+  console.log({
+    isValid,
+    hasEmptyPlateDescription,
+    hasUniquePlates,
+    hasEmptyPlateThickness,
+  });
+  return {
+    isValid,
+    hasEmptyPlateDescription,
+    hasUniquePlates,
+    hasEmptyPlateThickness,
+  };
 };
 
 const flattenColors = (colors: any[] = []) => {
   const flattenedColors = [] as any[];
   colors?.length &&
     colors?.forEach((color: any) => {
-      if (!color?.plateType) color.plateType = color.plates;
-      color?.plateType.forEach((plate) => {
+      color.plateType = !color?.plateDetails
+        ? color.plates
+        : color.plateDetails;
+      color?.plateType?.forEach((plate) => {
         flattenedColors.push({
           clientPlateColourRef: color.clientPlateColourRef,
           colourName: color.colourName,
@@ -112,10 +123,9 @@ const flattenColors = (colors: any[] = []) => {
             color.newColour === undefined ? color.isNew : color.newColour,
           id: plate.id,
           plateTypeId: plate?.plateTypeId,
-          plateTypeDescription:
-            plate.plateType ||
-            plate?.plateTypeDescription?.label ||
-            plate?.plateTypeDescription,
+          plateTypeDescription: plate?.plateTypeDescription,
+          plateThicknessId: plate?.plateThicknessId,
+          plateThicknessDescription: plate?.plateThicknessDescription,
           sequenceNumber: color.sequenceNumber,
           sets: plate.sets,
         });

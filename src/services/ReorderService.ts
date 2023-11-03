@@ -2,7 +2,6 @@
 import type { CartAddRequestDto } from "@/models/CartAddRequestDto";
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
-import { faker } from "@faker-js/faker";
 import type { CartResponseDto } from "@/models/CartResponseDto";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
@@ -79,7 +78,7 @@ interface Color {
   commonColourRef: string;
   isActive: boolean;
   totalSets?: number;
-  plateTypes?: PlateType[];
+  plates?: PlateType[];
 }
 
 interface CustomerContact {
@@ -103,17 +102,23 @@ class ReorderService {
     ///code added to resolve the iisue with the plate details:
     newColors.forEach((color: any) => {
       delete color.lenData;
+      delete color.fullPlateList;
+      delete color.fullThicknessList;
+      delete color.checkboxId;
       let hasPlates = false;
-      color?.plateType?.forEach((plateType: any) => {
-        const plateInfo = plateType.plateTypeDescription;
-        plateType.plateTypeId = plateInfo.value;
-        plateType.plateTypeDescription = plateInfo.label;
-        if (plateType.sets > 0) hasPlates = true;
-      });
+      for (const plateType of color.plateDetails) {
+        delete plateType.checkboxId;
+        delete plateType.plateList;
+        delete plateType.thicknessList;
+        if (plateType.sets > 0) {
+          hasPlates = true;
+        }
+      }
       ///api expects plates and sets fields:
-      if (hasPlates) color.plates = color.plateType;
+      if (hasPlates) color.plates = color.plateDetails;
       else color.plates = [];
       delete color.plateType;
+      delete color.plateDetails;
       color.sets = color.totalSets;
     });
     reorderInfo.customerContacts.forEach((contact: any) => {
@@ -317,6 +322,18 @@ class ReorderService {
         return null;
       });
   }
+  public static getOrderAvailablePlates(sgsId: string) {
+    return httpService
+      .get<any>("v1/Reorder/info/availablePlates?jobnumber=" + sgsId)
+      .then((response: any) => {
+        console.log(response);
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("error getting OrderAvailablePlates: ", error);
+        return null;
+      });
+  }
 
   public static getCartCount() {
     return httpService
@@ -405,7 +422,7 @@ class ReorderService {
   public static decorateColours(colors: Color[] | undefined) {
     if (colors)
       colors.forEach((color) => {
-        color.plateTypes = color.plateTypes?.sort(
+        color.plates = color.plates?.sort(
           (a, b) => a.plateTypeId - b.plateTypeId,
         );
         color.newColour = color.isNew ? "New" : "Common";
@@ -418,9 +435,9 @@ class ReorderService {
       });
   }
 
-  public static getPhotonBarcode(id: number) {
+  public static getBarcode(id: string) {
     return httpService
-      .get<any>("v1/Reorder/barcode?photonId=" + id)
+      .get<any>("v1/Reorder/barcode?orderId=" + id)
       .then((response: any) => {
         return response;
       })
@@ -430,9 +447,9 @@ class ReorderService {
       });
   }
 
-  public static getPhotonShirttail(id: number) {
+  public static getShirttail(id: string) {
     return httpService
-      .get<any>("v1/Reorder/shirttail?photonId=" + id)
+      .get<any>("v1/Reorder/shirttail?orderId=" + id)
       .then((response: any) => {
         return response;
       })
@@ -484,8 +501,16 @@ class ReorderService {
       });
   }
   public static async decoratePhotonOrder(order: any) {
-    console.log(order.colors);
     this.decorateColours(order.colors);
+    order.thumbNailPath = new URL(
+      "@/assets/images/no_thumbnail.png",
+      import.meta.url,
+    );
+    ReorderService.getThumbnail(order.originalOrderId).then(
+      (response: string | boolean) => {
+        if (response) order.thumbNailPath = response;
+      },
+    );
     //transform cart colors to the structure used in the ui
     order.editionColors = JSON.parse(JSON.stringify(order.colors));
     //remove duplicate colors for first page
@@ -497,57 +522,6 @@ class ReorderService {
       );
     });
     order.colors = distinctColors;
-    //make editable the colors:
-    order.editionColors.forEach((color) => {
-      ReorderService.getLen(order.originalOrderId, color.sequenceNumber).then(
-        (res) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res.lenPath == color.lenPath) {
-              color.lenData = res[i].lenData;
-              color.checkboxId = faker.datatype.uuid();
-              if (color.plates.length == 0) {
-                color.plateType = [
-                  {
-                    checkboxId: faker.datatype.uuid(),
-                    plateTypeId: null,
-                    plateTypeDescription: {
-                      isActive: true,
-                      label: null,
-                      value: null,
-                    },
-                    sets: 0,
-                  },
-                ];
-              } else {
-                const editionPlates: any[] = [];
-                color.plateType = editionPlates;
-                color.plates.forEach((plate) => {
-                  const editionPlate = JSON.parse(JSON.stringify(plate));
-                  editionPlate.checkboxId = faker.datatype.uuid();
-                  editionPlate.plateTypeDescription = {
-                    isActive: true,
-                    label: plate.plateTypeDescription,
-                    value: plate.plateTypeId,
-                  };
-                  color.plateType.push(editionPlate);
-                });
-                console.log(color.plateType);
-              }
-              break;
-            }
-          }
-        },
-      );
-    });
-    order.thumbNailPath = new URL(
-      "@/assets/images/no_thumbnail.png",
-      import.meta.url,
-    );
-    ReorderService.getThumbnail(order.originalOrderId).then(
-      (response: string | boolean) => {
-        if (response) order.thumbNailPath = response;
-      },
-    );
   }
 
   public static async addOrdersToCart(
