@@ -1,15 +1,15 @@
 <template lang="pug">
-.order-conformation-form(v-if="checkoutForm" @change.prevent="updateCheckout")
+.order-conformation-form(v-if="checkoutForm")
   .details
     .f
       label.required Delivery Date
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
+        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
         span.material-icons calendar_month
     .f
       label.required Delivery time
       span.input.calendar    
-        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateCheckout")
+        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
 
 
     .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
@@ -17,7 +17,7 @@
         span(v-if="i === 0") Purchase Order #
       span.input.po
         .input-text
-          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" maxlength="26" @update:model-value="updateCheckout")
+          prime-inputtext.po-number(v-model="checkoutForm.purchaseOrder[i]" maxlength="26" @update:model-value="updateCheckout()")
         a(v-if="i === 0" :class="{ disabled: checkoutForm.purchaseOrder.length >= 10 }" @click="addPurchaseOrder()")
           span Add&nbsp;
           i.material-icons add
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 import { onBeforeMount, computed, ref, watch } from "vue";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
@@ -63,12 +63,12 @@ type ValidFiles = {
 const props = defineProps({
   checkout: {
     type: Object,
-    // eslint-disable-next-line vue/require-valid-default-prop
-    default: {
+    default: () => ({
       expectedDate: null,
       purchaseOrder: null,
-      shippingAddrress: null,
-    },
+      notes: null,
+      isUrgent: false,
+    }),
   },
 });
 
@@ -80,54 +80,6 @@ const notificationsStore = useNotificationsStore();
 const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
 );
-const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-let entering = ref();
-const checkoutForm = ref();
-let validFiles = ref<ValidFiles[]>([]);
-onBeforeMount(() => {
-  checkoutForm.value = { ...props.checkout };
-});
-
-watch(props.checkout, () => {
-  checkoutForm.value = { ...props.checkout };
-});
-
-function addPurchaseOrder() {
-  if (checkoutForm.value?.purchaseOrder?.length < 10)
-    checkoutForm.value?.purchaseOrder.unshift("");
-}
-
-function removePurchaseOrder(index: number) {
-  const po = checkoutForm.value?.purchaseOrder;
-  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[];
-}
-
-function updateCheckout() {
-  let expectedDateTime: Date = checkoutForm.value.expectedDate;
-  if (checkoutForm.value.expectedDate) {
-    expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
-    expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes());
-  }
-
-  emit("change", {
-    purchaseOrder: checkoutForm.value.purchaseOrder
-      ? checkoutForm.value.purchaseOrder
-      : null,
-    expectedDate: expectedDateTime,
-    notes: checkoutForm.value.notes ? checkoutForm.value.notes : null,
-    reorderdocs: validFiles.value.map((x) => {
-      return { fileName: x.fileName, url: x.uri };
-    }),
-  });
-}
-
-function minSelectableDate() {
-  return DateTime.now().plus({ hour: 24 }).startOf("hour").toJSDate();
-}
-
-function showNotes(): boolean {
-  return authb2cStore.currentB2CUser.userType === "EXT";
-}
 const isValidFileType = (file: File) => {
   const forbiddenExtensions = [
     ".exe",
@@ -146,6 +98,79 @@ const isValidFileType = (file: File) => {
     lowercaseName.endsWith(extension),
   );
 };
+const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
+let entering = ref();
+const checkoutForm = ref();
+let validFiles = ref<ValidFiles[]>([]);
+
+onBeforeMount(() => {
+  checkoutForm.value = { ...props.checkout };
+});
+
+watch(
+  () => props.checkout.expectedDate,
+  (value) => {
+    checkoutForm.value.expectedDate = value;
+  },
+);
+
+watch(
+  () => props.checkout.isUrgent,
+  (value) => {
+    checkoutForm.value.isUrgent = value;
+  },
+);
+
+function addPurchaseOrder() {
+  if (checkoutForm.value?.purchaseOrder?.length < 10)
+    checkoutForm.value?.purchaseOrder.unshift("");
+}
+
+function removePurchaseOrder(index: number) {
+  const po = checkoutForm.value?.purchaseOrder;
+  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[];
+}
+
+function updateExpectedDate() {
+  let expectedDateTime = checkoutForm.value.expectedDate;
+  if (expectedDateTime) {
+    expectedDateTime.setHours(checkoutForm.value.expectedDate.getHours());
+    expectedDateTime.setMinutes(checkoutForm.value.expectedDate.getMinutes());
+    const selectedDate = DateTime.fromJSDate(checkoutForm.value.expectedDate);
+    const today = DateTime.now();
+    const diff = Interval.fromDateTimes(today, selectedDate);
+    const diffHours = diff.length("hours");
+    const isSameDay = today.hasSame(selectedDate, "day");
+    if (Math.ceil(diffHours) <= 24 || isSameDay) {
+      checkoutForm.value.isUrgent = true;
+    } else {
+      checkoutForm.value.isUrgent = false;
+    }
+  }
+  updateCheckout();
+}
+
+function updateCheckout() {
+  emit("change", {
+    isUrgent: checkoutForm.value.isUrgent,
+    purchaseOrder: checkoutForm.value.purchaseOrder
+      ? checkoutForm.value.purchaseOrder
+      : null,
+    expectedDate: checkoutForm.value.expectedDate,
+    notes: checkoutForm.value.notes ? checkoutForm.value.notes : null,
+    reorderdocs: validFiles.value.map((x) => {
+      return { fileName: x.fileName, url: x.uri };
+    }),
+  });
+}
+
+function minSelectableDate() {
+  return DateTime.now().plus({ hour: 24 }).startOf("hour").toJSDate();
+}
+
+function showNotes(): boolean {
+  return authb2cStore.currentB2CUser.userType === "EXT";
+}
 
 async function getUserId() {
   let userId;
