@@ -105,15 +105,13 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
         const hasExpectedDate = order.expectedDate;
         const hasItemCodeorDescriptionorPlateType =
           order.itemCode || order.description || order.plateId;
+        if (!hasExpectedDate) {
+          errorMessage.push("<p>Delivery Date and Time.</p>");
+        }
         if (!hasUploadData) {
           errorMessage.push(
             "<p>Please fill the following required fields or Drag & </p>" +
               "<p/>Drop Document(s)</p>",
-          );
-        }
-        if (!hasExpectedDate) {
-          errorMessage.push(
-            "<p>Please select a delivery date and time to proceed.</p>",
           );
         }
         if (!hasItemCodeorDescriptionorPlateType) {
