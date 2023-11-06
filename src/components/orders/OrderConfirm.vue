@@ -45,16 +45,25 @@ v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :op
           sgs-button#confirm(label="Confirm" @click="confirm()")
 
   // eslint-disable-next-line vue/no-v-model-argument
-  prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '40rem' }" header="Confirm following details")
-    order-confirm-form(:checkout="checkout" @change="updateCheckout($event)")
+  prime-dialog(v-model:visible="isFormVisible" modal :closable="false" :style="{ width: '50rem' }")
+    template(#header)
+      header.dialog
+        h4 Confirm following details
+        .urgent
+          h5 Urgent Order? (within 24 hours)
+          .switch
+            prime-input-switch.checkbox.sm(:model-value="checkout.isUrgent" @update:model-value="handleUrgentToggle")
+            span {{ checkout.isUrgent ? 'Yes' : 'No'  }}
+    order-confirm-form(:checkout="checkout" :is-urgent="checkout.isUrgent" @change="updateCheckout($event)")
     span.error-message(v-if="errorMessage !== ''") 
       span(v-if="errorMessage !== ''") {{ errorMessage }}
     template(#footer)
-      footer
-        .secondary-actions &nbsp;
+      footer.dialog(:class="{ disclaimer: checkout.isUrgent }")
+        span 
+          span(v-if="checkout.isUrgent") Additional charges may be applicable for urgent orders
         .actions
           sgs-button#cancel-po.default.sm(label="Cancel" @click="cancelPOForm")
-          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" label="Confirm" @click="placeOrder($event)")
+          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" :label="checkout.isUrgent ? 'Confirm as Urgent' : 'Confirm'" @click="placeOrder($event)")
           
 
 </template>
@@ -85,14 +94,16 @@ const loading = computed(() => ordersStore.loading);
 const colors = computed(() =>
   ordersStore.flattenedColors().filter((color) => color.sets),
 );
-
+const errorMessage = ref("");
 let isFormVisible = ref(false);
+
+onMounted(async () => {
+  await resetPOForm();
+});
 
 function confirm() {
   isFormVisible.value = true;
 }
-
-const errorMessage = ref("");
 
 async function cancelPOForm() {
   isFormVisible.value = false;
@@ -100,16 +111,19 @@ async function cancelPOForm() {
 }
 
 async function resetPOForm() {
-  checkout.value.expectedDate = null;
-  checkout.value.expectedTime = null;
-  checkout.value.purchaseOrder = [""];
+  ordersStore.checkout = {
+    expectedDate: null,
+    purchaseOrder: [""],
+    reorderdocs: [],
+    isUrgent: false,
+  };
   ordersStore.loading.reorder = false;
 }
 
 function validatePOForm() {
   if (
-    checkout.value.expectedDate === "" ||
-    checkout.value.expectedDate === null
+    ordersStore.checkout.expectedDate === "" ||
+    ordersStore.checkout.expectedDate === null
   ) {
     notificationsStore.addNotification(
       Constants.PO_FORM_ERROR,
@@ -225,7 +239,14 @@ async function placeOrder() {
 }
 
 function updateCheckout(values) {
+  ordersStore.checkout.isUrgent = values.isUrgent;
   ordersStore.updateCheckout(values);
+}
+
+function handleUrgentToggle(event) {
+  ordersStore.checkout.isUrgent = event;
+  ordersStore.checkout.expectedDate = null;
+  ordersStore.updateCheckout(ordersStore.checkout);
 }
 
 function getShippingAddress() {
@@ -306,4 +327,37 @@ function checkCustomerDetails() {
 
 .shipping
  +flex
+
+header.dialog
+  +flex-fill
+  width: 100%
+
+footer.dialog
+  +flex-fill
+  padding: $s50 $s
+  margin-top: $s50
+  border-top: 1px solid rgba($sgs-gray, 0.2)
+  width: 100%
+  flex: 1
+  &.disclaimer
+    background: $accent-light-3
+    > span
+      display: inline-block
+      text-align: left
+      flex: 1
+
+.urgent
+  +flex-fill
+  background: $sgs-red
+  color: #FFF
+  padding: $s25 $s
+  margin: 0
+  border-radius: 3px
+  width: 21rem
+  .checkbox
+    margin: $s50
+  .switch
+    +flex
+  h5
+    margin: 0
 </style>
