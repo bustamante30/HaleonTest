@@ -178,8 +178,8 @@ export const useOrdersStore = defineStore("ordersStore", {
     checkout: {
       expectedDate: null,
       purchaseOrder: [""],
-      expectedTime: null,
       notes: null,
+      isUrgent: false,
     },
     totalRecords: 0,
     searchHistory: [] as any[],
@@ -187,7 +187,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       { name: "Completed", value: 4 },
       { name: "Submitted", value: 2 },
       { name: "Cancelled", value: 3 },
-      //{ name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -254,8 +253,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.checkout = {
         expectedDate: null,
         purchaseOrder: [""],
-        expectedTime: null,
         notes: null,
+        isUrgent: false,
       };
 
       if (reorderId) {
@@ -541,6 +540,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any).PO = POs;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
       (this.selectedOrder as any).Notes = this.checkout.notes;
+      (this.selectedOrder as any).isUrgent = this.checkout.isUrgent;
     },
 
     // color update flow
