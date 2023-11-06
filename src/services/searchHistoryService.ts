@@ -10,7 +10,7 @@ const httpService = new ApiService(baseUrl);
 class SearchHistoryService {
   public static getSearchField() {
     return httpService
-      .get<SearchFieldDto>("v1/Reorder/searchfield")
+      .get<SearchFieldDto>("v1/Reorder/search-field")
       .then((response: SearchFieldDto) => {
         return response;
       })
@@ -22,9 +22,7 @@ class SearchHistoryService {
 
   public static getSearchDate(isAdvanceSearch: boolean) {
     return httpService
-      .get<SearchDateDto>(
-        "v1/Reorder/getDate?isAdvanceSearch=" + isAdvanceSearch,
-      )
+      .get<SearchDateDto>("v1/Reorder/date?isAdvanceSearch=" + isAdvanceSearch)
       .then((response: SearchDateDto) => {
         return response;
       })
@@ -37,7 +35,7 @@ class SearchHistoryService {
   public static getSearchHistory(dateRefId: number, isAdvanceSearch: boolean) {
     return httpService
       .get<SearchHistoryDto>(
-        "v1/Reorder/getHistory?dateRefId=" +
+        "v1/Reorder/history?dateRefId=" +
           dateRefId +
           "&&isAdvanceSearch=" +
           isAdvanceSearch,
@@ -57,7 +55,7 @@ class SearchHistoryService {
   ) {
     return httpService
       .post<SearchHistoryDto>(
-        "v1/Reorder/addhistory?isAdvanceSearch=" + isAdvanceSearch,
+        "v1/Reorder/history?isAdvanceSearch=" + isAdvanceSearch,
         history,
       )
       .then((response: SearchHistoryDto) => {
