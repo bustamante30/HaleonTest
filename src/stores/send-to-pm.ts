@@ -86,7 +86,6 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
     validate(order: any, uploads: any) {
       const notificationsStore = useNotificationsStore();
       const errorMessage = [] as any[];
-      // Check if any other field has a value
       const hasAnyOtherFieldValue =
         order.brand ||
         order.description ||
@@ -98,21 +97,24 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
         order.jobNumber ||
         order.comments ||
         (uploads && uploads.length > 0);
-      // check isUrgent order and check mandatory fileds
       if (order.isUrgent) {
-        // color validations
         const hasColors = order.colors && order.colors.length;
         const hasValidColors = this.validateColors(order.colors);
         const hasDuplicate = this.hasDuplicates(order.colors);
-        // const hasQuantityLessThanOrEqualTo10 = order.colors.some(
-        //   (obj) => obj.quantity <= 10
-        // );
-        // other validations
+        const hasUploadData = uploads && uploads.length > 0;
         const hasExpectedDate = order.expectedDate;
         const hasItemCodeorDescriptionorPlateType =
           order.itemCode || order.description || order.plateId;
+        if (!hasUploadData) {
+          errorMessage.push(
+            "<p>Please fill the following required fields or Drag & </p>" +
+              "<p/>Drop Document(s)</p>",
+          );
+        }
         if (!hasExpectedDate) {
-          errorMessage.push("<p>Delivery Date and Time.</p>");
+          errorMessage.push(
+            "<p>Please select a delivery date and time to proceed.</p>",
+          );
         }
         if (!hasItemCodeorDescriptionorPlateType) {
           errorMessage.push("<p>Item Code or Description or Plate ID.</p>");

@@ -8,7 +8,7 @@
 
   prime-dialog(v-model:visible="isFormVisible" modal :style="{ width: '80vw' }" header="Send to PM" @hide="clearForm")
     .hint
-      h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter either Item Code or Product Description or Plate ID
+      h4(v-if="sendForm.isUrgent" style="margin-left: 18px;") Enter delivery date, delivery time. Enter either item code or product description or plate ID or attach document(s)
       h4(v-else style="margin-left: 18px;") Enter at least one field
       .urgent
         h5 Urgent Order? (within 24 hours)
