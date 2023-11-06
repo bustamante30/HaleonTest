@@ -60,9 +60,6 @@ const colors = computed(() => ordersStore.selectedOrder.colors);
 
 onMounted(async () => {
   await ordersStore.getOrderById(props.selectedId);
-  if (selectedOrder.value.statusId == 1)
-    ordersStore.getLenFiles(selectedOrder.value);
-  else ordersStore.getEditableColors(props.selectedId, selectedOrder.value);
 });
 
 async function buy() {
