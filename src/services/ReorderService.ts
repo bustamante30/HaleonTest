@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { CartAddRequestDto } from "@/models/CartAddRequestDto";
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
+import type { CartResponseDto } from "@/models/CartResponseDto";
+
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
 
 const httpService = new ApiService(baseUrl);
@@ -334,7 +337,7 @@ class ReorderService {
 
   public static getCartCount() {
     return httpService
-      .get<any>("v1/Reorder/getCartCount")
+      .get<any>("v1/Reorder/cart-count")
       .then((response: any) => {
         return response;
       })
@@ -345,7 +348,7 @@ class ReorderService {
   }
   public static getPhotonReorderDetails(id: string) {
     return httpService
-      .get<any>("v1/Reorder/getPhotonReorderDetails?orderId=" + id)
+      .get<any>("v1/Reorder/photon-reorder-details?orderId=" + id)
       .then((response: any) => {
         return response;
       })
@@ -357,7 +360,7 @@ class ReorderService {
 
   public static getCart() {
     return httpService
-      .get<any>("v1/Reorder/getUserCart")
+      .get<any>("v1/Reorder/user-cart")
       .then((response: any) => {
         return response;
       })
@@ -519,6 +522,20 @@ class ReorderService {
       );
     });
     order.colors = distinctColors;
+  }
+
+  public static async addOrdersToCart(
+    cartAddRequest: Array<CartAddRequestDto>,
+  ) {
+    return httpService
+      .post<CartResponseDto[]>("v1/Reorder/addToCartBulk", cartAddRequest)
+      .then((response: CartResponseDto[]) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("Error while adding order to Cart:", error);
+        return false;
+      });
   }
 }
 

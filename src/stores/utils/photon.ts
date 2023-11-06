@@ -22,21 +22,40 @@ interface ShirttailDetails {
 const mapPhotonOrderDetail = (
   shirttailDetails: ShirttailDetails,
   barcodeDetails = {},
+  order: unknown = null,
 ) => {
-  return {
-    cust1UpDie: shirttailDetails?.cust1UpDie || null,
-    printProcess: shirttailDetails?.printProcessDescription || null,
-    substrate: shirttailDetails?.substrate || null,
-    surfaceReverseSprint: shirttailDetails?.surfaceReversePrint || null,
-    plateRelief: shirttailDetails?.plateRelief || null,
-    plateThickness: shirttailDetails?.thicknessDesc || null,
-    numberAcrossCylinder: shirttailDetails?.numberAcrossCylinder || null,
-    numberAroundCylinder: shirttailDetails?.numberAroundCylinder || null,
-    dispro: shirttailDetails?.dispro || null,
-    plateType: shirttailDetails?.plateType || null,
-    barcodes: barcodeDetails || null,
-    isActive: true,
-  };
+  if (!order) {
+    return {
+      cust1UpDie: shirttailDetails?.cust1UpDie || null,
+      printProcess: shirttailDetails?.printProcessDescription || null,
+      substrate: shirttailDetails?.substrate || null,
+      surfaceReverseSprint: shirttailDetails?.surfaceReversePrint || null,
+      plateRelief: shirttailDetails?.plateRelief || null,
+      plateThickness: shirttailDetails?.thicknessDesc || null,
+      numberAcrossCylinder: shirttailDetails?.numberAcrossCylinder || null,
+      numberAroundCylinder: shirttailDetails?.numberAroundCylinder || null,
+      dispro: shirttailDetails?.dispro || null,
+      plateType: shirttailDetails?.plateType || null,
+      barcodes: barcodeDetails || null,
+      isActive: true,
+    };
+  } else {
+    order["cust1UpDie"] = shirttailDetails?.cust1UpDie || null;
+    order["printProcess"] = shirttailDetails?.printProcessDescription || null;
+    order["substrate"] = shirttailDetails?.substrate || null;
+    order["surfaceReverseSprint"] =
+      shirttailDetails?.surfaceReversePrint || null;
+    order["plateRelief"] = shirttailDetails?.plateRelief || null;
+    order["plateThickness"] = shirttailDetails?.thicknessDesc || null;
+    order["numberAcrossCylinder"] =
+      shirttailDetails?.numberAcrossCylinder || null;
+    order["numberAroundCylinder"] =
+      shirttailDetails?.numberAroundCylinder || null;
+    order["dispro"] = shirttailDetails?.dispro || null;
+    order["plateType"] = shirttailDetails?.plateType || null;
+    order["barcodes"] = barcodeDetails || null;
+    order["isActive"] = true;
+  }
 };
 
 const mapColorPlateTypes = (colors) => {
