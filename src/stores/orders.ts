@@ -533,7 +533,6 @@ export const useOrdersStore = defineStore("ordersStore", {
     },
 
     updateCheckout(checkout: any) {
-      debugger;
       this.checkout = { ...checkout };
       const POs = this.checkout?.purchaseOrder
         ?.filter(Boolean)

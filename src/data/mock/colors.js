@@ -30,8 +30,3 @@ function generateColors(count) {
 }
 
 export default generateColors(8);
-
-// Toggle On / Off - Clear Dates
-// Calendar change < 24 hours - Toggle On
-// Calendar change > 24 hours - Toggle Off
-// Checkout object should be populated
