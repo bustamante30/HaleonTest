@@ -91,7 +91,7 @@ onBeforeMount(async () => {
     expectedDate.value = formatExpectedDateTime(orderDetails);
   } else {
     notificationsStore.addNotification(
-      "The order number is incorrect or the order was not confirmed in photon.",
+      "The order number is incorrect or the order was not confirmed in image carrier reorder portal.",
       "Please check the link and try again.",
       { severity: "error", life: null, position: "top-right" },
     );

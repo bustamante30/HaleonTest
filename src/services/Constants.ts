@@ -1,4 +1,4 @@
-export const MANADTORY_FIELDS_MSG =
+export const MANDATORY_FIELDS_MSG =
   "Please ensure you fill all required fields";
 export const SELECT_BROWSER = "You must select a browser.";
 export const SELECT_BROWSER_VERSION = "You must select a browser version.";

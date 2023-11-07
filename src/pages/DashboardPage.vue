@@ -56,7 +56,7 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
           | to place your request
       prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
-        span.sendtoPm 
+        span.sendtoPm
           | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
           send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder") 
           | to place your request
@@ -464,27 +464,110 @@ const auditOrder = async (order) => {
 async function addMultipleToCart() {
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
-  for (let i = 0; i < ordersToAdd.length; i++) {
-    let order = ordersToAdd[i];
-    order.sgsId = order.originalOrderId ? order.originalOrderId : order.sgsId;
-    const result = await ReorderService.validateOrder(order.sgsId);
-    if (result === false) {
-      if (userType.value === "EXT") {
-        sendToPmStore.externalPrinterName =
-          authb2cStore.currentB2CUser.printerName;
-        sgsJobId.value = order.sgsId;
-        showCartConfirmDialog.value = true;
-        sendToPmStore.isValidated = true;
+  const errorMessages: string[] = [];
+  const validOrders: any[] = [];
+
+  const validationPromises = ordersToAdd.map(async (order) => {
+    debugger;
+    try {
+      const result = await ReorderService.validateOrder(order.sgsId);
+      if (result === true) {
+        validOrders.push(order);
       } else {
-        notificationsStore.addNotification(
-          `Info`,
-          "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-          { severity: "error" },
-        );
+        if (userType.value === "EXT") {
+          sendToPmStore.externalPrinterName =
+            authb2cStore.currentB2CUser.printerName;
+          sgsJobId.value = ordersToAdd.map((order) => order.sgsId).join(", ");
+          showCartConfirmDialog.value = true;
+          sendToPmStore.isValidated = true;
+        } else {
+          errorMessages.push(order.sgsId);
+        }
       }
-    } else {
-      addOrderToCart(order.sgsId);
-      order.selected = false;
+    } catch (error) {
+      // Unhandled errors
+      //errorMessages.push("An error occurred while validating the order.");
+    }
+  });
+
+  // Execute all validation api calls in parallel
+  const validationResults = await Promise.allSettled(validationPromises);
+
+  // Show error messages for internal user
+  if (userType.value === "INT") {
+    if (validationResults != null) {
+      if (errorMessages.length > 0) {
+        const failedOrdersMessage = `There are no flexo items listed for the job's you have selected ${errorMessages.join(
+          ", ",
+        )}. Please place your image carrier reorder request directly in MySGS.`;
+        // Display the combined error message
+        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
+          severity: "error",
+        });
+      }
+    }
+  }
+
+  if (validOrders.length > 0) {
+    ordersToAdd = validOrders;
+    const cartAddRequest = ordersToAdd.map((order) => {
+      return {
+        originalOrderId: order.originalOrderId
+          ? order.originalOrderId
+          : order.sgsId,
+        reOrders: {
+          originalOrderId: order.originalOrderId
+            ? order.originalOrderId
+            : order.sgsId,
+          id: order.id,
+          sgsId: order.sgsId,
+          brandName: order.brandName,
+          description: order.description,
+          weight: order.weight,
+          printerId: order.printerId,
+          printerName: order.printerName,
+          itemCode: order.itemCode,
+          packType: order.packType,
+          createdAt: order.createdAt,
+          submittedDate: null,
+          cancelledDate: order.cancelledDate,
+          createdBy: order.createdBy,
+          statusId: 1,
+          orderStatus: order.orderStatus,
+          thumbNailPath: null,
+          colors: null,
+        },
+      };
+    });
+
+    try {
+      const response = await ReorderService.addOrdersToCart(cartAddRequest);
+
+      // Handle each cartResponse
+      if (Array.isArray(response)) {
+        for (const cartResponse of response) {
+          console.log(
+            `ReorderID: ${cartResponse.reorderId}, Status: ${cartResponse.status}`,
+          );
+          if (cartResponse.status === "Success") {
+            notificationsStore.addNotification(
+              `Sucesss`,
+              cartResponse.message + "",
+              { severity: "success" },
+            );
+          } else {
+            notificationsStore.addNotification(
+              `Error`,
+              cartResponse.message + "" + cartResponse.originalOrderId,
+              { severity: "error" },
+            );
+          }
+        }
+      } else {
+        console.error("Response is not an array");
+      }
+    } catch (error) {
+      // Handle the error
     }
   }
   showMultipleSelection.value = false;

@@ -178,8 +178,8 @@ export const useOrdersStore = defineStore("ordersStore", {
     checkout: {
       expectedDate: null,
       purchaseOrder: [""],
-      expectedTime: null,
       notes: null,
+      isUrgent: false,
     },
     totalRecords: 0,
     searchHistory: [] as any[],
@@ -187,7 +187,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       { name: "Completed", value: 4 },
       { name: "Submitted", value: 2 },
       { name: "Cancelled", value: 3 },
-      //{ name: "Draft", value: 1, },
     ],
     userPrinterName: "",
     userRoleKey: "",
@@ -254,8 +253,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.checkout = {
         expectedDate: null,
         purchaseOrder: [""],
-        expectedTime: null,
         notes: null,
+        isUrgent: false,
       };
 
       if (reorderId) {
@@ -278,42 +277,62 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
             if (response) this.selectedOrder.pdfData = response;
           });
+          this.getLenFiles(cartOrder);
         } else {
           // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
           this.selectedOrder = this.orders?.find(
             (order: any) =>
               order.sgsId === reorderId || order.originalOrderId === reorderId,
           );
-          const details = jsonify(
-            await ReorderService.getOrderDetails(reorderId),
-          );
-          this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
-          this.selectedOrder.originalOrderId = details?.jobId;
-          this.selectedOrder.description = details?.jobDescription;
-          this.selectedOrder.brandName = details?.jobDetails?.brand;
-          this.selectedOrder.itemCode = details?.jobDetails?.endUserReference;
-          this.selectedOrder.packType = details?.jobDetails?.packageType?.name;
-          const editionColors: any[] = [];
-          this.selectedOrder.editionColors = editionColors;
-          const plateTypes = await mapPlateTypes(details);
-          this.options.plateTypeDescription = plateTypes?.filter(
-            (plateType: any) => plateType.value !== 256,
-          );
-          this.selectedOrder = this.selectedOrder || {};
-          this.selectedOrder = {
-            ...this.selectedOrder,
-            ...mapSgsOrderDetail(details),
-          };
-          ReorderService.getThumbnail(details.jobId).then(
-            (response: string | boolean) => {
-              if (response) this.selectedOrder.thumbNailPath = response;
-            },
-          );
-          this.getPdfData(details.jobId).then((response: any) => {
-            if (response) this.selectedOrder.pdfData = response;
-          });
-          this.mapColorAndCustomerDetailsToOrder(details);
-          this.getBarcodeAndShirtail(this.selectedOrder);
+          if (!this.selectedOrder || !this.selectedOrder.allDataLoaded) {
+            const details = jsonify(
+              await ReorderService.getOrderDetails(reorderId),
+            );
+            this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
+            this.selectedOrder.originalOrderId = details?.jobId;
+            this.selectedOrder.description = details?.jobDescription;
+            this.selectedOrder.brandName = details?.jobDetails?.brand;
+            this.selectedOrder.itemCode = details?.jobDetails?.endUserReference;
+            this.selectedOrder.packType =
+              details?.jobDetails?.packageType?.name;
+            const editionColors: any[] = [];
+            this.selectedOrder.editionColors = editionColors;
+            const plateTypes = await mapPlateTypes(details);
+            this.options.plateTypeDescription = plateTypes?.filter(
+              (plateType: any) => plateType.value !== 256,
+            );
+            this.selectedOrder = this.selectedOrder || {};
+            this.selectedOrder = {
+              ...this.selectedOrder,
+              ...mapSgsOrderDetail(details),
+            };
+            ReorderService.getThumbnail(details.jobId).then(
+              (response: string | boolean) => {
+                if (response) this.selectedOrder.thumbNailPath = response;
+              },
+            );
+            this.getPdfData(details.jobId).then((response: any) => {
+              if (response) this.selectedOrder.pdfData = response;
+            });
+            const promises: Promise<any>[] = [];
+            this.mapColorAndCustomerDetailsToOrder(details);
+            promises.push(this.getBarcodeAndShirtail(this.selectedOrder));
+            promises.push(
+              this.getEditableColors(reorderId, this.selectedOrder),
+            );
+            Promise.allSettled(promises).then(() => {
+              this.selectedOrder.allDataLoaded = true;
+              this.orders.splice(
+                this.orders?.findIndex(
+                  (order: any) =>
+                    order.sgsId === reorderId ||
+                    order.originalOrderId === reorderId,
+                ),
+                1,
+                this.selectedOrder,
+              );
+            });
+          }
         }
       }
 
@@ -541,6 +560,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any).PO = POs;
       (this.selectedOrder as any).expectedDate = this.checkout.expectedDate;
       (this.selectedOrder as any).Notes = this.checkout.notes;
+      (this.selectedOrder as any).isUrgent = this.checkout.isUrgent;
     },
 
     // color update flow
@@ -742,6 +762,9 @@ export const useOrdersStore = defineStore("ordersStore", {
           (plate: any) => plate.sequenceNumber,
         );
         let lenProcessed = 0;
+        const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
+          order.originalOrderId ? order.originalOrderId : order.sgsId,
+        );
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
             lenProcessed += res.length;
@@ -777,55 +800,63 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             }
             if (lenProcessed === order.editionColors.length) {
-              this.getAvailablePlates(order);
-              resolve({ status: "finished", order: order });
+              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                () => {
+                  resolve({ status: "finished", order: order });
+                },
+              );
             }
           });
         }
       });
     },
-    async getAvailablePlates(order: any) {
-      //get the list of plates per colour
-      ReorderService.getOrderAvailablePlates(
-        order.originalOrderId ? order.originalOrderId : order.sgsId,
-      ).then((result) => {
-        order.editionColors.forEach((color) => {
-          color.fullPlateList = result.plateList;
-          color.fullThicknessList = result.thicknessList;
-          const availablePlateInfo = result.colorAvailablePlates.find(
-            (i) => i.colorSequence === color.sequenceNumber,
-          );
-          if (availablePlateInfo != null) {
-            color.plateDetails.forEach((plate) => {
-              plate.plateList =
-                availablePlateInfo.availablePlates.length === 0
-                  ? result.plateList
-                  : availablePlateInfo.availablePlates;
-              if (availablePlateInfo.availablePlates.length === 1) {
-                plate.plateTypeId =
-                  availablePlateInfo.availablePlates[0].plateTypeId;
-                plate.plateTypeDescription =
-                  availablePlateInfo.availablePlates[0].plateTypeName;
-              }
-              plate.thicknessList =
-                availablePlateInfo.availableThicknesses.length === 0
-                  ? result.thicknessList
-                  : availablePlateInfo.availableThicknesses;
-              if (availablePlateInfo.availableThicknesses.length === 1) {
-                plate.plateThicknessId =
-                  availablePlateInfo.availableThicknesses[0].thicknessId;
-                plate.plateThicknessDescription =
-                  availablePlateInfo.availableThicknesses[0].thicknessDesc;
-              }
-              plate.loading = false;
-            });
-          } else {
-            color.plateDetails.forEach((plate) => {
-              plate.plateList = result.plateList;
-              plate.thicknessList = result.thicknessList;
-              plate.loading = false;
-            });
-          }
+    async getAvailablePlates(
+      order: any,
+      asyncAvailablePlatesCall: Promise<any>,
+    ) {
+      return new Promise((resolve) => {
+        asyncAvailablePlatesCall.then((result) => {
+          let count = order.editionColors.length;
+          order.editionColors.forEach((color) => {
+            color.fullPlateList = result.plateList;
+            color.fullThicknessList = result.thicknessList;
+            const availablePlateInfo = result.colorAvailablePlates.find(
+              (i) => i.colorSequence === color.sequenceNumber,
+            );
+            if (availablePlateInfo != null) {
+              color.plateDetails.forEach((plate) => {
+                plate.plateList =
+                  availablePlateInfo.availablePlates.length === 0
+                    ? result.plateList
+                    : availablePlateInfo.availablePlates;
+                if (availablePlateInfo.availablePlates.length === 1) {
+                  plate.plateTypeId =
+                    availablePlateInfo.availablePlates[0].plateTypeId;
+                  plate.plateTypeDescription =
+                    availablePlateInfo.availablePlates[0].plateTypeName;
+                }
+                plate.thicknessList =
+                  availablePlateInfo.availableThicknesses.length === 0
+                    ? result.thicknessList
+                    : availablePlateInfo.availableThicknesses;
+                if (availablePlateInfo.availableThicknesses.length === 1) {
+                  plate.plateThicknessId =
+                    availablePlateInfo.availableThicknesses[0].thicknessId;
+                  plate.plateThicknessDescription =
+                    availablePlateInfo.availableThicknesses[0].thicknessDesc;
+                }
+                plate.loading = false;
+              });
+            } else {
+              color.plateDetails.forEach((plate) => {
+                plate.plateList = result.plateList;
+                plate.thicknessList = result.thicknessList;
+                plate.loading = false;
+              });
+            }
+            count--;
+            if (count <= 1) resolve({ status: "finished", order: order });
+          });
         });
       });
     },
@@ -836,6 +867,9 @@ export const useOrdersStore = defineStore("ordersStore", {
       }
       return new Promise((resolve) => {
         let expectedColors = order.colors.length;
+        const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
+          order.originalOrderId ? order.originalOrderId : order.sgsId,
+        );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
@@ -879,8 +913,11 @@ export const useOrdersStore = defineStore("ordersStore", {
                 });
                 resolve({ status: "finished", order: null });
               }
-              this.getAvailablePlates(order);
-              resolve({ status: "finished", order: order });
+              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                () => {
+                  resolve({ status: "finished", order: order });
+                },
+              );
             }
           });
         });
