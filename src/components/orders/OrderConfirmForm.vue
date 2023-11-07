@@ -165,7 +165,7 @@ function updateCheckout() {
 }
 
 function minSelectableDate() {
-  return DateTime.now().plus({ hour: 24 }).startOf("hour").toJSDate();
+  return DateTime.now().startOf("hour").toJSDate();
 }
 
 function showNotes(): boolean {
