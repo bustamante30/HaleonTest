@@ -29,7 +29,7 @@ export const useCartStore = defineStore("cartStore", {
   actions: {
     async getCartCount() {
       this.loading.count = true;
-      let response = await ReorderService.getCartCount();
+      const response = await ReorderService.getCartCount();
       if (response.result) {
         this.initialCartCount = response.data;
       } else {
@@ -44,7 +44,7 @@ export const useCartStore = defineStore("cartStore", {
     },
     async getCart() {
       this.loading.cart = true;
-      let response = await ReorderService.getCart();
+      const response = await ReorderService.getCart();
       if (response.result) {
         this.cartOrders = response.data;
         this.decorateCartOrders();
