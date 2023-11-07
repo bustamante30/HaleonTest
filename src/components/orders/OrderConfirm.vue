@@ -126,7 +126,7 @@ function validatePOForm() {
     ordersStore.checkout.expectedDate === null
   ) {
     notificationsStore.addNotification(
-      Constants.MANADTORY_FIELDS_MSG,
+      Constants.MANDATORY_FIELDS_MSG,
       Constants.INVALID_DATE_TIME,
       { severity: "warn", position: "top-right" },
     );

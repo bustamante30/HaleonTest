@@ -92,7 +92,7 @@ function onSubmit() {
   if (validationErrors.length > 0) {
     notificationsStore.addNotification(
       validationErrors.join("\n"),
-      Constants.MANADTORY_FIELDS_MSG,
+      Constants.MANDATORY_FIELDS_MSG,
       { severity: "error", position: "top-right" },
     );
   } else {
