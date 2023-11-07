@@ -95,6 +95,7 @@ onBeforeMount(async () => {
       "Please check the link and try again.",
       { severity: "error", life: null, position: "top-right" },
     );
+    handleClose();
   }
 });
 
