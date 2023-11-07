@@ -4,14 +4,14 @@
   sgs-scrollpanel(:scroll="false")
     template(#header)
       app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
-    prime-toast(@close = "notificationsStore.removeNotification()")
+    prime-toast(@close="notificationsStore.removeNotification()")
       template(#message="{ message }")
         .message
           h4 {{ message.summary }}
           // eslint-disable-next-line vue/no-v-html
           .detail(v-html="message.detail") 
           router-link(v-if="message?.link && message.link !== ''" :to="message.link") {{message.linkLabel}}
-    prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple" @close = "notificationsStore.removeNotification()")
+    prime-toast.multiple(:position="notification && notification.position || 'bottom-left'" group="multiple" @close="notificationsStore.removeNotification()")
       template(#message="{ message }")
         .message
           h4 {{ message.summary }}
