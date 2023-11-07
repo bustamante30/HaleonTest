@@ -86,34 +86,35 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
     validate(order: any, uploads: any) {
       const notificationsStore = useNotificationsStore();
       const errorMessage = [] as any[];
-      const hasAnyOtherFieldValue =
-        order.brand ||
-        order.description ||
-        order.packType ||
-        order.purchaseOrder ||
-        order.itemCode ||
-        order.plateId ||
-        (order.carrierCode && order.carrierCode.type) ||
-        order.jobNumber ||
-        order.comments ||
-        (uploads && uploads.length > 0);
-      if (order.isUrgent) {
-        const hasColors = order.colors && order.colors.length;
-        const hasValidColors = this.validateColors(order.colors);
-        const hasDuplicate = this.hasDuplicates(order.colors);
-        const hasUploadData = uploads && uploads.length > 0;
-        const hasExpectedDate = order.expectedDate;
-        const hasItemCodeorDescriptionorPlateType =
-          order.itemCode || order.description || order.plateId;
-        if (!hasExpectedDate) {
-          errorMessage.push("<p>Delivery Date and Time.</p>");
-        }
-        if (!hasUploadData) {
-          errorMessage.push(
-            "<p>Please fill the following required fields or Drag & </p>" +
-              "<p/>Drop Document(s)</p>",
+      const hasColors = order.colors && order.colors.length;
+      const hasValidColors = this.validateColors(order.colors);
+      const hasDuplicate = this.hasDuplicates(order.colors);
+      const hasUploadData = uploads && uploads.length > 0;
+      const hasExpectedDate = order.expectedDate;
+      const hasItemCodeorDescriptionorPlateType =
+        order.itemCode || order.description || order.plateId;
+      const hasFormFields = hasItemCodeorDescriptionorPlateType || hasColors;
+      if (!hasExpectedDate) {
+        errorMessage.push("<p>Delivery Date and Time.</p>");
+      }
+      if (!hasUploadData && !hasFormFields) {
+        errorMessage.push(
+          "<p>Enter either item code or product description or plate ID or </p>" +
+            "<p>Drag & Drop Document(s)</p>",
+        );
+        if (errorMessage.length > 0)
+          notificationsStore.addNotification(
+            "Please fill the required fields:",
+            errorMessage.join(""),
+            {
+              severity: "warn",
+              group: "multiple",
+              position: "top-right",
+              life: null,
+            },
           );
-        }
+        return errorMessage?.length <= 0;
+      } else if (!hasUploadData && hasFormFields) {
         if (!hasItemCodeorDescriptionorPlateType) {
           errorMessage.push("<p>Item Code or Description or Plate ID.</p>");
         }
@@ -132,22 +133,19 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
             )}</p>`,
           );
         }
-      } else {
-        if (!hasAnyOtherFieldValue) {
-          errorMessage.push("At least one field is required");
-        }
+        if (errorMessage.length > 0)
+          notificationsStore.addNotification(
+            "Please fill the required fields : ",
+            errorMessage.join(""),
+            {
+              severity: "warn",
+              group: "multiple",
+              position: "top-right",
+              life: null,
+            },
+          );
+        return errorMessage?.length <= 0;
       }
-      if (errorMessage.length > 0)
-        notificationsStore.addNotification(
-          "Please fill the required fields : ",
-          errorMessage.join(""),
-          {
-            severity: "warn",
-            group: "multiple",
-            life: null,
-            position: "top-right",
-          },
-        );
       return errorMessage?.length <= 0;
     },
     async getCodeTypes() {

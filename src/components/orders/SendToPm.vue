@@ -41,14 +41,14 @@
               label(for="plate_id") Plate ID
               prime-inputtext#plate_id(v-model="sendForm.plateId" name="plate_id")
             .f
-              label(for="date" :class="{ required: sendForm.isUrgent }") 
+              label.required(for="date") 
                 span Delivery Date 
                 span.warn(v-if="sendForm.isUrgent") &nbsp;(Urgent Order)
               span.input.calendar(name="date")
                 prime-calendar.sm(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
                 span.material-icons calendar_month
             .f
-              label(for="time" :class="{ required: sendForm.isUrgent }") Delivery time
+              label.required(for="time") Delivery time
               span.input.calendar(name="time")
                 prime-calendar(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
             .f
@@ -61,7 +61,7 @@
               prime-inputtext#job_number(v-model="sendForm.jobNumber" name="job_number")
         .fields
         .divider
-        colors-table-edit(:is-mandatory="sendForm.isUrgent" @update="updateColors")
+        colors-table-edit(:is-mandatory="!hasValidFiles" @update="updateColors")
         .divider
         .fields
           .f
@@ -72,7 +72,7 @@
           input(type="file" multiple)
           span Drag &amp; Drop files here ...
         .upload(v-if="sendUpload && sendUpload.length > 0")
-          h4 Uploaded Files:
+          h4(v-if="hasValidFiles") Uploaded Files:
           ul.files 
             li(v-for="(file, index) in validFiles" :key="file") 
               .name {{ file.fileName }}
@@ -140,6 +140,7 @@ const isb2cUserLoggedIn = computed(
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const sendUpload = computed(() => sendToPmstore.newOrder.uploadedFiles);
 let validFiles = ref<ValidFiles[]>([]);
+const hasValidFiles = computed(() => validFiles?.value?.length > 0);
 
 watch(
   () => props.order,
