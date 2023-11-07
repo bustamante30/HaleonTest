@@ -56,7 +56,7 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
           | to place your request
       prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
-        span.sendtoPm 
+        span.sendtoPm
           | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
           send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder") 
           | to place your request
@@ -464,13 +464,11 @@ const auditOrder = async (order) => {
 async function addMultipleToCart() {
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
-  //  for (let i = 0; i < ordersToAdd.length; i++) {
-  //     let order = ordersToAdd[i];
-  //     const result = await ReorderService.validateOrder(order.sgsId);
   const errorMessages: string[] = [];
   const validOrders: any[] = [];
 
   const validationPromises = ordersToAdd.map(async (order) => {
+    debugger;
     try {
       const result = await ReorderService.validateOrder(order.sgsId);
       if (result === true) {
@@ -479,15 +477,11 @@ async function addMultipleToCart() {
         if (userType.value === "EXT") {
           sendToPmStore.externalPrinterName =
             authb2cStore.currentB2CUser.printerName;
-          sgsJobId.value = order.sgsId;
+          sgsJobId.value = ordersToAdd.map((order) => order.sgsId).join(", ");
           showCartConfirmDialog.value = true;
           sendToPmStore.isValidated = true;
         } else {
-          errorMessages.push(
-            "There are no flexo items listed for the job you have selected #" +
-              order.sgsId +
-              "Please place your image carrier reorder request directly in MySGS",
-          );
+          errorMessages.push(order.sgsId);
         }
       }
     } catch (error) {
@@ -501,17 +495,17 @@ async function addMultipleToCart() {
 
   // Show error messages for internal user
   if (userType.value === "INT") {
-    validationResults.forEach((result, index) => {
-      if (result.status === "rejected" && errorMessages[index] != "") {
-        notificationsStore.addNotification(
-          `Info`,
-          errorMessages[index].toString(),
-          {
-            severity: "error",
-          },
-        );
+    if (validationResults != null) {
+      if (errorMessages.length > 0) {
+        const failedOrdersMessage = `There are no flexo items listed for the job's you have selected ${errorMessages.join(
+          ", ",
+        )}. Please place your image carrier reorder request directly in MySGS.`;
+        // Display the combined error message
+        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
+          severity: "error",
+        });
       }
-    });
+    }
   }
 
   if (validOrders.length > 0) {
@@ -576,26 +570,6 @@ async function addMultipleToCart() {
       // Handle the error
     }
   }
-
-  //const result = await ReorderService.validateOrder(order.sgsId);
-  // if (result === false) {
-  //   if (userType.value === "EXT") {
-  //     sendToPmStore.externalPrinterName =
-  //       authb2cStore.currentB2CUser.printerName;
-  //     sgsJobId.value = order.sgsId;
-  //     showCartConfirmDialog.value = true;
-  //     sendToPmStore.isValidated = true;
-  //   } else {
-  //     notificationsStore.addNotification(
-  //       `Info`,
-  //       "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-  //       { severity: "error" },
-  //     );
-  //   }
-  // } else {
-  //   addOrderToCart(order.sgsId);
-  //   order.selected = false;
-  // }
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
 }
