@@ -74,6 +74,7 @@ import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
 import { filterConfig } from "@/data/config/order-filters";
 import { useOrdersStore } from "@/stores/orders";
+import { useCartStore } from "@/stores/cart";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -87,6 +88,7 @@ import { useRoute } from "vue-router";
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
+const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
@@ -561,6 +563,7 @@ async function addMultipleToCart(sgsId: null) {
               cartResponse.message + "",
               { severity: "success" },
             );
+            cartStore.getCartCount();
           } else {
             notificationsStore.addNotification(
               `Error`,
