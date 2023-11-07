@@ -91,10 +91,17 @@ onBeforeMount(async () => {
     expectedDate.value = formatExpectedDateTime(orderDetails);
   } else {
     notificationsStore.addNotification(
-      "The order number is incorrect or the order was not confirmed in image carrier reorder portal.",
+      `The order number is incorrect or the order 
+        was not confirmed in image carrier reorder portal.`,
       "Please check the link and try again.",
-      { severity: "error", life: null, position: "top-right" },
+      {
+        severity: "warn",
+        group: "multiple",
+        position: "top-right",
+        life: null,
+      },
     );
+    handleClose();
   }
 });
 

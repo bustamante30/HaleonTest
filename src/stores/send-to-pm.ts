@@ -133,19 +133,18 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
             )}</p>`,
           );
         }
-        if (errorMessage.length > 0)
-          notificationsStore.addNotification(
-            "Please fill the required fields : ",
-            errorMessage.join(""),
-            {
-              severity: "warn",
-              group: "multiple",
-              position: "top-right",
-              life: null,
-            },
-          );
-        return errorMessage?.length <= 0;
       }
+      if (errorMessage.length > 0)
+        notificationsStore.addNotification(
+          "Please fill the required fields : ",
+          errorMessage.join(""),
+          {
+            severity: "warn",
+            group: "multiple",
+            position: "top-right",
+            life: null,
+          },
+        );
       return errorMessage?.length <= 0;
     },
     async getCodeTypes() {
