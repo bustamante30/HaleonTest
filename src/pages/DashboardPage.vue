@@ -370,7 +370,6 @@ async function addToCart(order: any) {
       const result = await ReorderService.validateOrder(
         order.originalOrderId ? order.originalOrderId : order.sgsId,
       );
-      debugger;
       if (result === false) {
         if (userType.value === "EXT") {
           sendToPmStore.externalPrinterName =
@@ -461,7 +460,6 @@ const auditOrder = async (order) => {
 };
 
 async function addMultipleToCart(sgsId: null) {
-  debugger;
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders;
 
@@ -477,7 +475,6 @@ async function addMultipleToCart(sgsId: null) {
   const validOrders: any[] = [];
 
   const validationPromises = ordersToAdd.map(async (order) => {
-    debugger;
     try {
       const result = await ReorderService.validateOrder(order.sgsId);
       if (result === true) {
