@@ -142,6 +142,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
             severity: "warn",
             group: "multiple",
             position: "top-right",
+            life: null,
           },
         );
       return errorMessage?.length <= 0;
