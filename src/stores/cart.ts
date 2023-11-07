@@ -29,7 +29,17 @@ export const useCartStore = defineStore("cartStore", {
   actions: {
     async getCartCount() {
       this.loading.count = true;
-      this.initialCartCount = await ReorderService.getCartCount();
+      let response = await ReorderService.getCartCount();
+      if (response.result) {
+        this.initialCartCount = response.data;
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       this.loading.count = false;
     },
     async getCart() {
