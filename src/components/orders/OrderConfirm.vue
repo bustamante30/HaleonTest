@@ -126,9 +126,9 @@ function validatePOForm() {
     ordersStore.checkout.expectedDate === null
   ) {
     notificationsStore.addNotification(
-      Constants.PO_FORM_ERROR,
+      Constants.MANADTORY_FIELDS_MSG,
       Constants.INVALID_DATE_TIME,
-      { severity: "error", position: "top-right" },
+      { severity: "warn", position: "top-right" },
     );
     return false;
   }
@@ -160,7 +160,7 @@ function validatePOForm() {
         notificationsStore.addNotification(
           Constants.PO_FORM_ERROR,
           Constants.PO_NUMBER_MIN_LENGTH,
-          { severity: "error", position: "top-right" },
+          { severity: "warn", position: "top-right" },
         );
         return false;
       }
@@ -173,7 +173,7 @@ function validatePOForm() {
           notificationsStore.addNotification(
             Constants.PO_FORM_ERROR,
             Constants.INVALID_PO_NUMBER,
-            { severity: "error", position: "top-right" },
+            { severity: "warn", position: "top-right" },
           );
           return false;
         }
@@ -195,7 +195,7 @@ function checkDuplicatePONumbers() {
     notificationsStore.addNotification(
       Constants.PO_FORM_ERROR,
       Constants.DUPLICATE_PO_NUMBER + " " + duplicates,
-      { severity: "error", position: "top-right" },
+      { severity: "warn", position: "top-right", life: null },
     );
     return false;
   }
