@@ -74,7 +74,6 @@ import welcome from "../components/common/Welcome.vue";
 import config from "@/data/config/orders-table";
 import { filterConfig } from "@/data/config/order-filters";
 import { useOrdersStore } from "@/stores/orders";
-import { useCartStore } from "@/stores/cart";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useSendToPmStore } from "@/stores/send-to-pm";
@@ -88,7 +87,6 @@ import { useRoute } from "vue-router";
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
 const ordersStore = useOrdersStore();
-const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
@@ -372,6 +370,7 @@ async function addToCart(order: any) {
       const result = await ReorderService.validateOrder(
         order.originalOrderId ? order.originalOrderId : order.sgsId,
       );
+      debugger;
       if (result === false) {
         if (userType.value === "EXT") {
           sendToPmStore.externalPrinterName =
@@ -389,7 +388,7 @@ async function addToCart(order: any) {
           );
         }
       } else {
-        addOrderToCart(
+        addMultipleToCart(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
         );
       }
@@ -461,9 +460,19 @@ const auditOrder = async (order) => {
   console.log(audit.result);
 };
 
-async function addMultipleToCart() {
+async function addMultipleToCart(sgsId: null) {
+  debugger;
   ordersStore.loading.ordersList = true;
-  let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
+  let ordersToAdd = ordersStore.orders;
+
+  if (sgsId !== null) {
+    if (!Array.isArray(sgsId)) {
+      ordersToAdd = ordersToAdd.filter((x) => x.sgsId === sgsId);
+    } else {
+      ordersToAdd = ordersStore.orders.filter((x) => x.selected);
+    }
+  }
+
   const errorMessages: string[] = [];
   const validOrders: any[] = [];
 
@@ -572,27 +581,6 @@ async function addMultipleToCart() {
   }
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
-}
-async function addOrderToCart(sgsId: any) {
-  ordersStore.getOrderById(sgsId).then((orderToAdd: any) => {
-    ordersStore.getEditableColors(sgsId, orderToAdd).then(() => {
-      console.log("order with lens:", orderToAdd);
-      cartStore.addToCart(orderToAdd).then((result: boolean) => {
-        if (result)
-          notificationsStore.addNotification(
-            `Sucesss`,
-            "Success adding the order #" + sgsId,
-            { severity: "success" },
-          );
-        else
-          notificationsStore.addNotification(
-            `Error`,
-            "Error adding to the cart #" + sgsId,
-            { severity: "error" },
-          );
-      });
-    });
-  });
 }
 async function handleOrderValidation(data: any) {
   const result = await ReorderService.validateOrder(data.originalOrderId);
