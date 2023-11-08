@@ -354,6 +354,7 @@ function createPmOrder() {
 }
 
 async function addToCart(order: any) {
+  let sgsId: any;
   confirm.require({
     message: "Do you want to add more orders to the cart?",
     header: "Add more Orders",
@@ -369,30 +370,34 @@ async function addToCart(order: any) {
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
-      const result = await ReorderService.validateOrder(
-        order.originalOrderId ? order.originalOrderId : order.sgsId,
-      );
-      if (result === false) {
-        if (userType.value === "EXT") {
-          sendToPmStore.externalPrinterName =
-            authb2cStore.currentB2CUser.printerName;
-          sgsJobId.value = order.originalOrderId
-            ? order.originalOrderId
-            : order.sgsId;
-          showCartConfirmDialog.value = true;
-          sendToPmStore.isValidated = true;
-        } else {
-          notificationsStore.addNotification(
-            `Info`,
-            "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-            { severity: "error" },
-          );
-        }
+      // const result = await ReorderService.validateOrder(
+      //   order.originalOrderId ? order.originalOrderId : order.sgsId,
+      // );
+      // debugger;
+      // if (result === false) {
+      //   if (userType.value === "EXT") {
+      //     sendToPmStore.externalPrinterName =
+      //       authb2cStore.currentB2CUser.printerName;
+      //     sgsJobId.value = order.originalOrderId
+      //       ? order.originalOrderId
+      //       : order.sgsId;
+      //     showCartConfirmDialog.value = true;
+      //     sendToPmStore.isValidated = true;
+      //   } else {
+      //     notificationsStore.addNotification(
+      //       `Info`,
+      //       "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+      //       { severity: "error" },
+      //     );
+      //   }
+      // } else {
+      if (showMyOrders.value === true) {
+        sgsId = order.sgsId;
       } else {
-        addMultipleToCart(
-          order.originalOrderId ? order.originalOrderId : order.sgsId,
-        );
+        sgsId = order.originalOrderId ? order.originalOrderId : order.sgsId;
       }
+
+      addMultipleToCart(sgsId);
       ordersStore.loading.ordersList = false;
     },
   });
@@ -462,12 +467,18 @@ const auditOrder = async (order) => {
 };
 
 async function addMultipleToCart(sgsId: null) {
+  debugger;
   ordersStore.loading.ordersList = true;
   let ordersToAdd = ordersStore.orders;
+  let orderSgsId: any;
 
   if (sgsId !== null) {
     if (!Array.isArray(sgsId)) {
+      // if (!showMyOrders) {
       ordersToAdd = ordersToAdd.filter((x) => x.sgsId === sgsId);
+      // } else {
+      //   ordersToAdd = ordersToAdd.filter((x) => x.originalOrderId === sgsId);
+      // }
     } else {
       ordersToAdd = ordersStore.orders.filter((x) => x.selected);
     }
@@ -478,7 +489,16 @@ async function addMultipleToCart(sgsId: null) {
 
   const validationPromises = ordersToAdd.map(async (order) => {
     try {
-      const result = await ReorderService.validateOrder(order.sgsId);
+      if (showMyOrders.value === true) {
+        order.id = 0;
+        order.sgsId = null;
+        orderSgsId = order.originalOrderId;
+      } else {
+        orderSgsId = order.originalOrderId
+          ? order.originalOrderId
+          : order.sgsId;
+      }
+      const result = await ReorderService.validateOrder(orderSgsId);
       if (result === true) {
         validOrders.push(order);
       } else {
