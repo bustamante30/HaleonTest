@@ -64,14 +64,22 @@ export const useCartStore = defineStore("cartStore", {
         ReorderService.decoratePhotonOrder(this.cartOrders[i]);
       }
     },
-    async addToCart(order: any) {
+    async addToCart(order: any): Promise<boolean> {
       this.loading.add = true;
       const orderStore = useOrdersStore();
       const draftResult = await ReorderService.submitReorder(order, 1);
-      orderStore.successfullReorder = draftResult;
-      if (draftResult) this.getCart();
+      if (draftResult.result) {
+        orderStore.successfullReorder = draftResult;
+        if (draftResult) this.getCart();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          draftResult.exceptionDetails?.message,
+          { severity: "error", life: 5000 },
+        );
+      }
       this.loading.add = false;
-      return !!draftResult;
+      return draftResult.result || false;
     },
     async updateToCart(order: any) {
       this.loading.update = true;
@@ -82,23 +90,24 @@ export const useCartStore = defineStore("cartStore", {
         1,
         isUpdate,
       );
-      orderStore.successfullReorder = draftResult;
-      if (draftResult) this.getCart();
+      if (draftResult.result) {
+        orderStore.successfullReorder = draftResult;
+        if (draftResult) this.getCart();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          draftResult.exceptionDetails?.message,
+          { severity: "error", life: 5000 },
+        );
+      }
       this.loading.update = false;
-      return !!draftResult;
+      return draftResult.result;
     },
     async discardOrder(id: string) {
       this.loading.discard = true;
       const notificationsStore = useNotificationsStore();
-      const result = await ReorderService.discardOrder(id);
-      if (!result) {
-        notificationsStore.addNotification(
-          `Error`,
-          "Error discarding the order",
-          { severity: "error" },
-        );
-        this.loading.discard = false;
-      } else {
+      const response = await ReorderService.discardOrder(id);
+      if (response.result && response.data) {
         notificationsStore.addNotification(
           `Success`,
           "Draft discarded successfully",
@@ -106,8 +115,14 @@ export const useCartStore = defineStore("cartStore", {
         );
         this.getCart();
         await this.getCartCount();
-        this.loading.discard = false;
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
       }
+      this.loading.discard = false;
     },
     flattenedColorsArrayDecorator(colors: any) {
       const flattenedColors = [] as any[];

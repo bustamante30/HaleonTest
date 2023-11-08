@@ -425,18 +425,24 @@ function cancelOrder(order: any) {
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
-      //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
-      // api
-      let orderDetails = JSON.parse(
-        JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id)),
-      );
-      ordersStore.isCancel = true;
-      ordersStore.setOrderInStore(orderDetails);
-      (
-        document.getElementsByClassName(
-          "p-image-preview-indicator",
-        )[0] as HTMLElement
-      )?.focus();
+      let response = await ReorderService.getPhotonReorderDetails(order.id);
+      if (response.result) {
+        let orderDetails = JSON.parse(JSON.stringify(response.data));
+        ordersStore.isCancel = true;
+        ordersStore.setOrderInStore(orderDetails);
+        (
+          document.getElementsByClassName(
+            "p-image-preview-indicator",
+          )[0] as HTMLElement
+        )?.focus();
+      } else {
+        notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
     },
@@ -540,12 +546,11 @@ async function addMultipleToCart() {
       };
     });
 
-    try {
-      const response = await ReorderService.addOrdersToCart(cartAddRequest);
-
+    const response = await ReorderService.addOrdersToCart(cartAddRequest);
+    if (response.result) {
       // Handle each cartResponse
-      if (Array.isArray(response)) {
-        for (const cartResponse of response) {
+      if (Array.isArray(response.data)) {
+        for (const cartResponse of response.data) {
           console.log(
             `ReorderID: ${cartResponse.reorderId}, Status: ${cartResponse.status}`,
           );
@@ -566,8 +571,12 @@ async function addMultipleToCart() {
       } else {
         console.error("Response is not an array");
       }
-    } catch (error) {
-      // Handle the error
+    } else {
+      notificationsStore.addNotification(
+        `Error`,
+        response.exceptionDetails?.message || "Error",
+        { severity: "error", life: 5000 },
+      );
     }
   }
   showMultipleSelection.value = false;
@@ -583,12 +592,6 @@ async function addOrderToCart(sgsId: any) {
             `Sucesss`,
             "Success adding the order #" + sgsId,
             { severity: "success" },
-          );
-        else
-          notificationsStore.addNotification(
-            `Error`,
-            "Error adding to the cart #" + sgsId,
-            { severity: "error" },
           );
       });
     });

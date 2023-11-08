@@ -102,11 +102,11 @@ async function handleClose() {
 
 async function handleCancelOrder() {
   if (selectedOrder.value) {
-    const cancelResult = await ordersStore.cancelOrder(
+    const response = await ordersStore.cancelOrder(
       selectedOrder.value.id,
       true,
     );
-    if (cancelResult) {
+    if (response.result && response.data) {
       notificationsStore.addNotification(
         `Success`,
         "Order Cancelled successfully",
@@ -115,10 +115,10 @@ async function handleCancelOrder() {
       await router.push(`/dashboard?q=${Date.now()}`);
       await ordersStore.getOrders();
     } else {
-      notificationsStore.addNotification(
+      this.notificationsStore.addNotification(
         `Error`,
-        "10 mins window closed for Re-Order cancellation",
-        { severity: "error" },
+        response.exceptionDetails.message,
+        { severity: "error", life: 5000 },
       );
     }
   }

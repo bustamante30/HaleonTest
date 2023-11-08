@@ -213,12 +213,16 @@ async function placeOrder() {
         2,
         true,
       );
-      if (!draftResult.success) {
-        alert("Error updating draft");
+      if (!draftResult.result) {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
       } else {
         let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder);
-        cartStore.cartOrders[index] = draftResult.result;
-        ordersStore.successfullReorder = draftResult.result;
+        cartStore.cartOrders[index] = draftResult.data;
+        ordersStore.successfullReorder = draftResult.data;
         cartStore.getCartCount();
       }
     } else {
@@ -228,7 +232,13 @@ async function placeOrder() {
         ordersStore.selectedOrder,
         2,
       );
-      ordersStore.setOrderInStore(compResult.result);
+      if (!compResult.result) {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.exceptionDetails.message,
+          { severity: "error", life: 5000 },
+        );
+      } else ordersStore.setOrderInStore(compResult.data);
     }
 
     resetPOForm();
