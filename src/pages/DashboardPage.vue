@@ -560,7 +560,7 @@ async function addMultipleToCart(sgsId: null) {
               `Sucesss`,
               cartResponse.message + "",
               { severity: "success" },
-              5000,
+              10000,
             );
             cartStore.getCartCount();
           } else {
