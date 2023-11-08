@@ -17,10 +17,15 @@ export const useNotificationsStore = defineStore("notifications", {
     ) {
       this.messages.push({ severity, summary, detail, life, position, group });
     },
-    addNotification(summary: string, detail: string, options?: any) {
+    addNotification(
+      summary: string,
+      detail: string,
+      options?: any,
+      timeLimit?: any,
+    ) {
       options = {
         severity: "warn",
-        life: 3000,
+        life: timeLimit === undefined ? 3000 : timeLimit,
         position: "top-right",
         ...options,
       };
