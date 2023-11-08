@@ -95,8 +95,6 @@ const handleSortPagination = (
     }
   }
 
-  // Filter by Sorting
-  //let resultForCache :any[] = reorderedData ;
   if (filters.sortBy) {
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
@@ -108,7 +106,6 @@ const handleSortPagination = (
       resultForCache = resultForCache.reverse();
     }
   }
-  console.log("totalCount", resultForCache.length);
   return resultForCache.slice(
     (pageState.page - 1) * pageState.rows,
     pageState.page * pageState.rows,
@@ -340,17 +337,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       return this.selectedOrder;
     },
     async setFilters(filters: any) {
-      console.log("My orders", filters);
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       const printers = [] as string[];
       const printerIds = [] as number[];
       let printerUserIds = [] as number[];
-      //TODO: remove printers and sites unused code
       const authStore = useAuthStore();
       const b2cAuth = useB2CAuthStore();
       if (authStore.currentUser.isLoggedIn) {
-        // get printer Name
         authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
@@ -390,7 +384,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           filters.roleKey !== "PMSuperAdminUser") ||
           (filters.userType === "INT" && filters.roleKey === "PMUser"))
       ) {
-        console.log("Showing result from Local Store");
         const reorderedData = handleSortPagination(
           this.textSearchData.data.reorderedData,
           filters,
@@ -452,12 +445,6 @@ export const useOrdersStore = defineStore("ordersStore", {
             Array.isArray(result.reorderedData) &&
             result.reorderedData.length > 0
           ) {
-            // TODO: need to check if this is required
-            // const reorderedData = handleSortPagination(
-            //   result.reorderedData,
-            //   filters,
-            //   this.pageState,
-            // );
             result = {
               reorderedData: result.reorderedData,
               totalRecords: result.reorderedData.length,
@@ -794,7 +781,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                       color.plateDetails.push(plate);
                     });
                     delete color.plates;
-                    console.log(color.plateDetails);
                   }
                 }
               }
@@ -873,8 +859,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
-            console.log(expectedColors);
-            console.log(res.length);
             for (let i = 0; i < res.length; i++) {
               const colorCopy: any = JSON.parse(JSON.stringify(color));
               colorCopy.lenPath = res[i].lenPath;

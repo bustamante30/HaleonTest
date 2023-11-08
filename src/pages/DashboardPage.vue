@@ -242,7 +242,6 @@ function changeDateFilter(dtFilter: any) {
 }
 
 function addPrinterFilter() {
-  console.log("printer: " + authb2cStore.currentB2CUser.printerName);
   const printerName = authb2cStore.currentB2CUser.isLoggedIn
     ? authb2cStore.currentB2CUser.printerName
     : null;
@@ -440,8 +439,6 @@ const auditOrder = async (order) => {
   isAuditVisible.value = true;
   auditReorderId.value = order.id;
   auditData.value = audit.results;
-
-  console.log(audit.result);
 };
 
 async function addMultipleToCart(sgsId: null) {
@@ -544,12 +541,8 @@ async function addMultipleToCart(sgsId: null) {
     try {
       const response = await ReorderService.addOrdersToCart(cartAddRequest);
 
-      // Handle each cartResponse
       if (Array.isArray(response)) {
         for (const cartResponse of response) {
-          console.log(
-            `ReorderID: ${cartResponse.reorderId}, Status: ${cartResponse.status}`,
-          );
           if (cartResponse.status === "Success") {
             notificationsStore.addNotification(
               `Sucesss`,

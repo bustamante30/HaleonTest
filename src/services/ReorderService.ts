@@ -314,7 +314,6 @@ class ReorderService {
     return httpService
       .get<any>("v1/Reorder/info?jobnumber=" + sgsId)
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {
@@ -326,7 +325,6 @@ class ReorderService {
     return httpService
       .get<any>("v1/Reorder/info/availablePlates?jobnumber=" + sgsId)
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {
@@ -492,7 +490,6 @@ class ReorderService {
           sequenceNumber,
       )
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {

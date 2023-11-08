@@ -89,7 +89,6 @@ export const useCartStore = defineStore("cartStore", {
     },
     flattenedColorsArrayDecorator(colors: any) {
       const flattenedColors = [] as any[];
-      console.log(colors);
       colors?.length &&
         colors?.forEach((color: any) => {
           // eslint-disable-next-line no-unsafe-optional-chaining

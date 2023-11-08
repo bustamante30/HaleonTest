@@ -367,7 +367,6 @@ async function customFilter(
       value: getFormattedValue(filterModel.value, filterMatchMode),
       matchMode: filterMatchMode,
     } as any;
-    console.log("customFilter:" + columnFilters.value[fieldName].value);
     const mutation = mutationMap[fieldName];
     filterStore.commit(mutation, columnFilters.value[fieldName].value);
   }

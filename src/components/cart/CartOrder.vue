@@ -70,8 +70,6 @@ const auditOrder = async (order) => {
   isAuditVisible.value = true;
   auditReorderId.value = order.id;
   auditData.value = audit.results;
-
-  console.log(audit.result);
 };
 
 function toggleColors() {

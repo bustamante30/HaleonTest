@@ -89,7 +89,7 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("AuthType", "AzureAd");
         if (this.account && tokenResponse) {
           console.log(
-            "[Auth Store] successgully obtained valid account and tokenResponse",
+            "[Auth Store] successfully obtained valid account and tokenResponse",
           );
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");

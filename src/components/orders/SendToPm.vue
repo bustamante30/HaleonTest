@@ -164,7 +164,6 @@ function updateColors(colors) {
 
 async function submit() {
   sendForm.value.printerName = printerName?.value;
-  console.log(sendForm.value);
   const isValid = sendToPmstore.validate(sendForm.value, sendUpload.value);
 
   if (isValid) {
