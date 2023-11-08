@@ -9,6 +9,8 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
     a(@click="navigate(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
+  span.image(v-else-if="config.type === 'lenimage'")
+    image-magnifier(src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" zoom-src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" width="100" height="75" zoom-width="400" zoom-height="300" mask-width="20" mask-height="20")
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(show-buttons button-layout="horizontal" :step="1" :min="0" :max="config.max" :model-value="value" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @update:model-value="update")
   span(v-else-if="config.type === 'lookup'")
@@ -21,9 +23,12 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
 <script setup>
 import { get } from "lodash";
 import { DateTime } from "luxon";
+//import Vue from 'vue';
 import { computed } from "vue";
 import SgsLookup from "@/components/ui/Lookup.vue";
 import router from "@/router";
+
+//Vue.use(ImageMagnifier);
 const props = defineProps({
   config: {
     type: Object,

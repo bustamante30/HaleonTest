@@ -40,6 +40,7 @@ import ConfirmationService from "primevue/confirmationservice";
 import ConfirmDialog from "primevue/confirmdialog";
 import Menubar from "primevue/menubar";
 import ToggleButton from "primevue/togglebutton";
+import { ImageMagnifier } from "vue-image-magnifier";
 
 const app = createApp(App);
 
@@ -80,4 +81,5 @@ app.component("PrimeRadiobutton", RadioButton);
 app.component("PrimeConfirmDialog", ConfirmDialog);
 app.component("PrimeMenubar", Menubar);
 app.component("PrimeToggleButton", ToggleButton);
+app.component("ImageMagnifier", ImageMagnifier);
 app.mount("#app");
