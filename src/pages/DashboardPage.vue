@@ -502,14 +502,10 @@ async function addMultipleToCart(sgsId: null) {
           ", ",
         )}. Please place your image carrier reorder request directly in MySGS.`;
         // Display the combined error message
-        notificationsStore.addNotification(
-          `Info`,
-          failedOrdersMessage,
-          {
-            severity: "error",
-          },
-          8000,
-        );
+        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
+          severity: "error",
+          life: 6000,
+        });
       }
     }
   }
@@ -559,16 +555,14 @@ async function addMultipleToCart(sgsId: null) {
             notificationsStore.addNotification(
               `Sucesss`,
               cartResponse.message + "",
-              { severity: "success" },
-              10000,
+              { severity: "success", life: 10000 },
             );
             cartStore.getCartCount();
           } else {
             notificationsStore.addNotification(
               `Error`,
               cartResponse.message + "" + cartResponse.originalOrderId,
-              { severity: "error" },
-              10000,
+              { severity: "error", life: 10000 },
             );
           }
         }
