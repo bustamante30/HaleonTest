@@ -97,7 +97,7 @@ onBeforeMount(async () => {
   } else {
     this.notificationsStore.addNotification(
       `Error`,
-      response.exceptionDetails.message,
+      response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
     handleClose();

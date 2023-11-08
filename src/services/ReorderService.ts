@@ -178,7 +178,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.log("Error submitting reorder:", error);
-        return { result: false, exceptionDetails: { message: error } };
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
   public static getRecentReorders(
@@ -386,7 +386,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.log("error discarding order: ", error);
-        return { result: false, exceptionDetails: { message: error } };
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
@@ -400,7 +400,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.log("Error deleting order:", error);
-        return { result: false, exceptionDetails: { message: error } };
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
@@ -475,8 +475,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting shirttail: ", error);
-        return 0;
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
@@ -543,7 +542,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.log("Error while adding order to Cart:", error);
-        return { result: false, exceptionDetails: { message: error } };
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 }

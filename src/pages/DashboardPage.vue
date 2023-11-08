@@ -421,7 +421,7 @@ function cancelOrder(order: any) {
       } else {
         notificationsStore.addNotification(
           `Error`,
-          response.exceptionDetails.message,
+          response.ExceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
         return false;
@@ -442,12 +442,20 @@ function cancelOrder(order: any) {
 }
 
 const auditOrder = async (order) => {
-  const audit = await ReorderService.getReorderAudit(order.id);
-  isAuditVisible.value = true;
-  auditReorderId.value = order.id;
-  auditData.value = audit.results;
-
-  console.log(audit.result);
+  let response = await ReorderService.getReorderAudit(order.id);
+  if (response.result) {
+    const audit = response.data;
+    isAuditVisible.value = true;
+    auditReorderId.value = order.id;
+    auditData.value = audit.results;
+  } else {
+    notificationsStore.addNotification(
+      `Error`,
+      response.ExceptionDetails.Message,
+      { severity: "error", life: 5000 },
+    );
+  }
+  console.log(response);
 };
 
 async function addMultipleToCart(sgsId: null) {
