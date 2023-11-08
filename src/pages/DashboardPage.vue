@@ -464,7 +464,6 @@ async function addMultipleToCart(sgsId: null) {
     try {
       if (showMyOrders.value === true) {
         order.id = 0;
-        order.sgsId = null;
         orderSgsId = order.originalOrderId;
       } else {
         orderSgsId = order.originalOrderId
