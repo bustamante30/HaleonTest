@@ -354,6 +354,7 @@ function createPmOrder() {
 }
 
 async function addToCart(order: any) {
+  let sgsId: any;
   confirm.require({
     message: "Do you want to add more orders to the cart?",
     header: "Add more Orders",
@@ -369,30 +370,12 @@ async function addToCart(order: any) {
     },
     reject: async () => {
       ordersStore.loading.ordersList = true;
-      const result = await ReorderService.validateOrder(
-        order.originalOrderId ? order.originalOrderId : order.sgsId,
-      );
-      if (result === false) {
-        if (userType.value === "EXT") {
-          sendToPmStore.externalPrinterName =
-            authb2cStore.currentB2CUser.printerName;
-          sgsJobId.value = order.originalOrderId
-            ? order.originalOrderId
-            : order.sgsId;
-          showCartConfirmDialog.value = true;
-          sendToPmStore.isValidated = true;
-        } else {
-          notificationsStore.addNotification(
-            `Info`,
-            "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
-            { severity: "error" },
-          );
-        }
+      if (showMyOrders.value === true) {
+        sgsId = order.sgsId;
       } else {
-        addOrderToCart(
-          order.originalOrderId ? order.originalOrderId : order.sgsId,
-        );
+        sgsId = order.originalOrderId ? order.originalOrderId : order.sgsId;
       }
+      addMultipleToCart(sgsId);
       ordersStore.loading.ordersList = false;
     },
   });
@@ -467,16 +450,33 @@ const auditOrder = async (order) => {
   console.log(audit.result);
 };
 
-async function addMultipleToCart() {
+async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = true;
-  let ordersToAdd = ordersStore.orders.filter((x) => x.selected);
+  let ordersToAdd = ordersStore.orders;
+  let orderSgsId: any;
+
+  if (sgsId !== null) {
+    if (!Array.isArray(sgsId)) {
+      ordersToAdd = ordersToAdd.filter((x) => x.sgsId === sgsId);
+    } else {
+      ordersToAdd = ordersStore.orders.filter((x) => x.selected);
+    }
+  }
+
   const errorMessages: string[] = [];
   const validOrders: any[] = [];
 
   const validationPromises = ordersToAdd.map(async (order) => {
-    debugger;
     try {
-      const result = await ReorderService.validateOrder(order.sgsId);
+      if (showMyOrders.value === true) {
+        order.id = 0;
+        orderSgsId = order.originalOrderId;
+      } else {
+        orderSgsId = order.originalOrderId
+          ? order.originalOrderId
+          : order.sgsId;
+      }
+      const result = await ReorderService.validateOrder(orderSgsId);
       if (result === true) {
         validOrders.push(order);
       } else {
@@ -509,6 +509,7 @@ async function addMultipleToCart() {
         // Display the combined error message
         notificationsStore.addNotification(`Info`, failedOrdersMessage, {
           severity: "error",
+          life: 6000,
         });
       }
     }
@@ -558,13 +559,14 @@ async function addMultipleToCart() {
             notificationsStore.addNotification(
               `Sucesss`,
               cartResponse.message + "",
-              { severity: "success" },
+              { severity: "success", life: 10000 },
             );
+            cartStore.getCartCount();
           } else {
             notificationsStore.addNotification(
               `Error`,
               cartResponse.message + "" + cartResponse.originalOrderId,
-              { severity: "error" },
+              { severity: "error", life: 10000 },
             );
           }
         }
@@ -581,21 +583,6 @@ async function addMultipleToCart() {
   }
   showMultipleSelection.value = false;
   ordersStore.loading.ordersList = false;
-}
-async function addOrderToCart(sgsId: any) {
-  ordersStore.getOrderById(sgsId).then((orderToAdd: any) => {
-    ordersStore.getEditableColors(sgsId, orderToAdd).then(() => {
-      console.log("order with lens:", orderToAdd);
-      cartStore.addToCart(orderToAdd).then((result: boolean) => {
-        if (result)
-          notificationsStore.addNotification(
-            `Sucesss`,
-            "Success adding the order #" + sgsId,
-            { severity: "success" },
-          );
-      });
-    });
-  });
 }
 async function handleOrderValidation(data: any) {
   const result = await ReorderService.validateOrder(data.originalOrderId);

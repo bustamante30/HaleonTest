@@ -100,6 +100,7 @@ onBeforeMount(async () => {
       response.exceptionDetails.message,
       { severity: "error", life: 5000 },
     );
+    handleClose();
   }
 });
 
