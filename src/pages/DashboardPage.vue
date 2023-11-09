@@ -360,6 +360,12 @@ async function addToCart(order: any) {
     header: "Add more Orders",
     icon: "pi pi-info-circle",
     accept: async () => {
+      orders.value.forEach((o: any) => {
+        if (o.id === 0 || o.selected === true) {
+          o.selected = false;
+        }
+      });
+
       order.selected = true;
       showMultipleSelection.value = true;
       (
