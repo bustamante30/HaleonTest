@@ -75,14 +75,13 @@ const auditOrder = async (order) => {
     auditReorderId.value = order.id;
     auditData.value = audit.results;
   } else {
-    debugger;
     notificationsStore.addNotification(
       `Error`,
       response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
+    console.error(response);
   }
-  console.log(response);
 };
 
 function toggleColors() {

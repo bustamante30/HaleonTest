@@ -70,7 +70,6 @@ class ApiService {
         return Promise.reject("Request canceled by the user");
       } else if (error?.response?.data) {
         return error?.response?.data;
-        //throw error;
       } else {
         throw new Error(`Request failed: ${error}`);
       }

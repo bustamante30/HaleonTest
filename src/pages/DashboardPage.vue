@@ -437,8 +437,6 @@ function cancelOrder(order: any) {
       );
     },
   });
-
-  //ordersStore.cancelOrder(order);
 }
 
 const auditOrder = async (order) => {
@@ -454,8 +452,8 @@ const auditOrder = async (order) => {
       response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
+    console.error(response);
   }
-  console.log(response);
 };
 
 async function addMultipleToCart(sgsId: null) {
