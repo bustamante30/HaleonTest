@@ -20,13 +20,12 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting reorders: ", error);
+        console.error("[Error getting reorders]: ", error);
         return null;
       });
   }
 
   public static saveUser(user: UserDto) {
-    console.log("StoreuserReq:" + user);
     return httpService
       .post<UserDto>("v1/user", user)
       .then((response: UserDto) => {
@@ -36,13 +35,16 @@ class UserService {
         const errorresp = error?.response?.data;
         const userNotificationsStore = useNotificationsStore();
         if (errorresp) {
-          console.log("Validation Error while adding User:", errorresp.detail);
+          console.error(
+            "[Validation Error while adding User]:",
+            errorresp.detail,
+          );
           userNotificationsStore.addNotification(`Error`, errorresp.detail, {
             severity: "error",
           });
           throw errorresp;
         }
-        console.log("unhandled exception while adding user:", error);
+        console.error("[Unhandled exception while adding user]:", error);
         userNotificationsStore.addNotification(
           `Error`,
           "Something went Wrong. Please contact sgs help desk",
@@ -59,7 +61,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("Error searching user:", error);
+        console.error("[Error searching user]:", error);
         return null;
       });
   }
@@ -71,7 +73,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("Error searching Printer:", error);
+        console.error("[Error searching Printer]:", error);
         return null;
       });
   }
@@ -83,7 +85,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting User Details: ", error);
+        console.error("[Error getting User Details]: ", error);
         return null;
       });
   }
@@ -98,13 +100,13 @@ class UserService {
         const errorresp = error?.response?.data;
         const notificationsStore = useNotificationsStore();
         if (errorresp) {
-          console.log("Validation Error adding printer:", errorresp.detail);
+          console.error("[Validation Error adding printer]:", errorresp.detail);
           notificationsStore.addNotification(`Error`, errorresp.detail, {
             severity: "error",
           });
           throw errorresp;
         }
-        console.log("Unhandled exception while adding printer:", error);
+        console.error("[Unhandled exception while adding printer]:", error);
         notificationsStore.addNotification(
           `Error`,
           "Something went Wrong. Please contact sgs help desk",
@@ -127,7 +129,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("Error deleting user:", error);
+        console.error("[Error deleting user]:", error);
         return null;
       });
   }
@@ -139,7 +141,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("Error resending invitation:", error);
+        console.error("[Error resending invitation]:", error);
       });
   }
 
@@ -155,7 +157,7 @@ class UserService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting User Details: ", error);
+        console.error("[Error getting User Details]: ", error);
         return null;
       });
   }

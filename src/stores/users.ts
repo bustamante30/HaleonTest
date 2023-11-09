@@ -37,10 +37,10 @@ export async function searchUsers(
     if (usersResponse) {
       return usersResponse;
     } else {
-      console.error("Error searching users:", usersResponse);
+      console.error("[Error searching users response]:", usersResponse);
     }
   } catch (error) {
-    console.error("Error searching users:", error);
+    console.error("[Error searching users]:", error);
   }
 }
 
@@ -111,11 +111,11 @@ export async function searchPrinter(
       // Return the mapped printers array
       return printers;
     } else {
-      console.error("Error searching printers:", printerResponse);
+      console.error("[Error searching printers response]:", printerResponse);
       return [];
     }
   } catch (error) {
-    console.error("Error searching printers:", error);
+    console.error("[Error searching printers]:", error);
     return [];
   }
 }
@@ -499,15 +499,14 @@ export const useUsersStore = defineStore("users", {
         printerIdVal = this.selected.id;
         await UserService.DeleteUser(user, printerIdVal);
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("[Error deleting user]:", error);
       }
     },
     async resendInvitation(user: any) {
       try {
         await UserService.ResendInvitation(user);
-        console.log("Invitation resent successfully.");
       } catch (error) {
-        console.error("Error resending invitation:", error);
+        console.error("[Error resending invitation]:", error);
       }
     },
   },

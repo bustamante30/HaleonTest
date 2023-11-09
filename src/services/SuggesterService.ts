@@ -15,7 +15,7 @@ class SuggesterService {
         return response.suggestions;
       })
       .catch((error: any) => {
-        console.log("error getting printer suggestions: ", error);
+        console.error("[Error getting printer suggestions]: ", error);
         return [];
       });
   }
@@ -30,7 +30,7 @@ class SuggesterService {
         return response.suggestions;
       })
       .catch((error: any) => {
-        console.log("error getting printer site suggestions: ", error);
+        console.error("[Error getting printer site suggestions]: ", error);
         return [];
       });
   }

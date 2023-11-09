@@ -15,7 +15,7 @@ class SearchHistoryService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting search field: ", error);
+        console.error("[Error getting search field]: ", error);
         return [];
       });
   }
@@ -27,7 +27,7 @@ class SearchHistoryService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting search field: ", error);
+        console.error("[Error getting search field]: ", error);
         return [];
       });
   }
@@ -44,7 +44,7 @@ class SearchHistoryService {
         return response;
       })
       .catch((error) => {
-        console.log("error getting search history: ", error);
+        console.error("[Error getting search history]: ", error);
         return [];
       });
   }
@@ -62,7 +62,7 @@ class SearchHistoryService {
         return response;
       })
       .catch((error) => {
-        console.log("error setting search history: ", error);
+        console.error("[Error setting search history]: ", error);
         return [];
       });
   }

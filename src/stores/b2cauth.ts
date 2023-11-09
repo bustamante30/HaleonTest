@@ -205,7 +205,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log("logout successful");
         })
         .catch((error) => {
-          console.error(error);
+          console.error("[Logout Error]", error);
         });
     },
     async updateUserStore(tokenResponse) {

@@ -67,12 +67,12 @@ class ApiService {
       return response?.data;
     } catch (error: any) {
       if (axios.isCancel(error)) {
-        console.log("Request canceled:", error.message);
+        console.error("[Request canceled]:", error.message);
         return Promise.reject("Request canceled by the user");
       } else if (error?.response?.data) {
         throw error;
       } else {
-        throw new Error(`Request failed: ${error}`);
+        throw new Error(`[Request failed]: ${error}`);
       }
     }
   }

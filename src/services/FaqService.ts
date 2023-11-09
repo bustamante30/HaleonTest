@@ -8,11 +8,10 @@ export class FaqService {
     return httpService
       .get("v1/Faq")
       .then((response) => {
-        console.log("Get Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return false;
       });
   }

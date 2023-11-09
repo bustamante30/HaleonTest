@@ -120,7 +120,7 @@ export const useAuthStore = defineStore("auth", {
           console.log("logout successful");
         })
         .catch((error) => {
-          console.error(error);
+          console.error("[Logout Error]", error);
         });
     },
     async updateUserStore(tokenResponse) {

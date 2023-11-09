@@ -33,7 +33,7 @@ class ReportIssueService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting issue:", error);
+        console.error("[Error submitting issue]:", error);
         return null;
       });
   }

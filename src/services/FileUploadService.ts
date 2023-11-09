@@ -23,11 +23,10 @@ export class FileUploadService {
         },
       })
       .then((response: FileUploadResponse) => {
-        console.log("Upload Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return {
           status: "Failed",
           uri: "",
@@ -39,11 +38,10 @@ export class FileUploadService {
     return httpService
       .delete<boolean>("v1/FileDelete", deleteRequest)
       .then((response: boolean) => {
-        console.log("Deleted Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return false;
       });
   }
@@ -52,11 +50,10 @@ export class FileUploadService {
     return httpService
       .get("v1/GetDemoVideo")
       .then((response) => {
-        console.log("Get Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return false;
       });
   }

@@ -559,10 +559,10 @@ async function addMultipleToCart(sgsId: null) {
           }
         }
       } else {
-        console.error("Response is not an array");
+        console.error("[Cart response error] Response is not an array");
       }
     } catch (error) {
-      // Handle the error
+      console.error("[Cart error] ", error);
     }
   }
   showMultipleSelection.value = false;
