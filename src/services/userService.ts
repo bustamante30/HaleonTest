@@ -6,10 +6,10 @@ import type { PrinterDto } from "../models/PrinterDto";
 import ApiService from "../services/apiService";
 import type { ExternalPrinterCountResponseDto } from "../models/ExternalPrinterCountResponseDto";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "./Constants";
 
 const baseUrl =
-  import.meta.env.VITE_USER_API_BASE_URL ?? "https://localhost:7026/";
-
+  import.meta.env.VITE_USER_API_BASE_URL ?? Constants.API_USER_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 class UserService {

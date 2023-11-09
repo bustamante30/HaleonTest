@@ -2,8 +2,9 @@
 import type { UploadFileDto } from "@/models/UploadFileDto";
 import type { DeleteFileDto } from "@/models/DeleteFileDto";
 import ApiService from "../services/apiService";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 interface SendToPM {

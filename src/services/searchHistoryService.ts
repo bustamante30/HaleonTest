@@ -2,8 +2,9 @@ import type { SearchFieldDto } from "@/models/SearchFieldDto";
 import ApiService from "../services/apiService";
 import type { SearchHistoryDto } from "@/models/SearchHistoryDto";
 import type { SearchDateDto } from "@/models/SearchDateDto";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
 const httpService = new ApiService(baseUrl);
 

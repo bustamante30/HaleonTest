@@ -87,7 +87,6 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     const user = store.get("currentUser");
     const b2cUser = store.get("currentb2cUser");
-    console.log("checking user loggedin", user, b2cUser);
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
@@ -124,19 +123,18 @@ const validateToken = () => {
       parseInt(decodedToken?.exp + "000", 10),
     );
     console.log(`Current time ${DateTime.local()}`);
-    console.log(`${tokenExpireTime}`);
+    console.log(`Token expiry time ${tokenExpireTime}`);
     const diffInMinutes = tokenExpireTime.diff(DateTime.now(), [
       "minutes",
     ]).minutes;
     if (diffInMinutes > 0) {
-      console.log("Valid Token");
       return true;
     }
   } catch (e) {
-    console.log("Invalid Token - Expection ", e);
+    console.error("[Invalid Token - Expection]: ", e);
     return false;
   }
-  console.log("Invalid Token");
+  console.error("Invalid Token");
   return false;
 };
 

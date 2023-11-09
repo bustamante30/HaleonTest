@@ -168,7 +168,7 @@ onMounted(() => {
   init();
 });
 const route = useRoute();
-// Watch for query change and refersh the dashboad thro. init()
+// Watch for query change and refresh the dashboad thro. init()
 watch(
   () => route.query["q"],
   () => {
@@ -209,7 +209,6 @@ function isAdminAddDraftTab() {
 
 function getDateFilter(): [string, string] {
   let filter: any = [];
-  // filter.push({ label: "last 3 days", value: "last 3 days" });
   filter.push({ label: "last 3 months", value: "last 3 months" });
   for (let i = new Date().getFullYear(); i > 2019; i--) {
     filter.push({
@@ -407,8 +406,6 @@ function cancelOrder(order: any) {
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
-      //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
-      // api
       let orderDetails = JSON.parse(
         JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id)),
       );
@@ -419,7 +416,6 @@ function cancelOrder(order: any) {
           "p-image-preview-indicator",
         )[0] as HTMLElement
       )?.focus();
-      // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
     },
     reject: () => {
@@ -430,7 +426,6 @@ function cancelOrder(order: any) {
       );
     },
   });
-
   //ordersStore.cancelOrder(order);
 }
 
@@ -482,8 +477,7 @@ async function addMultipleToCart(sgsId: null) {
         }
       }
     } catch (error) {
-      // Unhandled errors
-      //errorMessages.push("An error occurred while validating the order.");
+      console.error("[Error while validating the order]: ", error);
     }
   });
 
@@ -574,7 +568,6 @@ async function handleOrderValidation(data: any) {
     if (userType.value === "EXT") {
       sendToPmStore.externalPrinterName =
         authb2cStore.currentB2CUser.printerName;
-      // Validation failed, show the confirm  dialog
       showConfirmDialog.value = true;
       sendToPmStore.isValidated = true;
     } else {

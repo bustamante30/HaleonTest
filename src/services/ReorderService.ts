@@ -3,8 +3,9 @@ import type { CartAddRequestDto } from "@/models/CartAddRequestDto";
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
 import type { CartResponseDto } from "@/models/CartResponseDto";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
 const httpService = new ApiService(baseUrl);
 
@@ -167,7 +168,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.error("Error submitting reorder:", error);
+        console.error("[Error submitting reorder]:", error);
         return false;
       });
   }
