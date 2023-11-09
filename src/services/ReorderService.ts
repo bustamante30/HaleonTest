@@ -322,9 +322,14 @@ class ReorderService {
         return null;
       });
   }
-  public static getOrderAvailablePlates(sgsId: string) {
+  public static getOrderAvailablePlates(sgsId: string, printerName: string) {
     return httpService
-      .get<any>("v1/Reorder/info/availablePlates?jobnumber=" + sgsId)
+      .get<any>(
+        "v1/Reorder/info/availablePlates?jobnumber=" +
+          sgsId +
+          "&printerName=" +
+          printerName,
+      )
       .then((response: any) => {
         console.log(response);
         return response;

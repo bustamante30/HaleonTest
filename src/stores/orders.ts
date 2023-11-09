@@ -764,6 +764,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         let lenProcessed = 0;
         const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
+          order.printerName,
         );
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
@@ -869,6 +870,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         let expectedColors = order.colors.length;
         const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
+          order.printerNames,
         );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
