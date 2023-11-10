@@ -34,5 +34,8 @@ export const PO_NUMBER_MAX_LENGTH =
 export const DUPLICATE_PO_NUMBER = "Duplicate purhcase order number(s)";
 export const INVALID_PO_NUMBER =
   "The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) \" : ; < > '";
-
+export const INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `There are no flexo items listed for the job's you have selected`;
+export const INTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please place your image carrier reorder request directly in MySGS.`;
+export const EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `The order you have selected cannot be processed:`;
+export const EXTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please contact a PM directly, or please go to`;
 export * from "./Constants";

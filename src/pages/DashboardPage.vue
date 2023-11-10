@@ -73,6 +73,7 @@ import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
 import { useRoute } from "vue-router";
+import * as Constants from "@/services/Constants";
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -488,10 +489,11 @@ async function addMultipleToCart(sgsId: null) {
   if (validationResults != null) {
     if (userType.value === "INT") {
       if (errorMessages.length > 0) {
-        failedOrdersMessage = `There are no flexo items listed for the job's you have selected ${errorMessages.join(
-          ", ",
-        )}. Please place your image carrier reorder request directly in MySGS.`;
-
+        failedOrdersMessage = `${
+          Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART
+        } ${errorMessages.join(", ")} ${
+          Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART
+        }`;
         notificationsStore.addNotification(`Info`, failedOrdersMessage, {
           severity: "error",
           life: 6000,
@@ -499,11 +501,11 @@ async function addMultipleToCart(sgsId: null) {
       }
     } else if (userType.value === "EXT") {
       if (errorMessages.length > 0) {
-        sendToPmStore.externalPrinterName =
-          authb2cStore.currentB2CUser.printerName;
-        failedOrdersMessage = `The order's you have selected cannot be processed. ${errorMessages.join(
-          ", ",
-        )}. Please contact a PM directly, or please go to `;
+        failedOrdersMessage = `${
+          Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART
+        } ${errorMessages.join(", ")} ${
+          Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART
+        }`;
         let link: string = `/dashboard?showPM=true`;
         const linkLabel: string = `Here`;
 
@@ -587,11 +589,10 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  debugger;
   const resp = await ReorderService.validateOrder(data.originalOrderId);
   if (resp.Result === false && showMyOrders.value === false) {
     if (userType.value === "EXT") {
-      const errorMessage = `The order's you have selected cannot be processed. ${data.originalOrderId}. Please contact a PM directly, or please go to `;
+      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
       let link: string = `/dashboard?showPM=true`;
       const linkLabel: string = `Here`;
       notificationsStore.addNotification(`Info`, errorMessage, {
@@ -603,7 +604,7 @@ async function handleOrderValidation(data: any) {
     } else {
       notificationsStore.addNotification(
         `Info`,
-        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+        `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
         { severity: "error" },
       );
     }
