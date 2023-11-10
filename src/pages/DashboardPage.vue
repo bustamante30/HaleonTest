@@ -283,8 +283,10 @@ function searchKeyword(event: any) {
       status: 4,
       query: event.query,
     };
+    debugger;
     ordersStore.setFilters(fil);
   } else {
+    debugger;
     filters.value.myOrdersToggled = false;
     filters.value.isAdvancedSearch = false;
     searchTags.value = [];
@@ -309,9 +311,11 @@ function search(filters: any) {
         );
       }
     }
+    debugger;
     addPrinterFilter();
     ordersStore.setFilters(filters);
   } else {
+    debugger;
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
   }
@@ -430,11 +434,11 @@ function cancelOrder(order: any) {
       await router.push(`/dashboard/${order.id}/success`);
     },
     reject: () => {
-      notificationsStore.addNotification(
-        `Info`,
-        "Order Cancellation Rejected",
-        { severity: "error" },
-      );
+      // notificationsStore.addNotification(
+      //   `Info`,
+      //   "Order Cancellation Rejected",
+      //   { severity: "error" },
+      // );
     },
   });
 
