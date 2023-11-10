@@ -486,8 +486,8 @@ class ReorderService {
 
   public static async validateOrder(jobNo: string) {
     return httpService
-      .post<boolean>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
-      .then((response: boolean) => {
+      .post<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
+      .then((response: any) => {
         return response;
       })
       .catch((error: any) => {

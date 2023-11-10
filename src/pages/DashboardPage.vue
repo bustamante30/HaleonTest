@@ -50,17 +50,6 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
         reorder-audit.audit(:data="auditData")
       prime-dialog(v-model:visible="showConfirmDialog" :header="'Order Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
         template(#message="slotProps")
-        span.sendtoPm 
-          | Sorry something went wrong on our end. Please contact a PM directly, or please go to  
-          send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder" ) 
-          | to place your request
-      prime-dialog(v-model:visible="showCartConfirmDialog" :header="'Order Cart Validation'" closable modal :style="{ width: '70rem', overflow: 'hidden' }")
-        template(#message="slotProps")
-        span.sendtoPm
-          | Sorry, something went wrong on our end. {{ sgsJobId }} was unable to be  added to your cart.Please contact a PM directly, or please go to 
-          send-pm(:order="pmOrder" :loading="savingPmOrder" :OrderValidation="true" @create="createPmOrder") 
-          | to place your request
-         
     router-view
 </template>
 
@@ -84,6 +73,7 @@ import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
 import { useRoute } from "vue-router";
+import * as Constants from "@/services/Constants";
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -93,7 +83,6 @@ const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
 const showConfirmDialog = ref(false);
-const showCartConfirmDialog = ref(false);
 
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
@@ -116,7 +105,6 @@ const username = computed(
     }`,
 );
 const isAuditVisible = ref(false);
-const sgsJobId = ref("");
 const auditReorderId = ref();
 const auditData = ref();
 const selectedDate = ref(() => dateFilter.value[0]);
@@ -299,7 +287,6 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
-
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
@@ -435,13 +422,6 @@ function cancelOrder(order: any) {
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
     },
-    reject: () => {
-      notificationsStore.addNotification(
-        `Info`,
-        "Order Cancellation Rejected",
-        { severity: "error" },
-      );
-    },
   });
 }
 
@@ -477,6 +457,7 @@ async function addMultipleToCart(sgsId: null) {
 
   const errorMessages: string[] = [];
   const validOrders: any[] = [];
+  let failedOrdersMessage: string;
 
   const validationPromises = ordersToAdd.map(async (order) => {
     try {
@@ -492,15 +473,7 @@ async function addMultipleToCart(sgsId: null) {
       if (result === true) {
         validOrders.push(order);
       } else {
-        if (userType.value === "EXT") {
-          sendToPmStore.externalPrinterName =
-            authb2cStore.currentB2CUser.printerName;
-          sgsJobId.value = ordersToAdd.map((order) => order.sgsId).join(", ");
-          showCartConfirmDialog.value = true;
-          sendToPmStore.isValidated = true;
-        } else {
-          errorMessages.push(order.sgsId);
-        }
+        errorMessages.push(order.sgsId);
       }
     } catch (error) {
       // Unhandled errors
@@ -511,17 +484,36 @@ async function addMultipleToCart(sgsId: null) {
   // Execute all validation api calls in parallel
   const validationResults = await Promise.allSettled(validationPromises);
 
-  // Show error messages for internal user
-  if (userType.value === "INT") {
-    if (validationResults != null) {
+  // Show error messages for both external and internal user's
+
+  if (validationResults != null) {
+    if (userType.value === "INT") {
       if (errorMessages.length > 0) {
-        const failedOrdersMessage = `There are no flexo items listed for the job's you have selected ${errorMessages.join(
-          ", ",
-        )}. Please place your image carrier reorder request directly in MySGS.`;
-        // Display the combined error message
+        failedOrdersMessage = `${
+          Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART
+        } ${errorMessages.join(", ")} ${
+          Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART
+        }`;
         notificationsStore.addNotification(`Info`, failedOrdersMessage, {
           severity: "error",
           life: 6000,
+        });
+      }
+    } else if (userType.value === "EXT") {
+      if (errorMessages.length > 0) {
+        failedOrdersMessage = `${
+          Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART
+        } ${errorMessages.join(", ")} ${
+          Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART
+        }`;
+        let link: string = `/dashboard?showPM=true`;
+        const linkLabel: string = `Here`;
+
+        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
+          severity: "error",
+          life: 6000,
+          link,
+          linkLabel,
         });
       }
     }
@@ -597,18 +589,22 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  const result = await ReorderService.validateOrder(data.originalOrderId);
-  if (result === false && showMyOrders.value === false) {
+  const resp = await ReorderService.validateOrder(data.originalOrderId);
+  if (resp.Result === false && showMyOrders.value === false) {
     if (userType.value === "EXT") {
-      sendToPmStore.externalPrinterName =
-        authb2cStore.currentB2CUser.printerName;
-      // Validation failed, show the confirm  dialog
-      showConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
+      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+      let link: string = `/dashboard?showPM=true`;
+      const linkLabel: string = `Here`;
+      notificationsStore.addNotification(`Info`, errorMessage, {
+        severity: "error",
+        life: 6000,
+        link,
+        linkLabel,
+      });
     } else {
       notificationsStore.addNotification(
         `Info`,
-        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+        `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
         { severity: "error" },
       );
     }
