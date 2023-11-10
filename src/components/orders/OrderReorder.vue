@@ -122,8 +122,9 @@ async function addToCart() {
       updateToCart();
       return;
     }
-    if (await cartStore.addToCart(ordersStore.selectedOrder))
-      isCartMessageVisible.value = true;
+    cartStore.addToCart(ordersStore.selectedOrder).then((result) => {
+      if (result) isCartMessageVisible.value = true;
+    });
   }
 }
 
