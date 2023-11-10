@@ -283,10 +283,8 @@ function searchKeyword(event: any) {
       status: 4,
       query: event.query,
     };
-    debugger;
     ordersStore.setFilters(fil);
   } else {
-    debugger;
     filters.value.myOrdersToggled = false;
     filters.value.isAdvancedSearch = false;
     searchTags.value = [];
@@ -301,7 +299,6 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
-
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
@@ -311,11 +308,9 @@ function search(filters: any) {
         );
       }
     }
-    debugger;
     addPrinterFilter();
     ordersStore.setFilters(filters);
   } else {
-    debugger;
     ordersStore.initAdvancedFilters();
     ordersStore.getOrders();
   }
@@ -418,7 +413,6 @@ function cancelOrder(order: any) {
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
-      //notificationsStore.addNotification(`Info`, 'Order Cancelled', { severity: 'success' })
       // api
       let orderDetails = JSON.parse(
         JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id)),
@@ -432,13 +426,6 @@ function cancelOrder(order: any) {
       )?.focus();
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
-    },
-    reject: () => {
-      // notificationsStore.addNotification(
-      //   `Info`,
-      //   "Order Cancellation Rejected",
-      //   { severity: "error" },
-      // );
     },
   });
 
