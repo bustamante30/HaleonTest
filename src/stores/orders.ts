@@ -592,6 +592,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         (c) => c.checkboxId === params.colourId,
       );
       if (selectedIndex >= 0) {
+        debugger;
         this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
           checkboxId: faker.datatype.uuid(),
           id: 0,
@@ -828,7 +829,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           let count = order.editionColors.length;
           order.editionColors.forEach((color) => {
             debugger;
-            color.printerPlateList = result.PrinterPlateList;
+            color.printerPlateList = result.printerPlateList;
             color.fullPlateList = result.plateList;
             color.fullThicknessList = result.thicknessList;
             const availablePlateInfo = result.colorAvailablePlates.find(
@@ -836,24 +837,36 @@ export const useOrdersStore = defineStore("ordersStore", {
             );
             if (availablePlateInfo != null) {
               color.plateDetails.forEach((plate) => {
-                if (availablePlateInfo.availablePlates.length === 0) {
-                  if (result.printerPlateList.length > 0) {
-                    plate.plateList = result.printerPlateList;
-                    plate.alternateOptions = result.plateList;
-                    plate.hasAlternateOptions = true;
-                  } else {
-                    plate.plateList = result.plateList;
-                    plate.hasAlternateOptions = false;
-                  }
-                } else {
-                  plate.plateList = availablePlateInfo.availablePlates;
-                  plate.hasAlternateOptions = false;
-                }
                 if (availablePlateInfo.availablePlates.length === 1) {
                   plate.plateTypeId =
                     availablePlateInfo.availablePlates[0].plateTypeId;
                   plate.plateTypeDescription =
                     availablePlateInfo.availablePlates[0].plateTypeName;
+                  plate.plateList = availablePlateInfo.availablePlates;
+                  plate.hasAlternateOptions = false;
+                } else {
+                  if (availablePlateInfo.availablePlates.length === 0) {
+                    if (result.printerPlateList.length > 0) {
+                      plate.plateList = result.printerPlateList;
+                      plate.alternateOptions = result.plateList;
+                      plate.hasAlternateOptions = true;
+                    } else {
+                      plate.plateList = result.plateList;
+                      plate.hasAlternateOptions = false;
+                    }
+                  } else {
+                    plate.plateList = availablePlateInfo.availablePlates;
+                    plate.hasAlternateOptions = false;
+                  }
+                  if (plate.plateTypeId > 0)
+                    if (
+                      plate.plateList.findIndex(
+                        (x) => x.plateTypeId === plate.plateTypeId,
+                      ) < 0
+                    ) {
+                      plate.hasAlternateOptions = false;
+                      plate.plateList = result.plateList;
+                    }
                 }
                 plate.thicknessList =
                   availablePlateInfo.availableThicknesses.length === 0

@@ -48,8 +48,8 @@ const displayOptions = ref(props.options);
 const emit = defineEmits(["update:modelValue"]);
 
 const selected = computed(() => {
-  const { options, modelValue } = props;
-  const allOptions = [...defaultOptions.value, ...options];
+  const { modelValue } = props;
+  const allOptions = [...defaultOptions.value, ...displayOptions.value];
   if (allOptions && allOptions.length && modelValue) {
     const option = allOptions.find(
       (option) => option[props.optionValue] === modelValue,
@@ -79,21 +79,18 @@ function escPressed() {
 function switchToEditMode() {
   editMode.value = true;
 }
-const showFullList = ref(false);
+const showFullList = ref(props.alternateOptions.length === 0);
 function handleToggle() {
-  if (showFullList) displayOptions.value = props.alternateOptions;
-  else displayOptions.value = props.options;
+  showFullList.value = true;
+  displayOptions.value = props.alternateOptions;
 }
 </script>
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
   prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
-  
-  h5(v-if="editMode && hasAlternateOptions") Show commonly used plates
-  .switch(v-if="editMode && hasAlternateOptions")
-    prime-input-switch.checkbox.sm(:model-value="showFullList" @update:model-value="handleToggle")
-    span Show full plate list
+  div.toggleList(v-if="editMode && hasAlternateOptions && !showFullList")
+    a(@click="handleToggle()") Show full list
   .readonly(v-if="!editMode" )
     span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
@@ -113,4 +110,10 @@ function handleToggle() {
     a.change
       display: inline-block
       margin-left: $s
+  a.change
+    display: inline-block
+    margin-left: $s
+.toogleList
+  display: flex
+  align-items: center
 </style>
