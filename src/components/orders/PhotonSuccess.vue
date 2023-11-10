@@ -81,25 +81,24 @@ const props = defineProps({
 });
 
 onBeforeMount(async () => {
-  let orderDetails = JSON.parse(
-    JSON.stringify(
-      await ReorderService.getPhotonReorderDetails(props.selectedId),
-    ),
-  );
-  if (orderDetails?.statusId == 4) {
-    await ordersStore.setOrderInStore(orderDetails);
-    expectedDate.value = formatExpectedDateTime(orderDetails);
+  let response = await ReorderService.getPhotonReorderDetails(props.selectedId);
+  if (response.result) {
+    let orderDetails = JSON.parse(JSON.stringify(response.data));
+    if (orderDetails?.statusId == 4) {
+      await ordersStore.setOrderInStore(orderDetails);
+      expectedDate.value = formatExpectedDateTime(orderDetails);
+    } else {
+      notificationsStore.addNotification(
+        "The order number is incorrect or the order was not confirmed in image carrier reorder portal.",
+        "Please check the link and try again.",
+        { severity: "error", life: null, position: "top-right" },
+      );
+    }
   } else {
-    notificationsStore.addNotification(
-      `The order number is incorrect or the order 
-        was not confirmed in image carrier reorder portal.`,
-      "Please check the link and try again.",
-      {
-        severity: "warn",
-        group: "multiple",
-        position: "top-right",
-        life: null,
-      },
+    this.notificationsStore.addNotification(
+      `Error`,
+      response.ExceptionDetails.Message,
+      { severity: "error", life: 5000 },
     );
     handleClose();
   }
