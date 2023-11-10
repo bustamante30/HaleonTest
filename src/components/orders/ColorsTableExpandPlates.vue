@@ -4,7 +4,7 @@
   data-table.plate-details.p-datatable-sm(:value="data" :data-key="config.dataKey" :loading="data.length>0 && data[0].loading")
     column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :header-style="stylify(col.width)" :body-style="stylify(col.width)" :frozen="col.freeze ? true : false" :align-frozen="col.freeze")
       template(#body="{ data }")
-        table-cell(v-if="col.field==='plateTypeId'" :config="col" :data="data" :data-key="config.dataKey" :options="data.plateList" :empty="'Select Plate Type...'" @update="updatePlate")
+        table-cell(v-if="col.field==='plateTypeId'" :config="col" :data="data" :data-key="config.dataKey" :options="data.plateList"  :empty="'Select Plate Type...'" @update="updatePlate")
         table-cell(v-else-if="col.field==='plateThicknessId'" :config="col" :data="data" :data-key="config.dataKey" :options="data.thicknessList" :empty="'Select Thickness...'" @update="updatePlate")
         table-cell(v-else :config="col" :data="data" :data-key="config.dataKey" @update="updatePlate")
     column

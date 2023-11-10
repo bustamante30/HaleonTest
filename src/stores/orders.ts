@@ -602,6 +602,14 @@ export const useOrdersStore = defineStore("ordersStore", {
           sets: 0,
           isEditable: true,
           plateList:
+            this.selectedOrder.editionColors[selectedIndex].printerPlateList
+              .length > 0
+              ? this.selectedOrder.editionColors[selectedIndex].printerPlateList
+              : this.selectedOrder.editionColors[selectedIndex].fullPlateList,
+          hasAlternateOptions:
+            this.selectedOrder.editionColors[selectedIndex].printerPlateList
+              .length > 0,
+          alternateOptions:
             this.selectedOrder.editionColors[selectedIndex].fullPlateList,
           thicknessList:
             this.selectedOrder.editionColors[selectedIndex].fullThicknessList,
@@ -819,6 +827,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         asyncAvailablePlatesCall.then((result) => {
           let count = order.editionColors.length;
           order.editionColors.forEach((color) => {
+            debugger;
+            color.printerPlateList = result.PrinterPlateList;
             color.fullPlateList = result.plateList;
             color.fullThicknessList = result.thicknessList;
             const availablePlateInfo = result.colorAvailablePlates.find(
@@ -826,10 +836,19 @@ export const useOrdersStore = defineStore("ordersStore", {
             );
             if (availablePlateInfo != null) {
               color.plateDetails.forEach((plate) => {
-                plate.plateList =
-                  availablePlateInfo.availablePlates.length === 0
-                    ? result.plateList
-                    : availablePlateInfo.availablePlates;
+                if (availablePlateInfo.availablePlates.length === 0) {
+                  if (result.printerPlateList.length > 0) {
+                    plate.plateList = result.printerPlateList;
+                    plate.alternateOptions = result.plateList;
+                    plate.hasAlternateOptions = true;
+                  } else {
+                    plate.plateList = result.plateList;
+                    plate.hasAlternateOptions = false;
+                  }
+                } else {
+                  plate.plateList = availablePlateInfo.availablePlates;
+                  plate.hasAlternateOptions = false;
+                }
                 if (availablePlateInfo.availablePlates.length === 1) {
                   plate.plateTypeId =
                     availablePlateInfo.availablePlates[0].plateTypeId;
@@ -850,7 +869,12 @@ export const useOrdersStore = defineStore("ordersStore", {
               });
             } else {
               color.plateDetails.forEach((plate) => {
-                plate.plateList = result.plateList;
+                plate.hasAlternateOptions = result.PrinterPlateList.length > 0;
+                plate.plateList =
+                  result.PrinterPlateList.length > 0
+                    ? result.PrinterPlateList
+                    : result.plateList;
+                plate.alternateOptions = result.plateList;
                 plate.thicknessList = result.thicknessList;
                 plate.loading = false;
               });
@@ -870,7 +894,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         let expectedColors = order.colors.length;
         const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
-          order.printerNames,
+          order.printerName,
         );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {

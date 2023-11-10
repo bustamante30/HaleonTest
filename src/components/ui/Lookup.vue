@@ -26,6 +26,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  hasAlternateOptions: {
+    type: Boolean,
+    default: false,
+  },
+  alternateOptions: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const defaultOptions = computed(() => {
@@ -34,6 +42,8 @@ const defaultOptions = computed(() => {
     ? [{ label: modelValue, value: modelValue }]
     : [];
 });
+
+const displayOptions = ref(props.options);
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -54,6 +64,7 @@ let editMode = ref(false);
 
 onBeforeMount(() => {
   editMode.value = props.edit;
+  debugger;
 });
 
 function update(event) {
@@ -68,15 +79,25 @@ function escPressed() {
 function switchToEditMode() {
   editMode.value = true;
 }
+const showFullList = ref(false);
+function handleToggle() {
+  if (showFullList) displayOptions.value = props.alternateOptions;
+  else displayOptions.value = props.options;
+}
 </script>
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...options]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
-  .readonly(v-else)
+  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
+  
+  h5(v-if="editMode && hasAlternateOptions") Show commonly used plates
+  .switch(v-if="editMode && hasAlternateOptions")
+    prime-input-switch.checkbox.sm(:model-value="showFullList" @update:model-value="handleToggle")
+    span Show full plate list
+  .readonly(v-if="!editMode" )
     span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
-    a.change(v-if="options.length>1" @click="switchToEditMode()") Change
+    a.change(v-if="displayOptions.length>1" @click="switchToEditMode()") Change
 </template>
 
 <style lang="sass" scoped>
