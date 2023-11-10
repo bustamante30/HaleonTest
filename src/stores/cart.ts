@@ -74,7 +74,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           `Error`,
-          draftResult.exceptionDetails?.message,
+          draftResult.ExceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
       }
@@ -96,7 +96,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           `Error`,
-          draftResult.exceptionDetails?.message,
+          draftResult.ExceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
       }

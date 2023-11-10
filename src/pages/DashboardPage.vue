@@ -582,7 +582,7 @@ async function addMultipleToCart(sgsId: null) {
     } else {
       notificationsStore.addNotification(
         `Error`,
-        response.exceptionDetails?.message || "Error",
+        response.ExceptionDetails?.Message || "Error",
         { severity: "error", life: 5000 },
       );
     }

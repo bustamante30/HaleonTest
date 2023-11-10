@@ -17,11 +17,11 @@ interface APIResponse<T> {
   result?: boolean;
   data?: T;
   isBusinessError?: boolean;
-  exceptionDetails?: APIException;
+  ExceptionDetails?: APIException;
 }
 
 interface APIException {
-  message?: string;
+  Message?: string;
   statusCode?: number;
 }
 
