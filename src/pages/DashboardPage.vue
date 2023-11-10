@@ -299,7 +299,6 @@ function search(filters: any) {
   ordersStore.pageState.page = 1;
   searchTags.value = [];
   filters.query = "";
-
   if (filters) {
     if (!selectedStatus.value) selectedStatus.value = statusList.value[0];
     else {
@@ -434,13 +433,6 @@ function cancelOrder(order: any) {
       }
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
-    },
-    reject: () => {
-      notificationsStore.addNotification(
-        `Info`,
-        "Order Cancellation Rejected",
-        { severity: "error" },
-      );
     },
   });
 }
