@@ -592,7 +592,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         (c) => c.checkboxId === params.colourId,
       );
       if (selectedIndex >= 0) {
-        debugger;
         this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
           checkboxId: faker.datatype.uuid(),
           id: 0,
@@ -828,7 +827,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         asyncAvailablePlatesCall.then((result) => {
           let count = order.editionColors.length;
           order.editionColors.forEach((color) => {
-            debugger;
             color.printerPlateList = result.printerPlateList;
             color.fullPlateList = result.plateList;
             color.fullThicknessList = result.thicknessList;

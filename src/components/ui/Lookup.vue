@@ -64,7 +64,6 @@ let editMode = ref(false);
 
 onBeforeMount(() => {
   editMode.value = props.edit;
-  debugger;
 });
 
 function update(event) {
