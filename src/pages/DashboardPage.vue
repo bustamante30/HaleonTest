@@ -413,32 +413,45 @@ function cancelOrder(order: any) {
     header: "Cancel Order",
     icon: "pi pi-info-circle",
     accept: async () => {
-      // api
-      let orderDetails = JSON.parse(
-        JSON.stringify(await ReorderService.getPhotonReorderDetails(order.id)),
-      );
-      ordersStore.isCancel = true;
-      ordersStore.setOrderInStore(orderDetails);
-      (
-        document.getElementsByClassName(
-          "p-image-preview-indicator",
-        )[0] as HTMLElement
-      )?.focus();
+      let response = await ReorderService.getPhotonReorderDetails(order.id);
+      if (response.result) {
+        let orderDetails = JSON.parse(JSON.stringify(response.data));
+        ordersStore.isCancel = true;
+        ordersStore.setOrderInStore(orderDetails);
+        (
+          document.getElementsByClassName(
+            "p-image-preview-indicator",
+          )[0] as HTMLElement
+        )?.focus();
+      } else {
+        notificationsStore.addNotification(
+          `Error`,
+          response.ExceptionDetails.Message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       // Assuming you have a route named "success" for the success page
       await router.push(`/dashboard/${order.id}/success`);
     },
   });
-
-  //ordersStore.cancelOrder(order);
 }
 
 const auditOrder = async (order) => {
-  const audit = await ReorderService.getReorderAudit(order.id);
-  isAuditVisible.value = true;
-  auditReorderId.value = order.id;
-  auditData.value = audit.results;
-
-  console.log(audit.result);
+  let response = await ReorderService.getReorderAudit(order.id);
+  if (response.result) {
+    const audit = response.data;
+    isAuditVisible.value = true;
+    auditReorderId.value = order.id;
+    auditData.value = audit.results;
+  } else {
+    notificationsStore.addNotification(
+      `Error`,
+      response.ExceptionDetails.Message,
+      { severity: "error", life: 5000 },
+    );
+    console.error(response);
+  }
 };
 
 async function addMultipleToCart(sgsId: null) {
@@ -538,12 +551,11 @@ async function addMultipleToCart(sgsId: null) {
       };
     });
 
-    try {
-      const response = await ReorderService.addOrdersToCart(cartAddRequest);
-
+    const response = await ReorderService.addOrdersToCart(cartAddRequest);
+    if (response.result) {
       // Handle each cartResponse
-      if (Array.isArray(response)) {
-        for (const cartResponse of response) {
+      if (Array.isArray(response.data)) {
+        for (const cartResponse of response.data) {
           console.log(
             `ReorderID: ${cartResponse.reorderId}, Status: ${cartResponse.status}`,
           );
@@ -565,8 +577,12 @@ async function addMultipleToCart(sgsId: null) {
       } else {
         console.error("Response is not an array");
       }
-    } catch (error) {
-      // Handle the error
+    } else {
+      notificationsStore.addNotification(
+        `Error`,
+        response.ExceptionDetails?.Message || "Error",
+        { severity: "error", life: 5000 },
+      );
     }
   }
   showMultipleSelection.value = false;

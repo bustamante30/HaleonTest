@@ -49,6 +49,7 @@ import router from "@/router";
 import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
 import ReorderService from "@/services/ReorderService";
+import { useNotificationsStore } from "@/stores/notifications";
 
 const props = defineProps({
   order: {
@@ -65,13 +66,22 @@ const cartStore = useCartStore();
 const isAuditVisible = ref(false);
 const auditReorderId = ref();
 const auditData = ref();
+const notificationsStore = useNotificationsStore();
 const auditOrder = async (order) => {
-  const audit = await ReorderService.getReorderAudit(order.id);
-  isAuditVisible.value = true;
-  auditReorderId.value = order.id;
-  auditData.value = audit.results;
-
-  console.log(audit.result);
+  let response = await ReorderService.getReorderAudit(order.id);
+  if (response.result) {
+    const audit = response.data;
+    isAuditVisible.value = true;
+    auditReorderId.value = order.id;
+    auditData.value = audit.results;
+  } else {
+    notificationsStore.addNotification(
+      `Error`,
+      response.ExceptionDetails.Message,
+      { severity: "error", life: 5000 },
+    );
+    console.error(response);
+  }
 };
 
 function toggleColors() {
