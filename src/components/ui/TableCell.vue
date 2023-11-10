@@ -10,15 +10,24 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
   span.image(v-else-if="config.type === 'lenimage'")
-    prime-image(:src="get(data, config.field)" alt="Image" preview :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
+    prime-image(
+      :src="get(data, config.field)"
+      alt="Image"
+      preview
+      :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }"
+      :pt="{zoomInButton:{'onmouseup':'setTimeout(function() {debugger; }, 100)'}}")
       template('#preview'='slotProps')
         //<img src="/image.jpg" alt="preview" :style="slotProps.style" @click="slotProps.onClick" />
         v-image-magnifier(
+          :deactivate="false"
           :cursor-none="false"
           :style="slotProps.style"
           :src="get(data, config.field)"
           :zoom-size="350" 
-          :zoom-factor="2" :magnified-border-radius="0" :fit-content="false" @click="slotProps.onClick"
+          :zoom-factor="2"
+          :magnified-border-radius="0"
+          :fit-content="false"
+          @click="slotProps.onClick"
           class="magnifierpreview")
         //image-magnifier(src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" zoom-src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" width="100" height="75" zoom-width="400" zoom-height="300" mask-width="20" mask-height="20" :style="slotProps.style" @click="slotProps.onClick")
     
