@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { defineStore } from "pinia";
 
 export const useNotificationsStore = defineStore("notifications", {
@@ -37,7 +38,9 @@ export const useNotificationsStore = defineStore("notifications", {
       }
     },
     removeNotification() {
-      this.notification = null;
+      setTimeout(() => {
+        this.notification = null;
+      }, 1000);
     },
   },
 });
