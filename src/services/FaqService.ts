@@ -1,6 +1,7 @@
 import ApiService from "../services/apiService";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 export class FaqService {
@@ -8,11 +9,10 @@ export class FaqService {
     return httpService
       .get("v1/Faq")
       .then((response) => {
-        console.log("Get Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error in FAQ]:", error);
         return false;
       });
   }

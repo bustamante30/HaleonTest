@@ -53,13 +53,11 @@ function updatePlate({
   value: any;
 }) {
   const { colourId } = props;
-  // console.log('update plate', { colourId, checkboxId, field, value })
   if (colourId) emit("update", { colourId, checkboxId, field, value });
 }
 
 function addPlate() {
   const { colourId } = props;
-  // console.log('add plate', { colourId })
   if (colourId) emit("add", { colourId });
 }
 

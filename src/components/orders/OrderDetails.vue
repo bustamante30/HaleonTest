@@ -69,7 +69,6 @@ async function buy() {
   const confirmRoute =
     `/dashboard/${props.selectedId}/reorder` +
     (selectedOrder.value.statusId == 1 ? `?source=cart` : ``);
-  console.log(confirmRoute);
   router.push(confirmRoute);
 }
 

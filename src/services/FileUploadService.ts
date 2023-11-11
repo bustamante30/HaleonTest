@@ -1,6 +1,7 @@
 import ApiService from "../services/apiService";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
 const httpService = new ApiService(baseUrl);
 
@@ -23,15 +24,11 @@ export class FileUploadService {
         },
       })
       .then((response: FileUploadResponse) => {
-        console.log("Upload Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
-        return {
-          status: "Failed",
-          uri: "",
-        };
+        console.error("[Error submitting files]:", error);
+        return { status: "Failed", uri: "" };
       });
   }
 
@@ -39,11 +36,10 @@ export class FileUploadService {
     return httpService
       .delete<boolean>("v1/FileDelete", deleteRequest)
       .then((response: boolean) => {
-        console.log("Deleted Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error deleting files]:", error);
         return false;
       });
   }
@@ -52,11 +48,10 @@ export class FileUploadService {
     return httpService
       .get("v1/GetDemoVideo")
       .then((response) => {
-        console.log("Get Successfully");
         return response;
       })
       .catch((error) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error in getting files]:", error);
         return false;
       });
   }

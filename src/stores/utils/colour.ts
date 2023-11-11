@@ -67,7 +67,6 @@ const validation = (colour: any) => {
     colour.plateDetails.map((plate: any) => plate.plateTypeId);
   const hasUniquePlates =
     !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
-  console.log(colour);
   const hasEmptyPlateDescription =
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateTypeId,
@@ -81,12 +80,6 @@ const validation = (colour: any) => {
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
     !hasEmptyPlateThickness;
-  console.log({
-    isValid,
-    hasEmptyPlateDescription,
-    hasUniquePlates,
-    hasEmptyPlateThickness,
-  });
   return {
     isValid,
     hasEmptyPlateDescription,

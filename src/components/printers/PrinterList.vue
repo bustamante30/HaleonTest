@@ -31,6 +31,7 @@ import PrinterForm from "./PrinterForm.vue";
 import { useUsersStore } from "@/stores/users";
 import router from "@/router";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 defineProps({
   printers: {
@@ -82,8 +83,8 @@ async function saveprinter(printerFormRequest) {
   const printerResp = await usersStore.savePrinter(printerFormRequest);
   if (printerResp) {
     notificationsStore.addNotification(
-      `Printer Creation`,
-      `Printer Created Successfully`,
+      Constants.PRINTER_CREATION,
+      Constants.PRINTER_CREATION_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
 

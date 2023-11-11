@@ -2,8 +2,9 @@
 import type { UploadFileDto } from "@/models/UploadFileDto";
 import type { DeleteFileDto } from "@/models/DeleteFileDto";
 import ApiService from "../services/apiService";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 interface SendToPM {
@@ -74,25 +75,24 @@ class SendToPMService {
               plateTypeDescription: color.plateType,
             });
           } else {
-            console.log("Invalid color object:", color);
+            console.error("[Invalid color object]:", color);
           }
         } else {
-          console.log("Invalid color:", color);
+          console.error("[Invalid color]:", color);
         }
       });
     } else {
-      console.log("Invalid colors array:", exitOrderInfo.colors);
+      console.error("[Invalid colors array]:", exitOrderInfo.colors);
     }
 
     newExitOrder.colors = newColorsArray;
     return httpService
       .post<boolean>("v1/pmexit/addexitorders", newExitOrder)
       .then((response: boolean) => {
-        console.log("submitted Exit  Order:", response);
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting Exit Order:", error);
+        console.error("[Error submitting Exit Order]:", error);
         return false;
       });
   }
@@ -106,11 +106,10 @@ class SendToPMService {
     return httpService
       .post<boolean>("v1/upload", uploadRequest)
       .then((response: boolean) => {
-        console.log("Upload Successfully");
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return false;
       });
   }
@@ -123,11 +122,10 @@ class SendToPMService {
     return httpService
       .delete<boolean>("v1/delete", deleteRequest)
       .then((response: boolean) => {
-        console.log("Deleted Successfully");
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting files:", error);
+        console.error("[Error submitting files]:", error);
         return false;
       });
   }
@@ -139,7 +137,7 @@ class SendToPMService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting code types", error);
+        console.error("[Error getting code types]:", error);
         return [];
       });
   }
@@ -151,7 +149,7 @@ class SendToPMService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting pack types", error);
+        console.error("[Error getting pack types]:", error);
         return [];
       });
   }
@@ -163,7 +161,7 @@ class SendToPMService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting plate types: ", error);
+        console.error("[Error getting plate types]: ", error);
         return 0;
       });
   }

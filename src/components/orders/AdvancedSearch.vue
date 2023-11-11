@@ -206,7 +206,6 @@ async function searchPrinter(value?) {
 function onSubmit() {
   const validationErrors = validateForm();
   if (validationErrors) {
-    console.log(validationErrors);
     error.value = validationErrors;
     showError.value = true;
     setTimeout(() => {

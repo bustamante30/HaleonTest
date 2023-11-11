@@ -3,8 +3,9 @@ import { type ReportIssueRequestDto } from "../models/ReportIssueRequestDto";
 import type { ReportIssueResponseDto } from "../models/ReportIssueResponseDto";
 import { type AttachmentDto } from "../models/AttachmentDto";
 import ApiService from "../services/apiService";
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+import * as Constants from "./Constants";
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 class ReportIssueService {
@@ -33,7 +34,7 @@ class ReportIssueService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting issue:", error);
+        console.error("[Error submitting issue]:", error);
         return null;
       });
   }

@@ -20,8 +20,6 @@ export async function searchUsers(
   searchValue: string,
 ) {
   try {
-    // Create a SearchRequestDto object with the printerName and other parameters
-
     const searchRequest: SearchRequestDto = {
       searchText: searchValue,
       pageNumber: 1,
@@ -34,19 +32,15 @@ export async function searchUsers(
       userTypeKey: userType,
     };
 
-    console.log("userSearchReq:" + searchRequest);
     const usersResponse = await UserService.searchUser(searchRequest);
 
-    // Update the 'users' array with the response from the API
     if (usersResponse) {
       return usersResponse;
     } else {
-      // Handle error scenario if needed
-      console.error("Error searching users:", usersResponse);
+      console.error("[Error searching users response]:", usersResponse);
     }
   } catch (error) {
-    // Handle error scenario if needed
-    console.error("Error searching users:", error);
+    console.error("[Error searching users]:", error);
   }
 }
 
@@ -117,11 +111,11 @@ export async function searchPrinter(
       // Return the mapped printers array
       return printers;
     } else {
-      console.error("Error searching printers:", printerResponse);
+      console.error("[Error searching printers response]:", printerResponse);
       return [];
     }
   } catch (error) {
-    console.error("Error searching printers:", error);
+    console.error("[Error searching printers]:", error);
     return [];
   }
 }
@@ -371,19 +365,14 @@ export const useUsersStore = defineStore("users", {
           isPrimaryPM: false,
         };
       }
-      console.log("createUser");
       router.push("/users/new");
     },
     async getUser(id: string) {
-      console.log("Getid:" + id);
       this.user = null;
-      //const users = this.selected.users
       const userEditResp = await UserService.getUserDetails(id);
-      console.log("Getusers:" + userEditResp);
       if (userEditResp != null) {
         let isPrimaryPMValue: any;
 
-        //Get primaryPM flag for the selected User and Printer
         if (
           userEditResp.userPrinter &&
           Array.isArray(userEditResp.userPrinter)
@@ -404,7 +393,6 @@ export const useUsersStore = defineStore("users", {
           email: userEditResp.email,
           isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
           isPrimaryPM: isPrimaryPMValue || false,
-          //location: selectedLocations,
           userType: userEditResp.userType,
         };
 
@@ -416,14 +404,12 @@ export const useUsersStore = defineStore("users", {
       }
     },
     editUser(user: any) {
-      console.log("EditUser:" + JSON.stringify(user));
       if (this.selected && user) {
         this.user = { ...user };
       }
       router.push(`/users/${this.user.id}`);
     },
     async saveUser(userreq: any) {
-      console.log("Save user", userreq);
       this.user = null;
       let printerIdValue: number | null = null;
       let userType = "";
@@ -510,22 +496,17 @@ export const useUsersStore = defineStore("users", {
       let printerIdVal = "";
 
       try {
-        //todo: Need to revisit once the functionality is decided instead of printer location.
         printerIdVal = this.selected.id;
-
         await UserService.DeleteUser(user, printerIdVal);
       } catch (error) {
-        console.error("Error deleting user:", error);
-        // Handle error scenario if needed
+        console.error("[Error deleting user]:", error);
       }
     },
     async resendInvitation(user: any) {
       try {
         await UserService.ResendInvitation(user);
-        console.log("Invitation resent successfully.");
       } catch (error) {
-        console.error("Error resending invitation:", error);
-        // Handle error scenario if needed
+        console.error("[Error resending invitation]:", error);
       }
     },
   },

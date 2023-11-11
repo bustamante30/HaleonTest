@@ -45,6 +45,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from "@/router";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 const props = defineProps({
   user: {
@@ -100,11 +101,10 @@ function handleClose() {
 }
 
 function save() {
-  //Required fields validations.
   if (!userForm.value.firstName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "FirstName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.FN_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -112,8 +112,8 @@ function save() {
 
   if (!userForm.value.lastName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "LastName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.LN_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -121,8 +121,8 @@ function save() {
 
   if (!userForm.value.email) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Email is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.EM_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;

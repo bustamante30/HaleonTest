@@ -34,6 +34,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useSendToPmStore } from "@/stores/send-to-pm";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 defineProps({
   isMandatory: {
@@ -60,8 +61,8 @@ function addColour() {
     emit("update", colours.value);
   } else {
     notificationsStore.addNotification(
-      "Add Colours Limit Exceeded",
-      "Cannot add more than 10 colors",
+      Constants.COLOR_LIMIT,
+      Constants.COLOR_LIMIT_MSG,
       { severity: "error", position: "top-right" },
     );
   }

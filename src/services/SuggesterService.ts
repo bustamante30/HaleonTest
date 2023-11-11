@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type AiCustomerSearchDto } from "../models/AiCustomerSearchDto";
 import ApiService from "../services/apiService";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 class SuggesterService {
@@ -15,7 +16,7 @@ class SuggesterService {
         return response.suggestions;
       })
       .catch((error: any) => {
-        console.log("error getting printer suggestions: ", error);
+        console.error("[Error getting printer suggestions]: ", error);
         return [];
       });
   }
@@ -30,7 +31,7 @@ class SuggesterService {
         return response.suggestions;
       })
       .catch((error: any) => {
-        console.log("error getting printer site suggestions: ", error);
+        console.error("[Error getting printer site suggestions]: ", error);
         return [];
       });
   }

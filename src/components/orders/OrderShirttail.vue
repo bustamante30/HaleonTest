@@ -18,7 +18,6 @@ const ordersStore = useOrdersStore();
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 
 function getFieldData(fieldName: string) {
-  console.log("selected orders", selectedOrder.value);
   const fieldValue = get(selectedOrder.value, fieldName);
   if (fieldValue === null || fieldValue === "") {
     return "N/A";

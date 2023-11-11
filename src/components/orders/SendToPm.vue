@@ -97,6 +97,7 @@ import {
   type FileDelete,
 } from "@/services/FileUploadService";
 import { DateTime, Interval } from "luxon";
+import * as Constants from "@/services/Constants";
 const props = defineProps({
   order: {
     type: Object,
@@ -164,7 +165,6 @@ function updateColors(colors) {
 
 async function submit() {
   sendForm.value.printerName = printerName?.value;
-  console.log(sendForm.value);
   const isValid = sendToPmstore.validate(sendForm.value, sendUpload.value);
 
   if (isValid) {
@@ -173,15 +173,15 @@ async function submit() {
     const submitResponse = await sendToPmstore.submitorder(sendForm.value);
     if (submitResponse) {
       notificationsStore.addNotification(
-        `Order Sent`,
-        "Your order is successfully sent to a project manager",
+        Constants.ORDER_SENT,
+        Constants.ORDER_SENT_MSG,
         { severity: "success", life: 3000, position: "top-right" },
       );
       return;
     } else {
       notificationsStore.addNotification(
-        `Order Not Sent`,
-        "Your order is not sent to a project manager",
+        Constants.ORDER_SENT_FAILURE,
+        Constants.ORDER_SENT_FAILURE_MSG,
         { severity: "error", life: 3000, position: "top-right" },
       );
       return;
@@ -229,8 +229,8 @@ async function onDrop(event: any) {
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
-        `Invalid file type`,
-        `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
+        Constants.INVALID_FILE,
+        Constants.INVALID_FILE_MSG,
         { severity: "error", position: "top-right" },
       );
       return null;
@@ -244,8 +244,8 @@ async function onDrop(event: any) {
         return response;
       } else {
         notificationsStore.addNotification(
-          `Upload failed`,
-          `Your file was not uploaded. Please try again.`,
+          Constants.UPLOAD_FAILED,
+          Constants.UPLOAD_FAILED_MSG,
           { severity: "error", position: "top-right" },
         );
         return null;
@@ -258,8 +258,8 @@ async function onDrop(event: any) {
     if (validFiles.value.length > 0)
       await sendToPmstore.uploadData(validFiles.value as []);
     notificationsStore.addNotification(
-      `Uploaded successfully`,
-      `Your files were successfully uploaded`,
+      Constants.UPLOAD_SUCCESSFULL,
+      Constants.UPLOAD_SUCCESSFULL_MSG,
       { severity: "success", position: "top-right" },
     );
   }
@@ -319,13 +319,13 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   if (deleteResponse) {
     removeItemByProperty(index);
     notificationsStore.addNotification(
-      `Deleted Successfully`,
+      Constants.DELETE_SUCCESSFULL,
       `Your file ${file.fileName} was successfully deleted`,
       { severity: "success", position: "top-right" },
     );
   } else {
     notificationsStore.addNotification(
-      `Delete failed`,
+      Constants.DELETE_FAILED,
       `Your file ${file.fileName} was not deleted`,
       { severity: "error", position: "top-right" },
     );

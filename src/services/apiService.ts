@@ -4,7 +4,7 @@ import axios, {
   type AxiosResponse,
   type CancelTokenSource,
 } from "axios";
-
+import * as Constants from "./Constants";
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   headers: any;
 }
@@ -56,7 +56,7 @@ class ApiService {
           previousMethod === method &&
           previousUrl === url
         ) {
-          this.cancelTokenSource.cancel("Request canceled by the user");
+          this.cancelTokenSource.cancel(Constants.REQUEST_CANCEL);
         }
       }
       this.cancelTokenSource = axios.CancelToken.source();
@@ -66,12 +66,12 @@ class ApiService {
       return response?.data;
     } catch (error: any) {
       if (axios.isCancel(error)) {
-        console.log("Request canceled:", error.message);
-        return Promise.reject("Request canceled by the user");
+        console.error("[Request canceled]:", error.message);
+        return Promise.reject(Constants.REQUEST_CANCEL);
       } else if (error?.response?.data) {
         return error?.response?.data;
       } else {
-        throw new Error(`Request failed: ${error}`);
+        throw new Error(`[Request failed]: ${error}`);
       }
     }
   }

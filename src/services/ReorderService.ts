@@ -3,8 +3,9 @@ import type { CartAddRequestDto } from "@/models/CartAddRequestDto";
 import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
 import type { CartResponseDto } from "@/models/CartResponseDto";
+import * as Constants from "./Constants";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5208/";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
 const httpService = new ApiService(baseUrl);
 
@@ -167,7 +168,6 @@ class ReorderService {
       packagingReference: reorderInfo.packagingReference,
     };
 
-    console.log("newReorder", newReorder);
     return httpService
       .post<APIResponse<any>>("v1/Reorder/submitReorder", newReorder)
       .then((response: APIResponse<any>) => {
@@ -314,7 +314,7 @@ class ReorderService {
         };
       })
       .catch((error: any) => {
-        console.log("Error getting reorders:", error);
+        console.error("[Error getting reorders]:", error);
         return [];
       });
   }
@@ -323,11 +323,10 @@ class ReorderService {
     return httpService
       .get<any>("v1/Reorder/info?jobnumber=" + sgsId)
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting reorders: ", error);
+        console.error("[Error getting reorders]: ", error);
         return null;
       });
   }
@@ -335,11 +334,10 @@ class ReorderService {
     return httpService
       .get<any>("v1/Reorder/info/availablePlates?jobnumber=" + sgsId)
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting OrderAvailablePlates: ", error);
+        console.error("[Error getting OrderAvailablePlates]: ", error);
         return null;
       });
   }
@@ -351,7 +349,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting cart count: ", error);
+        console.error("[Error getting cart count]: ", error);
         return 0;
       });
   }
@@ -362,7 +360,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting photon reorder: ", error);
+        console.error("[Error getting photon reorder]: ", error);
         return null;
       });
   }
@@ -374,7 +372,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting cart: ", error);
+        console.error("[Error getting cart]: ", error);
         return 0;
       });
   }
@@ -385,7 +383,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error discarding order: ", error);
+        console.error("[Error discarding order]: ", error);
         return { result: false, ExceptionDetails: { Message: error } };
       });
   }
@@ -399,7 +397,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error deleting order:", error);
+        console.error("[Error deleting order]:", error);
         return { result: false, ExceptionDetails: { Message: error } };
       });
   }
@@ -411,7 +409,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error getting thumbnail:", error);
+        console.error("[Error getting thumbnail]:", error);
         return false;
       });
   }
@@ -423,7 +421,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error getting pdfs:", error);
+        console.error("[Error getting pdfs]:", error);
         return false;
       });
   }
@@ -451,7 +449,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting barcode: ", error);
+        console.error("[Error getting barcode]: ", error);
         return 0;
       });
   }
@@ -463,7 +461,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting shirttail: ", error);
+        console.error("[Error getting shirttail]: ", error);
         return 0;
       });
   }
@@ -475,6 +473,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
+        console.error("[Error getting shirttail]: ", error);
         return { result: false, ExceptionDetails: { Message: error } };
       });
   }
@@ -486,7 +485,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error while validate order service:", error);
+        console.error("[Error while validate order service]:", error);
         return false;
       });
   }
@@ -500,11 +499,10 @@ class ReorderService {
           sequenceNumber,
       )
       .then((response: any) => {
-        console.log(response);
         return response;
       })
       .catch((error: any) => {
-        console.log("error getting reorders: ", error);
+        console.error("[Error getting reorders]: ", error);
         return null;
       });
   }
@@ -541,7 +539,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error while adding order to Cart:", error);
+        console.error("[Error while adding order to Cart]:", error);
         return { result: false, ExceptionDetails: { Message: error } };
       });
   }

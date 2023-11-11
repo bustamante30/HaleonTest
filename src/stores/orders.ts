@@ -95,8 +95,6 @@ const handleSortPagination = (
     }
   }
 
-  // Filter by Sorting
-  //let resultForCache :any[] = reorderedData ;
   if (filters.sortBy) {
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
@@ -108,7 +106,6 @@ const handleSortPagination = (
       resultForCache = resultForCache.reverse();
     }
   }
-  console.log("totalCount", resultForCache.length);
   return resultForCache.slice(
     (pageState.page - 1) * pageState.rows,
     pageState.page * pageState.rows,
@@ -340,17 +337,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       return this.selectedOrder;
     },
     async setFilters(filters: any) {
-      console.log("My orders", filters);
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       const printers = [] as string[];
       const printerIds = [] as number[];
       let printerUserIds = [] as number[];
-      //TODO: remove printers and sites unused code
       const authStore = useAuthStore();
       const b2cAuth = useB2CAuthStore();
       if (authStore.currentUser.isLoggedIn) {
-        // get printer Name
         authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
           if (printer.printerId && printer.printerId > 0) {
             printers.push(printer.printerName);
@@ -390,7 +384,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           filters.roleKey !== "PMSuperAdminUser") ||
           (filters.userType === "INT" && filters.roleKey === "PMUser"))
       ) {
-        console.log("Showing result from Local Store");
         const reorderedData = handleSortPagination(
           this.textSearchData.data.reorderedData,
           filters,
@@ -452,12 +445,6 @@ export const useOrdersStore = defineStore("ordersStore", {
             Array.isArray(result.reorderedData) &&
             result.reorderedData.length > 0
           ) {
-            // TODO: need to check if this is required
-            // const reorderedData = handleSortPagination(
-            //   result.reorderedData,
-            //   filters,
-            //   this.pageState,
-            // );
             result = {
               reorderedData: result.reorderedData,
               totalRecords: result.reorderedData.length,
@@ -658,8 +645,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                 ).length;
                 if (plateOcurrences > 1) {
                   notificationsStore.addNotification(
-                    "Warning",
-                    `Plate type already exists for this colour`,
+                    Constants.WARNING,
+                    Constants.ALREADY_EXIST,
                     { severity: "warn", life: 3000 },
                   );
                 }
@@ -683,8 +670,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                 );
                 if (totalSets > 10) {
                   notificationsStore.addNotification(
-                    "Warning",
-                    `You cannot have more than 10 sets reordered for 1 colour`,
+                    Constants.WARNING,
+                    Constants.MORE_THAN_TEN,
                     { severity: "warn" },
                   );
                   return;
@@ -709,20 +696,20 @@ export const useOrdersStore = defineStore("ordersStore", {
       } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
-          "Warning",
+          Constants.WARNING,
           `You have selected the same plate type for ${colour.colourName}`,
           { severity: "warn" },
         );
       if (hasEmptyPlateDescription)
         notificationsStore.addNotification(
-          "Warning",
-          `Please select the plate type from the available plate type list`,
+          Constants.WARNING,
+          Constants.AVAILABLE_LIST,
           { severity: "warn" },
         );
       if (hasEmptyPlateThickness)
         notificationsStore.addNotification(
-          "Warning",
-          `Please select the plate thickness from the available plate thickness list`,
+          Constants.WARNING,
+          Constants.THICKNESS_LIST,
           { severity: "warn" },
         );
       return isValid;
@@ -794,7 +781,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                       color.plateDetails.push(plate);
                     });
                     delete color.plates;
-                    console.log(color.plateDetails);
                   }
                 }
               }
@@ -873,8 +859,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
-            console.log(expectedColors);
-            console.log(res.length);
             for (let i = 0; i < res.length; i++) {
               const colorCopy: any = JSON.parse(JSON.stringify(color));
               colorCopy.lenPath = res[i].lenPath;
@@ -898,14 +882,14 @@ export const useOrdersStore = defineStore("ordersStore", {
               if (expectedColors === 0) {
                 const notificationsStore = useNotificationsStore();
                 const authStore = useAuthStore();
-                let message = `Your order cannot be processed. This request must be sent directly to a PM. To request it, please click `;
+                let message = Constants.SEND_SGS_ERROR;
                 let link: string = `/dashboard?showPM=true`;
                 const linkLabel: string = `Here`;
                 if (authStore.currentUser.isLoggedIn) {
-                  message = `Your order cannot be processed through this portal.  Please go into MySGS directly to place your order`;
+                  message = Constants.ORDER_ERROR;
                   link = ``;
                 }
-                notificationsStore.addNotification("Warning", message, {
+                notificationsStore.addNotification(Constants.WARNING, message, {
                   severity: "warn",
                   life: 15000,
                   link,

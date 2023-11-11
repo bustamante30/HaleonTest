@@ -64,6 +64,7 @@ const router = createRouter({
       name: "users",
       meta: {
         requiresAuth: true,
+        requiresRole: true,
       },
       component: () => import("@/pages/users/index.vue"),
       children: [
@@ -83,19 +84,22 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  console.log("Navigating from ", from);
-  console.log("Navigating to", to);
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     const user = store.get("currentUser");
     const b2cUser = store.get("currentb2cUser");
-    console.log("checking user loggedin", user, b2cUser);
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if ((user && user.isLoggedIn) || (b2cUser && b2cUser.isLoggedIn)) {
-      //validate token
       if (validateToken()) {
-        console.log("Go to Routes");
-        next();
+        if (to.matched.some((record) => record.meta.requiresRole)) {
+          if (validateRole(user, b2cUser)) {
+            next();
+          }
+          next({ name: "loginPage", query: { q: Date.now() } });
+        } else {
+          console.log("Go to Routes");
+          next();
+        }
       } else {
         console.log("Token Invalid - Redirect to Login");
         next({ name: "loginPage", query: { q: Date.now() } });
@@ -119,19 +123,28 @@ const validateToken = () => {
       parseInt(decodedToken?.exp + "000", 10),
     );
     console.log(`Current time ${DateTime.local()}`);
-    console.log(`${tokenExpireTime}`);
+    console.log(`Token expiry time ${tokenExpireTime}`);
     const diffInMinutes = tokenExpireTime.diff(DateTime.now(), [
       "minutes",
     ]).minutes;
     if (diffInMinutes > 0) {
-      console.log("Valid Token");
       return true;
     }
   } catch (e) {
-    console.log("Invalid Token - Expection ", e);
+    console.error("[Invalid Token - Expection]: ", e);
     return false;
   }
-  console.log("Invalid Token");
+  console.error("Invalid Token");
+  return false;
+};
+
+const validateRole = (user, b2cUser) => {
+  if (user && user.userType === "INT" && user.roleKey === "PMSuperAdminUser") {
+    return true;
+  }
+  if (b2cUser.userType === "EXT" && b2cUser.roleKey === "PrinterAdmin") {
+    return true;
+  }
   return false;
 };
 export default router;

@@ -61,7 +61,6 @@ const isb2cUserLoggedIn = computed(
 );
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const isLoginPage = computed(() => {
-  console.log(router?.currentRoute?.value?.path);
   return router?.currentRoute?.value?.path === "/";
 });
 const isB2CLoginPage = computed(() => {
@@ -70,7 +69,6 @@ const isB2CLoginPage = computed(() => {
   if (typeof encodedStr != "undefined" && encodedStr != null) {
     decodedStr = atob("" + encodedStr);
   }
-  console.log("Query param - " + decodedStr);
   authb2cStore.setUseremail(decodedStr);
   return router?.currentRoute?.value?.path === "/b2clogin";
 });

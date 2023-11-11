@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { useNotificationsStore } from "./notifications";
 import SendToPMService from "@/services/SendToPmService";
+import * as Constants from "@/services/Constants";
 
 export const useSendToPmStore = defineStore("sendToPmStore", {
   state: () => ({
@@ -95,7 +96,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
         order.itemCode || order.description || order.plateId;
       const hasFormFields = hasItemCodeorDescriptionorPlateType || hasColors;
       if (!hasExpectedDate) {
-        errorMessage.push("<p>Delivery Date and Time.</p>");
+        errorMessage.push(Constants.DELIVERY_TIME);
       }
       if (!hasUploadData && !hasFormFields) {
         errorMessage.push(
@@ -104,7 +105,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
         );
         if (errorMessage.length > 0)
           notificationsStore.addNotification(
-            "Please fill the required fields:",
+            Constants.REQUIRED_MSG,
             errorMessage.join(""),
             {
               severity: "warn",
@@ -116,15 +117,13 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
         return errorMessage?.length <= 0;
       } else if (!hasUploadData && hasFormFields) {
         if (!hasItemCodeorDescriptionorPlateType) {
-          errorMessage.push("<p>Item Code or Description or Plate ID.</p>");
+          errorMessage.push(Constants.EITHER_ERROR);
         }
         if (!hasColors) {
-          errorMessage.push(
-            "<p>At least 1 Colour and PlateType is required.</p>",
-          );
+          errorMessage.push(Constants.ATLEAST_ONE_COLOR);
         }
         if (!hasValidColors) {
-          errorMessage.push("<p>Colour Name, PlateType & Quantity.</p>");
+          errorMessage.push(Constants.VALID_COLOR);
         }
         if (hasDuplicate && hasDuplicate.length) {
           errorMessage.push(
@@ -136,7 +135,7 @@ export const useSendToPmStore = defineStore("sendToPmStore", {
       }
       if (errorMessage.length > 0)
         notificationsStore.addNotification(
-          "Please fill the required fields : ",
+          Constants.REQUIRED_MSG,
           errorMessage.join(""),
           {
             severity: "warn",

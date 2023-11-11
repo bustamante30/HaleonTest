@@ -55,6 +55,8 @@ import { ref } from "vue";
 import { providers, federated } from "@/data/config/identitiy-providers";
 import SuggesterService from "@/services/SuggesterService";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
+
 const emit = defineEmits(["save", "close"]);
 const printerResults = ref([]);
 const notificationsStore = useNotificationsStore();
@@ -79,11 +81,10 @@ async function searchPrinter(value) {
 }
 
 function save() {
-  // Required fields Validations
   if (!printerForm.value.name) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Printer Name is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.PRINTER_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -91,8 +92,8 @@ function save() {
 
   if (printerForm.value.provider === null) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Identify Provider is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.IDENTITY_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -100,8 +101,8 @@ function save() {
 
   if (!printerForm.value.adminFirstName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Admin FirstName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.FIRSTNAME_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -109,8 +110,8 @@ function save() {
 
   if (!printerForm.value.adminLastName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Admin LastName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.LASTNAME_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -118,8 +119,8 @@ function save() {
 
   if (!printerForm.value.adminEmail) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "Admin Email is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.EMAIL_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -127,8 +128,8 @@ function save() {
 
   if (!printerForm.value.primaryPMFirstName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "PrimaryPM FirstName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.PM_FIRSTNAME_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -136,8 +137,8 @@ function save() {
 
   if (!printerForm.value.primaryPMLastName) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "PrimaryPM LastName is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.PM_LASTNAME_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
@@ -145,8 +146,8 @@ function save() {
 
   if (!printerForm.value.primaryPMEmail) {
     notificationsStore.addNotification(
-      "Validation Error",
-      "PrimaryPM Email is required.",
+      Constants.VALIDATION_ERROR,
+      Constants.PM_EMAIL_REQUIRED,
       { severity: "error", position: "top-right" },
     );
     return;
