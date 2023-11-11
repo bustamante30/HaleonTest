@@ -15,6 +15,7 @@ export const useCartStore = defineStore("cartStore", {
       add: false,
       discard: false,
     },
+    notificationsStore: useNotificationsStore(),
   }),
   getters: {
     cartCount: (state) => {
@@ -28,28 +29,57 @@ export const useCartStore = defineStore("cartStore", {
   actions: {
     async getCartCount() {
       this.loading.count = true;
-      this.initialCartCount = await ReorderService.getCartCount();
+      const response = await ReorderService.getCartCount();
+      if (response.result) {
+        this.initialCartCount = response.data;
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.ExceptionDetails.Message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       this.loading.count = false;
     },
     async getCart() {
       this.loading.cart = true;
-      this.cartOrders = await ReorderService.getCart();
-      this.decorateCartOrders();
+      const response = await ReorderService.getCart();
+      if (response.result) {
+        this.cartOrders = response.data;
+        this.decorateCartOrders();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.ExceptionDetails.Message,
+          { severity: "error", life: 5000 },
+        );
+        return false;
+      }
       this.loading.cart = false;
+      return true;
     },
     decorateCartOrders() {
       for (let i = 0; i < this.cartOrders.length; i++) {
         ReorderService.decoratePhotonOrder(this.cartOrders[i]);
       }
     },
-    async addToCart(order: any) {
+    async addToCart(order: any): Promise<boolean> {
       this.loading.add = true;
       const orderStore = useOrdersStore();
       const draftResult = await ReorderService.submitReorder(order, 1);
-      orderStore.successfullReorder = draftResult;
-      if (draftResult) this.getCart();
+      if (draftResult.result) {
+        orderStore.successfullReorder = draftResult;
+        if (draftResult) this.getCart();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          draftResult.ExceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
+      }
       this.loading.add = false;
-      return !!draftResult;
+      return draftResult.result || false;
     },
     async updateToCart(order: any) {
       this.loading.update = true;
@@ -60,23 +90,24 @@ export const useCartStore = defineStore("cartStore", {
         1,
         isUpdate,
       );
-      orderStore.successfullReorder = draftResult;
-      if (draftResult) this.getCart();
+      if (draftResult.result) {
+        orderStore.successfullReorder = draftResult;
+        if (draftResult) this.getCart();
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          draftResult.ExceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
+      }
       this.loading.update = false;
-      return !!draftResult;
+      return draftResult.result;
     },
     async discardOrder(id: string) {
       this.loading.discard = true;
       const notificationsStore = useNotificationsStore();
-      const result = await ReorderService.discardOrder(id);
-      if (!result) {
-        notificationsStore.addNotification(
-          `Error`,
-          "Error discarding the order",
-          { severity: "error" },
-        );
-        this.loading.discard = false;
-      } else {
+      const response = await ReorderService.discardOrder(id);
+      if (response.result && response.data) {
         notificationsStore.addNotification(
           `Success`,
           "Draft discarded successfully",
@@ -84,8 +115,14 @@ export const useCartStore = defineStore("cartStore", {
         );
         this.getCart();
         await this.getCartCount();
-        this.loading.discard = false;
+      } else {
+        this.notificationsStore.addNotification(
+          `Error`,
+          response.ExceptionDetails.Message,
+          { severity: "error", life: 5000 },
+        );
       }
+      this.loading.discard = false;
     },
     flattenedColorsArrayDecorator(colors: any) {
       const flattenedColors = [] as any[];

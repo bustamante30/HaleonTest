@@ -14,9 +14,16 @@ interface SearchPagedResultDto {
   totalRecords: number;
 }
 
-interface SubmitReorderResponse {
-  success?: boolean;
-  result?: SubmitReorder;
+interface APIResponse<T> {
+  result?: boolean;
+  data?: T;
+  isBusinessError?: boolean;
+  ExceptionDetails?: APIException;
+}
+
+interface APIException {
+  Message?: string;
+  statusCode?: number;
 }
 
 type Reorderdoc = {
@@ -162,14 +169,16 @@ class ReorderService {
     };
 
     return httpService
-      .post<SubmitReorderResponse>("v1/Reorder/submitReorder", newReorder)
-      .then((response: SubmitReorderResponse) => {
-        this.decorateColours(response.result?.colors);
+      .post<APIResponse<any>>("v1/Reorder/submitReorder", newReorder)
+      .then((response: APIResponse<any>) => {
+        if (response.result) {
+          this.decorateColours(response.data?.colors);
+        }
         return response;
       })
       .catch((error: any) => {
-        console.error("[Error submitting reorder]:", error);
-        return false;
+        console.log("Error submitting reorder:", error);
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
   public static getRecentReorders(
@@ -375,7 +384,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error discarding order]: ", error);
-        return false;
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
@@ -389,7 +398,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error deleting order]:", error);
-        return false;
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
@@ -465,14 +474,14 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting shirttail]: ", error);
-        return 0;
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 
   public static async validateOrder(jobNo: string) {
     return httpService
-      .post<boolean>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
-      .then((response: boolean) => {
+      .post<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
+      .then((response: any) => {
         return response;
       })
       .catch((error: any) => {
@@ -523,15 +532,15 @@ class ReorderService {
 
   public static async addOrdersToCart(
     cartAddRequest: Array<CartAddRequestDto>,
-  ) {
+  ): Promise<APIResponse<CartResponseDto[]>> {
     return httpService
-      .post<CartResponseDto[]>("v1/Reorder/addToCartBulk", cartAddRequest)
-      .then((response: CartResponseDto[]) => {
+      .post<any>("v1/Reorder/addToCartBulk", cartAddRequest)
+      .then((response: APIResponse<CartResponseDto[]>) => {
         return response;
       })
       .catch((error: any) => {
         console.error("[Error while adding order to Cart]:", error);
-        return false;
+        return { result: false, ExceptionDetails: { Message: error } };
       });
   }
 }

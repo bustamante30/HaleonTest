@@ -38,4 +38,8 @@ export const REQUEST_CANCEL = "Request canceled by the user";
 export const API_LOCAL_URL = "http://localhost:5208/";
 export const API_USER_LOCAL_URL = "http://localhost:7026/";
 
+export const INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `There are no flexo items listed for the job's you have selected`;
+export const INTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please place your image carrier reorder request directly in MySGS.`;
+export const EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `The order you have selected cannot be processed:`;
+export const EXTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please contact a PM directly, or please go to`;
 export * from "./Constants";
