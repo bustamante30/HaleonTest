@@ -64,6 +64,7 @@ import { DateTime } from "luxon";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 const router = useRouter();
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore();
@@ -108,15 +109,15 @@ async function handleCancelOrder() {
     );
     if (response.result && response.data) {
       notificationsStore.addNotification(
-        `Success`,
-        "Order Cancelled successfully",
+        Constants.SUCCESS,
+        Constants.CART_DELETE_SUCCESS,
         { severity: "success" },
       );
       await router.push(`/dashboard?q=${Date.now()}`);
       await ordersStore.getOrders();
     } else {
       this.notificationsStore.addNotification(
-        `Error`,
+        Constants.ERROR,
         response.ExceptionDetails.Message,
         { severity: "error", life: 5000 },
       );

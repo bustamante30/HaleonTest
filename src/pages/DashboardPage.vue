@@ -384,8 +384,8 @@ async function reorder(order: any) {
       sendToPmStore.isValidated = true;
     } else {
       notificationsStore.addNotification(
-        `Info`,
-        "There are no flexo items listed for the job you have selected.  Please place your image carrier reorder request directly in MySGS",
+        Constants.INFO,
+        Constants.FLEXO_ERROR,
         { severity: "error" },
       );
     }
@@ -411,7 +411,7 @@ function cancelOrder(order: any) {
         )?.focus();
       } else {
         notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.ExceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
@@ -432,7 +432,7 @@ const auditOrder = async (order) => {
     auditData.value = audit.results;
   } else {
     notificationsStore.addNotification(
-      `Error`,
+      Constants.FAILURE,
       response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
@@ -491,10 +491,14 @@ async function addMultipleToCart(sgsId: null) {
         } ${errorMessages.join(", ")} ${
           Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART
         }`;
-        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
-          severity: "error",
-          life: 6000,
-        });
+        notificationsStore.addNotification(
+          Constants.INFO,
+          failedOrdersMessage,
+          {
+            severity: "error",
+            life: 6000,
+          },
+        );
       }
     } else if (userType.value === "EXT") {
       if (errorMessages.length > 0) {
@@ -506,12 +510,16 @@ async function addMultipleToCart(sgsId: null) {
         let link: string = `/dashboard?showPM=true`;
         const linkLabel: string = `Here`;
 
-        notificationsStore.addNotification(`Info`, failedOrdersMessage, {
-          severity: "error",
-          life: 6000,
-          link,
-          linkLabel,
-        });
+        notificationsStore.addNotification(
+          Constants.INFO,
+          failedOrdersMessage,
+          {
+            severity: "error",
+            life: 6000,
+            link,
+            linkLabel,
+          },
+        );
       }
     }
   }
@@ -550,7 +558,6 @@ async function addMultipleToCart(sgsId: null) {
 
     const response = await ReorderService.addOrdersToCart(cartAddRequest);
     if (response.result) {
-      // Handle each cartResponse
       if (Array.isArray(response.data)) {
         for (const cartResponse of response.data) {
           console.log(
@@ -558,14 +565,14 @@ async function addMultipleToCart(sgsId: null) {
           );
           if (cartResponse.status === "Success") {
             notificationsStore.addNotification(
-              `Sucesss`,
+              Constants.SUCCESS,
               cartResponse.message + "",
               { severity: "success", life: 10000 },
             );
             cartStore.getCartCount();
           } else {
             notificationsStore.addNotification(
-              `Error`,
+              Constants.FAILURE,
               cartResponse.message + "" + cartResponse.originalOrderId,
               { severity: "error", life: 10000 },
             );
@@ -576,7 +583,7 @@ async function addMultipleToCart(sgsId: null) {
       }
     } else {
       notificationsStore.addNotification(
-        `Error`,
+        Constants.FAILURE,
         response.ExceptionDetails?.Message || "Error",
         { severity: "error", life: 5000 },
       );
@@ -592,7 +599,7 @@ async function handleOrderValidation(data: any) {
       const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
       let link: string = `/dashboard?showPM=true`;
       const linkLabel: string = `Here`;
-      notificationsStore.addNotification(`Info`, errorMessage, {
+      notificationsStore.addNotification(Constants.INFO, errorMessage, {
         severity: "error",
         life: 6000,
         link,
@@ -600,7 +607,7 @@ async function handleOrderValidation(data: any) {
       });
     } else {
       notificationsStore.addNotification(
-        `Info`,
+        Constants.INFO,
         `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
         { severity: "error" },
       );

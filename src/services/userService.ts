@@ -39,15 +39,19 @@ class UserService {
             "[Validation Error while adding User]:",
             errorresp.detail,
           );
-          userNotificationsStore.addNotification(`Error`, errorresp.detail, {
-            severity: "error",
-          });
+          userNotificationsStore.addNotification(
+            Constants.FAILURE,
+            errorresp.detail,
+            {
+              severity: "error",
+            },
+          );
           throw errorresp;
         }
         console.error("[Unhandled exception while adding user]:", error);
         userNotificationsStore.addNotification(
-          `Error`,
-          "Something went Wrong. Please contact sgs help desk",
+          Constants.FAILURE,
+          Constants.SGS_ERROR_MSG,
           { severity: "error" },
         );
         throw error;
@@ -101,15 +105,19 @@ class UserService {
         const notificationsStore = useNotificationsStore();
         if (errorresp) {
           console.error("[Validation Error adding printer]:", errorresp.detail);
-          notificationsStore.addNotification(`Error`, errorresp.detail, {
-            severity: "error",
-          });
+          notificationsStore.addNotification(
+            Constants.FAILURE,
+            errorresp.detail,
+            {
+              severity: "error",
+            },
+          );
           throw errorresp;
         }
         console.error("[Unhandled exception while adding printer]:", error);
         notificationsStore.addNotification(
-          `Error`,
-          "Something went Wrong. Please contact sgs help desk",
+          Constants.FAILURE,
+          Constants.SGS_ERROR_MSG,
           { severity: "error" },
         );
         throw error;

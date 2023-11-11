@@ -24,6 +24,7 @@ import { useUsersStore } from "@/stores/users";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -101,7 +102,6 @@ function searchUser(query) {
     printerId = usersStore.selected.id;
   }
 
-  //check search key
   if (query.query != "") {
     usersStore.getPrinterById(printerId, query.query);
   } else {
@@ -150,8 +150,8 @@ async function deleteUser(user) {
 
   await usersStore.deleteUser(user.data.id);
   notificationsStore.addNotification(
-    `User Deletion`,
-    `User Deleted Successfully`,
+    Constants.USER_DELETION,
+    Constants.USER_DELETION_SUCCESS,
     { severity: "Success", position: "top-right" },
   );
   await usersStore.getPrinters(0, 500, "", "", usersStore.selected.id);
@@ -160,8 +160,8 @@ async function deleteUser(user) {
 function resend(user) {
   usersStore.resendInvitation(user.data.id);
   notificationsStore.addNotification(
-    `Resend Invitation`,
-    `Invitation resend Successfully`,
+    Constants.RESEND_INVITATION,
+    Constants.RESEND_INVITATION_SUCCESS,
     { severity: "Success", position: "top-right" },
   );
 }

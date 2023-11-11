@@ -11,6 +11,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from "@/router";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 const usersStore = useUsersStore();
 const notificationsStore = useNotificationsStore();
@@ -59,8 +60,8 @@ async function saveUser(userRequest) {
   const userResp = await usersStore.saveUser(userRequest);
   if (userResp) {
     notificationsStore.addNotification(
-      `User Creation`,
-      `User Created Successfully`,
+      Constants.USER_CREATION,
+      Constants.USER_CREATION_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
     await usersStore.getPrinters(0, 500, "", "", printerId);

@@ -60,6 +60,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
+import * as Constants from "@/services/Constants";
 
 const router = useRouter();
 const ordersStore = useOrdersStore();
@@ -96,7 +97,7 @@ onBeforeMount(async () => {
     }
   } else {
     this.notificationsStore.addNotification(
-      `Error`,
+      Constants.ERROR,
       response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );

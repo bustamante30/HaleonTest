@@ -247,7 +247,7 @@ const removeItemByProperty = (index: number) => {
 async function onDeleteClick(file: ValidFiles, index: number) {
   removeItemByProperty(index);
   notificationsStore.addNotification(
-    `Deleted Successfully`,
+    Constants.DELETE_SUCCESSFULL,
     `Your file ${file.filename} was successfully deleted`,
     { severity: "success", position: "top-right" },
   );

@@ -20,6 +20,7 @@ import { debounce } from "lodash";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
+import * as Constants from "@/services/Constants";
 
 const props = defineProps({
   config: {
@@ -110,9 +111,8 @@ const keywordSearch = debounce(async (event) => {
       document.getElementById("keyword").blur();
     } else {
       notificationsStore.addNotification(
-        `Error`,
-        // eslint-disable-next-line no-useless-escape
-        `Only the following special characters are allowed -, _, /, \, # , ., , +, &, (, ), " ",.  Please correct and try your search again`,
+        Constants.Error,
+        Constants.KEYWORD_INVALID_TYPE,
         { severity: "error", position: "top-right" },
       );
     }

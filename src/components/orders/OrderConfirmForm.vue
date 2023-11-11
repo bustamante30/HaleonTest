@@ -55,6 +55,7 @@ import {
   type FileUploadResponse,
   type FileDelete,
 } from "@/services/FileUploadService";
+import * as Constants from "@/services/Constants";
 
 type ValidFiles = {
   fileName: string;
@@ -203,8 +204,8 @@ async function onDrop(event) {
   const uploadPromises = uploadFiles.map(async (file: any) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
-        `Invalid file type`,
-        `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh)`,
+        Constants.INVALID_FILE,
+        Constants.INVALID_FILE_MSG,
         { severity: "error", position: "top-right" },
       );
       return null;
@@ -218,8 +219,8 @@ async function onDrop(event) {
         return response;
       } else {
         notificationsStore.addNotification(
-          `Upload failed`,
-          `Your file was not uploaded. Please try again.`,
+          Constants.UPLOAD_FAILED,
+          Constants.UPLOAD_FAILED_MSG,
           { severity: "error", position: "top-right" },
         );
         return null;
@@ -230,7 +231,7 @@ async function onDrop(event) {
   const successfulUploads = results.filter((response) => response !== null);
   if (successfulUploads.length > 0) {
     notificationsStore.addNotification(
-      `Uploaded successfully`,
+      Constants.UPLOAD_SUCCESSFULL,
       `You have uploaded ${successfulUploads.length} files successfully`,
       { severity: "success", position: "top-right" },
     );
@@ -254,13 +255,13 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   if (deleteResponse) {
     removeItemByProperty(index);
     notificationsStore.addNotification(
-      `Deleted Successfully`,
+      Constants.DELETE_SUCCESSFULL,
       `Your file ${file.fileName} was successfully deleted`,
       { severity: "success", position: "top-right" },
     );
   } else {
     notificationsStore.addNotification(
-      `Delete failed`,
+      Constants.DELETE_FAILED,
       `Your file ${file.fileName} was not deleted`,
       { severity: "error", position: "top-right" },
     );

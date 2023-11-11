@@ -11,6 +11,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
+import * as Constants from "@/services/Constants";
 
 const route = useRoute();
 const usersStore = useUsersStore();
@@ -67,8 +68,8 @@ async function saveUser(value) {
 
   if (userEditResp) {
     notificationsStore.addNotification(
-      `User Update`,
-      `User Updated Successfully`,
+      Constants.USER_UPDATED,
+      Constants.USER_UPDATED_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
     await usersStore.getPrinters(0, 500, "", "", printerId);
@@ -80,15 +81,6 @@ async function saveUser(value) {
     }
   }
 }
-
-// const showSuccess = (summary, severity) => {
-//   toast.add({
-//     severity: severity,
-//     summary: summary,
-//     detail: "Message Content",
-//     life: 3000,
-//   });
-// };
 </script>
 
 <style lang="sass" scoped>

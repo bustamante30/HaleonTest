@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import ReorderService from "@/services/ReorderService";
 import { useOrdersStore } from "./orders";
 import { useNotificationsStore } from "./notifications";
+import * as Constants from "@/services/Constants";
 
 export const useCartStore = defineStore("cartStore", {
   state: () => ({
@@ -34,7 +35,7 @@ export const useCartStore = defineStore("cartStore", {
         this.initialCartCount = response.data;
       } else {
         this.notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.ExceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
@@ -50,7 +51,7 @@ export const useCartStore = defineStore("cartStore", {
         this.decorateCartOrders();
       } else {
         this.notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.ExceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
@@ -73,7 +74,7 @@ export const useCartStore = defineStore("cartStore", {
         if (draftResult) this.getCart();
       } else {
         this.notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           draftResult.ExceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
@@ -95,7 +96,7 @@ export const useCartStore = defineStore("cartStore", {
         if (draftResult) this.getCart();
       } else {
         this.notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           draftResult.ExceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
@@ -109,15 +110,15 @@ export const useCartStore = defineStore("cartStore", {
       const response = await ReorderService.discardOrder(id);
       if (response.result && response.data) {
         notificationsStore.addNotification(
-          `Success`,
-          "Draft discarded successfully",
+          Constants.SUCCESS,
+          Constants.DRAFT_SUCCESS,
           { severity: "success" },
         );
         this.getCart();
         await this.getCartCount();
       } else {
         this.notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.ExceptionDetails.Message,
           { severity: "error", life: 5000 },
         );

@@ -67,6 +67,7 @@ import { useRoute } from "vue-router";
 import ColorsTable from "./ColorsTableExpand.vue";
 import config from "@/data/config/color-table-edit";
 import router from "@/router";
+import * as Constants from "@/services/Constants";
 
 const route = useRoute();
 const ordersStore = useOrdersStore();
@@ -130,13 +131,21 @@ async function addToCart() {
 
 async function updateToCart() {
   if (await cartStore.updateToCart(ordersStore.selectedOrder))
-    notificationsStore.addNotification(`Success`, "Cart updated successfully", {
-      severity: "success",
-    });
+    notificationsStore.addNotification(
+      Constants.SUCCESS,
+      Constants.CART_SUCCESS,
+      {
+        severity: "success",
+      },
+    );
   else
-    notificationsStore.addNotification(`Error`, "Error updating draft", {
-      severity: "error",
-    });
+    notificationsStore.addNotification(
+      Constants.FAILURE,
+      Constants.CART_FAILURE,
+      {
+        severity: "error",
+      },
+    );
 }
 
 function goBack() {
