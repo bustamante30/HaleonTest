@@ -15,20 +15,24 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
       alt="Image"
       preview
       :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }"
-      :pt="{zoomInButton:{'onmouseup':'setTimeout(function() {debugger; }, 100)'}}")
+      :pt="{closeButton:{'onclick':'document.getElementsByClassName(\"magnified-img\")[0].style.display = \"\"'},zoomInButton:{'onmouseup':'setTimeout(function() { debugger; document.getElementsByClassName(\"magnified-img\")[0].style.display = \"none\" }, 100)'},previewContainer:{class:'len-preview-container'}}"
+      image-class="len-previe1"
+      )
       template('#preview'='slotProps')
         //<img src="/image.jpg" alt="preview" :style="slotProps.style" @click="slotProps.onClick" />
+        //vue-magnifier(:src="get(data, config.field)" :style="slotProps.style" @click="slotProps.onClick")
         v-image-magnifier(
           :deactivate="false"
           :cursor-none="false"
           :style="slotProps.style"
+          
           :src="get(data, config.field)"
           :zoom-size="350" 
           :zoom-factor="2"
           :magnified-border-radius="0"
-          :fit-content="false"
-          @click="slotProps.onClick"
-          class="magnifierpreview")
+          :fit-content="true"
+          class="magnifierpreview"
+          @click="slotProps.onClick")
         //image-magnifier(src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" zoom-src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" width="100" height="75" zoom-width="400" zoom-height="300" mask-width="20" mask-height="20" :style="slotProps.style" @click="slotProps.onClick")
     
   span(v-else-if="config.type === 'edit-sets'")
@@ -188,5 +192,11 @@ a
     color: #2C78B5
 
 .magnifierpreview
-  cursor: zoom-in
+  // cursor: zoom-in
+  height: 100%
+</style>
+<style>
+.len-preview-container {
+  height: 100%;
+}
 </style>

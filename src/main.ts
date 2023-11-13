@@ -40,8 +40,10 @@ import ConfirmationService from "primevue/confirmationservice";
 import ConfirmDialog from "primevue/confirmdialog";
 import Menubar from "primevue/menubar";
 import ToggleButton from "primevue/togglebutton";
-//import ImageMagnifier from "vue-image-magnifier";
+// //import ImageMagnifier from "vue-image-magnifier";
 import VImageMagnifier from "v-image-magnifier";
+//import VueMagnifier from "@websitebeaver/vue-magnifier";
+//import "@websitebeaver/vue-magnifier/styles.css";
 
 const app = createApp(App);
 
@@ -82,12 +84,13 @@ app.component("PrimeRadiobutton", RadioButton);
 app.component("PrimeConfirmDialog", ConfirmDialog);
 app.component("PrimeMenubar", Menubar);
 app.component("PrimeToggleButton", ToggleButton);
-//app.component("ImageMagnifier", ImageMagnifier);
-//app.use(ImageMagnifier);
+// //app.component("ImageMagnifier", ImageMagnifier);
+// //app.use(ImageMagnifier);
 app.use(VImageMagnifier, {
   // Change options here
   //zoomSize: 150,
   //zoomFactor: 2,
   // ...
 });
+//app.component("VueMagnifier", VueMagnifier);
 app.mount("#app");
