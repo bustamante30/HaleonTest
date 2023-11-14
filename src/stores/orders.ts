@@ -592,7 +592,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         (c) => c.checkboxId === params.colourId,
       );
       if (selectedIndex >= 0) {
-        this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
+        const colour = this.selectedOrder.editionColors[selectedIndex];
+        colour.plateDetails.push({
           checkboxId: faker.datatype.uuid(),
           id: 0,
           plateTypeId: null,
@@ -602,17 +603,12 @@ export const useOrdersStore = defineStore("ordersStore", {
           sets: 0,
           isEditable: true,
           plateList:
-            this.selectedOrder.editionColors[selectedIndex].printerPlateList
-              .length > 0
-              ? this.selectedOrder.editionColors[selectedIndex].printerPlateList
-              : this.selectedOrder.editionColors[selectedIndex].fullPlateList,
-          hasAlternateOptions:
-            this.selectedOrder.editionColors[selectedIndex].printerPlateList
-              .length > 0,
-          alternateOptions:
-            this.selectedOrder.editionColors[selectedIndex].fullPlateList,
-          thicknessList:
-            this.selectedOrder.editionColors[selectedIndex].fullThicknessList,
+            colour.printerPlateList.length > 0
+              ? colour.printerPlateList
+              : colour.fullPlateList,
+          hasAlternateOptions: colour.printerPlateList.length > 0,
+          alternateOptions: colour.fullPlateList,
+          thicknessList: colour.fullThicknessList,
           loading: false,
         });
       }
