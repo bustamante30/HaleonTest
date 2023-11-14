@@ -125,8 +125,7 @@ async function navigate(config, data) {
     router.push(link);
   }
 }
-</script>
-<script>
+
 window.showHideMagnifier = function () {
   let display = "none";
   const transform =
