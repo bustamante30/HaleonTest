@@ -18,11 +18,9 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
       zoom-out-disabled=true
       :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }"
       :pt="{rotateRightButton:{'onclick':'showHideMagnifier()'}, rotateLeftButton:{'onclick':'showHideMagnifier()'}, zoomInButton:{style:'display:none;'}, zoomOutButton:{style:'display:none;'}, previewContainer:{class:'len-preview-container'}}"
-      image-class="len-previe1"
       )
       template('#preview'='slotProps')
         v-image-magnifier(
-          :deactivate="false"
           :cursor-none="false"
           :style="slotProps.style"
           :src="get(data, config.field)"
@@ -45,12 +43,9 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
 <script setup>
 import { get } from "lodash";
 import { DateTime } from "luxon";
-//import Vue from 'vue';
 import { computed } from "vue";
 import SgsLookup from "@/components/ui/Lookup.vue";
 import router from "@/router";
-
-//Vue.use(ImageMagnifier);
 const props = defineProps({
   config: {
     type: Object,
@@ -202,7 +197,6 @@ a
     color: #2C78B5
 
 .magnifierpreview
-  // cursor: zoom-in
   height: 100%
 </style>
 <style>

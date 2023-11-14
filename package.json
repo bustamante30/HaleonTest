@@ -26,7 +26,6 @@
   "dependencies": {
     "@azure/msal-browser": "^2.37.0",
     "@vueuse/core": "^10.2.1",
-    "@websitebeaver/vue-magnifier": "^1.1.0",
     "axios": "^1.4.0",
     "cypress": "^12.14.0",
     "dayjs": "^1.11.10",
