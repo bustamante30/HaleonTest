@@ -26,6 +26,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  hasAlternateOptions: {
+    type: Boolean,
+    default: false,
+  },
+  alternateOptions: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const defaultOptions = computed(() => {
@@ -35,11 +43,13 @@ const defaultOptions = computed(() => {
     : [];
 });
 
+const displayOptions = ref(props.options);
+
 const emit = defineEmits(["update:modelValue"]);
 
 const selected = computed(() => {
-  const { options, modelValue } = props;
-  const allOptions = [...defaultOptions.value, ...options];
+  const { modelValue } = props;
+  const allOptions = [...defaultOptions.value, ...displayOptions.value];
   if (allOptions && allOptions.length && modelValue) {
     const option = allOptions.find(
       (option) => option[props.optionValue] === modelValue,
@@ -68,15 +78,22 @@ function escPressed() {
 function switchToEditMode() {
   editMode.value = true;
 }
+const showFullList = ref(props.alternateOptions.length === 0);
+function handleToggle() {
+  showFullList.value = true;
+  displayOptions.value = props.alternateOptions;
+}
 </script>
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...options]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
-  .readonly(v-else)
+  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
+  div.toggleList(v-if="editMode && hasAlternateOptions && !showFullList")
+    a(@click="handleToggle()") Show full list
+  .readonly(v-if="!editMode" )
     span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
-    a.change(v-if="options.length>1" @click="switchToEditMode()") Change
+    a.change(v-if="displayOptions.length>1" @click="switchToEditMode()") Change
 </template>
 
 <style lang="sass" scoped>
@@ -92,4 +109,7 @@ function switchToEditMode() {
     a.change
       display: inline-block
       margin-left: $s
+  a.change
+    display: inline-block
+    margin-left: $s
 </style>
