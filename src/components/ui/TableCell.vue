@@ -14,18 +14,17 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
       :src="get(data, config.field)"
       alt="Image"
       preview
+      zoom-in-disabled=true
+      zoom-out-disabled=true
       :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }"
-      :pt="{closeButton:{'onclick':'document.getElementsByClassName(\"magnified-img\")[0].style.display = \"\"'},zoomInButton:{'onmouseup':'setTimeout(function() { debugger; document.getElementsByClassName(\"magnified-img\")[0].style.display = \"none\" }, 100)'},previewContainer:{class:'len-preview-container'}}"
+      :pt="{rotateRightButton:{'onclick':'showHideMagnifier()'}, rotateLeftButton:{'onclick':'showHideMagnifier()'}, zoomInButton:{style:'display:none;'}, zoomOutButton:{style:'display:none;'}, previewContainer:{class:'len-preview-container'}}"
       image-class="len-previe1"
       )
       template('#preview'='slotProps')
-        //<img src="/image.jpg" alt="preview" :style="slotProps.style" @click="slotProps.onClick" />
-        //vue-magnifier(:src="get(data, config.field)" :style="slotProps.style" @click="slotProps.onClick")
         v-image-magnifier(
           :deactivate="false"
           :cursor-none="false"
           :style="slotProps.style"
-          
           :src="get(data, config.field)"
           :zoom-size="350" 
           :zoom-factor="2"
@@ -33,7 +32,6 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
           :fit-content="true"
           class="magnifierpreview"
           @click="slotProps.onClick")
-        //image-magnifier(src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" zoom-src="https://unpkg.com/vue-image-magnifier@0.1.1/example/img/DA2D9393-4081-4384-B493-95DA1620C26D.png" width="100" height="75" zoom-width="400" zoom-height="300" mask-width="20" mask-height="20" :style="slotProps.style" @click="slotProps.onClick")
     
   span(v-else-if="config.type === 'edit-sets'")
     prime-inputnumber.sm(show-buttons button-layout="horizontal" :step="1" :min="0" :max="config.max" :model-value="value" increment-button-icon="pi pi-plus" decrement-button-icon="pi pi-minus" @update:model-value="update")
@@ -133,7 +131,19 @@ async function navigate(config, data) {
   }
 }
 </script>
-
+<script>
+window.showHideMagnifier = function () {
+  let display = "none";
+  const transform =
+    document.getElementsByClassName("magnifierpreview")[0].style.transform;
+  let angle = transform.match(/^rotate\((?<angle>\d+)deg\)/)?.groups.angle;
+  const isEffectiveRotationZero = parseInt(angle) % 360 === 0;
+  if (isEffectiveRotationZero) {
+    display = "block";
+  }
+  document.getElementsByClassName("magnified-img")[0].style.display = display;
+};
+</script>
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
 
