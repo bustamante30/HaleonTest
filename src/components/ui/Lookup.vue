@@ -112,7 +112,4 @@ function handleToggle() {
   a.change
     display: inline-block
     margin-left: $s
-.toogleList
-  display: flex
-  align-items: center
 </style>
