@@ -9,7 +9,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
     a(@click="navigate(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
     prime-image(:src="get(data, config.field)" alt="Image" preview :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }")
-  span.image(v-else-if="config.type === 'lenimage'")
+  span.image(v-else-if="config.type === 'lenImage'")
     prime-image(
       :src="get(data, config.field)"
       alt="Image"
