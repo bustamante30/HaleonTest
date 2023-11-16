@@ -395,6 +395,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           totalRecords: this.textSearchData.data.reorderedData.length,
         };
       } else {
+        debugger;
         result = await ReorderService.getRecentReorders(
           filters?.query != "" && filters.query != null ? 4 : filters.status,
           filters.query,
@@ -951,6 +952,74 @@ export const useOrdersStore = defineStore("ordersStore", {
           return response;
         }
       });
+    },
+    async exportToExcel(filters: any) {
+      debugger;
+      console.log("My orders", filters);
+      this.filters = { ...this.filters, ...filters };
+      this.loading.ordersList = true;
+      const printers = [] as string[];
+      const printerIds = [] as number[];
+      let printerUserIds = [] as number[];
+
+      const authStore = useAuthStore();
+      const b2cAuth = useB2CAuthStore();
+      if (authStore.currentUser.isLoggedIn) {
+        // get printer Name
+        authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
+          if (printer.printerId && printer.printerId > 0) {
+            printers.push(printer.printerName);
+            printerIds.push(printer.printerId);
+          }
+        });
+
+        filters.roleKey = authStore.currentUser.roleKey;
+        filters.userType = authStore.currentUser.userType;
+      }
+      if (b2cAuth.currentB2CUser.isLoggedIn) {
+        b2cAuth.currentB2CUser.internalUserPrinters.forEach((printer: any) => {
+          if (printer.printerId && printer.printerId > 0) {
+            printers.push(printer.printerName);
+            printerIds.push(printer.printerId);
+          } else {
+            printers.push(b2cAuth.currentB2CUser.printerName);
+          }
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number[];
+        });
+        filters.roleKey = b2cAuth.currentB2CUser.roleKey;
+        filters.userType = b2cAuth.currentB2CUser.userType;
+      }
+
+      const fileresult = await ReorderService.exportToExcel(
+        filters?.query != "" && filters.query != null ? 4 : filters.status,
+        filters.query,
+        filters.sortBy,
+        filters.sortOrder,
+        this.pageState.page,
+        this.pageState.rows,
+        filters,
+        printers,
+        printerUserIds,
+      );
+
+      const byteCharacters = atob(fileresult.fileContents);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], { type: fileresult.contentType });
+
+      const link = document.createElement("a");
+
+      // Set the link attributes
+      link.href = URL.createObjectURL(blob);
+      link.download = fileresult.fileDownloadName;
+
+      // Trigger the download
+      link.click();
+      this.loading.ordersList = false;
     },
   },
 });

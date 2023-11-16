@@ -25,6 +25,8 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" inputId="my-orders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
+            .export-excel
+              button(label='Downloads' @click= "exportToExcel")
             .send-to-pm
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
@@ -247,6 +249,7 @@ function handleOrderToggle() {
   ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
+  debugger;
   if (!selectedStatus?.value?.value) return;
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
@@ -280,6 +283,7 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
+  debugger;
   showMyOrders.value = false;
   searchExecuted.value = true;
   ordersStore.pageState.page = 1;
@@ -615,6 +619,18 @@ async function handleOrderValidation(data: any) {
   } else {
     router.push(data.path);
   }
+}
+
+async function exportToExcel() {
+  debugger;
+  if (!selectedStatus?.value?.value) return;
+  ordersStore.initAdvancedFilters();
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
+  filters.value.status = selectedStatus?.value?.value;
+  filters.value.myOrdersToggled = showMyOrders.value;
+  filters.value.isAdvancedSearch = false;
+  addPrinterFilter();
+  ordersStore.exportToExcel(filters.value);
 }
 </script>
 

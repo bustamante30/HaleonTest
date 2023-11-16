@@ -548,6 +548,60 @@ class ReorderService {
         return { result: false, ExceptionDetails: { Message: error } };
       });
   }
+
+  public static async exportToExcel(
+    status: number,
+    query?: string,
+    sortBy?: string,
+    sortOrder?: string,
+    page?: number,
+    pageSize?: number,
+    filters?: any,
+    printerNames?: string[],
+    printerUserIds?: number[],
+  ) {
+    debugger;
+    let params = {};
+    const advancedSearchParameters = JSON.parse(JSON.stringify(filters));
+    if (query == "") {
+      params = {
+        status: status,
+        pageNumber: page,
+        pageCount: pageSize,
+        printerId: 0,
+        orderStatusId: status,
+        OrderBy: sortBy != null ? sortBy : null,
+        OrderByAsc: sortOrder != null ? sortOrder : true,
+        printerName: printerNames ? printerNames : [],
+        roleKey: advancedSearchParameters.roleKey,
+        printerUserIds: printerUserIds,
+      };
+    }
+
+    if (advancedSearchParameters) {
+      if (advancedSearchParameters.startDate != null) {
+        const dateRange = Object.assign<Array<Date>, Array<Date>>(
+          [],
+          advancedSearchParameters.startDate,
+        );
+        advancedSearchParameters.startDate = dateRange[0];
+        advancedSearchParameters.endDate = dateRange[1];
+        (params as any)["advancedSearchParameters"] = advancedSearchParameters;
+      }
+      if (advancedSearchParameters.printerName) {
+        (params as any)["advancedSearchParameters"] = advancedSearchParameters;
+      }
+    }
+    return httpService
+      .post<any>("v1/Reorder/export-excel", params)
+      .then((response: any) => {
+        return response;
+      })
+      .catch((error: any) => {
+        console.log("Error Exporting reorders:", error);
+        return [];
+      });
+  }
 }
 
 export default ReorderService;
