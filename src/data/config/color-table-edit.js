@@ -23,7 +23,7 @@ export default {
     {
       header: "View Colour",
       field: "lenData",
-      type: "image",
+      type: "lenImage",
       freeze: "left",
       width: 6,
     },
