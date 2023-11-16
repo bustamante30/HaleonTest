@@ -26,7 +26,8 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
             .search
               orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
             .export-excel
-              button(label='Downloads' @click= "exportToExcel")
+              template(v-if="roleKey === 'PrinterAdmin'")
+                sgs-button.default(icon = 'Download' @click= "exportToExcel")
             .send-to-pm
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
@@ -249,7 +250,6 @@ function handleOrderToggle() {
   ordersStore.setFilters(toggleFilter);
 }
 function searchByStatus() {
-  debugger;
   if (!selectedStatus?.value?.value) return;
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());
@@ -283,7 +283,6 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
-  debugger;
   showMyOrders.value = false;
   searchExecuted.value = true;
   ordersStore.pageState.page = 1;
@@ -622,7 +621,6 @@ async function handleOrderValidation(data: any) {
 }
 
 async function exportToExcel() {
-  debugger;
   if (!selectedStatus?.value?.value) return;
   ordersStore.initAdvancedFilters();
   filters.value.startDate = getDateRange(selectedDate.value.toString());

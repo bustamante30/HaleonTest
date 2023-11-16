@@ -395,7 +395,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           totalRecords: this.textSearchData.data.reorderedData.length,
         };
       } else {
-        debugger;
         result = await ReorderService.getRecentReorders(
           filters?.query != "" && filters.query != null ? 4 : filters.status,
           filters.query,
@@ -954,8 +953,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       });
     },
     async exportToExcel(filters: any) {
-      debugger;
       console.log("My orders", filters);
+      const notificationsStore = useNotificationsStore();
       this.filters = { ...this.filters, ...filters };
       this.loading.ordersList = true;
       const printers = [] as string[];
@@ -1002,24 +1001,36 @@ export const useOrdersStore = defineStore("ordersStore", {
         printerUserIds,
       );
 
-      const byteCharacters = atob(fileresult.fileContents);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      if (fileresult.length === 0) {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          Constants.NO_RECORD_TO_EXPORT,
+          {
+            severity: "warn",
+            life: 6000,
+          },
+        );
+        this.loading.ordersList = false;
+      } else {
+        const byteCharacters = atob(fileresult.fileContents);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        const blob = new Blob([byteArray], { type: fileresult.contentType });
+
+        const link = document.createElement("a");
+
+        // Set the link attributes
+        link.href = URL.createObjectURL(blob);
+        link.download = fileresult.fileDownloadName;
+
+        // Trigger the download
+        link.click();
+        this.loading.ordersList = false;
       }
-      const byteArray = new Uint8Array(byteNumbers);
-
-      const blob = new Blob([byteArray], { type: fileresult.contentType });
-
-      const link = document.createElement("a");
-
-      // Set the link attributes
-      link.href = URL.createObjectURL(blob);
-      link.download = fileresult.fileDownloadName;
-
-      // Trigger the download
-      link.click();
-      this.loading.ordersList = false;
     },
   },
 });

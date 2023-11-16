@@ -560,7 +560,6 @@ class ReorderService {
     printerNames?: string[],
     printerUserIds?: number[],
   ) {
-    debugger;
     let params = {};
     const advancedSearchParameters = JSON.parse(JSON.stringify(filters));
     if (query == "") {
