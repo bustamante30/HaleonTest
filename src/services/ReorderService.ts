@@ -111,19 +111,22 @@ class ReorderService {
     newColors.forEach((color: any) => {
       delete color.lenData;
       delete color.fullPlateList;
+      delete color.printerPlateList;
       delete color.fullThicknessList;
       delete color.checkboxId;
       let hasPlates = false;
       for (const plateType of color.plateDetails) {
-        delete plateType.checkboxId;
-        delete plateType.plateList;
-        delete plateType.thicknessList;
         if (plateType.sets > 0) {
           hasPlates = true;
+          delete plateType.checkboxId;
+          delete plateType.plateList;
+          delete plateType.thicknessList;
+          delete plateType.alternateOptions;
         }
       }
       ///api expects plates and sets fields:
-      if (hasPlates) color.plates = color.plateDetails;
+      if (hasPlates)
+        color.plates = color.plateDetails.filter((x) => x.sets > 0);
       else color.plates = [];
       delete color.plateType;
       delete color.plateDetails;

@@ -10,7 +10,7 @@ data-table.colors-table.p-datatable-sm(v-model:selection="selected" v-model:expa
     template(#body="{ data }")
       table-actions(:actions="config.actions(data)" :data="data")
   template(#expansion="{ data }")
-    colors-table-plates(:data="data.plateDetails" :config="config.plates" :plates="getPlates(data)" :thicknesses="data.thicknessList" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
+    colors-table-plates(:data="data.plateDetails" :config="config.plates" :plates="data.plateList" :thicknesses="data.thicknessList" :colourId="data.checkboxId" @add="addPlate" @remove="removePlate" @update="updatePlate")
 </template>
 
 <!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
@@ -107,10 +107,6 @@ watch(selected, (colors, prevColors) => {
   }
 });
 
-function getPlates(datos) {
-  if (datos["useFullList"]) return datos["fullPlateList"];
-  else return datos["plateList"];
-}
 function updateColor({ checkboxId, field, value }: any) {
   emit("update", { checkboxId, field, value });
 }

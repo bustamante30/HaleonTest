@@ -88,12 +88,13 @@ function handleToggle() {
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
   prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
-  div.toggleList(v-if="editMode && hasAlternateOptions && !showFullList")
-    a(@click="handleToggle()") Show full list
   .readonly(v-if="!editMode" )
     span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
     a.change(v-if="displayOptions.length>1" @click="switchToEditMode()") Change
+  div.toggleList()
+    a(v-if="editMode && hasAlternateOptions && !showFullList" @click="handleToggle()") Show full list
+    span(v-else) &nbsp;
 </template>
 
 <style lang="sass" scoped>
