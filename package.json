@@ -37,6 +37,7 @@
     "primeicons": "^6.0.1",
     "primevue": "^3.29.2",
     "store": "^2.0.12",
+    "v-image-magnifier": "^1.1.1",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "vuex": "^4.1.0"
