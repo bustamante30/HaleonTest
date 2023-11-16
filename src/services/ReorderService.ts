@@ -52,6 +52,7 @@ interface SubmitReorder {
   customerContacts: CustomerContact[];
   reorderDocs: Reorderdoc[];
   packagingReference: string;
+  isRushOrder: boolean;
 }
 
 interface PlateType {
@@ -166,6 +167,7 @@ class ReorderService {
       colors: [...newColors],
       customerContacts: [...newContacts],
       packagingReference: reorderInfo.packagingReference,
+      isRushOrder: reorderInfo.isUrgent,
     };
 
     return httpService
