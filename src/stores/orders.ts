@@ -317,8 +317,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             promises.push(
               this.getEditableColors(reorderId, this.selectedOrder),
             );
-            Promise.allSettled(promises).then(async (rr) => {
-              if (rr[1]["value"].order === null) {
+            Promise.allSettled(promises).then(async (promiseResult) => {
+              if (promiseResult[1]["value"].order === null) {
                 this.notifyOrderCannotBeProcessed();
                 const form = document.querySelector(
                   ".page .order-detail",
