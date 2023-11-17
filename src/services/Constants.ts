@@ -105,4 +105,5 @@ export const INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `There are no flexo items
 export const INTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please place your image carrier reorder request directly in MySGS.`;
 export const EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `The order you have selected cannot be processed:`;
 export const EXTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please contact a PM directly, or please go to`;
+export const NO_RECORD_TO_EXPORT = `No records to export`;
 export * from "./Constants";

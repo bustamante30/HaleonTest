@@ -25,6 +25,9 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" inputId="my-orders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
+            .export-excel
+              template(v-if="roleKey === 'PrinterAdmin'")
+                sgs-button.default(icon = 'Download' @click= "exportToExcel")
             .send-to-pm
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
@@ -615,6 +618,17 @@ async function handleOrderValidation(data: any) {
   } else {
     router.push(data.path);
   }
+}
+
+async function exportToExcel() {
+  if (!selectedStatus?.value?.value) return;
+  ordersStore.initAdvancedFilters();
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
+  filters.value.status = selectedStatus?.value?.value;
+  filters.value.myOrdersToggled = showMyOrders.value;
+  filters.value.isAdvancedSearch = false;
+  addPrinterFilter();
+  ordersStore.exportToExcel(filters.value);
 }
 </script>
 
