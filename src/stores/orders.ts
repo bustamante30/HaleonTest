@@ -862,7 +862,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       availableThicknesses: any,
       thicknessList: any,
     ) {
-      debugger;
       if (plate.plateThicknessId > 0) {
         if (
           availableThicknesses.findIndex(
