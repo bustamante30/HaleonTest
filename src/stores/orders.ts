@@ -468,6 +468,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.totalRecords = 0;
       } else {
         const { reorderedData, totalRecords } = result;
+        reorderedData?.sort((a: ReorderDto, b: ReorderDto) => {
+          const dateA = new Date(a.submittedDate as string);
+          const dateB = new Date(b.submittedDate as string);
+          return dateB.getTime() - dateA.getTime();
+        });
         this.orders = reorderedData;
         this.totalRecords = totalRecords;
       }

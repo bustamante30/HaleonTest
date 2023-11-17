@@ -20,7 +20,7 @@ form.advanced-search(@submit.prevent="onSubmit")
         .f(v-for="filter,j in section.filters" :key=j)
           label(v-if="filter.label") {{ filter.label }}
           prime-dropdown.sm(v-if="filter.type === 'printerLoc'" v-model="advancedFilters[filter.name]" name="printerLoc" :input-id="printerLoc" :options="printerLocations" append-to="body" option-label="label" option-value="value" :value="advancedFilters[filter.name]?.type || 'SEL'")
-          prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :input-id="filter.name" selection-mode="range" append-to="body")
+          prime-calendar(v-else-if="filter.type === 'daterange'" v-model="advancedFilters[filter.name]" :name="filter.name" :input-id="filter.name" selection-mode="range" append-to="body" :max-date = "new Date()")
           prime-auto-complete(v-else-if="filter.type === 'printerSuggester'" v-model="advancedFilters[filter.name]" :name="filter.name" :suggestions="printerResults" complete-on-focus=true append-to="body" :disabled="user.isExternal" empty-message="No results found" @complete="searchPrinter($event)")
           prime-dropdown.sm(v-else-if="filter.type === 'printerSiteSuggester'"  v-model="advancedFilters[filter.name]" :name="filter.name" :options="printerSiteResults.length ? printerSiteResults : [advancedFilters[filter.name]]" empty-message="No results found" )
           prime-inputtext.sm(v-else :id="filter.name" v-model="advancedFilters[filter.name]" :name="filter.name" :disabled="filter.disabled")
