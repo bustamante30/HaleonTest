@@ -585,10 +585,11 @@ export const useOrdersStore = defineStore("ordersStore", {
           id: 0,
           plateTypeId: null,
           plateTypeDescription: null,
-          plateThicknessId: null,
-          plateThicknessDescription: null,
-          sets: 0,
+          plateThicknessId: colour.fullThicknessList[0].thicknessId,
+          plateThicknessDescription: colour.fullThicknessList[0].thicknessDesc,
+          sets: 1,
           isEditable: true,
+          isThicknessEditable: false,
           plateList:
             colour.printerPlateList.length > 0
               ? colour.printerPlateList
@@ -658,7 +659,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
               case "plateThicknessId": {
                 plateToUpdate.plateThicknessDescription =
-                  colour.fullThicknessList.find(
+                  plateToUpdate.thicknessList.find(
                     (p) => p.thicknessId === params.value,
                   )?.thicknessDesc;
                 break;
@@ -801,6 +802,89 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       });
     },
+    async setPlateInfo(
+      plate: any,
+      availablePlates: any,
+      printerPlateList: any,
+      plateList: any,
+    ) {
+      //case when a plate belong to a draft and has value
+      if (plate.plateTypeId > 0) {
+        if (
+          availablePlates.findIndex(
+            (x) => x.plateTypeId === plate.plateTypeId,
+          ) >= 0
+        ) {
+          plate.plateList = availablePlates;
+          plate.hasAlternateOptions = false;
+        } else {
+          if (
+            printerPlateList.findIndex(
+              (x) => x.plateTypeId === plate.plateTypeId,
+            ) >= 0
+          ) {
+            plate.plateList = printerPlateList;
+            plate.alternateOptions = plateList;
+            plate.hasAlternateOptions = true;
+          } else {
+            plate.plateList = plateList;
+            plate.hasAlternateOptions = false;
+          }
+        }
+      }
+      //case when plate doesn't have a value
+      else {
+        //when no available plates: printer plates or all plates
+        if (availablePlates.length === 0) {
+          if (printerPlateList.length > 0) {
+            plate.plateList = printerPlateList;
+            plate.alternateOptions = plateList;
+            plate.hasAlternateOptions = true;
+          } else {
+            plate.plateList = plateList;
+            plate.hasAlternateOptions = false;
+          }
+        }
+        //when one or more available plates for the colour.
+        else {
+          //when only one available plate, we set by default that value
+          if (availablePlates.length === 1) {
+            plate.plateTypeId = availablePlates[0].plateTypeId;
+            plate.plateTypeDescription = availablePlates[0].plateTypeName;
+          }
+          plate.plateList = availablePlates;
+          plate.hasAlternateOptions = false;
+        }
+      }
+    },
+    async setThicknessInfo(
+      plate: any,
+      availableThicknesses: any,
+      thicknessList: any,
+    ) {
+      if (plate.plateThicknessId > 0) {
+        if (
+          availableThicknesses.findIndex(
+            (x) => x.thicknessId === plate.plateThicknessId,
+          ) >= 0
+        ) {
+          plate.thicknessList = availableThicknesses;
+        } else {
+          plate.thicknessList = thicknessList;
+        }
+      } else {
+        plate.thicknessList =
+          availableThicknesses.length === 0
+            ? thicknessList
+            : availableThicknesses;
+        if (plate.thicknessList.length === 1) {
+          plate.plateThicknessId = plate.thicknessList[0].thicknessId;
+          plate.plateThicknessDescription =
+            plate.thicknessList[0].thicknessDesc;
+        }
+      }
+      plate.loading = false;
+    },
     async getAvailablePlates(
       order: any,
       asyncAvailablePlatesCall: Promise<any>,
@@ -817,48 +901,17 @@ export const useOrdersStore = defineStore("ordersStore", {
             );
             if (availablePlateInfo != null) {
               color.plateDetails.forEach((plate) => {
-                if (availablePlateInfo.availablePlates.length === 1) {
-                  plate.plateTypeId =
-                    availablePlateInfo.availablePlates[0].plateTypeId;
-                  plate.plateTypeDescription =
-                    availablePlateInfo.availablePlates[0].plateTypeName;
-                  plate.plateList = availablePlateInfo.availablePlates;
-                  plate.hasAlternateOptions = false;
-                } else {
-                  if (availablePlateInfo.availablePlates.length === 0) {
-                    if (result.printerPlateList.length > 0) {
-                      plate.plateList = result.printerPlateList;
-                      plate.alternateOptions = result.plateList;
-                      plate.hasAlternateOptions = true;
-                    } else {
-                      plate.plateList = result.plateList;
-                      plate.hasAlternateOptions = false;
-                    }
-                  } else {
-                    plate.plateList = availablePlateInfo.availablePlates;
-                    plate.hasAlternateOptions = false;
-                  }
-                  if (plate.plateTypeId > 0)
-                    if (
-                      plate.plateList.findIndex(
-                        (x) => x.plateTypeId === plate.plateTypeId,
-                      ) < 0
-                    ) {
-                      plate.hasAlternateOptions = false;
-                      plate.plateList = result.plateList;
-                    }
-                }
-                plate.thicknessList =
-                  availablePlateInfo.availableThicknesses.length === 0
-                    ? result.thicknessList
-                    : availablePlateInfo.availableThicknesses;
-                if (availablePlateInfo.availableThicknesses.length === 1) {
-                  plate.plateThicknessId =
-                    availablePlateInfo.availableThicknesses[0].thicknessId;
-                  plate.plateThicknessDescription =
-                    availablePlateInfo.availableThicknesses[0].thicknessDesc;
-                }
-                plate.loading = false;
+                this.setPlateInfo(
+                  plate,
+                  availablePlateInfo.availablePlates,
+                  result.printerPlateList,
+                  result.plateList,
+                );
+                this.setThicknessInfo(
+                  plate,
+                  availablePlateInfo.availableThicknesses,
+                  result.thicknessList,
+                );
               });
             } else {
               color.plateDetails.forEach((plate) => {
