@@ -769,52 +769,45 @@ export const useOrdersStore = defineStore("ordersStore", {
           order.originalOrderId ? order.originalOrderId : order.sgsId,
           order.printerName,
         );
-        let stopLoop = false;
         for (const sequence of sequenceList) {
-          if (stopLoop) break;
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
             lenProcessed += res.length;
-            if (res.length == 0) {
-              stopLoop = true;
-              resolve({ status: "finished", order: null });
-            } else {
-              for (let i = 0; i < res.length; i++) {
-                for (const color of order.editionColors) {
-                  if (res[i].lenPath == color.lenPath) {
-                    color.lenData = res[i].lenData;
-                    color.checkboxId = faker.datatype.uuid();
-                    color.sets = color.totalSets;
-                    if (color.plates.length == 0) {
-                      color.plateDetails = [
-                        {
-                          id: 0,
-                          checkboxId: faker.datatype.uuid(),
-                          plateTypeId: null,
-                          plateTypeDescription: null,
-                          sets: 0,
-                          loading: true,
-                        },
-                      ];
-                    } else {
-                      const editionPlates: any[] = [];
-                      color.plateDetails = editionPlates;
-                      color.plates.forEach((plate) => {
-                        plate.checkboxId = faker.datatype.uuid();
-                        plate.loading = true;
-                        color.plateDetails.push(plate);
-                      });
-                      delete color.plates;
-                    }
+            for (let i = 0; i < res.length; i++) {
+              for (const color of order.editionColors) {
+                if (res[i].lenPath == color.lenPath) {
+                  color.lenData = res[i].lenData;
+                  color.checkboxId = faker.datatype.uuid();
+                  color.sets = color.totalSets;
+                  if (color.plates.length == 0) {
+                    color.plateDetails = [
+                      {
+                        id: 0,
+                        checkboxId: faker.datatype.uuid(),
+                        plateTypeId: null,
+                        plateTypeDescription: null,
+                        sets: 0,
+                        loading: true,
+                      },
+                    ];
+                  } else {
+                    const editionPlates: any[] = [];
+                    color.plateDetails = editionPlates;
+                    color.plates.forEach((plate) => {
+                      plate.checkboxId = faker.datatype.uuid();
+                      plate.loading = true;
+                      color.plateDetails.push(plate);
+                    });
+                    delete color.plates;
                   }
                 }
               }
-              if (lenProcessed === order.editionColors.length) {
-                this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
-                  () => {
-                    resolve({ status: "finished", order: order });
-                  },
-                );
-              }
+            }
+            if (lenProcessed === order.editionColors.length) {
+              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                () => {
+                  resolve({ status: "finished", order: order });
+                },
+              );
             }
           });
         }
@@ -960,13 +953,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           order.originalOrderId ? order.originalOrderId : order.sgsId,
           order.printerName,
         );
-        let stopLoop = false;
-        for (const color of order.colors) {
-          if (stopLoop) break;
+        order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
-            if (res.length == 0 && !stopLoop) {
-              stopLoop = true;
+            if (res.length == 0) {
               resolve({ status: "finished", order: null });
             } else {
               for (let i = 0; i < res.length; i++) {
@@ -1000,7 +990,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
             }
           });
-        }
+        });
       });
     },
     notifyOrderCannotBeProcessed() {
