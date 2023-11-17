@@ -317,17 +317,28 @@ export const useOrdersStore = defineStore("ordersStore", {
             promises.push(
               this.getEditableColors(reorderId, this.selectedOrder),
             );
-            Promise.allSettled(promises).then(() => {
-              this.selectedOrder.allDataLoaded = true;
-              this.orders.splice(
-                this.orders?.findIndex(
-                  (order: any) =>
-                    order.sgsId === reorderId ||
-                    order.originalOrderId === reorderId,
-                ),
-                1,
-                this.selectedOrder,
-              );
+            Promise.allSettled(promises).then(async (promiseResult) => {
+              if (promiseResult[1]["value"].order === null) {
+                this.notifyOrderCannotBeProcessed();
+                const form = document.querySelector(
+                  ".page .order-detail",
+                ) as HTMLFormElement;
+                if (form) {
+                  form.style.display = "none";
+                }
+                router.push(`/dashboard?q=${Date.now()}`);
+              } else {
+                this.selectedOrder.allDataLoaded = true;
+                this.orders.splice(
+                  this.orders?.findIndex(
+                    (order: any) =>
+                      order.sgsId === reorderId ||
+                      order.originalOrderId === reorderId,
+                  ),
+                  1,
+                  this.selectedOrder,
+                );
+              }
             });
           }
         }
@@ -945,52 +956,58 @@ export const useOrdersStore = defineStore("ordersStore", {
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
-            for (let i = 0; i < res.length; i++) {
-              const colorCopy: any = JSON.parse(JSON.stringify(color));
-              colorCopy.lenPath = res[i].lenPath;
-              colorCopy.lenData = res[i].lenData;
-              colorCopy.checkboxId = faker.datatype.uuid();
-              colorCopy.totalSets = 0;
-              colorCopy.plateDetails = [
-                {
-                  checkboxId: faker.datatype.uuid(),
-                  plateTypeId: null,
-                  plateTypeDescription: null,
-                  plateThicknessId: null,
-                  plateThicknessDescription: null,
-                  sets: 0,
-                  loading: true,
-                },
-              ];
-              order.editionColors.push(colorCopy);
-            }
-            if (expectedColors === order.editionColors.length) {
-              if (expectedColors === 0) {
-                const notificationsStore = useNotificationsStore();
-                const authStore = useAuthStore();
-                let message = Constants.SEND_SGS_ERROR;
-                let link: string = `/dashboard?showPM=true`;
-                const linkLabel: string = `Here`;
-                if (authStore.currentUser.isLoggedIn) {
-                  message = Constants.ORDER_ERROR;
-                  link = ``;
-                }
-                notificationsStore.addNotification(Constants.WARNING, message, {
-                  severity: "warn",
-                  life: 15000,
-                  link,
-                  linkLabel,
-                });
-                resolve({ status: "finished", order: null });
+            if (res.length == 0) {
+              resolve({ status: "finished", order: null });
+            } else {
+              for (let i = 0; i < res.length; i++) {
+                const colorCopy: any = JSON.parse(JSON.stringify(color));
+                colorCopy.lenPath = res[i].lenPath;
+                colorCopy.lenData = res[i].lenData;
+                colorCopy.checkboxId = faker.datatype.uuid();
+                colorCopy.totalSets = 0;
+                colorCopy.plateDetails = [
+                  {
+                    checkboxId: faker.datatype.uuid(),
+                    plateTypeId: null,
+                    plateTypeDescription: null,
+                    plateThicknessId: null,
+                    plateThicknessDescription: null,
+                    sets: 0,
+                    loading: true,
+                  },
+                ];
+                order.editionColors.push(colorCopy);
               }
-              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
-                () => {
-                  resolve({ status: "finished", order: order });
-                },
-              );
+              if (expectedColors === order.editionColors.length) {
+                if (expectedColors === 0) {
+                  resolve({ status: "finished", order: null });
+                }
+                this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                  () => {
+                    resolve({ status: "finished", order: order });
+                  },
+                );
+              }
             }
           });
         });
+      });
+    },
+    notifyOrderCannotBeProcessed() {
+      const notificationsStore = useNotificationsStore();
+      const authStore = useAuthStore();
+      let message = Constants.SEND_SGS_ERROR;
+      let link: string = `/dashboard?showPM=true`;
+      const linkLabel: string = `Here`;
+      if (authStore.currentUser.isLoggedIn) {
+        message = Constants.ORDER_ERROR;
+        link = ``;
+      }
+      notificationsStore.addNotification(Constants.WARNING, message, {
+        severity: "warn",
+        life: 15000,
+        link,
+        linkLabel,
       });
     },
     getPdfData(sgsId: string) {
