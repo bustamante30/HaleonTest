@@ -235,7 +235,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       } else {
         const notificationsStore = useNotificationsStore();
         notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
@@ -354,7 +354,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             } else {
               const notificationsStore = useNotificationsStore();
               notificationsStore.addNotification(
-                `Error`,
+                Constants.FAILURE,
                 response.exceptionDetails?.Message,
                 { severity: "error", life: 5000 },
               );
@@ -473,7 +473,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         } else {
           const notificationsStore = useNotificationsStore();
           notificationsStore.addNotification(
-            `Error`,
+            Constants.FAILURE,
             response.exceptionDetails?.Message,
             { severity: "error", life: 5000 },
           );
@@ -516,14 +516,14 @@ export const useOrdersStore = defineStore("ordersStore", {
       const notificationsStore = useNotificationsStore();
       if (!shirttailDetails.result) {
         notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           shirttailDetails.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
       }
       if (!barcodeDetails.result) {
         notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           barcodeDetails.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
@@ -975,7 +975,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           } else {
             const notificationsStore = useNotificationsStore();
             notificationsStore.addNotification(
-              `Error`,
+              Constants.FAILURE,
               response.exceptionDetails?.Message,
               { severity: "error", life: 5000 },
             );

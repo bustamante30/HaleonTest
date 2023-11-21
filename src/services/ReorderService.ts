@@ -14,6 +14,11 @@ interface SearchPagedResultDto {
   totalRecords: number;
 }
 
+export type SearchResultDto = {
+  data?: Array<any> | null;
+  totalRecords?: number;
+};
+
 interface APIResponse<T> {
   result?: boolean;
   data?: T;
@@ -182,7 +187,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting reorder:", error);
+        console.error("Error submitting reorder:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -280,11 +285,16 @@ class ReorderService {
       }
     }
     return httpService
-      .post<SearchPagedResultDto>("v1/Reorder/search", params, undefined, true)
-      .then((response: any) => {
+      .post<APIResponse<SearchPagedResultDto>>(
+        "v1/Reorder/search",
+        params,
+        undefined,
+        true,
+      )
+      .then((response: APIResponse<SearchResultDto>) => {
         if (response.result) {
           const values = response.data;
-          const reorderedData: ReorderDto[] = values.data
+          const reorderedData: ReorderDto[] = values?.data
             ? values.data.map((item: ReorderDto) => ({
                 id: item.id,
                 sgsId:
@@ -314,7 +324,7 @@ class ReorderService {
               }))
             : [];
 
-          const totalRecords: number = values.totalRecords ?? 1000;
+          const totalRecords: number = values?.totalRecords ?? 1000;
           const newResponse: APIResponse<SearchPagedResultDto> = {
             result: true,
             data: {
@@ -328,7 +338,7 @@ class ReorderService {
         }
       })
       .catch((error: any) => {
-        console.log("Error getting orders:", error);
+        console.error("Error getting orders:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -613,7 +623,7 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error Exporting reorders:", error);
+        console.error("Error Exporting reorders:", error);
         return [];
       });
   }

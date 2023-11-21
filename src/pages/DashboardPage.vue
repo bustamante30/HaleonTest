@@ -398,7 +398,7 @@ async function reorder(order: any) {
     }
   } else {
     notificationsStore.addNotification(
-      `Error`,
+      Constants.FAILURE,
       response.exceptionDetails?.Message,
       { severity: "error", life: 5000 },
     );
@@ -487,7 +487,7 @@ async function addMultipleToCart(sgsId: null) {
         }
       } else {
         notificationsStore.addNotification(
-          `Error`,
+          Constants.FAILURE,
           response.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
@@ -637,7 +637,7 @@ async function handleOrderValidation(data: any) {
     }
   } else {
     notificationsStore.addNotification(
-      `Error`,
+      Constants.FAILURE,
       response.exceptionDetails?.Message,
       { severity: "error", life: 5000 },
     );
