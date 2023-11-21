@@ -375,25 +375,33 @@ async function addToCart(order: any) {
   });
 }
 async function reorder(order: any) {
-  const result = await ReorderService.validateOrder(
+  const response = await ReorderService.validateOrder(
     order.originalOrderId ? order.originalOrderId : order.sgsId,
   );
-  if (result === false) {
-    if (userType.value === "EXT") {
-      sendToPmStore.externalPrinterName =
-        authb2cStore.currentB2CUser.printerName;
-      // Validation failed, show the confirm  dialog
-      showConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
+  if (response.result) {
+    if (response.data === false) {
+      if (userType.value === "EXT") {
+        sendToPmStore.externalPrinterName =
+          authb2cStore.currentB2CUser.printerName;
+        // Validation failed, show the confirm  dialog
+        showConfirmDialog.value = true;
+        sendToPmStore.isValidated = true;
+      } else {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          Constants.FLEXO_ERROR,
+          { severity: "error" },
+        );
+      }
     } else {
-      notificationsStore.addNotification(
-        Constants.INFO,
-        Constants.FLEXO_ERROR,
-        { severity: "error" },
-      );
+      ordersStore.reorder(order);
     }
   } else {
-    ordersStore.reorder(order);
+    notificationsStore.addNotification(
+      Constants.FAILURE,
+      response.exceptionDetails?.Message,
+      { severity: "error", life: 5000 },
+    );
   }
 }
 function cancelOrder(order: any) {
@@ -415,7 +423,7 @@ function cancelOrder(order: any) {
       } else {
         notificationsStore.addNotification(
           Constants.FAILURE,
-          response.ExceptionDetails.Message,
+          response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
         return false;
@@ -436,7 +444,7 @@ const auditOrder = async (order) => {
   } else {
     notificationsStore.addNotification(
       Constants.FAILURE,
-      response.ExceptionDetails.Message,
+      response.exceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
     console.error(response);
@@ -470,11 +478,19 @@ async function addMultipleToCart(sgsId: null) {
           ? order.originalOrderId
           : order.sgsId;
       }
-      const result = await ReorderService.validateOrder(orderSgsId);
-      if (result === true) {
-        validOrders.push(order);
+      const response = await ReorderService.validateOrder(orderSgsId);
+      if (response.result) {
+        if (response.data === true) {
+          validOrders.push(order);
+        } else {
+          errorMessages.push(order.sgsId);
+        }
       } else {
-        errorMessages.push(order.sgsId);
+        notificationsStore.addNotification(
+          Constants.FAILURE,
+          response.exceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
       }
     } catch (error) {
       console.error("[Error while validating the order]: ", error);
@@ -587,7 +603,7 @@ async function addMultipleToCart(sgsId: null) {
     } else {
       notificationsStore.addNotification(
         Constants.FAILURE,
-        response.ExceptionDetails?.Message || "Error",
+        response.exceptionDetails?.Message || "Error",
         { severity: "error", life: 5000 },
       );
     }
@@ -596,27 +612,35 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  const resp = await ReorderService.validateOrder(data.originalOrderId);
-  if (resp.Result === false && showMyOrders.value === false) {
-    if (userType.value === "EXT") {
-      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
-      let link: string = `/dashboard?showPM=true`;
-      const linkLabel: string = `Here`;
-      notificationsStore.addNotification(Constants.INFO, errorMessage, {
-        severity: "error",
-        life: 6000,
-        link,
-        linkLabel,
-      });
+  const response = await ReorderService.validateOrder(data.originalOrderId);
+  if (response.result) {
+    if (response.data === false && showMyOrders.value === false) {
+      if (userType.value === "EXT") {
+        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+        let link: string = `/dashboard?showPM=true`;
+        const linkLabel: string = `Here`;
+        notificationsStore.addNotification(Constants.INFO, errorMessage, {
+          severity: "error",
+          life: 6000,
+          link,
+          linkLabel,
+        });
+      } else {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
+          { severity: "error" },
+        );
+      }
     } else {
-      notificationsStore.addNotification(
-        Constants.INFO,
-        `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
-        { severity: "error" },
-      );
+      router.push(data.path);
     }
   } else {
-    router.push(data.path);
+    notificationsStore.addNotification(
+      Constants.FAILURE,
+      response.exceptionDetails?.Message,
+      { severity: "error", life: 5000 },
+    );
   }
 }
 

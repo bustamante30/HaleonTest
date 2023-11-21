@@ -10,15 +10,20 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 interface SearchPagedResultDto {
-  data: ReorderDto[];
+  reorderedData: ReorderDto[];
   totalRecords: number;
 }
+
+export type SearchResultDto = {
+  data?: Array<any> | null;
+  totalRecords?: number;
+};
 
 interface APIResponse<T> {
   result?: boolean;
   data?: T;
   isBusinessError?: boolean;
-  ExceptionDetails?: APIException;
+  exceptionDetails?: APIException;
 }
 
 interface APIException {
@@ -182,8 +187,8 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error submitting reorder:", error);
-        return { result: false, ExceptionDetails: { Message: error } };
+        console.error("Error submitting reorder:", error);
+        return this.generateErrorObject(error);
       });
   }
   public static getRecentReorders(
@@ -280,47 +285,61 @@ class ReorderService {
       }
     }
     return httpService
-      .post<SearchPagedResultDto>("v1/Reorder/search", params, undefined, true)
-      .then((response: SearchPagedResultDto) => {
-        const reorderedData: ReorderDto[] = response.data
-          ? response.data.map((item: ReorderDto) => ({
-              id: item.id,
-              sgsId:
-                item.sgsId != null
-                  ? item.sgsId
-                  : item.id
-                  ? item.id.toString()
-                  : "",
-              brandName: item.brandName,
-              description: item.description,
-              weight: item.weight,
-              printerId: item.printerId,
-              printerName: item.printerName,
-              packType: item.packType, // Renamed to packStatus to match DTO
-              createdAt: item.createdAt ? item.createdAt : null,
-              submittedDate: item.submittedDate ? item.submittedDate : null,
-              cancelledDate: item.cancelledDate ? item.cancelledDate : null,
-              orderStatus: item.orderStatus ? item.orderStatus : null,
-              createdBy: item.createdBy,
-              statusId: item.statusId,
-              thumbNailPath: new URL(
-                "@/assets/images/no_thumbnail.png",
-                import.meta.url,
-              ).pathname,
-              itemCode: item.itemCode,
-              originalOrderId: item.originalOrderId,
-            }))
-          : [];
+      .post<APIResponse<SearchPagedResultDto>>(
+        "v1/Reorder/search",
+        params,
+        undefined,
+        true,
+      )
+      .then((response: APIResponse<SearchResultDto>) => {
+        if (response.result) {
+          const values = response.data;
+          const reorderedData: ReorderDto[] = values?.data
+            ? values.data.map((item: ReorderDto) => ({
+                id: item.id,
+                sgsId:
+                  item.sgsId != null
+                    ? item.sgsId
+                    : item.id
+                    ? item.id.toString()
+                    : "",
+                brandName: item.brandName,
+                description: item.description,
+                weight: item.weight,
+                printerId: item.printerId,
+                printerName: item.printerName,
+                packType: item.packType, // Renamed to packStatus to match DTO
+                createdAt: item.createdAt ? item.createdAt : null,
+                submittedDate: item.submittedDate ? item.submittedDate : null,
+                cancelledDate: item.cancelledDate ? item.cancelledDate : null,
+                orderStatus: item.orderStatus ? item.orderStatus : null,
+                createdBy: item.createdBy,
+                statusId: item.statusId,
+                thumbNailPath: new URL(
+                  "@/assets/images/no_thumbnail.png",
+                  import.meta.url,
+                ).pathname,
+                itemCode: item.itemCode,
+                originalOrderId: item.originalOrderId,
+              }))
+            : [];
 
-        const totalRecords: number = response.totalRecords ?? 1000;
-        return {
-          reorderedData,
-          totalRecords,
-        };
+          const totalRecords: number = values?.totalRecords ?? 1000;
+          const newResponse: APIResponse<SearchPagedResultDto> = {
+            result: true,
+            data: {
+              reorderedData: reorderedData,
+              totalRecords: totalRecords,
+            },
+          };
+          return newResponse;
+        } else {
+          return response as APIResponse<SearchPagedResultDto>;
+        }
       })
       .catch((error: any) => {
-        console.error("[Error getting reorders]:", error);
-        return [];
+        console.error("Error getting orders:", error);
+        return this.generateErrorObject(error);
       });
   }
 
@@ -331,8 +350,8 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.error("[Error getting reorders]: ", error);
-        return null;
+        console.error("[Error getting order details]: ", error);
+        return this.generateErrorObject(error);
       });
   }
   public static getOrderAvailablePlates(sgsId: string, printerName: string) {
@@ -348,7 +367,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting OrderAvailablePlates]: ", error);
-        return null;
+        return this.generateErrorObject(error);
       });
   }
 
@@ -394,7 +413,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error discarding order]: ", error);
-        return { result: false, ExceptionDetails: { Message: error } };
+        return this.generateErrorObject(error);
       });
   }
 
@@ -408,7 +427,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error deleting order]:", error);
-        return { result: false, ExceptionDetails: { Message: error } };
+        return this.generateErrorObject(error);
       });
   }
 
@@ -460,7 +479,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting barcode]: ", error);
-        return 0;
+        return this.generateErrorObject(error);
       });
   }
 
@@ -472,7 +491,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting shirttail]: ", error);
-        return 0;
+        return this.generateErrorObject(error);
       });
   }
 
@@ -484,19 +503,19 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting shirttail]: ", error);
-        return { result: false, ExceptionDetails: { Message: error } };
+        return this.generateErrorObject(error);
       });
   }
 
   public static async validateOrder(jobNo: string) {
     return httpService
       .post<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
-      .then((response: any) => {
+      .then((response: APIResponse<boolean>) => {
         return response;
       })
       .catch((error: any) => {
         console.error("[Error while validate order service]:", error);
-        return false;
+        return this.generateErrorObject(error);
       });
   }
 
@@ -550,7 +569,9 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error while adding order to Cart]:", error);
-        return { result: false, ExceptionDetails: { Message: error } };
+        return this.generateErrorObject(error) as APIResponse<
+          CartResponseDto[]
+        >;
       });
   }
 
@@ -602,9 +623,16 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.log("Error Exporting reorders:", error);
+        console.error("Error Exporting reorders:", error);
         return [];
       });
+  }
+  public static async generateErrorObject(error: any) {
+    return {
+      result: false,
+      exceptionDetails: { Message: error },
+      data: null,
+    };
   }
 }
 
