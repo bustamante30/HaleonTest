@@ -409,7 +409,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         );
 
         if (filters.status === 4) {
-          console.log("Saving Search Result in Local Store", filters);
           this.textSearchData.query = getSearchParamsAsString(filters);
           if (Array.isArray(result)) {
             this.textSearchData.data = {
@@ -433,7 +432,6 @@ export const useOrdersStore = defineStore("ordersStore", {
             totalRecords: this.textSearchData.data.reorderedData.length,
           };
         } else {
-          console.log("Clearing result from local store .. ");
           this.textSearchData.query = "";
           this.textSearchData.data = {
             reorderedData: [],

@@ -74,6 +74,9 @@ import router from "@/router";
 import ReorderService from "@/services/ReorderService";
 import { useRoute } from "vue-router";
 import * as Constants from "@/services/Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const notificationsStore = useNotificationsStore();
 const confirm = useConfirm();
@@ -436,7 +439,8 @@ const auditOrder = async (order) => {
       response.ExceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
-    console.error(response);
+    console.error("Audit Error", response);
+    logger.error("Audit Error", response);
   }
 };
 
@@ -475,6 +479,7 @@ async function addMultipleToCart(sgsId: null) {
       }
     } catch (error) {
       console.error("[Error while validating the order]: ", error);
+      logger.error("[Error while validating the order]: ", error);
     }
   });
 
@@ -560,9 +565,6 @@ async function addMultipleToCart(sgsId: null) {
     if (response.result) {
       if (Array.isArray(response.data)) {
         for (const cartResponse of response.data) {
-          console.log(
-            `ReorderID: ${cartResponse.reorderId}, Status: ${cartResponse.status}`,
-          );
           if (cartResponse.status === "Success") {
             notificationsStore.addNotification(
               Constants.SUCCESS,
@@ -580,6 +582,7 @@ async function addMultipleToCart(sgsId: null) {
         }
       } else {
         console.error("[Cart response error] Response is not an array");
+        logger.error("[Cart response error] Response is not an array");
       }
     } else {
       notificationsStore.addNotification(
