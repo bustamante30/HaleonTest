@@ -25,7 +25,7 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" inputId="my-orders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
-            .export-excel
+            .export-excel(v-if="!searchExecuted")
               template(v-if="roleKey === 'PrinterAdmin'")
                 sgs-button.default(icon = 'Download' @click= "exportToExcel")
             .send-to-pm
