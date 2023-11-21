@@ -80,7 +80,7 @@ const auditOrder = async (order) => {
   } else {
     notificationsStore.addNotification(
       `Error`,
-      response.ExceptionDetails.Message,
+      response.exceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
     console.error(response);

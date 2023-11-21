@@ -1,12 +1,5 @@
 import { type ColourDto } from "./ColourDto";
 
-export type SearchPagedResultDto = {
-  pageNumber?: number;
-  pageSize?: number;
-  totalNumberOfRecords?: number;
-  results?: Array<ReorderDto> | null;
-};
-
 export type ReorderDto = {
   originalOrderId?: string;
   id?: number;

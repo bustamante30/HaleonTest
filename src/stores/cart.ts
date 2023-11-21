@@ -36,7 +36,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           Constants.FAILURE,
-          response.ExceptionDetails.Message,
+          response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
         return false;
@@ -52,7 +52,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           Constants.FAILURE,
-          response.ExceptionDetails.Message,
+          response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
         return false;
@@ -75,7 +75,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           Constants.FAILURE,
-          draftResult.ExceptionDetails?.Message,
+          draftResult.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
       }
@@ -97,7 +97,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           Constants.FAILURE,
-          draftResult.ExceptionDetails?.Message,
+          draftResult.exceptionDetails?.Message,
           { severity: "error", life: 5000 },
         );
       }
@@ -119,7 +119,7 @@ export const useCartStore = defineStore("cartStore", {
       } else {
         this.notificationsStore.addNotification(
           Constants.FAILURE,
-          response.ExceptionDetails.Message,
+          response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
       }

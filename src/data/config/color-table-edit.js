@@ -23,7 +23,7 @@ export default {
     {
       header: "View Colour",
       field: "lenData",
-      type: "image",
+      type: "lenImage",
       freeze: "left",
       width: 6,
     },
@@ -63,12 +63,14 @@ export default {
         field: "plateTypeId",
         type: "lookup",
         options: { label: "plateTypeName", value: "plateTypeId" },
+        editField: "isEditable",
       },
       {
         header: "Plate Thickness (1/1000)",
         field: "plateThicknessId",
         type: "lookup",
         options: { label: "thicknessDesc", value: "thicknessId" },
+        editField: "isThicknessEditable",
       },
       {
         header: "Quantity",

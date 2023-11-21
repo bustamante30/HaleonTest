@@ -211,7 +211,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number[];
       }
       this.loading.ordersList = true;
-      const result = await ReorderService.getRecentReorders(
+      const response = await ReorderService.getRecentReorders(
         4,
         this.filters?.query ? this.filters.query : undefined,
         undefined,
@@ -224,13 +224,23 @@ export const useOrdersStore = defineStore("ordersStore", {
         printerUserIds,
       );
       this.loading.ordersList = false;
-      if (Array.isArray(result)) {
+      if (response.result) {
+        this.orders =
+          response.data?.reorderedData != null
+            ? response.data.reorderedData
+            : [];
+        this.totalRecords = response.data?.totalRecords
+          ? response.data?.totalRecords
+          : 0;
+      } else {
+        const notificationsStore = useNotificationsStore();
+        notificationsStore.addNotification(
+          Constants.FAILURE,
+          response.exceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
         this.orders = [];
         this.totalRecords = 0;
-      } else {
-        const { reorderedData, totalRecords } = result;
-        this.orders = reorderedData;
-        this.totalRecords = totalRecords;
       }
       this.decorateOrders();
     },
@@ -282,57 +292,76 @@ export const useOrdersStore = defineStore("ordersStore", {
               order.sgsId === reorderId || order.originalOrderId === reorderId,
           );
           if (!this.selectedOrder || !this.selectedOrder.allDataLoaded) {
-            const details = jsonify(
-              await ReorderService.getOrderDetails(reorderId),
-            );
-            this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
-            this.selectedOrder.originalOrderId = details?.jobId;
-            this.selectedOrder.description = details?.jobDescription;
-            this.selectedOrder.brandName = details?.jobDetails?.brand;
-            this.selectedOrder.itemCode = details?.jobDetails?.endUserReference;
-            this.selectedOrder.packType =
-              details?.jobDetails?.packageType?.name;
-            const editionColors: any[] = [];
-            this.selectedOrder.editionColors = editionColors;
-            const plateTypes = await mapPlateTypes(details);
-            this.options.plateTypeDescription = plateTypes?.filter(
-              (plateType: any) => plateType.value !== 256,
-            );
-            this.selectedOrder = this.selectedOrder || {};
-            this.selectedOrder = {
-              ...this.selectedOrder,
-              ...mapSgsOrderDetail(details),
-            };
-            ReorderService.getThumbnail(details.jobId).then(
-              (response: string | boolean) => {
-                if (response) this.selectedOrder.thumbNailPath = response;
-              },
-            );
-            this.getPdfData(details.jobId).then((response: any) => {
-              if (response) this.selectedOrder.pdfData = response;
-            });
-            const promises: Promise<any>[] = [];
-            this.mapColorAndCustomerDetailsToOrder(details);
-            promises.push(this.getBarcodeAndShirtail(this.selectedOrder));
-            promises.push(
-              this.getEditableColors(reorderId, this.selectedOrder),
-            );
-            Promise.allSettled(promises).then(() => {
-              this.selectedOrder.allDataLoaded = true;
-              this.orders.splice(
-                this.orders?.findIndex(
-                  (order: any) =>
-                    order.sgsId === reorderId ||
-                    order.originalOrderId === reorderId,
-                ),
-                1,
-                this.selectedOrder,
+            const response = await ReorderService.getOrderDetails(reorderId);
+            if (response.result) {
+              const details = jsonify(response.data);
+              this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
+              this.selectedOrder.originalOrderId = details?.jobId;
+              this.selectedOrder.description = details?.jobDescription;
+              this.selectedOrder.brandName = details?.jobDetails?.brand;
+              this.selectedOrder.itemCode =
+                details?.jobDetails?.endUserReference;
+              this.selectedOrder.packType =
+                details?.jobDetails?.packageType?.name;
+              const editionColors: any[] = [];
+              this.selectedOrder.editionColors = editionColors;
+              const plateTypes = await mapPlateTypes(details);
+              this.options.plateTypeDescription = plateTypes?.filter(
+                (plateType: any) => plateType.value !== 256,
               );
-            });
+              this.selectedOrder = this.selectedOrder || {};
+              this.selectedOrder = {
+                ...this.selectedOrder,
+                ...mapSgsOrderDetail(details),
+              };
+              ReorderService.getThumbnail(details.jobId).then(
+                (response: string | boolean) => {
+                  if (response) this.selectedOrder.thumbNailPath = response;
+                },
+              );
+              this.getPdfData(details.jobId).then((response: any) => {
+                if (response) this.selectedOrder.pdfData = response;
+              });
+              const promises: Promise<any>[] = [];
+              this.mapColorAndCustomerDetailsToOrder(details);
+              promises.push(this.getBarcodeAndShirtail(this.selectedOrder));
+              promises.push(
+                this.getEditableColors(reorderId, this.selectedOrder),
+              );
+              Promise.allSettled(promises).then(async (promiseResult) => {
+                if (promiseResult[1]["value"].order === null) {
+                  this.notifyOrderCannotBeProcessed();
+                  const form = document.querySelector(
+                    ".page .order-detail",
+                  ) as HTMLFormElement;
+                  if (form) {
+                    form.style.display = "none";
+                  }
+                  router.push(`/dashboard?q=${Date.now()}`);
+                } else {
+                  this.selectedOrder.allDataLoaded = true;
+                  this.orders.splice(
+                    this.orders?.findIndex(
+                      (order: any) =>
+                        order.sgsId === reorderId ||
+                        order.originalOrderId === reorderId,
+                    ),
+                    1,
+                    this.selectedOrder,
+                  );
+                }
+              });
+            } else {
+              const notificationsStore = useNotificationsStore();
+              notificationsStore.addNotification(
+                Constants.FAILURE,
+                response.exceptionDetails?.Message,
+                { severity: "error", life: 5000 },
+              );
+            }
           }
         }
       }
-
       this.loading.order = false;
       return this.selectedOrder;
     },
@@ -368,12 +397,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         filters.roleKey = b2cAuth.currentB2CUser.roleKey;
         filters.userType = b2cAuth.currentB2CUser.userType;
       }
-      let result:
-        | {
-            reorderedData: ReorderDto[];
-            totalRecords: number;
-          }
-        | never[];
       /* If its is free text search then Pagination, Sorting, Filtering has to from stored data instead of API Call
         And Status should be completed (4) */
       if (
@@ -390,12 +413,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           this.pageState,
           filterStore,
         );
-        result = {
-          reorderedData: reorderedData,
-          totalRecords: this.textSearchData.data.reorderedData.length,
-        };
+        this.orders = reorderedData;
+        this.totalRecords = this.textSearchData.data.reorderedData.length;
       } else {
-        result = await ReorderService.getRecentReorders(
+        const response = await ReorderService.getRecentReorders(
           filters?.query != "" && filters.query != null ? 4 : filters.status,
           filters.query,
           filters.sortBy,
@@ -407,56 +428,60 @@ export const useOrdersStore = defineStore("ordersStore", {
           printers,
           printerUserIds,
         );
-
-        if (filters.status === 4) {
-          this.textSearchData.query = getSearchParamsAsString(filters);
-          if (Array.isArray(result)) {
+        if (response.result) {
+          if (filters.status === 4) {
+            this.textSearchData.query = getSearchParamsAsString(filters);
+            this.textSearchData.data = {
+              reorderedData:
+                response.data?.reorderedData != null
+                  ? response.data.reorderedData
+                  : [],
+              totalRecords: response.data?.totalRecords
+                ? response.data?.totalRecords
+                : 0,
+            };
+            const reorderedData = handleSortPagination(
+              this.textSearchData.data.reorderedData,
+              filters,
+              this.pageState,
+            );
+            this.orders = reorderedData;
+            this.totalRecords = this.textSearchData.data.reorderedData.length;
+          } else {
+            this.textSearchData.query = "";
             this.textSearchData.data = {
               reorderedData: [],
               totalRecords: 0,
             };
-          } else {
-            this.textSearchData.data = {
-              reorderedData:
-                result.reorderedData != null ? result.reorderedData : [],
-              totalRecords: result.reorderedData.length,
-            };
+
+            if (
+              response.data?.reorderedData &&
+              Array.isArray(response.data.reorderedData) &&
+              response.data.reorderedData.length > 0
+            ) {
+              this.orders = response.data.reorderedData;
+              this.totalRecords = response.data.reorderedData.length;
+            }
           }
-          const reorderedData = handleSortPagination(
-            this.textSearchData.data.reorderedData,
-            filters,
-            this.pageState,
-          );
-          result = {
-            reorderedData: reorderedData,
-            totalRecords: this.textSearchData.data.reorderedData.length,
-          };
+          this.orders.sort((a: ReorderDto, b: ReorderDto) => {
+            const dateA = new Date(a.submittedDate as string);
+            const dateB = new Date(b.submittedDate as string);
+            return dateB.getTime() - dateA.getTime();
+          });
         } else {
-          this.textSearchData.query = "";
+          const notificationsStore = useNotificationsStore();
+          notificationsStore.addNotification(
+            Constants.FAILURE,
+            response.exceptionDetails?.Message,
+            { severity: "error", life: 5000 },
+          );
           this.textSearchData.data = {
             reorderedData: [],
             totalRecords: 0,
           };
-
-          if (
-            "reorderedData" in result &&
-            Array.isArray(result.reorderedData) &&
-            result.reorderedData.length > 0
-          ) {
-            result = {
-              reorderedData: result.reorderedData,
-              totalRecords: result.reorderedData.length,
-            };
-          }
+          this.orders = [];
+          this.totalRecords = 0;
         }
-      }
-      if (Array.isArray(result)) {
-        this.orders = [];
-        this.totalRecords = 0;
-      } else {
-        const { reorderedData, totalRecords } = result;
-        this.orders = reorderedData;
-        this.totalRecords = totalRecords;
       }
       this.loading.ordersList = false;
       this.decorateOrders();
@@ -486,10 +511,26 @@ export const useOrdersStore = defineStore("ordersStore", {
         barcodeDetails = null;
         shirttailDetails = null;
       }
-      this.selectedOrder = {
-        ...order,
-        ...mapPhotonOrderDetail(shirttailDetails, barcodeDetails),
-      };
+      const notificationsStore = useNotificationsStore();
+      if (!shirttailDetails.result) {
+        notificationsStore.addNotification(
+          Constants.FAILURE,
+          shirttailDetails.exceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
+      }
+      if (!barcodeDetails.result) {
+        notificationsStore.addNotification(
+          Constants.FAILURE,
+          barcodeDetails.exceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
+      } else {
+        this.selectedOrder = {
+          ...order,
+          ...mapPhotonOrderDetail(shirttailDetails.data, barcodeDetails.data),
+        };
+      }
     },
     decorateOrders() {
       for (let i = 0; i < this.orders.length; i++) {
@@ -577,19 +618,24 @@ export const useOrdersStore = defineStore("ordersStore", {
         (c) => c.checkboxId === params.colourId,
       );
       if (selectedIndex >= 0) {
-        this.selectedOrder.editionColors[selectedIndex].plateDetails.push({
+        const colour = this.selectedOrder.editionColors[selectedIndex];
+        colour.plateDetails.push({
           checkboxId: faker.datatype.uuid(),
           id: 0,
           plateTypeId: null,
           plateTypeDescription: null,
-          plateThicknessId: null,
-          plateThicknessDescription: null,
-          sets: 0,
+          plateThicknessId: colour.fullThicknessList[0].thicknessId,
+          plateThicknessDescription: colour.fullThicknessList[0].thicknessDesc,
+          sets: 1,
           isEditable: true,
+          isThicknessEditable: false,
           plateList:
-            this.selectedOrder.editionColors[selectedIndex].fullPlateList,
-          thicknessList:
-            this.selectedOrder.editionColors[selectedIndex].fullThicknessList,
+            colour.printerPlateList.length > 0
+              ? colour.printerPlateList
+              : colour.fullPlateList,
+          hasAlternateOptions: colour.printerPlateList.length > 0,
+          alternateOptions: colour.fullPlateList,
+          thicknessList: colour.fullThicknessList,
           loading: false,
         });
       }
@@ -652,7 +698,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               }
               case "plateThicknessId": {
                 plateToUpdate.plateThicknessDescription =
-                  colour.fullThicknessList.find(
+                  plateToUpdate.thicknessList.find(
                     (p) => p.thicknessId === params.value,
                   )?.thicknessDesc;
                 break;
@@ -749,6 +795,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         let lenProcessed = 0;
         const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
+          order.printerName,
         );
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
@@ -794,53 +841,144 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       });
     },
+    async setPlateInfo(
+      plate: any,
+      availablePlates: any,
+      printerPlateList: any,
+      plateList: any,
+    ) {
+      //case when a plate belong to a draft and has value
+      if (plate.plateTypeId > 0) {
+        if (
+          availablePlates.findIndex(
+            (x) => x.plateTypeId === plate.plateTypeId,
+          ) >= 0
+        ) {
+          plate.plateList = availablePlates;
+          plate.hasAlternateOptions = false;
+        } else {
+          if (
+            printerPlateList.findIndex(
+              (x) => x.plateTypeId === plate.plateTypeId,
+            ) >= 0
+          ) {
+            plate.plateList = printerPlateList;
+            plate.alternateOptions = plateList;
+            plate.hasAlternateOptions = true;
+          } else {
+            plate.plateList = plateList;
+            plate.hasAlternateOptions = false;
+          }
+        }
+      }
+      //case when plate doesn't have a value
+      else {
+        //when no available plates: printer plates or all plates
+        if (availablePlates.length === 0) {
+          if (printerPlateList.length > 0) {
+            plate.plateList = printerPlateList;
+            plate.alternateOptions = plateList;
+            plate.hasAlternateOptions = true;
+          } else {
+            plate.plateList = plateList;
+            plate.hasAlternateOptions = false;
+          }
+        }
+        //when one or more available plates for the colour.
+        else {
+          //when only one available plate, we set by default that value
+          if (availablePlates.length === 1) {
+            plate.plateTypeId = availablePlates[0].plateTypeId;
+            plate.plateTypeDescription = availablePlates[0].plateTypeName;
+          }
+          plate.plateList = availablePlates;
+          plate.hasAlternateOptions = false;
+        }
+      }
+    },
+    async setThicknessInfo(
+      plate: any,
+      availableThicknesses: any,
+      thicknessList: any,
+    ) {
+      if (plate.plateThicknessId > 0) {
+        if (
+          availableThicknesses.findIndex(
+            (x) => x.thicknessId === plate.plateThicknessId,
+          ) >= 0
+        ) {
+          plate.thicknessList = availableThicknesses;
+        } else {
+          plate.thicknessList = thicknessList;
+        }
+      } else {
+        plate.thicknessList =
+          availableThicknesses.length === 0
+            ? thicknessList
+            : availableThicknesses;
+        if (plate.thicknessList.length === 1) {
+          plate.plateThicknessId = plate.thicknessList[0].thicknessId;
+          plate.plateThicknessDescription =
+            plate.thicknessList[0].thicknessDesc;
+        }
+      }
+      plate.loading = false;
+    },
     async getAvailablePlates(
       order: any,
       asyncAvailablePlatesCall: Promise<any>,
     ) {
       return new Promise((resolve) => {
-        asyncAvailablePlatesCall.then((result) => {
-          let count = order.editionColors.length;
-          order.editionColors.forEach((color) => {
-            color.fullPlateList = result.plateList;
-            color.fullThicknessList = result.thicknessList;
-            const availablePlateInfo = result.colorAvailablePlates.find(
-              (i) => i.colorSequence === color.sequenceNumber,
+        asyncAvailablePlatesCall.then((response) => {
+          if (response.result) {
+            let count = order.editionColors.length;
+            order.editionColors.forEach((color) => {
+              color.printerPlateList = response.data.printerPlateList;
+              color.fullPlateList = response.data.plateList;
+              color.fullThicknessList = response.data.thicknessList;
+              const availablePlateInfo =
+                response.data.colorAvailablePlates.find(
+                  (i) => i.colorSequence === color.sequenceNumber,
+                );
+              if (availablePlateInfo != null) {
+                color.plateDetails.forEach((plate) => {
+                  this.setPlateInfo(
+                    plate,
+                    availablePlateInfo.availablePlates,
+                    response.data.printerPlateList,
+                    response.data.plateList,
+                  );
+                  this.setThicknessInfo(
+                    plate,
+                    availablePlateInfo.availableThicknesses,
+                    response.data.thicknessList,
+                  );
+                });
+              } else {
+                color.plateDetails.forEach((plate) => {
+                  plate.hasAlternateOptions =
+                    response.data.PrinterPlateList.length > 0;
+                  plate.plateList =
+                    response.data.PrinterPlateList.length > 0
+                      ? response.data.PrinterPlateList
+                      : response.data.plateList;
+                  plate.alternateOptions = response.data.plateList;
+                  plate.thicknessList = response.data.thicknessList;
+                  plate.loading = false;
+                });
+              }
+              count--;
+              if (count <= 1) resolve({ status: "finished", order: order });
+            });
+          } else {
+            const notificationsStore = useNotificationsStore();
+            notificationsStore.addNotification(
+              Constants.FAILURE,
+              response.exceptionDetails?.Message,
+              { severity: "error", life: 5000 },
             );
-            if (availablePlateInfo != null) {
-              color.plateDetails.forEach((plate) => {
-                plate.plateList =
-                  availablePlateInfo.availablePlates.length === 0
-                    ? result.plateList
-                    : availablePlateInfo.availablePlates;
-                if (availablePlateInfo.availablePlates.length === 1) {
-                  plate.plateTypeId =
-                    availablePlateInfo.availablePlates[0].plateTypeId;
-                  plate.plateTypeDescription =
-                    availablePlateInfo.availablePlates[0].plateTypeName;
-                }
-                plate.thicknessList =
-                  availablePlateInfo.availableThicknesses.length === 0
-                    ? result.thicknessList
-                    : availablePlateInfo.availableThicknesses;
-                if (availablePlateInfo.availableThicknesses.length === 1) {
-                  plate.plateThicknessId =
-                    availablePlateInfo.availableThicknesses[0].thicknessId;
-                  plate.plateThicknessDescription =
-                    availablePlateInfo.availableThicknesses[0].thicknessDesc;
-                }
-                plate.loading = false;
-              });
-            } else {
-              color.plateDetails.forEach((plate) => {
-                plate.plateList = result.plateList;
-                plate.thicknessList = result.thicknessList;
-                plate.loading = false;
-              });
-            }
-            count--;
-            if (count <= 1) resolve({ status: "finished", order: order });
-          });
+            resolve({ status: "finished", order: null });
+          }
         });
       });
     },
@@ -853,56 +991,63 @@ export const useOrdersStore = defineStore("ordersStore", {
         let expectedColors = order.colors.length;
         const asyncAvailablePlatesCall = ReorderService.getOrderAvailablePlates(
           order.originalOrderId ? order.originalOrderId : order.sgsId,
+          order.printerName,
         );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             expectedColors += res.length - 1;
-            for (let i = 0; i < res.length; i++) {
-              const colorCopy: any = JSON.parse(JSON.stringify(color));
-              colorCopy.lenPath = res[i].lenPath;
-              colorCopy.lenData = res[i].lenData;
-              colorCopy.checkboxId = faker.datatype.uuid();
-              colorCopy.totalSets = 0;
-              colorCopy.plateDetails = [
-                {
-                  checkboxId: faker.datatype.uuid(),
-                  plateTypeId: null,
-                  plateTypeDescription: null,
-                  plateThicknessId: null,
-                  plateThicknessDescription: null,
-                  sets: 0,
-                  loading: true,
-                },
-              ];
-              order.editionColors.push(colorCopy);
-            }
-            if (expectedColors === order.editionColors.length) {
-              if (expectedColors === 0) {
-                const notificationsStore = useNotificationsStore();
-                const authStore = useAuthStore();
-                let message = Constants.SEND_SGS_ERROR;
-                let link: string = `/dashboard?showPM=true`;
-                const linkLabel: string = `Here`;
-                if (authStore.currentUser.isLoggedIn) {
-                  message = Constants.ORDER_ERROR;
-                  link = ``;
-                }
-                notificationsStore.addNotification(Constants.WARNING, message, {
-                  severity: "warn",
-                  life: 15000,
-                  link,
-                  linkLabel,
-                });
-                resolve({ status: "finished", order: null });
+            if (res.length == 0) {
+              resolve({ status: "finished", order: null });
+            } else {
+              for (let i = 0; i < res.length; i++) {
+                const colorCopy: any = JSON.parse(JSON.stringify(color));
+                colorCopy.lenPath = res[i].lenPath;
+                colorCopy.lenData = res[i].lenData;
+                colorCopy.checkboxId = faker.datatype.uuid();
+                colorCopy.totalSets = 0;
+                colorCopy.plateDetails = [
+                  {
+                    checkboxId: faker.datatype.uuid(),
+                    plateTypeId: null,
+                    plateTypeDescription: null,
+                    plateThicknessId: null,
+                    plateThicknessDescription: null,
+                    sets: 0,
+                    loading: true,
+                  },
+                ];
+                order.editionColors.push(colorCopy);
               }
-              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
-                () => {
-                  resolve({ status: "finished", order: order });
-                },
-              );
+              if (expectedColors === order.editionColors.length) {
+                if (expectedColors === 0) {
+                  resolve({ status: "finished", order: null });
+                }
+                this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                  () => {
+                    resolve({ status: "finished", order: order });
+                  },
+                );
+              }
             }
           });
         });
+      });
+    },
+    notifyOrderCannotBeProcessed() {
+      const notificationsStore = useNotificationsStore();
+      const authStore = useAuthStore();
+      let message = Constants.SEND_SGS_ERROR;
+      let link: string = `/dashboard?showPM=true`;
+      const linkLabel: string = `Here`;
+      if (authStore.currentUser.isLoggedIn) {
+        message = Constants.ORDER_ERROR;
+        link = ``;
+      }
+      notificationsStore.addNotification(Constants.WARNING, message, {
+        severity: "warn",
+        life: 15000,
+        link,
+        linkLabel,
       });
     },
     getPdfData(sgsId: string) {
@@ -916,6 +1061,86 @@ export const useOrdersStore = defineStore("ordersStore", {
           return response;
         }
       });
+    },
+    async exportToExcel(filters: any) {
+      console.log("My orders", filters);
+      const notificationsStore = useNotificationsStore();
+      this.filters = { ...this.filters, ...filters };
+      this.loading.ordersList = true;
+      const printers = [] as string[];
+      const printerIds = [] as number[];
+      let printerUserIds = [] as number[];
+
+      const authStore = useAuthStore();
+      const b2cAuth = useB2CAuthStore();
+      if (authStore.currentUser.isLoggedIn) {
+        // get printer Name
+        authStore.currentUser.internalUserPrinters.forEach((printer: any) => {
+          if (printer.printerId && printer.printerId > 0) {
+            printers.push(printer.printerName);
+            printerIds.push(printer.printerId);
+          }
+        });
+
+        filters.roleKey = authStore.currentUser.roleKey;
+        filters.userType = authStore.currentUser.userType;
+      }
+      if (b2cAuth.currentB2CUser.isLoggedIn) {
+        b2cAuth.currentB2CUser.internalUserPrinters.forEach((printer: any) => {
+          if (printer.printerId && printer.printerId > 0) {
+            printers.push(printer.printerName);
+            printerIds.push(printer.printerId);
+          } else {
+            printers.push(b2cAuth.currentB2CUser.printerName);
+          }
+          printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number[];
+        });
+        filters.roleKey = b2cAuth.currentB2CUser.roleKey;
+        filters.userType = b2cAuth.currentB2CUser.userType;
+      }
+
+      const fileresult = await ReorderService.exportToExcel(
+        filters?.query != "" && filters.query != null ? 4 : filters.status,
+        filters.query,
+        filters.sortBy,
+        filters.sortOrder,
+        this.pageState.page,
+        this.pageState.rows,
+        filters,
+        printers,
+        printerUserIds,
+      );
+
+      if (fileresult.length === 0) {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          Constants.NO_RECORD_TO_EXPORT,
+          {
+            severity: "warn",
+            life: 6000,
+          },
+        );
+        this.loading.ordersList = false;
+      } else {
+        const byteCharacters = atob(fileresult.fileContents);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        const blob = new Blob([byteArray], { type: fileresult.contentType });
+
+        const link = document.createElement("a");
+
+        // Set the link attributes
+        link.href = URL.createObjectURL(blob);
+        link.download = fileresult.fileDownloadName;
+
+        // Trigger the download
+        link.click();
+        this.loading.ordersList = false;
+      }
     },
   },
 });

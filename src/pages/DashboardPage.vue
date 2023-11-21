@@ -25,6 +25,9 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
                 prime-input-switch.checkbox.sm(v-model="showMyOrders" inputId="my-orders" @change="handleOrderToggle")
             .search
               orders-search(:config="userFilterConfig" :filters="filters" :userType="userType" @search="search" @searchkeyword="searchKeyword")
+            .export-excel(v-if="!searchExecuted")
+              template(v-if="roleKey === 'PrinterAdmin'")
+                sgs-button.default(icon = 'Download' @click= "exportToExcel")
             .send-to-pm
               template(v-if="userType === 'EXT'")
                 send-pm(:order="pmOrder" :loading="savingPmOrder" @create="createPmOrder")
@@ -375,25 +378,33 @@ async function addToCart(order: any) {
   });
 }
 async function reorder(order: any) {
-  const result = await ReorderService.validateOrder(
+  const response = await ReorderService.validateOrder(
     order.originalOrderId ? order.originalOrderId : order.sgsId,
   );
-  if (result === false) {
-    if (userType.value === "EXT") {
-      sendToPmStore.externalPrinterName =
-        authb2cStore.currentB2CUser.printerName;
-      // Validation failed, show the confirm  dialog
-      showConfirmDialog.value = true;
-      sendToPmStore.isValidated = true;
+  if (response.result) {
+    if (response.data === false) {
+      if (userType.value === "EXT") {
+        sendToPmStore.externalPrinterName =
+          authb2cStore.currentB2CUser.printerName;
+        // Validation failed, show the confirm  dialog
+        showConfirmDialog.value = true;
+        sendToPmStore.isValidated = true;
+      } else {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          Constants.FLEXO_ERROR,
+          { severity: "error" },
+        );
+      }
     } else {
-      notificationsStore.addNotification(
-        Constants.INFO,
-        Constants.FLEXO_ERROR,
-        { severity: "error" },
-      );
+      ordersStore.reorder(order);
     }
   } else {
-    ordersStore.reorder(order);
+    notificationsStore.addNotification(
+      Constants.FAILURE,
+      response.exceptionDetails?.Message,
+      { severity: "error", life: 5000 },
+    );
   }
 }
 function cancelOrder(order: any) {
@@ -415,7 +426,7 @@ function cancelOrder(order: any) {
       } else {
         notificationsStore.addNotification(
           Constants.FAILURE,
-          response.ExceptionDetails.Message,
+          response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
         return false;
@@ -436,7 +447,7 @@ const auditOrder = async (order) => {
   } else {
     notificationsStore.addNotification(
       Constants.FAILURE,
-      response.ExceptionDetails.Message,
+      response.exceptionDetails.Message,
       { severity: "error", life: 5000 },
     );
     console.error("Audit Error", response);
@@ -471,11 +482,19 @@ async function addMultipleToCart(sgsId: null) {
           ? order.originalOrderId
           : order.sgsId;
       }
-      const result = await ReorderService.validateOrder(orderSgsId);
-      if (result === true) {
-        validOrders.push(order);
+      const response = await ReorderService.validateOrder(orderSgsId);
+      if (response.result) {
+        if (response.data === true) {
+          validOrders.push(order);
+        } else {
+          errorMessages.push(order.sgsId);
+        }
       } else {
-        errorMessages.push(order.sgsId);
+        notificationsStore.addNotification(
+          Constants.FAILURE,
+          response.exceptionDetails?.Message,
+          { severity: "error", life: 5000 },
+        );
       }
     } catch (error) {
       console.error("[Error while validating the order]: ", error);
@@ -587,7 +606,7 @@ async function addMultipleToCart(sgsId: null) {
     } else {
       notificationsStore.addNotification(
         Constants.FAILURE,
-        response.ExceptionDetails?.Message || "Error",
+        response.exceptionDetails?.Message || "Error",
         { severity: "error", life: 5000 },
       );
     }
@@ -596,28 +615,47 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  const resp = await ReorderService.validateOrder(data.originalOrderId);
-  if (resp.Result === false && showMyOrders.value === false) {
-    if (userType.value === "EXT") {
-      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
-      let link: string = `/dashboard?showPM=true`;
-      const linkLabel: string = `Here`;
-      notificationsStore.addNotification(Constants.INFO, errorMessage, {
-        severity: "error",
-        life: 6000,
-        link,
-        linkLabel,
-      });
+  const response = await ReorderService.validateOrder(data.originalOrderId);
+  if (response.result) {
+    if (response.data === false && showMyOrders.value === false) {
+      if (userType.value === "EXT") {
+        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+        let link: string = `/dashboard?showPM=true`;
+        const linkLabel: string = `Here`;
+        notificationsStore.addNotification(Constants.INFO, errorMessage, {
+          severity: "error",
+          life: 6000,
+          link,
+          linkLabel,
+        });
+      } else {
+        notificationsStore.addNotification(
+          Constants.INFO,
+          `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
+          { severity: "error" },
+        );
+      }
     } else {
-      notificationsStore.addNotification(
-        Constants.INFO,
-        `${Constants.INTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
-        { severity: "error" },
-      );
+      router.push(data.path);
     }
   } else {
-    router.push(data.path);
+    notificationsStore.addNotification(
+      Constants.FAILURE,
+      response.exceptionDetails?.Message,
+      { severity: "error", life: 5000 },
+    );
   }
+}
+
+async function exportToExcel() {
+  if (!selectedStatus?.value?.value) return;
+  ordersStore.initAdvancedFilters();
+  filters.value.startDate = getDateRange(selectedDate.value.toString());
+  filters.value.status = selectedStatus?.value?.value;
+  filters.value.myOrdersToggled = showMyOrders.value;
+  filters.value.isAdvancedSearch = false;
+  addPrinterFilter();
+  ordersStore.exportToExcel(filters.value);
 }
 </script>
 
