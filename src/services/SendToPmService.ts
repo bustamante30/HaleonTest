@@ -3,6 +3,9 @@ import type { UploadFileDto } from "@/models/UploadFileDto";
 import type { DeleteFileDto } from "@/models/DeleteFileDto";
 import ApiService from "../services/apiService";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
@@ -76,13 +79,16 @@ class SendToPMService {
             });
           } else {
             console.error("[Invalid color object]:", color);
+            logger.error("[Invalid color object]:", color);
           }
         } else {
           console.error("[Invalid color]:", color);
+          logger.error("[Invalid color]:", color);
         }
       });
     } else {
       console.error("[Invalid colors array]:", exitOrderInfo.colors);
+      logger.error("[Invalid colors array]:", exitOrderInfo.colors);
     }
 
     newExitOrder.colors = newColorsArray;
@@ -93,6 +99,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error submitting Exit Order]:", error);
+        logger.error("[Error submitting Exit Order]:", error);
         return false;
       });
   }
@@ -110,6 +117,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error submitting files]:", error);
+        logger.error("[Error submitting files]:", error);
         return false;
       });
   }
@@ -126,6 +134,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error submitting files]:", error);
+        logger.error("[Error submitting files]:", error);
         return false;
       });
   }
@@ -138,6 +147,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error getting code types]:", error);
+        logger.error("[Error getting code types]:", error);
         return [];
       });
   }
@@ -150,6 +160,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error getting pack types]:", error);
+        logger.error("[Error getting pack types]:", error);
         return [];
       });
   }
@@ -162,6 +173,7 @@ class SendToPMService {
       })
       .catch((error: any) => {
         console.error("[Error getting plate types]: ", error);
+        logger.error("[Error getting plate types]: ", error);
         return 0;
       });
   }

@@ -4,6 +4,9 @@ import { useUserSessionStore } from "./usersession";
 import UserService from "@/services/userService";
 import store from "store";
 import router from "@/router";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const authConfig = {
   auth: {
@@ -46,6 +49,7 @@ export const useAuthStore = defineStore("auth", {
         this.account = this.msalInstance.getAllAccounts()[0];
       }
       this.updateUserStore(tokenResponse);
+      logger.log("aquireToken - completed");
     },
     async acquireTokenSilent() {
       // 1. try to obtain token use account detaials
@@ -55,6 +59,7 @@ export const useAuthStore = defineStore("auth", {
         account: this.msalInstance.getAllAccounts()[0],
       };
       console.info("acquireTokenSilent");
+      logger.log("acquireTokenSilent");
       const tokenResponse =
         await this.msalInstance.acquireTokenSilent(accessTokenRequest);
       if (tokenResponse) {
@@ -63,11 +68,12 @@ export const useAuthStore = defineStore("auth", {
         this.account = this.msalInstance.getAllAccounts()[0];
       }
       this.updateUserStore(tokenResponse);
+      logger.log("acquireTokenSilent - completed");
     },
     async getAccount() {
       const accounts = this.msalInstance.getAllAccounts();
       if (accounts.length == 0) {
-        console.log("no logged in account detected");
+        logger.log("getAccount - no logged in account detected");
         return;
       }
       this.account = accounts[0];
@@ -80,7 +86,6 @@ export const useAuthStore = defineStore("auth", {
           scopes: [import.meta.env.VITE_AAD_TOKEN_SCOPE],
           account: this.msalInstance.getAllAccounts()[0],
         };
-        console.log("accessTokenRequest" + accessTokenRequest);
         if (tokenResponse) {
           this.account = tokenResponse.account;
         } else {
@@ -91,8 +96,12 @@ export const useAuthStore = defineStore("auth", {
           console.log(
             "[Auth Store] successfully obtained valid account and tokenResponse",
           );
+          logger.log(
+            "Login - Successfully obtained valid account and tokenResponse",
+          );
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");
+          logger.log("Login - User has logged in, but no tokens.");
           try {
             tokenResponse =
               await this.msalInstance.acquireTokenSilent(accessTokenRequest);
@@ -103,11 +112,18 @@ export const useAuthStore = defineStore("auth", {
           console.log(
             "[Auth Store]  No account or tokenResponse present. User must now login.",
           );
+          logger.log(
+            "Login - No account or tokenResponse present. User must now login.",
+          );
           await this.msalInstance.loginRedirect(requestScope);
         }
         await this.updateUserStore(tokenResponse);
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
+        logger.error(
+          "Login - [Auth Store] Failed to handleRedirectPromise()",
+          error,
+        );
       }
     },
     async logout() {
@@ -118,13 +134,16 @@ export const useAuthStore = defineStore("auth", {
         .logoutRedirect({ postLogoutRedirectUri: "/login" })
         .then(() => {
           console.log("logout successful");
+          logger.log("Logout - logout successful");
         })
         .catch((error) => {
           console.error("[Logout Error]", error);
+          logger.error("Logout - [Logout Error]", error);
         });
     },
     async updateUserStore(tokenResponse) {
       console.log("updating user Store with " + tokenResponse);
+      logger.log("updateUserStore - updating user Store with ", tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       this.accessTokenUpdatedOn = new Date();

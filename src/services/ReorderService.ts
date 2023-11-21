@@ -4,6 +4,9 @@ import type { ReorderDto } from "../models/ReorderDto";
 import ApiService from "../services/apiService";
 import type { CartResponseDto } from "@/models/CartResponseDto";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
@@ -187,7 +190,8 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.error("Error submitting reorder:", error);
+        console.log("Error submitting reorder:", error);
+        logger.error("Error submitting reorder:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -338,7 +342,8 @@ class ReorderService {
         }
       })
       .catch((error: any) => {
-        console.error("Error getting orders:", error);
+        console.error("[Error getting reorders]:", error);
+        logger.error("[Error getting reorders]:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -351,6 +356,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting order details]: ", error);
+        logger.error("[Error getting order details]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -367,6 +373,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting OrderAvailablePlates]: ", error);
+        logger.error("[Error getting OrderAvailablePlates]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -379,6 +386,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting cart count]: ", error);
+        logger.error("[Error getting cart count]: ", error);
         return 0;
       });
   }
@@ -390,6 +398,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting photon reorder]: ", error);
+        logger.error("[Error getting photon reorder]: ", error);
         return null;
       });
   }
@@ -402,6 +411,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting cart]: ", error);
+        logger.error("[Error getting cart]: ", error);
         return 0;
       });
   }
@@ -413,6 +423,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error discarding order]: ", error);
+        logger.error("[Error discarding order]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -427,6 +438,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error deleting order]:", error);
+        logger.error("[Error deleting order]:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -439,6 +451,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting thumbnail]:", error);
+        logger.error("[Error getting thumbnail]:", error);
         return false;
       });
   }
@@ -451,6 +464,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting pdfs]:", error);
+        logger.error("[Error getting pdfs]:", error);
         return false;
       });
   }
@@ -479,6 +493,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting barcode]: ", error);
+        logger.error("[Error getting barcode]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -491,6 +506,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting shirttail]: ", error);
+        logger.error("[Error getting shirttail]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -503,6 +519,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting shirttail]: ", error);
+        logger.error("[Error getting shirttail]: ", error);
         return this.generateErrorObject(error);
       });
   }
@@ -515,6 +532,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error while validate order service]:", error);
+        logger.error("[Error while validate order service]:", error);
         return this.generateErrorObject(error);
       });
   }
@@ -532,6 +550,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error getting reorders]: ", error);
+        logger.error("[Error getting reorders]: ", error);
         return null;
       });
   }
@@ -569,6 +588,7 @@ class ReorderService {
       })
       .catch((error: any) => {
         console.error("[Error while adding order to Cart]:", error);
+        logger.error("[Error while adding order to Cart]:", error);
         return this.generateErrorObject(error) as APIResponse<
           CartResponseDto[]
         >;

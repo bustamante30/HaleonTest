@@ -45,6 +45,7 @@ import DemoVideo from "./components/common/DemoVideo.vue";
 import csvFile from "./components/common/videos/demo.csv";
 import ReportIssue from "./components/common/ReportIssue.vue";
 import { useRouter, useRoute } from "vue-router";
+import { useLoggerStore } from "./stores/uilogger";
 
 const route = useRoute();
 const notificationsStore = useNotificationsStore();
@@ -77,7 +78,9 @@ const isError = computed(() => {
 });
 const refreshTokenTimer = ref();
 let isReportFormVisible = ref(false);
+const loggerStore = useLoggerStore();
 onMounted(async () => {
+  loggerStore.init();
   refreshTokenTimer.value = setInterval(() => refreshToken(), 10 * 60 * 1000);
 });
 onUnmounted(async () => {

@@ -9,6 +9,9 @@ import UserService from "@/services/userService";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { UserSearchResponseDto } from "../models/UserSearchResponseDto";
 import type { PrinterDto } from "../models/PrinterDto";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
@@ -38,9 +41,11 @@ export async function searchUsers(
       return usersResponse;
     } else {
       console.error("[Error searching users response]:", usersResponse);
+      logger.error("[Error searching users response]:", usersResponse);
     }
   } catch (error) {
     console.error("[Error searching users]:", error);
+    logger.error("[Error searching users]:", error);
   }
 }
 
@@ -112,10 +117,12 @@ export async function searchPrinter(
       return printers;
     } else {
       console.error("[Error searching printers response]:", printerResponse);
+      logger.error("[Error searching printers response]:", printerResponse);
       return [];
     }
   } catch (error) {
     console.error("[Error searching printers]:", error);
+    logger.error("[Error searching printers]:", error);
     return [];
   }
 }
@@ -400,7 +407,8 @@ export const useUsersStore = defineStore("users", {
           this.editUser(this.user);
         }
       } else {
-        console.log("User not found");
+        console.error("User not found");
+        logger.error("User not found");
       }
     },
     editUser(user: any) {
@@ -500,6 +508,7 @@ export const useUsersStore = defineStore("users", {
         await UserService.DeleteUser(user, printerIdVal);
       } catch (error) {
         console.error("[Error deleting user]:", error);
+        logger.error("[Error deleting user]:", error);
       }
     },
     async resendInvitation(user: any) {
@@ -507,6 +516,7 @@ export const useUsersStore = defineStore("users", {
         await UserService.ResendInvitation(user);
       } catch (error) {
         console.error("[Error resending invitation]:", error);
+        logger.error("[Error resending invitation]:", error);
       }
     },
   },

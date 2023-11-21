@@ -1,5 +1,8 @@
 import ApiService from "../services/apiService";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
@@ -28,6 +31,7 @@ export class FileUploadService {
       })
       .catch((error) => {
         console.error("[Error submitting files]:", error);
+        logger.error("[Error submitting files]:", error);
         return { status: "Failed", uri: "" };
       });
   }
@@ -40,6 +44,7 @@ export class FileUploadService {
       })
       .catch((error) => {
         console.error("[Error deleting files]:", error);
+        logger.error("[Error deleting files]:", error);
         return false;
       });
   }
@@ -52,6 +57,7 @@ export class FileUploadService {
       })
       .catch((error) => {
         console.error("[Error in getting files]:", error);
+        logger.error("[Error in getting files]:", error);
         return false;
       });
   }
