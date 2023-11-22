@@ -482,14 +482,10 @@ export const useOrdersStore = defineStore("ordersStore", {
             };
             this.textSearchData.hasDataForAllDates = false;
 
-            if (
-              response.data?.reorderedData &&
-              Array.isArray(response.data.reorderedData) &&
-              response.data.reorderedData.length > 0
-            ) {
-              this.orders = response.data.reorderedData;
-              this.totalRecords = response.data.totalRecords;
-            }
+            this.orders = response.data?.reorderedData as any[];
+            this.totalRecords = response.data?.totalRecords
+              ? response.data?.totalRecords
+              : 0;
           }
           this.orders.sort((a: ReorderDto, b: ReorderDto) => {
             const dateA = new Date(a.submittedDate as string);
