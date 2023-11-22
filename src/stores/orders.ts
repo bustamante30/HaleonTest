@@ -447,7 +447,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           printers,
           printerUserIds,
         );
-        debugger;
         if (response.result) {
           if (filters.status === 4 && response.data?.dataNotPaged) {
             this.textSearchData.query = getSearchParamsAsString(filters);
