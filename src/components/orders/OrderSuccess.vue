@@ -114,7 +114,6 @@ async function handleCancelOrder() {
         { severity: "success" },
       );
       await router.push(`/dashboard?q=${Date.now()}`);
-      await ordersStore.getOrders();
     } else {
       this.notificationsStore.addNotification(
         Constants.ERROR,

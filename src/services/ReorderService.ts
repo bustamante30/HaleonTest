@@ -15,11 +15,15 @@ const httpService = new ApiService(baseUrl);
 interface SearchPagedResultDto {
   reorderedData: ReorderDto[];
   totalRecords: number;
+  hasDataForAllDates: boolean;
+  dataNotPaged: boolean;
 }
 
 export type SearchResultDto = {
   data?: Array<any> | null;
   totalRecords?: number;
+  hasDataForAllDates: boolean;
+  dataNotPaged: boolean;
 };
 
 interface APIResponse<T> {
@@ -298,6 +302,8 @@ class ReorderService {
       .then((response: APIResponse<SearchResultDto>) => {
         if (response.result) {
           const values = response.data;
+          const hasDataForAllDates = !!values?.hasDataForAllDates;
+          const dataNotPaged = !!values?.dataNotPaged;
           const reorderedData: ReorderDto[] = values?.data
             ? values.data.map((item: ReorderDto) => ({
                 id: item.id,
@@ -334,6 +340,8 @@ class ReorderService {
             data: {
               reorderedData: reorderedData,
               totalRecords: totalRecords,
+              hasDataForAllDates: hasDataForAllDates,
+              dataNotPaged: dataNotPaged,
             },
           };
           return newResponse;
