@@ -45,7 +45,7 @@
             prime-inputtext(v-model="printerForm.primaryPMEmail")
           .f
             label Plating Location
-            prime-multi-select(v-model='printerForm.platingLocations' :options='platingLocationsList' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' @change="handlePlatingLocationSelection($event)")
+            prime-multi-select.w-full(v-model='printerForm.platingLocations' :options='platingLocationsList' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' @change="handlePlatingLocationSelection($event)")
       template(#footer)
         footer
           .secondary-actions &nbsp;
@@ -261,4 +261,7 @@ function save() {
           margin-right: $s
           &:after
             content: ''
+
+.w-full
+  width:100%
 </style>

@@ -6,7 +6,6 @@ const config = {
       type: "link",
       path: "/users/$1",
       pathParams: ["id"],
-      freeze: "left",
       width: 12,
     },
     {
