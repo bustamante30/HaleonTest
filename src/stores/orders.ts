@@ -455,15 +455,10 @@ export const useOrdersStore = defineStore("ordersStore", {
               reorderedData: [],
               totalRecords: 0,
             };
-
-            if (
-              response.data?.reorderedData &&
-              Array.isArray(response.data.reorderedData) &&
-              response.data.reorderedData.length > 0
-            ) {
-              this.orders = response.data.reorderedData;
-              this.totalRecords = response.data.reorderedData.length;
-            }
+            this.orders = response?.data?.reorderedData as any[];
+            this.totalRecords = response?.data?.reorderedData.length
+              ? response?.data?.reorderedData.length
+              : 0;
           }
           this.orders.sort((a: ReorderDto, b: ReorderDto) => {
             const dateA = new Date(a.submittedDate as string);
@@ -898,6 +893,13 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       }
     },
+    async decoratePlateList(mainList: Array<any>, alternateList: Array<any>) {
+      mainList.unshift({ plateTypeId: -1, plateTypeName: "Show All..." });
+      alternateList.unshift({
+        plateTypeId: -1,
+        plateTypeName: "Show Less...",
+      });
+    },
     async setThicknessInfo(
       plate: any,
       availableThicknesses: any,
@@ -934,6 +936,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         asyncAvailablePlatesCall.then((response) => {
           if (response.result) {
             let count = order.editionColors.length;
+            if (response.data.printerPlateList.length > 0)
+              this.decoratePlateList(
+                response.data.printerPlateList,
+                response.data.plateList,
+              );
             order.editionColors.forEach((color) => {
               color.printerPlateList = response.data.printerPlateList;
               color.fullPlateList = response.data.plateList;

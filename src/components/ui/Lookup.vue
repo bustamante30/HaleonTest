@@ -44,7 +44,6 @@ const defaultOptions = computed(() => {
 });
 
 const displayOptions = ref(props.options);
-
 const emit = defineEmits(["update:modelValue"]);
 
 const selected = computed(() => {
@@ -67,8 +66,25 @@ onBeforeMount(() => {
 });
 
 function update(event) {
-  emit("update:modelValue", event);
-  editMode.value = false;
+  let changedList = false;
+  if (event.value == -1) {
+    if (!showFullList.value) {
+      showFullList.value = true;
+      displayOptions.value = props.alternateOptions;
+    } else {
+      showFullList.value = false;
+      displayOptions.value = props.options;
+    }
+    changedList = true;
+    event.originalEvent.preventDefault();
+    event.originalEvent.stopPropagation();
+    ///added workaround due to issue with prevention of event propagation in primevue
+    throw new Error("changed List ");
+  }
+  if (!changedList) {
+    emit("update:modelValue", event.value);
+    editMode.value = false;
+  }
 }
 
 function escPressed() {
@@ -79,22 +95,22 @@ function switchToEditMode() {
   editMode.value = true;
 }
 const showFullList = ref(props.alternateOptions.length === 0);
-function handleToggle() {
-  showFullList.value = true;
-  displayOptions.value = props.alternateOptions;
+function checkValue(val) {
+  return val.option[props.optionValue] === -1;
 }
 </script>
 
 <template lang="pug">
 .lookup(tabindex="0" @keydown.esc="escPressed")
-  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @update:model-value="update")
+  prime-dropdown(v-if="editMode" :model-value="modelValue" :options="[...defaultOptions, ...displayOptions]" :option-label="optionLabel" :option-value="optionValue" filter :placeholder="empty" @change="update($event)")
+    template(#option="slotProps")
+      span.blue(v-if="checkValue(slotProps)" class="flex align-items-center") {{ slotProps.option[optionLabel] }}
+      span(v-else class="flex align-items-center") {{ slotProps.option[optionLabel] }}
   .readonly(v-if="!editMode" )
     span.value(v-if="selected") {{ selected[props.optionLabel] }}
     span.no-data(v-else) No value specified
-    a.change(v-if="displayOptions.length>1" @click="switchToEditMode()") Change
-  div.toggleList()
-    a(v-if="editMode && hasAlternateOptions && !showFullList" @click="handleToggle()") Show full list
-    span(v-else) &nbsp;
+    a.change(v-if="displayOptions && displayOptions.length>1" @click="switchToEditMode()") Change
+  
 </template>
 
 <style lang="sass" scoped>
@@ -113,4 +129,6 @@ function handleToggle() {
   a.change
     display: inline-block
     margin-left: $s
+.blue
+  color: #0080C5
 </style>
