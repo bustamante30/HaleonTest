@@ -96,7 +96,9 @@ const handleSortPagination = (
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
     } else {
-      resultForCache = sortBy(resultForCache, [filters.sortBy]);
+      const sortByFieldName =
+        filters.sortBy === "mySgsNumber" ? "sgsId" : filters.sortBy;
+      resultForCache = sortBy(resultForCache, [sortByFieldName]);
     }
 
     if (!filters.sortOrder) {
@@ -131,6 +133,9 @@ const getSearchParamsAsString = (search) => {
 };
 
 const isDateFilterSame = (dateRange1, dateRange2) => {
+  if (dateRange1.length === 0 && dateRange2.length === 0) {
+    return true;
+  }
   return (
     dateRange1[0].getTime() === dateRange2[0].getTime() &&
     dateRange1[1].getTime() === dateRange2[1].getTime()
@@ -435,11 +440,14 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.orders = reorderedData;
         this.totalRecords = totalRecords;
       } else {
+        const [sortByColumn, sortOrder] = filters.sortBy
+          ? [filters.sortBy, filters.sortOrder]
+          : ["OrderDate", false];
         const response = await ReorderService.getRecentReorders(
           filters?.query != "" && filters.query != null ? 4 : filters.status,
           filters.query,
-          filters.sortBy,
-          filters.sortOrder,
+          sortByColumn,
+          sortOrder,
           this.pageState.page,
           this.pageState.rows,
           filters,
@@ -487,11 +495,6 @@ export const useOrdersStore = defineStore("ordersStore", {
               ? response.data?.totalRecords
               : 0;
           }
-          this.orders.sort((a: ReorderDto, b: ReorderDto) => {
-            const dateA = new Date(a.submittedDate as string);
-            const dateB = new Date(b.submittedDate as string);
-            return dateB.getTime() - dateA.getTime();
-          });
         } else {
           const notificationsStore = useNotificationsStore();
           notificationsStore.addNotification(
