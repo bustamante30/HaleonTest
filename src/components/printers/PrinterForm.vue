@@ -43,6 +43,9 @@
           .f
             label Email
             prime-inputtext(v-model="printerForm.primaryPMEmail")
+          .f
+            label Plating Location
+            prime-multi-select(v-model='printerForm.platingLocations' :options='platingLocationsList' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' @change="handlePlatingLocationSelection($event)")
       template(#footer)
         footer
           .secondary-actions &nbsp;
@@ -51,15 +54,35 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { providers, federated } from "@/data/config/identitiy-providers";
 import SuggesterService from "@/services/SuggesterService";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
+import UserService from "@/services/userService";
 
 const emit = defineEmits(["save", "close"]);
 const printerResults = ref([]);
 const notificationsStore = useNotificationsStore();
+
+const platingLocationsList = ref([]);
+const selectedPlatingLocations = ref([]);
+
+onMounted(async () => {
+  try {
+    const locations = await UserService.getPlatingLocations();
+    platingLocationsList.value = locations.map((location) => ({
+      label: location.platingLocationName,
+      value: location.platingLocationName,
+    }));
+  } catch (error) {
+    console.error("Error fetching plating locations:", error);
+  }
+});
+
+const handlePlatingLocationSelection = (selectedValues) => {
+  selectedPlatingLocations.value = selectedValues;
+};
 
 const printerForm = ref({
   id: null,
@@ -72,6 +95,7 @@ const printerForm = ref({
   primaryPMFirstName: null,
   primaryPMLastName: null,
   primaryPMEmail: null,
+  platingLocations: [],
 });
 
 async function searchPrinter(value) {
@@ -152,6 +176,7 @@ function save() {
     );
     return;
   }
+  printerForm.value.platingLocations = selectedPlatingLocations.value;
   emit("save", printerForm);
 }
 </script>

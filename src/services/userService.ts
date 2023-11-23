@@ -3,6 +3,7 @@ import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { SearchResponeDto } from "../models/SearchResponeDto";
 import type { PrinterDto } from "../models/PrinterDto";
+import type { PlatingLocationDto } from "../models/PlatingLocationDto";
 import ApiService from "../services/apiService";
 import type { ExternalPrinterCountResponseDto } from "../models/ExternalPrinterCountResponseDto";
 import { useNotificationsStore } from "@/stores/notifications";
@@ -93,9 +94,11 @@ class UserService {
       });
   }
 
-  public static getUserDetails(userId: string) {
+  public static getUserDetails(userId: string, printerId: number) {
     return httpService
-      .get<UserDto>("v1/user/Retrieve?userId=" + userId)
+      .get<UserDto>(
+        "v1/user/Retrieve?userId=" + userId + "&printerId=" + printerId,
+      )
       .then((response: UserDto) => {
         return response;
       })
@@ -183,6 +186,19 @@ class UserService {
       .catch((error) => {
         console.error("[Error getting User Details]: ", error);
         logger.error("[Error getting User Details]: ", error);
+        return null;
+      });
+  }
+
+  public static getPlatingLocations() {
+    return httpService
+      .get<PlatingLocationDto[]>("v1/user/PlatingLocation")
+      .then((response: PlatingLocationDto[]) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("[Error getting Plating Location]: ", error);
+        logger.error("[Error getting Plating Location]: ", error);
         return null;
       });
   }

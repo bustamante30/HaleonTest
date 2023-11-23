@@ -29,7 +29,7 @@ const userName = computed(() => {
 });
 
 onBeforeMount(() => {
-  usersStore.getUser(id);
+  usersStore.getUser(id, printer.value.id);
 });
 
 async function saveUser(value) {
