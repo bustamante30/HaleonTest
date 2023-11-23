@@ -5,6 +5,9 @@ import axios, {
   type CancelTokenSource,
 } from "axios";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   headers: any;
 }
@@ -67,6 +70,7 @@ class ApiService {
     } catch (error: any) {
       if (axios.isCancel(error)) {
         console.error("[Request canceled]:", error.message);
+        logger.error("[Request canceled]:", error.message);
         return Promise.reject(Constants.REQUEST_CANCEL);
       } else if (error?.response?.data) {
         return error?.response?.data;

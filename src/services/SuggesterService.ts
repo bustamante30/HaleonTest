@@ -2,6 +2,9 @@
 import { type AiCustomerSearchDto } from "../models/AiCustomerSearchDto";
 import ApiService from "../services/apiService";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
@@ -17,6 +20,7 @@ class SuggesterService {
       })
       .catch((error: any) => {
         console.error("[Error getting printer suggestions]: ", error);
+        logger.error("[Error getting printer suggestions]: ", error);
         return [];
       });
   }
@@ -32,6 +36,7 @@ class SuggesterService {
       })
       .catch((error: any) => {
         console.error("[Error getting printer site suggestions]: ", error);
+        logger.error("[Error getting printer site suggestions]: ", error);
         return [];
       });
   }

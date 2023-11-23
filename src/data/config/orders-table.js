@@ -23,7 +23,7 @@ const tableConfig = {
     },
     {
       header: "Order Date",
-      field: "submittedDate",
+      field: "submittedDateDisplay",
       width: 15,
     },
     {
@@ -86,7 +86,7 @@ const tableConfig = {
             label: "Cancel Order",
             event: "cancel",
             validate: true,
-            field: "submittedDate",
+            field: "submittedDateDisplay",
           });
         }
 

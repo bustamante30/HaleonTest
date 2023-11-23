@@ -18,7 +18,7 @@
       :lazy="true"
       scrollable
       scroll-height="flex"
-      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink"
+      paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
       @sort="sortColumn"
       @page="onPage($event)"
     )

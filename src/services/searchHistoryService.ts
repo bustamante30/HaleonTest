@@ -3,6 +3,9 @@ import ApiService from "../services/apiService";
 import type { SearchHistoryDto } from "@/models/SearchHistoryDto";
 import type { SearchDateDto } from "@/models/SearchDateDto";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 
@@ -17,6 +20,7 @@ class SearchHistoryService {
       })
       .catch((error) => {
         console.error("[Error getting search field]: ", error);
+        logger.error("[Error getting search field]: ", error);
         return [];
       });
   }
@@ -29,6 +33,7 @@ class SearchHistoryService {
       })
       .catch((error) => {
         console.error("[Error getting search field]: ", error);
+        logger.error("[Error getting search field]: ", error);
         return [];
       });
   }
@@ -46,6 +51,7 @@ class SearchHistoryService {
       })
       .catch((error) => {
         console.error("[Error getting search history]: ", error);
+        logger.error("[Error getting search history]: ", error);
         return [];
       });
   }
@@ -64,6 +70,7 @@ class SearchHistoryService {
       })
       .catch((error) => {
         console.error("[Error setting search history]: ", error);
+        logger.error("[Error setting search history]: ", error);
         return [];
       });
   }

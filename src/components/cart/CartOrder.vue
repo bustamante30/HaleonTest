@@ -50,6 +50,9 @@ import { useCartStore } from "@/stores/cart";
 import { useConfirm } from "primevue/useconfirm";
 import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const props = defineProps({
   order: {
@@ -81,6 +84,7 @@ const auditOrder = async (order) => {
       { severity: "error", life: 5000 },
     );
     console.error(response);
+    logger.error(response);
   }
 };
 

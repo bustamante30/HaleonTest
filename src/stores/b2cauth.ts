@@ -10,6 +10,9 @@ import jwt_decode from "jwt-decode";
 import router from "@/router";
 import store from "store";
 import type { SearchRequestDto } from "@/models/SearchRequestDto";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const authB2CConfig = {
   auth: {
@@ -86,6 +89,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         account: this.msalB2cInstance.getAllAccounts()[0],
       };
       console.info("acquireTokenSilent");
+      logger.log("acquireTokenSilent");
       const tokenResponse =
         await this.msalB2cInstance.acquireTokenSilent(accessTokenRequest);
       if (tokenResponse) {
@@ -100,7 +104,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
     async getAccount() {
       const accounts = this.msalB2cInstance.getAllAccounts();
       if (accounts.length == 0) {
-        console.log("no logged in account detected");
+        console.error("no logged in account detected");
+        logger.error("no logged in account detected");
         return;
       }
       this.account = accounts[0];
@@ -130,7 +135,8 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             }
           })
           .catch((error) => {
-            console.log("login with redirect failed: ", error);
+            console.error("login with redirect failed: ", error);
+            logger.error("login with redirect failed: ", error);
             this.currentB2CUser.isLoggedIn = false;
             localStorage.clear();
             sessionStorage.clear();
@@ -152,9 +158,13 @@ export const useB2CAuthStore = defineStore("b2cauth", {
           console.log(
             "[Auth Store] successfully obtained valid account and tokenResponse",
           );
+          logger.log(
+            "Login - Successfully obtained valid account and tokenResponse",
+          );
           await this.updateUserStore(response);
         } else if (this.account) {
           console.log("[Auth Store] User has logged in, but no tokens.");
+          logger.log("Login - User has logged in, but no tokens.");
           try {
             this.msalB2cInstance
               .acquireTokenSilent({
@@ -164,7 +174,11 @@ export const useB2CAuthStore = defineStore("b2cauth", {
                 response = tokenResponse;
               })
               .catch((e) => {
-                console.log("login error in acquire token silent: ", e);
+                console.error("login error in acquire token silent: ", e);
+                logger.error(
+                  "Login - login error in acquire token silent: ",
+                  e,
+                );
               });
             await this.updateUserStore(response);
           } catch (err) {
@@ -172,8 +186,11 @@ export const useB2CAuthStore = defineStore("b2cauth", {
             await this.updateUserStore(response);
           }
         } else {
-          console.log(
+          console.error(
             "[Auth Store]  No account or tokenResponse present. User must now login.",
+          );
+          logger.error(
+            "Login - No account or tokenResponse present. User must now login.",
           );
           const account = this.msalB2cInstance.getActiveAccount();
           if (!account) {
@@ -184,15 +201,18 @@ export const useB2CAuthStore = defineStore("b2cauth", {
               })
               .then((tokenResponse) => {
                 console.log("Login redirect response" + tokenResponse);
+                logger.log("Login redirect response" + tokenResponse);
                 response = tokenResponse;
               })
               .catch(async (e) => {
-                console.log("login error loginRedirect: ", e);
+                console.error("login error loginRedirect: ", e);
+                logger.error("Login - login error loginRedirect: ", e);
               });
           }
         }
       } catch (error) {
         console.error("[Auth Store]  Failed to handleRedirectPromise()", error);
+        logger.error("Login - Failed to handleRedirectPromise()", error);
       }
     },
     logout() {
@@ -203,14 +223,17 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         .logoutRedirect({ postLogoutRedirectUri: "/b2clogin" })
         .then(() => {
           console.log("logout successful");
+          logger.log("logout successful");
         })
         .catch((error) => {
           console.error("[Logout Error]", error);
+          logger.error("Logout - [Logout Error]", error);
         });
     },
     async updateUserStore(tokenResponse) {
       this.currentB2CUser.isValidDomain = true;
       console.log("updating user Store with " + tokenResponse);
+      logger.log("updating user Store with " + tokenResponse);
       this.accessToken = tokenResponse.accessToken;
       localStorage.setItem("token", this.accessToken);
       this.accessTokenUpdatedOn = new Date();
@@ -227,8 +250,6 @@ export const useB2CAuthStore = defineStore("b2cauth", {
         this.currentB2CUser.printerUserIds = await printerIdSearch(
           this.currentB2CUser,
         );
-        console.log("currentB2CUser:" + JSON.stringify(this.currentB2CUser));
-
         if (user.identityProviderName === "Federated") {
           if (user.identityTypeName === identityProviderSelected) {
             this.isValidIdentityProvider = true;
