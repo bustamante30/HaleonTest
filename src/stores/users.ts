@@ -22,7 +22,7 @@ export async function fetchPlatingLocations() {
     const locationResult = await UserService.getPlatingLocations();
     return locationResult;
   } catch (error) {
-    console.error("Error fetching plating locations:", error);
+    logger.error("Error fetching plating locations:", error);
     return [];
   }
 }
@@ -517,13 +517,16 @@ export const useUsersStore = defineStore("users", {
     },
     async savePrinter(printerreq: any) {
       const platingLocReq: PlatingLocationDto[] = [];
-      printerreq.value?.platingLocations?.value.forEach(
-        (pltlocation: string) => {
-          platingLocReq.push({
-            platingLocationName: pltlocation,
-          });
-        },
-      );
+
+      if (printerreq.value?.platingLocations?.value) {
+        printerreq.value?.platingLocations?.value.forEach(
+          (pltlocation: string) => {
+            platingLocReq.push({
+              platingLocationName: pltlocation,
+            });
+          },
+        );
+      }
 
       const printerDto: PrinterDto = {
         printerName: printerreq.value.name,

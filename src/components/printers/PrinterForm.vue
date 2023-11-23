@@ -60,10 +60,12 @@ import SuggesterService from "@/services/SuggesterService";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
 import UserService from "@/services/userService";
+import { Logger } from "@/logger/logger";
 
 const emit = defineEmits(["save", "close"]);
 const printerResults = ref([]);
 const notificationsStore = useNotificationsStore();
+const logger = new Logger("stores-auth");
 
 const platingLocationsList = ref([]);
 const selectedPlatingLocations = ref([]);
@@ -76,7 +78,7 @@ onMounted(async () => {
       value: location.platingLocationName,
     }));
   } catch (error) {
-    console.error("Error fetching plating locations:", error);
+    logger.error("Error fetching plating locations:", error);
   }
 });
 
