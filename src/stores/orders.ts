@@ -23,10 +23,9 @@ import type { ReorderDto } from "@/models/ReorderDto";
 import { useAuthStore } from "./auth";
 import * as Constants from "@/services/Constants";
 
-const handleSortPagination = (
+const filter = (
   reorderedData: ReorderDto[],
   filters: any,
-  pageState: any,
   columnFilter: any = null,
 ): ReorderDto[] => {
   // Filter by Date
@@ -40,26 +39,17 @@ const handleSortPagination = (
     (filters.query === "" || filters.query === null)
   ) {
     reorderedData.forEach((order) => {
-      let date;
       if (
         typeof order.submittedDate === "string" &&
         order.submittedDate?.includes("T")
       ) {
-        date = DateTime.fromISO(order.submittedDate).toMillis();
-      } else {
-        const submittedDate = order.submittedDate
-          ? order.submittedDate.toString()
-          : "";
-        date = DateTime.fromFormat(
-          submittedDate,
-          "MMM d, yyyy, h:mm a",
-        ).toMillis();
-      }
-      if (
-        date >= DateTime.fromJSDate(startDate).toMillis() &&
-        date <= DateTime.fromJSDate(endDate).toMillis()
-      ) {
-        filteredresult.push(order);
+        const date = DateTime.fromISO(order.submittedDate).toMillis();
+        if (
+          date >= DateTime.fromJSDate(startDate).toMillis() &&
+          date <= DateTime.fromJSDate(endDate).toMillis()
+        ) {
+          filteredresult.push(order);
+        }
       }
     });
   } else {
@@ -94,7 +84,14 @@ const handleSortPagination = (
       );
     }
   }
-
+  return resultForCache;
+};
+const handleSortPagination = (
+  reorderedData: ReorderDto[],
+  filters: any,
+  pageState: any,
+): ReorderDto[] => {
+  let resultForCache: any[] = reorderedData;
   if (filters.sortBy) {
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
@@ -131,6 +128,13 @@ const getSearchParamsAsString = (search) => {
   delete filters["startDate"];
 
   return JSON.stringify(filters);
+};
+
+const isDateFilterSame = (dateRange1, dateRange2) => {
+  return (
+    dateRange1[0].getTime() === dateRange2[0].getTime() &&
+    dateRange1[1].getTime() === dateRange2[1].getTime()
+  );
 };
 
 const base64toBlob = (data: string) => {
@@ -194,6 +198,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         reorderedData: [] as ReorderDto[],
         totalRecords: 0,
       },
+      hasDataForAllDates: false,
+      queryStartDate: null,
     },
   }),
   getters: {
@@ -211,6 +217,10 @@ export const useOrdersStore = defineStore("ordersStore", {
         printerUserIds = b2cAuth.currentB2CUser.printerUserIds as number[];
       }
       this.loading.ordersList = true;
+      const filter = {
+        roleKey: this.userRoleKey,
+        printerName: this.userPrinterName,
+      };
       const response = await ReorderService.getRecentReorders(
         4,
         this.filters?.query ? this.filters.query : undefined,
@@ -218,17 +228,21 @@ export const useOrdersStore = defineStore("ordersStore", {
         undefined,
         this.pageState.page,
         this.pageState.rows,
-        { roleKey: this.userRoleKey, printerName: this.userPrinterName },
+        filter,
         undefined,
         undefined,
         printerUserIds,
       );
       this.loading.ordersList = false;
       if (response.result) {
-        this.orders =
+        const reorderedData = handleSortPagination(
           response.data?.reorderedData != null
             ? response.data.reorderedData
-            : [];
+            : [],
+          filter,
+          this.pageState,
+        );
+        this.orders = reorderedData;
         this.totalRecords = response.data?.totalRecords
           ? response.data?.totalRecords
           : 0;
@@ -403,18 +417,23 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.textSearchData.query != "" &&
         this.textSearchData.query === getSearchParamsAsString(filters) &&
         filters.status === 4 &&
-        ((filters.userType !== "INT" &&
-          filters.roleKey !== "PMSuperAdminUser") ||
-          (filters.userType === "INT" && filters.roleKey === "PMUser"))
+        (isDateFilterSame(this.textSearchData.queryStartDate, filters.startDate)
+          ? true
+          : this.textSearchData.hasDataForAllDates)
       ) {
-        const reorderedData = handleSortPagination(
+        const filteredData = filter(
           this.textSearchData.data.reorderedData,
           filters,
-          this.pageState,
           filterStore,
         );
+        const totalRecords = filteredData.length;
+        const reorderedData = handleSortPagination(
+          filteredData,
+          filters,
+          this.pageState,
+        );
         this.orders = reorderedData;
-        this.totalRecords = this.textSearchData.data.reorderedData.length;
+        this.totalRecords = totalRecords;
       } else {
         const response = await ReorderService.getRecentReorders(
           filters?.query != "" && filters.query != null ? 4 : filters.status,
@@ -429,8 +448,9 @@ export const useOrdersStore = defineStore("ordersStore", {
           printerUserIds,
         );
         if (response.result) {
-          if (filters.status === 4) {
+          if (filters.status === 4 && response.data?.dataNotPaged) {
             this.textSearchData.query = getSearchParamsAsString(filters);
+            this.textSearchData.queryStartDate = filters.startDate;
             this.textSearchData.data = {
               reorderedData:
                 response.data?.reorderedData != null
@@ -440,28 +460,32 @@ export const useOrdersStore = defineStore("ordersStore", {
                 ? response.data?.totalRecords
                 : 0,
             };
-            const reorderedData = handleSortPagination(
+            this.textSearchData.hasDataForAllDates =
+              !!response.data?.hasDataForAllDates;
+            const filteredData = filter(
               this.textSearchData.data.reorderedData,
+              filters,
+            );
+            const totalRecords = filteredData.length;
+            const reorderedData = handleSortPagination(
+              filteredData,
               filters,
               this.pageState,
             );
             this.orders = reorderedData;
-            this.totalRecords = this.textSearchData.data.reorderedData.length;
+            this.totalRecords = totalRecords;
           } else {
             this.textSearchData.query = "";
             this.textSearchData.data = {
               reorderedData: [],
               totalRecords: 0,
             };
+            this.textSearchData.hasDataForAllDates = false;
 
-            if (
-              response.data?.reorderedData &&
-              Array.isArray(response.data.reorderedData) &&
-              response.data.reorderedData.length > 0
-            ) {
-              this.orders = response.data.reorderedData;
-              this.totalRecords = response.data.reorderedData.length;
-            }
+            this.orders = response.data?.reorderedData as any[];
+            this.totalRecords = response.data?.totalRecords
+              ? response.data?.totalRecords
+              : 0;
           }
           this.orders.sort((a: ReorderDto, b: ReorderDto) => {
             const dateA = new Date(a.submittedDate as string);
@@ -479,6 +503,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             reorderedData: [],
             totalRecords: 0,
           };
+          this.textSearchData.hasDataForAllDates = false;
           this.orders = [];
           this.totalRecords = 0;
         }
@@ -553,7 +578,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           ).includes("Z")
             ? this.orders[i].submittedDate
             : this.orders[i].submittedDate + "Z";
-          this.orders[i].submittedDate = DateTime.fromISO(
+          this.orders[i].submittedDateDisplay = DateTime.fromISO(
             formattedDate,
           ).toLocaleString(DateTime.DATETIME_MED);
         }
@@ -572,6 +597,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           reorderedData: [] as ReorderDto[],
           totalRecords: 0,
         },
+        hasDataForAllDates: false,
+        queryStartDate: null,
       };
     },
     async setFilter(field: any, value: any) {
