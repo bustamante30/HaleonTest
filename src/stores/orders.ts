@@ -923,6 +923,13 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       }
     },
+    async decoratePlateList(mainList: Array<any>, alternateList: Array<any>) {
+      mainList.unshift({ plateTypeId: -1, plateTypeName: "Show All..." });
+      alternateList.unshift({
+        plateTypeId: -1,
+        plateTypeName: "Show Less...",
+      });
+    },
     async setThicknessInfo(
       plate: any,
       availableThicknesses: any,
@@ -959,6 +966,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         asyncAvailablePlatesCall.then((response) => {
           if (response.result) {
             let count = order.editionColors.length;
+            if (response.data.printerPlateList.length > 0)
+              this.decoratePlateList(
+                response.data.printerPlateList,
+                response.data.plateList,
+              );
             order.editionColors.forEach((color) => {
               color.printerPlateList = response.data.printerPlateList;
               color.fullPlateList = response.data.plateList;
