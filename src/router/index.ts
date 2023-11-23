@@ -113,8 +113,8 @@ router.beforeEach((to, from, next) => {
       next({ name: "loginPage", query: { q: Date.now() } });
     }
   } else {
-    console.error("[Require Auth Error] Does not require auth", to, from);
-    logger.error("[Require Auth Error] Does not require auth", to, from);
+    console.log("[Require Auth Error] Does not require auth", to, from);
+    logger.log("[Require Auth Error] Does not require auth", to, from);
     next();
   }
 });
