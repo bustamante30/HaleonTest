@@ -419,10 +419,10 @@ export const useUsersStore = defineStore("users", {
             isPrimaryPMValue = userPrinter.isPrimaryPM;
           }
         }
-
-        const selectedplatingLocations = userEditResp?.userPrinter?.map(
-          (userPrtLoc: any) => userPrtLoc.platingLocationName,
-        ); // Array of selected location names
+        
+        const selectedplatingLocations = userEditResp?.userPrinter
+        ?.map((userPrtLoc: any) => userPrtLoc.platingLocationName)
+        .filter((location: string | null) => location !== null); 
 
         this.options.platingLocations = this.options.platingLocations.map(
           (plLocation: any) => ({
@@ -439,7 +439,10 @@ export const useUsersStore = defineStore("users", {
           isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
           isPrimaryPM: isPrimaryPMValue || false,
           userType: userEditResp.userType,
-          platingLocations: selectedplatingLocations,
+          platingLocations:
+            selectedplatingLocations !== null
+              ? selectedplatingLocations
+              : undefined,
         };
 
         if (this.user) {
