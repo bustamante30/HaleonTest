@@ -20,26 +20,24 @@ export const useNotificationsStore = defineStore("notifications", {
       this.messages.push({ severity, summary, detail, life, position, group });
     },
     addNotification(summary: string, detail: string, options?: any) {
-      options = {
-        severity: "warn",
-        life: 3000,
-        position: "top-right",
-        ...options,
-      };
-      if (options.detail === Constants.REQUEST_CANCEL) {
-        options.severity = "info";
-        options.life = 2000;
-      }
-      const notification = {
-        summary: summary || "Summary",
-        detail: detail || "Detailed message ...",
-        ...options,
-      };
-      this.notification = { ...notification };
-      if (options.life) {
-        setTimeout(() => {
-          this.notification = null;
-        }, options.life);
+      if (detail !== Constants.REQUEST_CANCEL) {
+        options = {
+          severity: "warn",
+          life: 3000,
+          position: "top-right",
+          ...options,
+        };
+        const notification = {
+          summary: summary || "Summary",
+          detail: detail || "Detailed message ...",
+          ...options,
+        };
+        this.notification = { ...notification };
+        if (options.life) {
+          setTimeout(() => {
+            this.notification = null;
+          }, options.life);
+        }
       }
     },
     removeNotification() {
