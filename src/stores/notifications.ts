@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { defineStore } from "pinia";
+import * as Constants from "../services/Constants";
 
 export const useNotificationsStore = defineStore("notifications", {
   state: () => ({
@@ -25,6 +26,10 @@ export const useNotificationsStore = defineStore("notifications", {
         position: "top-right",
         ...options,
       };
+      if (options.detail === Constants.REQUEST_CANCEL) {
+        options.severity = "info";
+        options.life = 2000;
+      }
       const notification = {
         summary: summary || "Summary",
         detail: detail || "Detailed message ...",

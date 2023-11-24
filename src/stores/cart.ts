@@ -33,13 +33,6 @@ export const useCartStore = defineStore("cartStore", {
       const response = await ReorderService.getCartCount();
       if (response.result) {
         this.initialCartCount = response.data;
-      } else {
-        this.notificationsStore.addNotification(
-          Constants.FAILURE,
-          response.exceptionDetails.Message,
-          { severity: "error", life: 5000 },
-        );
-        return false;
       }
       this.loading.count = false;
     },

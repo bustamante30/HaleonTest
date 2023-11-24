@@ -395,7 +395,7 @@ class ReorderService {
       .catch((error: any) => {
         console.error("[Error getting cart count]: ", error);
         logger.error("[Error getting cart count]: ", error);
-        return 0;
+        return this.generateErrorObject(error);
       });
   }
   public static getPhotonReorderDetails(id: string) {
@@ -559,7 +559,7 @@ class ReorderService {
       .catch((error: any) => {
         console.error("[Error getting reorders]: ", error);
         logger.error("[Error getting reorders]: ", error);
-        return null;
+        return [];
       });
   }
   public static async decoratePhotonOrder(order: any) {
