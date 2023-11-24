@@ -20,7 +20,7 @@
             label(for="email") Email
             prime-inputtext(id="email" v-model="userForm.email" name="email")
           .f
-            div(v-if="currentUserType !== 'EXT'")
+            div(v-if= "(currentUserType !== 'EXT') && (userForm.userType !== 'EXT')")
               label(for="platingLocationName") Plating Location
               prime-multi-select.w-full(v-model='userForm.platingLocations' :options='options.platingLocations' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' :disabled="isAdminFlagged")
           .f.checkbox
