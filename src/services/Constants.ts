@@ -38,7 +38,7 @@ export const PO_NUMBER_MAX_LENGTH =
 export const DUPLICATE_PO_NUMBER = "Duplicate purhcase order number(s)";
 export const INVALID_PO_NUMBER =
   "The Purchase order field contains invalid special characters. Only the following special characters are allowed: - _ / \\ # . , + & ( ) \" : ; < > '";
-export const REQUEST_CANCEL = "Previous query aborted";
+export const REQUEST_CANCEL = "Request canceled by the user";
 export const API_LOCAL_URL = "http://localhost:5208/";
 export const API_USER_LOCAL_URL = "http://localhost:7026/";
 export const COLOR_LIMIT = "Add Colours Limit Exceeded ";
