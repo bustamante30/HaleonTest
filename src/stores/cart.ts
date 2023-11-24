@@ -106,10 +106,9 @@ export const useCartStore = defineStore("cartStore", {
     },
     async discardOrder(id: string) {
       this.loading.discard = true;
-      const notificationsStore = useNotificationsStore();
       const response = await ReorderService.discardOrder(id);
       if (response.result && response.data) {
-        notificationsStore.addNotification(
+        this.notificationsStore.addNotification(
           Constants.SUCCESS,
           Constants.DRAFT_SUCCESS,
           { severity: "success" },

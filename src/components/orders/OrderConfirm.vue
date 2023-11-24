@@ -214,7 +214,7 @@ async function placeOrder() {
         true,
       );
       if (!draftResult.result) {
-        this.notificationsStore.addNotification(
+        notificationsStore.addNotification(
           `Error`,
           response.exceptionDetails.Message,
           { severity: "error", life: 5000 },
@@ -233,7 +233,7 @@ async function placeOrder() {
         2,
       );
       if (!compResult.result) {
-        this.notificationsStore.addNotification(
+        notificationsStore.addNotification(
           `Error`,
           response.exceptionDetails.Message,
           { severity: "error", life: 5000 },

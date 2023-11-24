@@ -248,122 +248,129 @@ export const useOrdersStore = defineStore("ordersStore", {
       const details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
-    async getOrderById(reorderId: any) {
-      /* 1.Reset previously loaded order
-         2.SGS | Cart?
-         3.Fetch / load order object with direct props
-         4.Fetch / load additional details - shirttail, barcode, len etc
-         5.Decorate for display
-         6.Prepare options for platetype dropdown in Reorder Step */
-      this.loading.order = true;
-      this.selectedOrder = null;
-      this.checkout = {
-        expectedDate: null,
-        purchaseOrder: [""],
-        notes: null,
-        isUrgent: false,
-      };
+    async getOrderById(reorderId: any): Promise<boolean> {
+      return new Promise((resolve) => {
+        /* 1.Reset previously loaded order
+          2.SGS | Cart?
+          3.Fetch / load order object with direct props
+          4.Fetch / load additional details - shirttail, barcode, len etc
+          5.Decorate for display
+          6.Prepare options for platetype dropdown in Reorder Step */
+        this.loading.order = true;
+        this.selectedOrder = null;
+        this.checkout = {
+          expectedDate: null,
+          purchaseOrder: [""],
+          notes: null,
+          isUrgent: false,
+        };
 
-      if (reorderId) {
-        const cartStore = useCartStore();
-        const cartOrder = cartStore.cartOrders.find(
-          (order: any) => order.id === reorderId,
-        );
-        const isCartOrder = !!cartOrder;
-        if (isCartOrder) {
-          // Photon order loaded from cart
-          const plateTypes = (await cartOrder?.plateTypes?.length)
-            ? mapPlateTypes(cartOrder)
-            : mapColorPlateTypes(cartOrder.colors);
-          this.options.plateTypeDescription = plateTypes.filter(
-            (plateType: any) => plateType.value !== 256,
+        if (reorderId) {
+          const cartStore = useCartStore();
+          const cartOrder = cartStore.cartOrders.find(
+            (order: any) => order.id === reorderId,
           );
-          this.selectedOrder = cartOrder;
-          this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
-          await this.getBarcodeAndShirtail(cartOrder);
-          this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
-            if (response) this.selectedOrder.pdfData = response;
-          });
-          this.getLenFiles(cartOrder);
-        } else {
-          // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
-          this.selectedOrder = this.orders?.find(
-            (order: any) =>
-              order.sgsId === reorderId || order.originalOrderId === reorderId,
-          );
-          if (!this.selectedOrder || !this.selectedOrder.allDataLoaded) {
-            const response = await ReorderService.getOrderDetails(reorderId);
-            if (response.result) {
-              const details = jsonify(response.data);
-              this.selectedOrder = this.selectedOrder ? this.selectedOrder : {};
-              this.selectedOrder.originalOrderId = details?.jobId;
-              this.selectedOrder.description = details?.jobDescription;
-              this.selectedOrder.brandName = details?.jobDetails?.brand;
-              this.selectedOrder.itemCode =
-                details?.jobDetails?.endUserReference;
-              this.selectedOrder.packType =
-                details?.jobDetails?.packageType?.name;
-              const editionColors: any[] = [];
-              this.selectedOrder.editionColors = editionColors;
-              const plateTypes = await mapPlateTypes(details);
-              this.options.plateTypeDescription = plateTypes?.filter(
-                (plateType: any) => plateType.value !== 256,
-              );
-              this.selectedOrder = this.selectedOrder || {};
-              this.selectedOrder = {
-                ...this.selectedOrder,
-                ...mapSgsOrderDetail(details),
-              };
-              ReorderService.getThumbnail(details.jobId).then(
-                (response: string | boolean) => {
-                  if (response) this.selectedOrder.thumbNailPath = response;
-                },
-              );
-              this.getPdfData(details.jobId).then((response: any) => {
-                if (response) this.selectedOrder.pdfData = response;
-              });
-              const promises: Promise<any>[] = [];
-              this.mapColorAndCustomerDetailsToOrder(details);
-              promises.push(this.getBarcodeAndShirtail(this.selectedOrder));
-              promises.push(
-                this.getEditableColors(reorderId, this.selectedOrder),
-              );
-              Promise.allSettled(promises).then(async (promiseResult) => {
-                if (promiseResult[1]["value"].order === null) {
-                  this.notifyOrderCannotBeProcessed();
-                  const form = document.querySelector(
-                    ".page .order-detail",
-                  ) as HTMLFormElement;
-                  if (form) {
-                    form.style.display = "none";
+          const isCartOrder = !!cartOrder;
+          if (isCartOrder) {
+            // Photon order loaded from cart
+            const plateTypes = cartOrder?.plateTypes?.length
+              ? mapPlateTypes(cartOrder)
+              : mapColorPlateTypes(cartOrder.colors);
+            this.options.plateTypeDescription = plateTypes.filter(
+              (plateType: any) => plateType.value !== 256,
+            );
+            this.selectedOrder = cartOrder;
+            this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
+            this.getBarcodeAndShirtail(cartOrder);
+            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
+              if (response) this.selectedOrder.pdfData = response;
+            });
+            this.getLenFiles(cartOrder);
+          } else {
+            // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
+            this.selectedOrder = this.orders?.find(
+              (order: any) =>
+                order.sgsId === reorderId ||
+                order.originalOrderId === reorderId,
+            );
+            if (!this.selectedOrder || !this.selectedOrder.allDataLoaded) {
+              ReorderService.getOrderDetails(reorderId).then(
+                async (response: any) => {
+                  if (response.result) {
+                    const details = jsonify(response.data);
+                    this.selectedOrder = this.selectedOrder
+                      ? this.selectedOrder
+                      : {};
+                    this.selectedOrder.originalOrderId = details?.jobId;
+                    this.selectedOrder.description = details?.jobDescription;
+                    this.selectedOrder.brandName = details?.jobDetails?.brand;
+                    this.selectedOrder.itemCode =
+                      details?.jobDetails?.endUserReference;
+                    this.selectedOrder.packType =
+                      details?.jobDetails?.packageType?.name;
+                    const editionColors: any[] = [];
+                    this.selectedOrder.editionColors = editionColors;
+                    const plateTypes = await mapPlateTypes(details);
+                    this.options.plateTypeDescription = plateTypes?.filter(
+                      (plateType: any) => plateType.value !== 256,
+                    );
+                    this.selectedOrder = this.selectedOrder || {};
+                    this.selectedOrder = {
+                      ...this.selectedOrder,
+                      ...mapSgsOrderDetail(details),
+                    };
+                    ReorderService.getThumbnail(details.jobId).then(
+                      (response: string | boolean) => {
+                        if (response)
+                          this.selectedOrder.thumbNailPath = response;
+                      },
+                    );
+                    this.getPdfData(details.jobId).then((response: any) => {
+                      if (response) this.selectedOrder.pdfData = response;
+                    });
+                    const promises: Promise<any>[] = [];
+                    this.mapColorAndCustomerDetailsToOrder(details);
+                    promises.push(
+                      this.getBarcodeAndShirtail(this.selectedOrder),
+                    );
+                    promises.push(
+                      this.getEditableColors(reorderId, this.selectedOrder),
+                    );
+                    Promise.allSettled(promises).then(async (promiseResult) => {
+                      debugger;
+                      if (promiseResult[1]["value"].order === null) {
+                        this.notifyOrderCannotBeProcessed();
+                        resolve(false);
+                      } else {
+                        this.selectedOrder.allDataLoaded = true;
+                        this.orders.splice(
+                          this.orders?.findIndex(
+                            (order: any) =>
+                              order.sgsId === reorderId ||
+                              order.originalOrderId === reorderId,
+                          ),
+                          1,
+                          this.selectedOrder,
+                        );
+                        resolve(true);
+                      }
+                    });
+                  } else {
+                    const notificationsStore = useNotificationsStore();
+                    notificationsStore.addNotification(
+                      Constants.FAILURE,
+                      response.exceptionDetails?.Message,
+                      { severity: "error", life: 5000 },
+                    );
+                    return false;
                   }
-                  router.push(`/dashboard?q=${Date.now()}`);
-                } else {
-                  this.selectedOrder.allDataLoaded = true;
-                  this.orders.splice(
-                    this.orders?.findIndex(
-                      (order: any) =>
-                        order.sgsId === reorderId ||
-                        order.originalOrderId === reorderId,
-                    ),
-                    1,
-                    this.selectedOrder,
-                  );
-                }
-              });
-            } else {
-              const notificationsStore = useNotificationsStore();
-              notificationsStore.addNotification(
-                Constants.FAILURE,
-                response.exceptionDetails?.Message,
-                { severity: "error", life: 5000 },
+                },
               );
             }
           }
         }
-      }
-      this.loading.order = false;
-      return this.selectedOrder;
+        this.loading.order = false;
+      });
     },
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };
