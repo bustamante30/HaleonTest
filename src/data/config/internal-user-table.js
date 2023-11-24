@@ -6,7 +6,6 @@ const config = {
       type: "link",
       path: "/users/$1",
       pathParams: ["id"],
-      freeze: "left",
       width: 12,
     },
     {
@@ -26,12 +25,12 @@ const config = {
     //   type: 'text',
     //   width: 12
     // },
-    // {
-    //   header: 'Location',
-    //   field: 'location',
-    //   type: 'dropdown',
-    //   options: { key: 'locations' },
-    // },
+    {
+      header: "Plating Location",
+      field: "platingLocationName",
+      type: "text",
+      // options: { key: 'locations' },
+    },
     // {
     //   header: 'Admin',
     //   field: 'isAdmin',

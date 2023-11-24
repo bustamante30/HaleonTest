@@ -16,4 +16,5 @@ export interface UserSearchResponseDto {
   modifiedOn: Date | null;
   printerId: number;
   printerName: string;
+  platingLocationName: string | null;
 }
