@@ -9,9 +9,23 @@ import UserService from "@/services/userService";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { UserSearchResponseDto } from "../models/UserSearchResponseDto";
 import type { PrinterDto } from "../models/PrinterDto";
+import { Logger } from "@/logger/logger";
+import type { PlatingLocationDto } from "../models/PlatingLocationDto";
+
+const logger = new Logger("stores-auth");
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
+
+export async function fetchPlatingLocations() {
+  try {
+    const locationResult = await UserService.getPlatingLocations();
+    return locationResult;
+  } catch (error) {
+    logger.error("Error fetching plating locations:", error);
+    return [];
+  }
+}
 
 export async function searchUsers(
   printerId: number,
@@ -38,9 +52,11 @@ export async function searchUsers(
       return usersResponse;
     } else {
       console.error("[Error searching users response]:", usersResponse);
+      logger.error("[Error searching users response]:", usersResponse);
     }
   } catch (error) {
     console.error("[Error searching users]:", error);
+    logger.error("[Error searching users]:", error);
   }
 }
 
@@ -112,10 +128,12 @@ export async function searchPrinter(
       return printers;
     } else {
       console.error("[Error searching printers response]:", printerResponse);
+      logger.error("[Error searching printers response]:", printerResponse);
       return [];
     }
   } catch (error) {
     console.error("[Error searching printers]:", error);
+    logger.error("[Error searching printers]:", error);
     return [];
   }
 }
@@ -132,6 +150,9 @@ export const useUsersStore = defineStore("users", {
     loading: {
       printers: false,
       printer: false,
+    },
+    options: {
+      platingLocations: [] as any[],
     },
     user: null as any,
     userSearchExtResp: null as any,
@@ -302,6 +323,19 @@ export const useUsersStore = defineStore("users", {
         // }
 
         if (userType === "INT") {
+          const locationResult = await fetchPlatingLocations();
+
+          if (locationResult && locationResult.length > 0) {
+            this.options.platingLocations = locationResult.map((location) => ({
+              label: location.platingLocationName,
+              value: location.platingLocationName,
+            }));
+          } else {
+            this.options.platingLocations = [];
+          }
+        }
+
+        if (userType === "INT") {
           userId = 0;
         }
 
@@ -367,9 +401,9 @@ export const useUsersStore = defineStore("users", {
       }
       router.push("/users/new");
     },
-    async getUser(id: string) {
+    async getUser(id: string, printerId: any) {
       this.user = null;
-      const userEditResp = await UserService.getUserDetails(id);
+      const userEditResp = await UserService.getUserDetails(id, printerId);
       if (userEditResp != null) {
         let isPrimaryPMValue: any;
 
@@ -385,6 +419,17 @@ export const useUsersStore = defineStore("users", {
             isPrimaryPMValue = userPrinter.isPrimaryPM;
           }
         }
+        
+        const selectedplatingLocations = userEditResp?.userPrinter
+        ?.map((userPrtLoc: any) => userPrtLoc.platingLocationName)
+        .filter((location: string | null) => location !== null); 
+
+        this.options.platingLocations = this.options.platingLocations.map(
+          (plLocation: any) => ({
+            ...plLocation,
+            selected: selectedplatingLocations?.includes(plLocation.value),
+          }),
+        );
 
         this.user = {
           id: userEditResp.id,
@@ -394,13 +439,18 @@ export const useUsersStore = defineStore("users", {
           isAdmin: userEditResp.roles?.[0]?.isAdmin || false,
           isPrimaryPM: isPrimaryPMValue || false,
           userType: userEditResp.userType,
+          platingLocations:
+            selectedplatingLocations !== null
+              ? selectedplatingLocations
+              : undefined,
         };
 
         if (this.user) {
           this.editUser(this.user);
         }
       } else {
-        console.log("User not found");
+        console.error("User not found");
+        logger.error("User not found");
       }
     },
     editUser(user: any) {
@@ -446,6 +496,13 @@ export const useUsersStore = defineStore("users", {
         printerIdValue = this.selected.id;
       }
 
+      const platingLoc: PlatingLocationDto[] = [];
+      userreq.value.platingLocations?.forEach((pltlocation: string) => {
+        platingLoc.push({
+          platingLocationName: pltlocation,
+        });
+      });
+
       const userDto: UserDto = {
         id: userreq.value.id,
         firstName: userreq.value.firstName,
@@ -456,11 +513,24 @@ export const useUsersStore = defineStore("users", {
         roles: null,
         isAdmin: userreq.value.isAdmin,
         isPrimaryPM: userreq.value.isPrimaryPM,
+        platingLocation: platingLoc,
       };
 
       return await UserService.saveUser(userDto);
     },
     async savePrinter(printerreq: any) {
+      const platingLocReq: PlatingLocationDto[] = [];
+
+      if (printerreq.value?.platingLocations?.value) {
+        printerreq.value?.platingLocations?.value.forEach(
+          (pltlocation: string) => {
+            platingLocReq.push({
+              platingLocationName: pltlocation,
+            });
+          },
+        );
+      }
+
       const printerDto: PrinterDto = {
         printerName: printerreq.value.name,
         userData: [
@@ -481,6 +551,7 @@ export const useUsersStore = defineStore("users", {
             email: printerreq.value.primaryPMEmail,
             isAdmin: false,
             isPrimaryPM: true,
+            platingLocation: platingLocReq,
           },
         ],
         printerIdentityProv: [
@@ -500,6 +571,7 @@ export const useUsersStore = defineStore("users", {
         await UserService.DeleteUser(user, printerIdVal);
       } catch (error) {
         console.error("[Error deleting user]:", error);
+        logger.error("[Error deleting user]:", error);
       }
     },
     async resendInvitation(user: any) {
@@ -507,6 +579,7 @@ export const useUsersStore = defineStore("users", {
         await UserService.ResendInvitation(user);
       } catch (error) {
         console.error("[Error resending invitation]:", error);
+        logger.error("[Error resending invitation]:", error);
       }
     },
   },

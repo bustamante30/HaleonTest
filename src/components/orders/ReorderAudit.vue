@@ -42,7 +42,7 @@ const columns = ref([
   },
   {
     field: "createdAt",
-    header: "Datetime",
+    header: "Date/Time",
   },
 ]);
 </script>

@@ -19,11 +19,14 @@
           .f
             label(for="email") Email
             prime-inputtext(id="email" v-model="userForm.email" name="email")
+          .f
+            div(v-if="currentUserType !== 'EXT'")
+              label(for="platingLocationName") Plating Location
+              prime-multi-select.w-full(v-model='userForm.platingLocations' :options='options.platingLocations' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' :disabled="isAdminFlagged")
           .f.checkbox
             // eslint-disable-next-line vue/attribute-hyphenation
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
             label(for="admin") Admin
-
           // eslint-disable-next-line vue-pug/no-parsing-error
           <div v-if="currentUserType !== 'EXT'">
             <div v-if="(userForm.userType && userForm.userType !== 'EXT') || (userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com'))" ref="isPrimaryPMDiv">
@@ -59,6 +62,7 @@ const props = defineProps({
 });
 
 const userForm = ref({ ...props.user });
+
 watch(
   () => props.user,
   () => {
@@ -70,6 +74,10 @@ const notificationsStore = useNotificationsStore();
 const isPrimaryPMDiv = ref("");
 
 const emit = defineEmits(["save"]);
+
+const options = inject("options") || { platinglocations: [] };
+
+const isAdminFlagged = computed(() => userForm.value.isAdmin);
 
 const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();

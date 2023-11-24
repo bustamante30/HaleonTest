@@ -1,5 +1,6 @@
 import { type UserRoleDto } from "./UserRoleDto";
 import type { UserPrinterDto } from "./UserPrinterDto";
+import type { PlatingLocationDto } from "./PlatingLocationDto";
 
 export type UserDto = {
   id?: number;
@@ -14,4 +15,5 @@ export type UserDto = {
   isPrimaryPM?: boolean | null;
   roles?: Array<UserRoleDto> | null;
   userPrinter?: Array<UserPrinterDto> | null;
+  platingLocation?: Array<PlatingLocationDto> | null;
 };

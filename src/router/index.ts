@@ -4,6 +4,9 @@ import authRoutes from "./auth";
 import store from "store";
 import jwt_decode from "jwt-decode";
 import { DateTime } from "luxon";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -97,20 +100,21 @@ router.beforeEach((to, from, next) => {
           }
           next({ name: "loginPage", query: { q: Date.now() } });
         } else {
-          console.log("Go to Routes");
           next();
         }
       } else {
-        console.log("Token Invalid - Redirect to Login");
+        console.error("[Router] Token Invalid - Redirect to Login");
+        logger.error("[Router] Token Invalid - Redirect to Login");
         next({ name: "loginPage", query: { q: Date.now() } });
       }
     } else {
-      console.log("Redirect to Login");
+      console.error("[Not logged in] Redirect to Login");
+      logger.error("[Not logged in] Redirect to Login");
       next({ name: "loginPage", query: { q: Date.now() } });
     }
   } else {
-    console.log("Does not require auth", to, from);
-    next(); // does not require auth, make sure to always call next()!
+    logger.log("[Require Auth Error] Does not require auth", to, from);
+    next();
   }
 });
 
@@ -123,7 +127,9 @@ const validateToken = () => {
       parseInt(decodedToken?.exp + "000", 10),
     );
     console.log(`Current time ${DateTime.local()}`);
+    logger.log(`Current time ${DateTime.local()}`);
     console.log(`Token expiry time ${tokenExpireTime}`);
+    logger.log(`Token expiry time ${tokenExpireTime}`);
     const diffInMinutes = tokenExpireTime.diff(DateTime.now(), [
       "minutes",
     ]).minutes;
@@ -132,9 +138,11 @@ const validateToken = () => {
     }
   } catch (e) {
     console.error("[Invalid Token - Expection]: ", e);
+    logger.error("[Invalid Token - Expection]: ", e);
     return false;
   }
   console.error("Invalid Token");
+  logger.error("Invalid Token");
   return false;
 };
 

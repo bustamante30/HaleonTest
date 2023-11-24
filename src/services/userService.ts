@@ -3,10 +3,14 @@ import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { SearchResponeDto } from "../models/SearchResponeDto";
 import type { PrinterDto } from "../models/PrinterDto";
+import type { PlatingLocationDto } from "../models/PlatingLocationDto";
 import ApiService from "../services/apiService";
 import type { ExternalPrinterCountResponseDto } from "../models/ExternalPrinterCountResponseDto";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "./Constants";
+import { Logger } from "@/logger/logger";
+
+const logger = new Logger("stores-auth");
 
 const baseUrl =
   import.meta.env.VITE_USER_API_BASE_URL ?? Constants.API_USER_LOCAL_URL;
@@ -21,6 +25,7 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error getting reorders]: ", error);
+        logger.error("[Error getting reorders]: ", error);
         return null;
       });
   }
@@ -39,6 +44,10 @@ class UserService {
             "[Validation Error while adding User]:",
             errorresp.detail,
           );
+          logger.error(
+            "[Validation Error while adding User]:",
+            errorresp.detail,
+          );
           userNotificationsStore.addNotification(
             Constants.FAILURE,
             errorresp.detail,
@@ -49,6 +58,7 @@ class UserService {
           throw errorresp;
         }
         console.error("[Unhandled exception while adding user]:", error);
+        logger.error("[Unhandled exception while adding user]:", error);
         userNotificationsStore.addNotification(
           Constants.FAILURE,
           Constants.SGS_ERROR_MSG,
@@ -66,6 +76,7 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error searching user]:", error);
+        logger.error("[Error searching user]:", error);
         return null;
       });
   }
@@ -78,18 +89,22 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error searching Printer]:", error);
+        logger.error("[Error searching Printer]:", error);
         return null;
       });
   }
 
-  public static getUserDetails(userId: string) {
+  public static getUserDetails(userId: string, printerId: number) {
     return httpService
-      .get<UserDto>("v1/user/Retrieve?userId=" + userId)
+      .get<UserDto>(
+        "v1/user/Retrieve?userId=" + userId + "&printerId=" + printerId,
+      )
       .then((response: UserDto) => {
         return response;
       })
       .catch((error) => {
         console.error("[Error getting User Details]: ", error);
+        logger.error("[Error getting User Details]: ", error);
         return null;
       });
   }
@@ -105,6 +120,7 @@ class UserService {
         const notificationsStore = useNotificationsStore();
         if (errorresp) {
           console.error("[Validation Error adding printer]:", errorresp.detail);
+          logger.error("[Validation Error adding printer]:", errorresp.detail);
           notificationsStore.addNotification(
             Constants.FAILURE,
             errorresp.detail,
@@ -115,6 +131,7 @@ class UserService {
           throw errorresp;
         }
         console.error("[Unhandled exception while adding printer]:", error);
+        logger.error("[Unhandled exception while adding printer]:", error);
         notificationsStore.addNotification(
           Constants.FAILURE,
           Constants.SGS_ERROR_MSG,
@@ -138,6 +155,7 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error deleting user]:", error);
+        logger.error("[Error deleting user]:", error);
         return null;
       });
   }
@@ -150,6 +168,7 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error resending invitation]:", error);
+        logger.error("[Error resending invitation]:", error);
       });
   }
 
@@ -166,6 +185,20 @@ class UserService {
       })
       .catch((error) => {
         console.error("[Error getting User Details]: ", error);
+        logger.error("[Error getting User Details]: ", error);
+        return null;
+      });
+  }
+
+  public static getPlatingLocations() {
+    return httpService
+      .get<PlatingLocationDto[]>("v1/user/PlatingLocation")
+      .then((response: PlatingLocationDto[]) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error("[Error getting Plating Location]: ", error);
+        logger.error("[Error getting Plating Location]: ", error);
         return null;
       });
   }
