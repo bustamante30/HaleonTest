@@ -214,9 +214,9 @@ async function placeOrder() {
         true,
       );
       if (!draftResult.result) {
-        this.notificationsStore.addNotification(
+        notificationsStore.addNotification(
           `Error`,
-          response.exceptionDetails.Message,
+          draftResult.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
       } else {
@@ -224,6 +224,8 @@ async function placeOrder() {
         cartStore.cartOrders[index] = draftResult.data;
         ordersStore.successfullReorder = draftResult.data;
         cartStore.getCartCount();
+        resetPOForm();
+        router.push(`/dashboard/${props.selectedId}/success`);
       }
     } else {
       // completed reorder flow
@@ -233,16 +235,17 @@ async function placeOrder() {
         2,
       );
       if (!compResult.result) {
-        this.notificationsStore.addNotification(
+        notificationsStore.addNotification(
           `Error`,
-          response.exceptionDetails.Message,
+          compResult.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
-      } else ordersStore.setOrderInStore(compResult.data);
+      } else {
+        ordersStore.setOrderInStore(compResult.data);
+        resetPOForm();
+        router.push(`/dashboard/${props.selectedId}/success`);
+      }
     }
-
-    resetPOForm();
-    router.push(`/dashboard/${props.selectedId}/success`);
   }
 
   ordersStore.loading.reorder = false;

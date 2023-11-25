@@ -33,13 +33,6 @@ export const useCartStore = defineStore("cartStore", {
       const response = await ReorderService.getCartCount();
       if (response.result) {
         this.initialCartCount = response.data;
-      } else {
-        this.notificationsStore.addNotification(
-          Constants.FAILURE,
-          response.exceptionDetails.Message,
-          { severity: "error", life: 5000 },
-        );
-        return false;
       }
       this.loading.count = false;
     },
@@ -106,10 +99,9 @@ export const useCartStore = defineStore("cartStore", {
     },
     async discardOrder(id: string) {
       this.loading.discard = true;
-      const notificationsStore = useNotificationsStore();
       const response = await ReorderService.discardOrder(id);
       if (response.result && response.data) {
-        notificationsStore.addNotification(
+        this.notificationsStore.addNotification(
           Constants.SUCCESS,
           Constants.DRAFT_SUCCESS,
           { severity: "success" },

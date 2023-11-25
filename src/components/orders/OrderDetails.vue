@@ -33,7 +33,7 @@
         footer
           .secondary-actions &nbsp;
           .actions
-            sgs-button#reorder(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder" icon="redo" label="Re-Order" @click="buy()")
+            sgs-button#reorder(v-if="selectedOrder.statusId!=2 && selectedOrder.statusId!=3" :disabled="loadingOrder ||!orderHasLenfiles" icon="redo" label="Re-Order" @click="buy()")
 </template>
 
 <script lang="ts" setup>
@@ -56,10 +56,11 @@ const props = defineProps({
 });
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 const loadingOrder = computed(() => ordersStore.loading.order);
+const orderHasLenfiles = ref(true);
 const colors = computed(() => ordersStore.selectedOrder.colors);
 
 onMounted(async () => {
-  await ordersStore.getOrderById(props.selectedId);
+  orderHasLenfiles.value = await ordersStore.getOrderById(props.selectedId);
 });
 
 async function buy() {

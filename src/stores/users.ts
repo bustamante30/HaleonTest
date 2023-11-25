@@ -419,11 +419,9 @@ export const useUsersStore = defineStore("users", {
             isPrimaryPMValue = userPrinter.isPrimaryPM;
           }
         }
-        
         const selectedplatingLocations = userEditResp?.userPrinter
-        ?.map((userPrtLoc: any) => userPrtLoc.platingLocationName)
-        .filter((location: string | null) => location !== null); 
-
+          ?.map((userPrtLoc: any) => userPrtLoc.platingLocationName)
+          .filter((location: string | null) => location !== null);
         this.options.platingLocations = this.options.platingLocations.map(
           (plLocation: any) => ({
             ...plLocation,

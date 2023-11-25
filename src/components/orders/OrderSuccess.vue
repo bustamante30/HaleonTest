@@ -115,7 +115,7 @@ async function handleCancelOrder() {
       );
       await router.push(`/dashboard?q=${Date.now()}`);
     } else {
-      this.notificationsStore.addNotification(
+      notificationsStore.addNotification(
         Constants.ERROR,
         response.exceptionDetails.Message,
         { severity: "error", life: 5000 },
