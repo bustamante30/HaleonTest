@@ -20,9 +20,11 @@
             label(for="email") Email
             prime-inputtext(id="email" v-model="userForm.email" name="email")
           .f
-            div(v-if= "(currentUserType !== 'EXT') && (userForm.userType !== 'EXT')")
-              label(for="platingLocationName") Plating Location
-              prime-multi-select.w-full(v-model='userForm.platingLocations' :options='options.platingLocations' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' :disabled="isAdminFlagged")
+            div(v-if= "currentUserType !== 'EXT'")
+              div(v-if= "userForm.userType !== 'EXT'")
+                div(v-if="userForm.email && userForm.email.trim().toLowerCase().includes('@sgsco.com')")
+                  label(for="platingLocationName") Plating Location
+                  prime-multi-select.w-full(v-model='userForm.platingLocations' :options='options.platingLocations' filter='' option-value="value" option-label="label" placeholder='Select Plating Locations' :disabled="isAdminFlagged")
           .f.checkbox
             // eslint-disable-next-line vue/attribute-hyphenation
             prime-checkbox.square(v-model="userForm.isAdmin" :binary="true" name="admin" inputId="admin")
