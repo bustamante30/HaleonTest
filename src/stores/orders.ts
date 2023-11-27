@@ -469,7 +469,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.textSearchData.data = {
               reorderedData:
                 response.data?.reorderedData != null
-                  ? response.data.reorderedData
+                  ? sortBydate(response.data.reorderedData).reverse() //amazon discovery service do not support sorting. hence sorting on client-side
                   : [],
               totalRecords: response.data?.totalRecords
                 ? response.data?.totalRecords
