@@ -47,7 +47,7 @@ export const SUCCESS = "Success: ";
 export const FAILURE = "Error: ";
 export const CART_SUCCESS = "Cart updated successfully";
 export const CART_FAILURE = "Cart update failed";
-export const CART_DELETE_SUCCESS = "Cart deleted successfully";
+export const CANCEL_DELETE_SUCCESS = "Order cancelled successfully";
 export const WINDOW_CLOSED = "10 mins window closed for Re-Order cancellation";
 export const PHOTON_NOT_FOUND = `The order number is incorrect or the order 
         was not confirmed in image carrier reorder portal.`;

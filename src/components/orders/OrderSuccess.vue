@@ -110,7 +110,7 @@ async function handleCancelOrder() {
     if (response.result && response.data) {
       notificationsStore.addNotification(
         Constants.SUCCESS,
-        Constants.CART_DELETE_SUCCESS,
+        Constants.CANCEL_DELETE_SUCCESS,
         { severity: "success" },
       );
       await router.push(`/dashboard?q=${Date.now()}`);
