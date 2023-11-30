@@ -356,7 +356,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                       this.getEditableColors(reorderId, this.selectedOrder),
                     );
                     Promise.allSettled(promises).then(async (promiseResult) => {
-                      debugger;
                       if (promiseResult[1]["value"].order === null) {
                         this.notifyOrderCannotBeProcessed();
                         resolve(false);
