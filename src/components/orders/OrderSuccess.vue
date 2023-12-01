@@ -11,6 +11,8 @@
         br/
         | Your order is expected to be delivered on &nbsp;
         em(v-if="selectedOrder.expectedDate") {{ expectedDate }}
+        br/
+        em You will have 10 minutes to cancel your order through this portal
     .card.context
       .f
         label Order Date
