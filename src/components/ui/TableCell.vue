@@ -116,12 +116,11 @@ async function navigate(config, data) {
       config.pathParams.push("originalOrderId");
     } else if (data.sgsId != null) {
       config.pathParams.push("sgsId");
-      // only validation is required for sgs orders
-      emit("ordervalidation", {
-        sgsId: data.sgsId,
-        path: resolvePath(config, data),
-      });
     }
+    emit("ordervalidation", {
+      id: data.originalOrderId ? data.originalOrderId : data.sgsId,
+      path: resolvePath(config, data),
+    });
   } else {
     if (config.pathParams.includes("dashboard")) {
       config.pathParams = [];

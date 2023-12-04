@@ -615,7 +615,7 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  const response = await ReorderService.validateOrder(data.sgsId);
+  const response = await ReorderService.validateOrder(data.id);
   if (response.result) {
     if (response.data === false && showMyOrders.value === false) {
       if (userType.value === "EXT") {

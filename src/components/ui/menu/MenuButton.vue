@@ -1,6 +1,6 @@
 <template lang="pug">
 span.menu-button
-  sgs-button.default(:id="`menu-button-${menuitem.label}`" type="button" :label="menuitem.label" @click="action")
+  sgs-button.default(v-if="menuitem" :id="`menu-button-${menuitem.label}`" type="button" :label="menuitem.label" @click="action")
 </template>
 
 <script setup>
@@ -15,7 +15,7 @@ const props = defineProps({
 
 function action() {
   if (props.menuitem) {
-    if (props.menuitem.to) {
+    if (props.menuitem.to && router) {
       router.push(props.menuitem.to);
     } else if (props.menuitem.command) {
       props.menuitem.command();
