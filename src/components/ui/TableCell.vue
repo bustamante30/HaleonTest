@@ -107,11 +107,11 @@ function update(value) {
 }
 
 async function navigate(config, data) {
-  config.pathParams = [];
   if (
     (data.originalOrderId != undefined || data.sgsId != undefined) &&
     data.orderStatus === "Completed"
   ) {
+    config.pathParams = [];
     if (data.originalOrderId != null) {
       config.pathParams.push("originalOrderId");
     } else if (data.sgsId != null) {
@@ -123,7 +123,10 @@ async function navigate(config, data) {
       });
     }
   } else {
-    config.pathParams.push("originalOrderId");
+    if (config.pathParams.includes("dashboard")) {
+      config.pathParams = [];
+      config.pathParams.push("originalOrderId");
+    }
     const link = resolvePath(config, data);
     router.push(link);
   }
