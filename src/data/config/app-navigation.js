@@ -25,7 +25,9 @@ const nav = (emit, isAdmin) => {
         },
         {
           label: "FAQs",
-          to: "/faq",
+          command: () => {
+            emit("faq");
+          },
         },
       ],
     },

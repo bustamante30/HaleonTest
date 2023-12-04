@@ -3,7 +3,7 @@
 #image-carrier
   sgs-scrollpanel(:scroll="false")
     template(#header)
-      app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport")
+      app-header(v-if="!isLoginPage && !isB2CLoginPage && !isError" @demo="handleDemo" @report="handleReport" @faq="handleFaq")
     prime-toast(@close="notificationsStore.removeNotification()")
       template(#message="{ message }")
         .message
@@ -144,6 +144,10 @@ async function handleReport() {
       );
     }
   }
+}
+
+async function handleFaq() {
+  router.push("/faq");
 }
 </script>
 
