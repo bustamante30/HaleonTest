@@ -107,25 +107,23 @@ function update(value) {
 }
 
 async function navigate(config, data) {
+  config.pathParams = [];
   if (
     (data.originalOrderId != undefined || data.sgsId != undefined) &&
     data.orderStatus === "Completed"
   ) {
-    let jobNumber = "";
-    config.pathParams = [];
     if (data.originalOrderId != null) {
-      jobNumber = data.originalOrderId;
       config.pathParams.push("originalOrderId");
     } else if (data.sgsId != null) {
       config.pathParams.push("sgsId");
-      jobNumber = data.sgsId;
+      // only validation is required for sgs orders
+      emit("ordervalidation", {
+        sgsId: data.sgsId,
+        path: resolvePath(config, data),
+      });
     }
-
-    emit("ordervalidation", {
-      originalOrderId: jobNumber,
-      path: resolvePath(config, data),
-    });
   } else {
+    config.pathParams.push("originalOrderId");
     const link = resolvePath(config, data);
     router.push(link);
   }
