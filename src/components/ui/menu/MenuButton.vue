@@ -4,6 +4,7 @@ span.menu-button
 </template>
 
 <script setup>
+import router from "@/router";
 const props = defineProps({
   menuitem: {
     type: Object,
@@ -13,7 +14,9 @@ const props = defineProps({
 
 function action() {
   if (props.menuitem) {
-    if (props.menuitem.command) {
+    if (props.menuitem.to) {
+      router.push(props.menuitem.to);
+    } else if (props.menuitem.command) {
       props.menuitem.command();
     }
   }
