@@ -17,7 +17,7 @@ export default {
       header: "SGS Colour",
       field: "colourName",
       freeze: "left",
-      width: 12,
+      width: 6,
     },
     {
       header: "Plate Type",
@@ -27,7 +27,13 @@ export default {
     {
       header: "Plate Thickness (1/1000)",
       field: "plateThicknessDescription",
-      width: 12,
+      width: 5,
+    },
+    {
+      header: "Comments",
+      field: "comments",
+      freeze: "left",
+      width: 8,
     },
     {
       header: "Printer Plate Code",

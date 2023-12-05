@@ -106,4 +106,6 @@ export const INTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please place your image ca
 export const EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART = `The order you have selected cannot be processed:`;
 export const EXTERNAL_FLEXO_VALIDATION_MSG_SECPART = `Please contact a PM directly, or Please click`;
 export const NO_RECORD_TO_EXPORT = `No records to export`;
+export const NO_VISUALS = `NO_VISUALS`;
+export const ADD_COMMENTS = `Please set distinct comments when adding more than once the same plate type`;
 export * from "./Constants";

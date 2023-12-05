@@ -57,6 +57,15 @@ const mapPlateTypes = (details: any) => {
   });
 };
 
+function unique(arr, keyProps) {
+  const kvArray = arr.map((entry) => {
+    const key = keyProps.map((k) => entry[k]).join("|");
+    return [key, entry];
+  });
+  const map = new Map(kvArray);
+  return Array.from(map.values());
+}
+
 const validation = (colour: any) => {
   const totalSets =
     colour.plateDetails &&
@@ -66,7 +75,9 @@ const validation = (colour: any) => {
     colour.plateDetails &&
     colour.plateDetails.map((plate: any) => plate.plateTypeId);
   const hasUniquePlates =
-    !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
+    colour.showComments ||
+    !totalSets ||
+    (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
   const hasEmptyPlateDescription =
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateTypeId,
@@ -75,16 +86,27 @@ const validation = (colour: any) => {
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
     ) != null;
+  const distinctComments = unique(colour.plateDetails, [
+    "plateTypeId",
+    "comments",
+  ]);
+  console.log(distinctComments);
+  const hasDistinctComments =
+    !colour.showComments ||
+    colour.plateDetails.length == distinctComments.length;
   const isValid =
     hasUniquePlates &&
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
-    !hasEmptyPlateThickness;
+    !hasEmptyPlateThickness &&
+    hasDistinctComments;
+
   return {
     isValid,
     hasEmptyPlateDescription,
     hasUniquePlates,
     hasEmptyPlateThickness,
+    hasDistinctComments,
   };
 };
 
@@ -119,6 +141,7 @@ const flattenColors = (colors: any[] = []) => {
           plateTypeDescription: plate?.plateTypeDescription,
           plateThicknessId: plate?.plateThicknessId,
           plateThicknessDescription: plate?.plateThicknessDescription,
+          comments: plate?.comments,
           sequenceNumber: color.sequenceNumber,
           sets: plate.sets,
         });

@@ -30,6 +30,12 @@ export default {
       width: 12,
     },
     {
+      header: "Comments",
+      field: "comments",
+      freeze: "left",
+      width: 8,
+    },
+    {
       header: "Printer Plate Code",
       field: "imageCarrierId",
       freeze: "left",

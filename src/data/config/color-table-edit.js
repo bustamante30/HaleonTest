@@ -79,6 +79,11 @@ export default {
         max: 10,
         width: 5,
       },
+      {
+        header: "Comments",
+        field: "comments",
+        type: "input-comments",
+      },
     ],
   },
 };

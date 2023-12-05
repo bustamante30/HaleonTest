@@ -662,6 +662,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           plateTypeDescription: null,
           plateThicknessId: colour.fullThicknessList[0].thicknessId,
           plateThicknessDescription: colour.fullThicknessList[0].thicknessDesc,
+          comments: "",
+          showComments: colour.showComments,
           sets: 1,
           isEditable: true,
           isThicknessEditable: false,
@@ -722,13 +724,24 @@ export const useOrdersStore = defineStore("ordersStore", {
                   (plateType) => {
                     return plateType[params.field] === params.value;
                   },
-                ).length;
-                if (plateOcurrences > 1) {
-                  notificationsStore.addNotification(
-                    Constants.WARNING,
-                    Constants.ALREADY_EXIST,
-                    { severity: "warn", life: 3000 },
-                  );
+                );
+                if (plateOcurrences.length > 1) {
+                  if (colour.lenPath == Constants.NO_VISUALS) {
+                    if (
+                      plateOcurrences[0].comments ===
+                      plateOcurrences[1].comments
+                    )
+                      notificationsStore.addNotification(
+                        Constants.WARNING,
+                        Constants.ADD_COMMENTS,
+                        { severity: "warn", life: 5000 },
+                      );
+                  } else
+                    notificationsStore.addNotification(
+                      Constants.WARNING,
+                      Constants.ALREADY_EXIST,
+                      { severity: "warn", life: 3000 },
+                    );
                 }
                 break;
               }
@@ -773,6 +786,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         hasEmptyPlateDescription,
         hasUniquePlates,
         hasEmptyPlateThickness,
+        hasDistinctComments,
       } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
@@ -791,6 +805,12 @@ export const useOrdersStore = defineStore("ordersStore", {
           Constants.WARNING,
           Constants.THICKNESS_LIST,
           { severity: "warn" },
+        );
+      if (!hasDistinctComments)
+        notificationsStore.addNotification(
+          Constants.WARNING,
+          `Please set distinct comments when adding more than once the same plate type for ${colour.colourName}`,
+          { severity: "warn", life: 5000 },
         );
       return isValid;
     },
@@ -822,6 +842,42 @@ export const useOrdersStore = defineStore("ordersStore", {
       (this.selectedOrder as any)["customerContacts"] =
         details.customerContacts;
     },
+    async setLenData(
+      color: any,
+      lenPath: any,
+      lenData: any,
+      showComments: boolean,
+    ) {
+      if (color.lenPath == lenPath) {
+        color.lenData = lenData;
+        color.checkboxId = faker.datatype.uuid();
+        color.sets = color.totalSets;
+        color.showComments = showComments;
+        if (color.plates.length == 0) {
+          color.plateDetails = [
+            {
+              id: 0,
+              checkboxId: faker.datatype.uuid(),
+              plateTypeId: null,
+              plateTypeDescription: null,
+              comments: "",
+              showComments: showComments,
+              sets: 0,
+              loading: true,
+            },
+          ];
+        } else {
+          const editionPlates: any[] = [];
+          color.plateDetails = editionPlates;
+          color.plates.forEach((plate) => {
+            plate.checkboxId = faker.datatype.uuid();
+            plate.loading = true;
+            (plate.showComments = showComments), color.plateDetails.push(plate);
+          });
+          delete color.plates;
+        }
+      }
+    },
     async getLenFiles(order: any) {
       return new Promise((resolve) => {
         //make editable the colors:
@@ -833,40 +889,25 @@ export const useOrdersStore = defineStore("ordersStore", {
           order.originalOrderId ? order.originalOrderId : order.sgsId,
           order.printerName,
         );
+        //for the colors with lenpath = no visuals:
+        for (const color of order.editionColors) {
+          this.setLenData(
+            color,
+            Constants.NO_VISUALS,
+            new URL("@/assets/images/no_thumbnail.png", import.meta.url)
+              .pathname,
+            true,
+          );
+        }
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
-            lenProcessed += res.length;
+            lenProcessed++;
             for (let i = 0; i < res.length; i++) {
               for (const color of order.editionColors) {
-                if (res[i].lenPath == color.lenPath) {
-                  color.lenData = res[i].lenData;
-                  color.checkboxId = faker.datatype.uuid();
-                  color.sets = color.totalSets;
-                  if (color.plates.length == 0) {
-                    color.plateDetails = [
-                      {
-                        id: 0,
-                        checkboxId: faker.datatype.uuid(),
-                        plateTypeId: null,
-                        plateTypeDescription: null,
-                        sets: 0,
-                        loading: true,
-                      },
-                    ];
-                  } else {
-                    const editionPlates: any[] = [];
-                    color.plateDetails = editionPlates;
-                    color.plates.forEach((plate) => {
-                      plate.checkboxId = faker.datatype.uuid();
-                      plate.loading = true;
-                      color.plateDetails.push(plate);
-                    });
-                    delete color.plates;
-                  }
-                }
+                this.setLenData(color, res[i].lenPath, res[i].lenData, false);
               }
             }
-            if (lenProcessed === order.editionColors.length) {
+            if (lenProcessed === order.colors.length) {
               this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
                 () => {
                   resolve({ status: "finished", order: order });
@@ -1043,16 +1084,40 @@ export const useOrdersStore = defineStore("ordersStore", {
         );
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
-            expectedColors += res.length - 1;
             if (res.length == 0) {
-              resolve({ status: "finished", order: null });
+              const colorCopy: any = JSON.parse(JSON.stringify(color));
+              colorCopy.lenPath = Constants.NO_VISUALS;
+              colorCopy.lenData = new URL(
+                "@/assets/images/no_thumbnail.png",
+                import.meta.url,
+              ).pathname;
+              colorCopy.checkboxId = faker.datatype.uuid();
+              colorCopy.totalSets = 0;
+              colorCopy.showComments = true;
+              colorCopy.plateDetails = [
+                {
+                  checkboxId: faker.datatype.uuid(),
+                  plateTypeId: null,
+                  plateTypeDescription: null,
+                  plateThicknessId: null,
+                  plateThicknessDescription: null,
+                  sets: 0,
+                  loading: true,
+                  showComments: true,
+                  comments: "",
+                },
+              ];
+              order.editionColors.push(colorCopy);
+              //resolve({ status: "finished", order: null });
             } else {
+              expectedColors += res.length - 1;
               for (let i = 0; i < res.length; i++) {
                 const colorCopy: any = JSON.parse(JSON.stringify(color));
                 colorCopy.lenPath = res[i].lenPath;
                 colorCopy.lenData = res[i].lenData;
                 colorCopy.checkboxId = faker.datatype.uuid();
                 colorCopy.totalSets = 0;
+                colorCopy.showComments = false;
                 colorCopy.plateDetails = [
                   {
                     checkboxId: faker.datatype.uuid(),
@@ -1062,20 +1127,22 @@ export const useOrdersStore = defineStore("ordersStore", {
                     plateThicknessDescription: null,
                     sets: 0,
                     loading: true,
+                    showComments: false,
+                    comments: "",
                   },
                 ];
                 order.editionColors.push(colorCopy);
               }
-              if (expectedColors === order.editionColors.length) {
-                if (expectedColors === 0) {
-                  resolve({ status: "finished", order: null });
-                }
-                this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
-                  () => {
-                    resolve({ status: "finished", order: order });
-                  },
-                );
+            }
+            if (expectedColors === order.editionColors.length) {
+              if (expectedColors === 0) {
+                resolve({ status: "finished", order: null });
               }
+              this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
+                () => {
+                  resolve({ status: "finished", order: order });
+                },
+              );
             }
           });
         });
