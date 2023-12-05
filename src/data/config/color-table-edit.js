@@ -83,6 +83,7 @@ export default {
         header: "Comments",
         field: "comments",
         type: "input-comments",
+        width: 15,
       },
     ],
   },

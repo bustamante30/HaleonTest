@@ -57,15 +57,6 @@ const mapPlateTypes = (details: any) => {
   });
 };
 
-function unique(arr, keyProps) {
-  const kvArray = arr.map((entry) => {
-    const key = keyProps.map((k) => entry[k]).join("|");
-    return [key, entry];
-  });
-  const map = new Map(kvArray);
-  return Array.from(map.values());
-}
-
 const validation = (colour: any) => {
   const totalSets =
     colour.plateDetails &&
@@ -86,27 +77,23 @@ const validation = (colour: any) => {
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
     ) != null;
-  const distinctComments = unique(colour.plateDetails, [
-    "plateTypeId",
-    "comments",
-  ]);
-  console.log(distinctComments);
-  const hasDistinctComments =
-    !colour.showComments ||
-    colour.plateDetails.length == distinctComments.length;
+  const noCommentPlates = colour.plateDetails.filter(
+    (x) => x.sets > 0 && (!x.comments || x.comments === ""),
+  );
+  const hasComments = !colour.showComments || noCommentPlates.length === 0;
   const isValid =
     hasUniquePlates &&
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
     !hasEmptyPlateThickness &&
-    hasDistinctComments;
+    hasComments;
 
   return {
     isValid,
     hasEmptyPlateDescription,
     hasUniquePlates,
     hasEmptyPlateThickness,
-    hasDistinctComments,
+    hasComments,
   };
 };
 

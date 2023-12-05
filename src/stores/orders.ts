@@ -786,7 +786,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         hasEmptyPlateDescription,
         hasUniquePlates,
         hasEmptyPlateThickness,
-        hasDistinctComments,
+        hasComments,
       } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
@@ -806,10 +806,10 @@ export const useOrdersStore = defineStore("ordersStore", {
           Constants.THICKNESS_LIST,
           { severity: "warn" },
         );
-      if (!hasDistinctComments)
+      if (!hasComments)
         notificationsStore.addNotification(
           Constants.WARNING,
-          `Please set distinct comments when adding more than once the same plate type for ${colour.colourName}`,
+          `Enter a comment for all the  ${colour.colourName} plate(s)`,
           { severity: "warn", life: 5000 },
         );
       return isValid;

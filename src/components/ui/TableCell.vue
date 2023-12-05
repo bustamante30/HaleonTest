@@ -40,6 +40,7 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
             :model-value="value"
             type="text"
             placeholder="Add a comment"
+            :maxlength="32"
             @update:model-value="update"
           )
   span(v-else-if="config.type === 'lookup'")
@@ -181,7 +182,8 @@ window.showHideMagnifier = function () {
 </script>
 <style lang="sass" scoped>
 @import "@/assets/styles/includes"
-
+.input
+  width: 95%
 .table-cell
   +flex
   width: 100%
