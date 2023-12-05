@@ -129,7 +129,10 @@ function addPurchaseOrder() {
 
 function removePurchaseOrder(index: number) {
   const po = checkoutForm.value?.purchaseOrder;
-  checkoutForm.value.purchaseOrder = po.splice(index, 1) as string[];
+  if (po?.splice)
+    checkoutForm.value.purchaseOrder = po.filter(
+      (_: unknown, i: number) => i !== index,
+    );
 }
 
 function updateExpectedDate() {
