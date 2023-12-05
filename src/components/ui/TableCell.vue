@@ -120,21 +120,21 @@ async function navigate(config, data) {
     (data.originalOrderId != undefined || data.sgsId != undefined) &&
     data.orderStatus === "Completed"
   ) {
-    let jobNumber = "";
     config.pathParams = [];
     if (data.originalOrderId != null) {
-      jobNumber = data.originalOrderId;
       config.pathParams.push("originalOrderId");
     } else if (data.sgsId != null) {
       config.pathParams.push("sgsId");
-      jobNumber = data.sgsId;
     }
-
     emit("ordervalidation", {
-      originalOrderId: jobNumber,
+      id: data.originalOrderId ? data.originalOrderId : data.sgsId,
       path: resolvePath(config, data),
     });
   } else {
+    if (config.path.includes("dashboard")) {
+      config.pathParams = [];
+      config.pathParams.push("originalOrderId");
+    }
     const link = resolvePath(config, data);
     router.push(link);
   }

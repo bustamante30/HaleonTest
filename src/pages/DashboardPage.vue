@@ -615,11 +615,11 @@ async function addMultipleToCart(sgsId: null) {
   ordersStore.loading.ordersList = false;
 }
 async function handleOrderValidation(data: any) {
-  const response = await ReorderService.validateOrder(data.originalOrderId);
+  const response = await ReorderService.validateOrder(data.id);
   if (response.result) {
     if (response.data === false && showMyOrders.value === false) {
       if (userType.value === "EXT") {
-        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.originalOrderId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.sgsId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
         let link: string = `/dashboard?showPM=true`;
         const linkLabel: string = `Here`;
         notificationsStore.addNotification(Constants.INFO, errorMessage, {

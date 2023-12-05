@@ -34,7 +34,7 @@ const cartCount = computed(() => cartStore.cartCount);
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
 const IsExternalAdmin = ref("");
-const emit = defineEmits(["report", "demo"]);
+const emit = defineEmits(["report", "demo", "faq"]);
 
 const menu = computed(() => [...navigation(emit, IsExternalAdmin.value)]);
 

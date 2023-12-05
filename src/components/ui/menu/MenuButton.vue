@@ -1,11 +1,10 @@
 <template lang="pug">
 span.menu-button
-  sgs-button.default(:id="`menu-button-${menuitem.label}`" type="button" :label="menuitem.label" @click="action")
+  sgs-button.default(v-if="menuitem" :id="`menu-button-${menuitem.label}`" type="button" :label="menuitem.label" @click="action")
 </template>
 
 <script setup>
 import router from "@/router";
-
 const props = defineProps({
   menuitem: {
     type: Object,
