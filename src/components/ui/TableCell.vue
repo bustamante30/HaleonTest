@@ -122,7 +122,7 @@ async function navigate(config, data) {
       path: resolvePath(config, data),
     });
   } else {
-    if (config.pathParams.includes("dashboard")) {
+    if (config.path.includes("dashboard")) {
       config.pathParams = [];
       config.pathParams.push("originalOrderId");
     }
