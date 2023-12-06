@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UserClaimDto } from "../models/UserClaimDto";
 import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
