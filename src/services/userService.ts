@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UserClaimDto } from "../models/UserClaimDto";
 import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
@@ -33,36 +34,16 @@ class UserService {
   public static saveUser(user: UserDto) {
     return httpService
       .post<UserDto>("v1/user", user)
-      .then((response: UserDto) => {
+      .then((response: any) => {
         return response;
       })
       .catch((error) => {
-        const errorresp = error?.response?.data;
         const userNotificationsStore = useNotificationsStore();
-        if (errorresp) {
-          console.error(
-            "[Validation Error while adding User]:",
-            errorresp.detail,
-          );
-          logger.error(
-            "[Validation Error while adding User]:",
-            errorresp.detail,
-          );
-          userNotificationsStore.addNotification(
-            Constants.FAILURE,
-            errorresp.detail,
-            {
-              severity: "error",
-            },
-          );
-          throw errorresp;
-        }
-        console.error("[Unhandled exception while adding user]:", error);
         logger.error("[Unhandled exception while adding user]:", error);
         userNotificationsStore.addNotification(
           Constants.FAILURE,
           Constants.SGS_ERROR_MSG,
-          { severity: "error" },
+          { severity: "error", life: 5000 },
         );
         throw error;
       });
@@ -112,30 +93,16 @@ class UserService {
   public static SavePrinter(printerData: PrinterDto) {
     return httpService
       .post<PrinterDto>("v1/printer", printerData)
-      .then((response: PrinterDto) => {
+      .then((response: any) => {
         return response;
       })
       .catch((error) => {
-        const errorresp = error?.response?.data;
         const notificationsStore = useNotificationsStore();
-        if (errorresp) {
-          console.error("[Validation Error adding printer]:", errorresp.detail);
-          logger.error("[Validation Error adding printer]:", errorresp.detail);
-          notificationsStore.addNotification(
-            Constants.FAILURE,
-            errorresp.detail,
-            {
-              severity: "error",
-            },
-          );
-          throw errorresp;
-        }
-        console.error("[Unhandled exception while adding printer]:", error);
         logger.error("[Unhandled exception while adding printer]:", error);
         notificationsStore.addNotification(
           Constants.FAILURE,
           Constants.SGS_ERROR_MSG,
-          { severity: "error" },
+          { severity: "error", life: 5000 },
         );
         throw error;
       });

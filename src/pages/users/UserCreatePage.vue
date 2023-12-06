@@ -58,18 +58,23 @@ async function saveUser(userRequest) {
   }
 
   const userResp = await usersStore.saveUser(userRequest);
-  if (userResp) {
+  if (userResp.title === undefined) {
     notificationsStore.addNotification(
       Constants.USER_CREATION,
       Constants.USER_CREATION_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
-    await usersStore.getPrinters(0, 500, "", "", printerId);
-    if (userType === "INT") {
-      router.push("/users?role=super");
-    } else if (userType === "EXT") {
-      router.push("/users");
-    }
+  } else {
+    notificationsStore.addNotification(Constants.FAILURE, userResp.detail, {
+      severity: "error",
+      life: 5000,
+    });
+  }
+  await usersStore.getPrinters(0, 500, "", "", printerId);
+  if (userType === "INT") {
+    router.push("/users?role=super");
+  } else if (userType === "EXT") {
+    router.push("/users");
   }
 }
 </script>

@@ -66,19 +66,24 @@ async function saveUser(value) {
 
   const userEditResp = await usersStore.saveUser(value);
 
-  if (userEditResp) {
+  if (userEditResp.title === undefined) {
     notificationsStore.addNotification(
       Constants.USER_UPDATED,
       Constants.USER_UPDATED_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
-    await usersStore.getPrinters(0, 500, "", "", printerId);
+  } else {
+    notificationsStore.addNotification(Constants.FAILURE, userEditResp.detail, {
+      severity: "error",
+      life: 5000,
+    });
+  }
+  await usersStore.getPrinters(0, 500, "", "", printerId);
 
-    if (userType === "EXT") {
-      router.push("/users");
-    } else if (userType === "INT") {
-      router.push("/users?role=super");
-    }
+  if (userType === "EXT") {
+    router.push("/users");
+  } else if (userType === "INT") {
+    router.push("/users?role=super");
   }
 }
 </script>
