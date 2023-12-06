@@ -1108,7 +1108,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                 },
               ];
               order.editionColors.push(colorCopy);
-              //resolve({ status: "finished", order: null });
             } else {
               expectedColors += res.length - 1;
               for (let i = 0; i < res.length; i++) {

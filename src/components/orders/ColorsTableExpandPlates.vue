@@ -37,7 +37,6 @@ const props = defineProps({
 });
 
 function getColumns(config) {
-  console.log(props.data[0].showComments);
   if (props.data.length === 0 || props.data[0].showComments) return config.cols;
   else {
     return config.cols.filter((x) => x.header !== "Comments");
