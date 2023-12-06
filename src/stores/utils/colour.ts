@@ -66,7 +66,9 @@ const validation = (colour: any) => {
     colour.plateDetails &&
     colour.plateDetails.map((plate: any) => plate.plateTypeId);
   const hasUniquePlates =
-    !totalSets || (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
+    colour.showComments ||
+    !totalSets ||
+    (totalSets && plateTypes.length === new Set(plateTypes).size); // - Check only if totalSets > 0
   const hasEmptyPlateDescription =
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateTypeId,
@@ -75,16 +77,23 @@ const validation = (colour: any) => {
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
     ) != null;
+  const noCommentPlates = colour.plateDetails.filter(
+    (x) => x.sets > 0 && (!x.comments || x.comments === ""),
+  );
+  const hasComments = !colour.showComments || noCommentPlates.length === 0;
   const isValid =
     hasUniquePlates &&
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
-    !hasEmptyPlateThickness;
+    !hasEmptyPlateThickness &&
+    hasComments;
+
   return {
     isValid,
     hasEmptyPlateDescription,
     hasUniquePlates,
     hasEmptyPlateThickness,
+    hasComments,
   };
 };
 
@@ -119,6 +128,7 @@ const flattenColors = (colors: any[] = []) => {
           plateTypeDescription: plate?.plateTypeDescription,
           plateThicknessId: plate?.plateThicknessId,
           plateThicknessDescription: plate?.plateThicknessDescription,
+          comments: plate?.comments,
           sequenceNumber: color.sequenceNumber,
           sets: plate.sets,
         });
