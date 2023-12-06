@@ -24,7 +24,7 @@
         label Item Code
         span {{ selectedOrder.itemCode }}
       .f(v-if="selectedOrder.brandName")
-        label Client
+        label Brand
         span {{ selectedOrder.brandName }}
       .f(v-if="selectedOrder.description")
         label Description
