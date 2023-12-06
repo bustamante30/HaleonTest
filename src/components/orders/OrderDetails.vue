@@ -21,7 +21,7 @@
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button#thumbnail.sm(label="View PDF" @click="viewPreview")
+          sgs-button#thumbnail.sm(v-if="checkPDF()" label="View PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
@@ -62,6 +62,15 @@ const colors = computed(() => ordersStore.selectedOrder.colors);
 onMounted(async () => {
   orderHasLenfiles.value = await ordersStore.getOrderById(props.selectedId);
 });
+
+function checkPDF(): boolean {
+  if (
+    !ordersStore.selectedOrder ||
+    Object.keys(ordersStore.selectedOrder.pdfData).length === 0
+  )
+    return false;
+  else return true;
+}
 
 async function buy() {
   if (selectedOrder.value.statusId != 1) {
