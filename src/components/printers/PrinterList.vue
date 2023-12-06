@@ -81,17 +81,21 @@ function searchPrinter(query) {
 
 async function saveprinter(printerFormRequest) {
   const printerResp = await usersStore.savePrinter(printerFormRequest);
-  if (printerResp) {
+  if (printerResp.title === undefined) {
     notificationsStore.addNotification(
       Constants.PRINTER_CREATION,
       Constants.PRINTER_CREATION_SUCCESS,
       { severity: "Success", position: "top-right" },
     );
-
-    await usersStore.getPrinters(0);
-    isPrinterFormVisible.value = false;
-    router.push("/users?role=super");
+  } else {
+    notificationsStore.addNotification(Constants.FAILURE, printerResp.detail, {
+      severity: "error",
+      life: 5000,
+    });
   }
+  await usersStore.getPrinters(0);
+  isPrinterFormVisible.value = false;
+  router.push("/users?role=super");
 }
 </script>
 
