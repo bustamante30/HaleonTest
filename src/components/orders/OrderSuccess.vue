@@ -19,7 +19,7 @@
         span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
-        span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
+        span {{ selectedOrder.customerContacts[0].customerName }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
@@ -63,14 +63,12 @@ import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
 import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
-import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
 const router = useRouter();
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore();
-const authStore = useAuthStore();
 const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 
