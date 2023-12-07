@@ -66,6 +66,7 @@ onMounted(async () => {
 function checkPDF(): boolean {
   if (
     !ordersStore.selectedOrder ||
+    !ordersStore.selectedOrder.pdfData ||
     Object.keys(ordersStore.selectedOrder.pdfData).length === 0
   )
     return false;
