@@ -13,7 +13,7 @@
         span {{ expectedDate }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
-        span {{ selectedOrder.customerContacts[0].customerName }}
+        span {{ userName }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
@@ -59,9 +59,11 @@ import { DateTime } from "luxon";
 import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
+import { useUsersStore } from "@/stores/users";
 
 const router = useRouter();
 const ordersStore = useOrdersStore();
+const usersStore = useUsersStore();
 const notificationsStore = useNotificationsStore();
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const isOrderCancel = computed(() => ordersStore.isCancel);
@@ -76,11 +78,16 @@ const props = defineProps({
     default: () => "",
   },
 });
+const user = computed(() => usersStore.user);
+const userName = computed(() => {
+  return user.value ? `${user.value.firstName} ${user.value.lastName}` : "";
+});
 
 onBeforeMount(async () => {
   let response = await ReorderService.getPhotonReorderDetails(props.selectedId);
   if (response.result) {
     let orderDetails = JSON.parse(JSON.stringify(response.data));
+    await usersStore.getUser(orderDetails.createdBy, 0);
     if (orderDetails?.statusId == 4) {
       await ordersStore.setOrderInStore(orderDetails);
       expectedDate.value = formatExpectedDateTime(orderDetails);
