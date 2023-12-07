@@ -639,11 +639,23 @@ async function handleOrderValidation(data: any) {
       router.push(data.path);
     }
   } else {
-    notificationsStore.addNotification(
-      Constants.FAILURE,
-      response.exceptionDetails?.Message,
-      { severity: "error", life: 5000 },
-    );
+    if (userType.value === "EXT") {
+      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.sgsId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+      let link: string = `/dashboard?showPM=true`;
+      const linkLabel: string = `Here`;
+      notificationsStore.addNotification(Constants.INFO, errorMessage, {
+        severity: "error",
+        life: 6000,
+        link,
+        linkLabel,
+      });
+    } else {
+      notificationsStore.addNotification(
+        Constants.INFO,
+        `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${Constants.INTERNAL_FLEXO_VALIDATION_MSG_SECPART}`,
+        { severity: "error" },
+      );
+    }
   }
 }
 
