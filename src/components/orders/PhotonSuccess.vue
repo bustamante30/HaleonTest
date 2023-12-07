@@ -13,7 +13,7 @@
         span {{ expectedDate }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
-        span {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName) }}
+        span {{ selectedOrder.customerContacts[0].customerName }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
@@ -24,7 +24,7 @@
         label Item Code
         span {{ selectedOrder.itemCode }}
       .f(v-if="selectedOrder.brandName")
-        label Client
+        label Brand
         span {{ selectedOrder.brandName }}
       .f(v-if="selectedOrder.description")
         label Description
@@ -56,16 +56,12 @@ import ColorsTable from "@/components/orders/ColorsTable.vue";
 import config from "@/data/config/color-table-reorder";
 import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
-import { useAuthStore } from "@/stores/auth";
-import { useB2CAuthStore } from "@/stores/b2cauth";
 import ReorderService from "@/services/ReorderService";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
 
 const router = useRouter();
 const ordersStore = useOrdersStore();
-const authStore = useAuthStore();
-const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const isOrderCancel = computed(() => ordersStore.isCancel);
