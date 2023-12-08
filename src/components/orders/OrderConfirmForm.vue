@@ -155,7 +155,6 @@ function updateExpectedDate() {
 }
 
 function updateCheckout() {
-  debugger;
   emit("change", {
     isUrgent: checkoutForm.value.isUrgent,
     purchaseOrder: checkoutForm.value.purchaseOrder
