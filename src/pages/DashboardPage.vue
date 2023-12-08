@@ -620,7 +620,7 @@ async function handleOrderValidation(data: any) {
   if (response.result) {
     if (response.data === false && showMyOrders.value === false) {
       if (userType.value === "EXT") {
-        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.sgsId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+        const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.id} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
         let link: string = `/dashboard?showPM=true`;
         const linkLabel: string = `Here`;
         notificationsStore.addNotification(Constants.INFO, errorMessage, {
@@ -641,7 +641,7 @@ async function handleOrderValidation(data: any) {
     }
   } else {
     if (userType.value === "EXT") {
-      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.sgsId} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
+      const errorMessage = `${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_FIRSTPART} ${data.id} ${Constants.EXTERNAL_FLEXO_VALIDATION_MSG_SECPART}`;
       let link: string = `/dashboard?showPM=true`;
       const linkLabel: string = `Here`;
       notificationsStore.addNotification(Constants.INFO, errorMessage, {
