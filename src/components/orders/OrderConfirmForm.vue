@@ -29,7 +29,7 @@
     .f
       label Notes
       span.input.notes
-        prime-textarea(v-model="checkoutForm.notes")
+        prime-textarea(v-model="checkoutForm.notes" @update:model-value="updateCheckout()")
   aside
     label.doc-label Attach Documents
     label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
