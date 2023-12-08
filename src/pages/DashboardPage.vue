@@ -397,7 +397,6 @@ async function reorder(order: any) {
         );
       }
     } else {
-      ordersStore.isCancel = false;
       ordersStore.reorder(order);
     }
   } else {
