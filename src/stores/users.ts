@@ -443,7 +443,7 @@ export const useUsersStore = defineStore("users", {
               : undefined,
         };
 
-        if (this.user) {
+        if (this.user && printerId != 0) {
           this.editUser(this.user);
         }
       } else {
