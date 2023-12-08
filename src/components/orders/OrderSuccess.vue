@@ -44,6 +44,9 @@
       .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
         span {{ selectedOrder.customerContacts[0].shippingAddress}}
+      .f(v-if="!isOrderCancel && selectedOrder.notes")
+        label Notes
+        span {{ selectedOrder.notes }}
     .card(v-if="colors && colors.length>0")
       h3 Image Carrier Specs
       colors-table.p-datatable-sm(:config="config" :data="colors")
