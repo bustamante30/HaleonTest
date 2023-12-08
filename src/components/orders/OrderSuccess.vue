@@ -111,6 +111,7 @@ async function handleCancelOrder() {
       true,
     );
     if (response.result && response.data) {
+      ordersStore.isCancel = false;
       notificationsStore.addNotification(
         Constants.SUCCESS,
         Constants.CANCEL_DELETE_SUCCESS,

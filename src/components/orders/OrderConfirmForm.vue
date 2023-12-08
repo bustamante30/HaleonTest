@@ -9,7 +9,7 @@
     .f
       label.required Delivery time
       span.input.calendar    
-        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
+        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" :time-only="true" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
 
 
     .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")
