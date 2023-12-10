@@ -30,7 +30,7 @@ export const MAX_FILE_SIZE = 26214400;
 export const PO_DELIMITER = ",";
 
 export const PO_FORM_ERROR = "Invalid PO Form";
-export const INVALID_DATE_TIME = "Date and Time cannot be empty";
+export const INVALID_DATE_TIME = "Date and Time can not be empty";
 export const PO_NUMBER_MIN_LENGTH =
   "Please enter at least 3 characters in the purchase order field.";
 export const PO_NUMBER_MAX_LENGTH =
