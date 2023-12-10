@@ -173,6 +173,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       order: false,
       cart: false,
       reorder: false,
+      pdfs: false,
     },
     filters: {} as any,
     selectedOrder: null as any,
@@ -268,7 +269,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       this.successfullReorder = details;
     },
     async getOrderById(reorderId: any): Promise<boolean> {
-      return new Promise((resolve) => {
+      const promise: Promise<boolean> = new Promise((resolve) => {
         /* 1.Reset previously loaded order
           2.SGS | Cart?
           3.Fetch / load order object with direct props
@@ -276,6 +277,7 @@ export const useOrdersStore = defineStore("ordersStore", {
           5.Decorate for display
           6.Prepare options for platetype dropdown in Reorder Step */
         this.loading.order = true;
+        this.loading.pdfs = true;
         this.selectedOrder = null;
         this.checkout = {
           expectedDate: null,
@@ -302,7 +304,10 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
             this.getBarcodeAndShirtail(cartOrder);
             this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
-              if (response) this.selectedOrder.pdfData = response;
+              if (response) {
+                this.selectedOrder.pdfData = response;
+              }
+              this.loading.pdfs = false;
             });
             this.getLenFiles(cartOrder);
           } else {
@@ -315,6 +320,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             if (!this.selectedOrder || !this.selectedOrder.allDataLoaded) {
               ReorderService.getOrderDetails(reorderId).then(
                 async (response: any) => {
+                  this.loading.order = false;
                   if (response.result) {
                     const details = jsonify(response.data);
                     this.selectedOrder = this.selectedOrder
@@ -345,7 +351,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                       },
                     );
                     this.getPdfData(details.jobId).then((response: any) => {
-                      if (response) this.selectedOrder.pdfData = response;
+                      if (response) {
+                        this.selectedOrder.pdfData = response;
+                      }
+                      this.loading.pdfs = false;
                     });
                     const promises: Promise<any>[] = [];
                     this.mapColorAndCustomerDetailsToOrder(details);
@@ -387,8 +396,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
           }
         }
+      });
+
+      promise.finally(() => {
         this.loading.order = false;
       });
+      return promise;
     },
     async setFilters(filters: any) {
       this.filters = { ...this.filters, ...filters };

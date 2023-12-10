@@ -274,6 +274,7 @@ function searchKeyword(event: any) {
       printerName: null,
       status: 4,
       query: event.query,
+      startDate: [],
     };
     ordersStore.setFilters(fil);
   } else {
