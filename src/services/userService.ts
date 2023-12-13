@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { UserClaimDto } from "../models/UserClaimDto";
+//import type { UserClaimDto } from "../models/UserClaimDto";
 import type { UserDto } from "../models/UserDto";
 import type { SearchRequestDto } from "../models/SearchRequestDto";
 import type { SearchResponeDto } from "../models/SearchResponeDto";
@@ -20,8 +20,8 @@ const httpService = new ApiService(baseUrl);
 class UserService {
   public static getUserClaimInfo() {
     return httpService
-      .get<UserClaimDto>("v1/user/RetrieveUserBasicinfo")
-      .then((response: UserClaimDto) => {
+      .get<any>("v1/user/RetrieveUserBasicinfo")
+      .then((response: any) => {
         return response;
       })
       .catch((error) => {
