@@ -15,6 +15,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 
+const emit = defineEmits(["expand"]);
 const props = defineProps({
   header: {
     type: String,
@@ -37,6 +38,9 @@ watch(
 
 function toggle() {
   isExpanded.value = !isExpanded.value;
+  if (isExpanded.value) {
+    emit("expand", props.header);
+  }
 }
 </script>
 
