@@ -274,6 +274,7 @@ function searchKeyword(event: any) {
       printerName: null,
       status: 4,
       query: event.query,
+      startDate: [],
     };
     ordersStore.setFilters(fil);
   } else {
@@ -397,7 +398,6 @@ async function reorder(order: any) {
         );
       }
     } else {
-      ordersStore.isCancel = false;
       ordersStore.reorder(order);
     }
   } else {

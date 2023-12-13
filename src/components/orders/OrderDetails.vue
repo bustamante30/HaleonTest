@@ -30,6 +30,7 @@
         order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
         sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
+          sgs-spinner(v-if="loadingPdfs")
           iframe.pdf(:src="pdfUri")
       template(#footer)
         footer
@@ -58,6 +59,7 @@ const props = defineProps({
 });
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 const loadingOrder = computed(() => ordersStore.loading.order);
+const loadingPdfs = computed(() => ordersStore.loading.pdfs);
 const orderHasLenfiles = ref(true);
 const colors = computed(() => ordersStore.selectedOrder.colors);
 
