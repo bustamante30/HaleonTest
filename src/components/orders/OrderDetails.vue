@@ -18,6 +18,8 @@
             span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
             span.separator |
             span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }} 
+          h4
+            span Shipping Address/Location: {{ selectedOrder.address  }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")

@@ -52,6 +52,7 @@ interface SubmitReorder {
   printerName: string;
   printerId: number;
   packType: string;
+  address: string;
   statusId: number;
   expectedDate: Date;
   notes: string;
@@ -169,6 +170,7 @@ class ReorderService {
       printerId: 1,
       printerName: reorderInfo.printerName,
       packType: reorderInfo.packType,
+      address: reorderInfo.address,
       statusId: statusId,
       variety: reorderInfo.variety,
       PO: reorderInfo.PO,

@@ -27,12 +27,7 @@
           span {{ selection.printerName }}
         .f.shipping
           label Shipping Adress
-          div(v-if="checkCustomerDetails()")
-            span {{ getShippingAddress() }}
-          div(v-if="selection.customerContacts && selection.customerContacts.length>1")
-            prime-dropdown.sm.address(
-v-model="selection.customerContacts[0].shippingAddress" name="shipToAddress" :options="selection.customerContacts" append-to="body" 
-          option-label="shippingAddress" option-value="shippingAddress")
+          span {{ selection.address }}
     .card.colors
       h3 Plates
       .details
@@ -260,22 +255,6 @@ function handleUrgentToggle(event) {
   ordersStore.checkout.isUrgent = event;
   ordersStore.checkout.expectedDate = null;
   ordersStore.updateCheckout(ordersStore.checkout);
-}
-
-function getShippingAddress() {
-  if (!ordersStore.selectedOrder.customerContacts) {
-    return "No printer site provided";
-  }
-  ordersStore.selectedOrder.customerContacts[0].isActive = true;
-  return ordersStore.selectedOrder.customerContacts[0].shippingAddress
-    ? ordersStore.selectedOrder.customerContacts[0].shippingAddress
-    : "";
-}
-function checkCustomerDetails() {
-  return (
-    ordersStore.selectedOrder.customerContacts &&
-    ordersStore.selectedOrder.customerContacts.length === 1
-  );
 }
 </script>
 

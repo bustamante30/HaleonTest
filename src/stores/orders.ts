@@ -329,6 +329,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     this.selectedOrder.originalOrderId = details?.jobId;
                     this.selectedOrder.description = details?.jobDescription;
                     this.selectedOrder.brandName = details?.jobDetails?.brand;
+                    this.selectedOrder.address = details?.address;
                     this.selectedOrder.itemCode =
                       details?.jobDetails?.endUserReference;
                     this.selectedOrder.packType =
