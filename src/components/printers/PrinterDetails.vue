@@ -19,8 +19,8 @@ sgs-scrollpanel.section.printer-details(:scroll="false")
           span.material-icons.outline search
       sgs-button#add-user.sm(label="Add User" icon="add" @click="create")
   .content
-    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" :className="[ user ? 'lay-low' : '']" @editUser="edit" @deleteUser="deleteUser" @resend="resend")
-    user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']")
+    user-table(v-if="tab === 'users'" :data="printer.users" :config="userConfig" :className="[ user ? 'lay-low' : '']"  :userType="tab" @editUser="edit" @deleteUser="deleteUser" @resend="resend")
+    user-table(v-if="tab === 'internal'" :data="printer.internalUsers" :config="internalUserConfig" :className="[ user ? 'lay-low' : '']"  :userType="tab")
     printer-providers(v-else-if="tab === 'settings'" :data="printer.identityProvider")
 </template>
 

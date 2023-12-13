@@ -27,44 +27,38 @@ export async function fetchPlatingLocations() {
   }
 }
 
-export async function searchUsers(
-  printerId: number,
-  userIdValue: number,
-  userType: string,
-  searchValue: string,
-) {
-  try {
-    const searchRequest: SearchRequestDto = {
-      searchText: searchValue,
-      pageNumber: 1,
-      pageCount: 30,
-      orderBy: "ModifiedOn",
-      orderByAsc: true,
-      isActive: true,
-      printerId: printerId,
-      userId: 0,
-      userTypeKey: userType,
-    };
-
-    const usersResponse = await UserService.searchUser(searchRequest);
-
-    if (usersResponse) {
-      return usersResponse;
-    } else {
-      console.error("[Error searching users response]:", usersResponse);
-      logger.error("[Error searching users response]:", usersResponse);
-    }
-  } catch (error) {
-    console.error("[Error searching users]:", error);
-    logger.error("[Error searching users]:", error);
-  }
-}
-
-function IterateUser(userList: [], count: number) {
+export function IterateUser(userList: [], count: number) {
   const usersSearchResponseArr = [] as UserSearchResponseDto[];
   for (let i = 0; i < count; i++) {
     usersSearchResponseArr.push(userList[i]);
   }
+  return usersSearchResponseArr;
+}
+
+export function IterateUserPerPage(
+  userList: [],
+  count: number,
+  pagenumber: number,
+) {
+  const usersSearchResponseArr = [] as UserSearchResponseDto[];
+  const startIndex = (pagenumber - 1) * 30;
+  const endIndex = Math.min(startIndex + 30, count);
+
+  const emptyUserList: UserSearchResponseDto[] = [];
+
+  for (let i = 0; i < count; i++) {
+    if (i >= startIndex && i < endIndex) {
+      for (let j = 0; j < userList.length; j++) {
+        if (userList[j] !== undefined) {
+          usersSearchResponseArr.push(userList[j]);
+        }
+        i = endIndex;
+      }
+    } else {
+      usersSearchResponseArr.push(emptyUserList[i]);
+    }
+  }
+
   return usersSearchResponseArr;
 }
 
@@ -140,7 +134,7 @@ export async function searchPrinter(
 
 export const useUsersStore = defineStore("users", {
   state: () => ({
-    all: [] as any[], // Mock all printers in db
+    all: [] as any[],
     printers: {
       page: 0,
       perPage: 20,
@@ -306,22 +300,6 @@ export const useUsersStore = defineStore("users", {
           this.identityTypeName = printer.identityTypeName;
         }
 
-        // if (
-        //   searchUserValue !== undefined &&
-        //   searchUserValue !== null &&
-        //   searchUserValue != ""
-        // ) {
-        //   searchKey = searchUserValue;
-        // }
-
-        // if (userType === "EXT") {
-        //   printerName = authb2cStore.currentB2CUser.printerName;
-        // } else if (userType === "INT") {
-        //   if (printer != null || printer != undefined) {
-        //     printerName = printer.name;
-        //   }
-        // }
-
         if (userType === "INT") {
           const locationResult = await fetchPlatingLocations();
 
@@ -340,21 +318,21 @@ export const useUsersStore = defineStore("users", {
         }
 
         if (userType == "EXT") {
-          this.userSearchExtResp = await searchUsers(
+          this.userSearchExtResp = await this.searchUsers(
             prtId,
             userId,
             "EXT",
             searchUserValue,
           );
         } else if (userType == "INT") {
-          this.userSearchExtResp = await searchUsers(
+          this.userSearchExtResp = await this.searchUsers(
             prtId,
             userId,
             "EXT",
             searchUserValue,
           );
         }
-        this.userSearchIntResp = await searchUsers(
+        this.userSearchIntResp = await this.searchUsers(
           prtId,
           userId,
           "INT",
@@ -578,6 +556,38 @@ export const useUsersStore = defineStore("users", {
       } catch (error) {
         console.error("[Error resending invitation]:", error);
         logger.error("[Error resending invitation]:", error);
+      }
+    },
+    async searchUsers(
+      printerId: number,
+      userIdValue: number,
+      userType: string,
+      searchValue: string,
+      pageNum: number = 1,
+      pageCount: number = 30,
+    ) {
+      try {
+        const searchRequest: SearchRequestDto = {
+          searchText: searchValue,
+          pageNumber: pageNum,
+          pageCount: pageCount,
+          orderBy: "ModifiedOn",
+          orderByAsc: true,
+          isActive: true,
+          printerId: printerId,
+          userId: 0,
+          userTypeKey: userType,
+        };
+
+        const usersResponse = await UserService.searchUser(searchRequest);
+
+        if (usersResponse) {
+          return usersResponse;
+        } else {
+          logger.error("[UserResponse is empty]:", usersResponse);
+        }
+      } catch (error) {
+        logger.error("[Error searching users]:", error);
       }
     },
   },

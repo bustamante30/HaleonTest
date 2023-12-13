@@ -35,7 +35,10 @@ const route = useRoute();
 let role = ref(route.query?.role);
 
 const printers = computed(() => usersStore.printers);
-const selected = computed(() => usersStore.selected);
+
+const selected = computed(() => {
+  return usersStore.selected;
+});
 const user = computed(() => usersStore.user);
 const options = computed(() => usersStore.options);
 let printerId = "";
