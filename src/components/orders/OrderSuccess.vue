@@ -19,7 +19,7 @@
         span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
       .f(v-if="selectedOrder.originalOrderId")
         label Order Initated By
-        span {{ selectedOrder.customerContacts[0].customerName }}
+        span {{ userName }}
       .f(v-if="selectedOrder.weight")
         label Weight
         span {{ selectedOrder.weight }}
@@ -69,18 +69,24 @@ import { DateTime } from "luxon";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import { useNotificationsStore } from "@/stores/notifications";
 import * as Constants from "@/services/Constants";
+import { useUsersStore } from "@/stores/users";
+
 const router = useRouter();
 const ordersStore = useOrdersStore();
 const cartStore = useCartStore();
 const authb2cStore = useB2CAuthStore();
 const notificationsStore = useNotificationsStore();
-
+const usersStore = useUsersStore();
 let selectedOrder = computed(() => ordersStore.successfullReorder);
 const isOrderCancel = computed(() => ordersStore.isCancel);
 const colors = computed(() =>
   ordersStore.flattenedColors("success").filter((color) => color.sets),
 );
 const expectedDate = ref("");
+const user = computed(() => usersStore.user);
+const userName = computed(() => {
+  return user.value ? `${user.value.firstName} ${user.value.lastName}` : "";
+});
 
 onBeforeMount(async () => {
   let x = ordersStore.selectedOrder?.expectedDate?.toString();
@@ -90,6 +96,7 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
+  await usersStore.getUser(ordersStore.successfullReorder?.createdBy, 0);
   const index = cartStore.cartOrders.indexOf(ordersStore.successfullReorder, 0);
   if (index > -1) {
     cartStore.cartOrders.splice(index, 1);
