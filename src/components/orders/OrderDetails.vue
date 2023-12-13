@@ -18,7 +18,7 @@
             span {{ selectedOrder.packType ? selectedOrder.packType : 'N/A' }}
             span.separator |
             span {{ selectedOrder.printerName ? selectedOrder.printerName : 'N/A' }} 
-            span.separator |
+          h4
             span Shipping Address/Location: {{ selectedOrder.address  }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail

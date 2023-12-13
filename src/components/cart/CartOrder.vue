@@ -23,7 +23,7 @@
         span {{ order.printerName }}
       .f
         label Shipping Address
-        span  {{ getShippingAddress(order)}}
+        span  {{ order.address}}
       a.specs(@click="toggleColors") View Specs
       .colors(v-if="isSpecsVisible")
         colors-table.p-datatable-sm(:config="config" :data="colors")
@@ -108,15 +108,6 @@ async function discardOrder(order) {
     },
     reject: () => {},
   });
-}
-
-function getShippingAddress(order) {
-  if (!order.customerContacts) {
-    return "No printer site provided";
-  }
-  return order.customerContacts[0].shippingAddress
-    ? order.customerContacts[0].shippingAddress
-    : "";
 }
 </script>
 
