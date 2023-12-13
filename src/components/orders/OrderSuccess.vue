@@ -43,7 +43,7 @@
         span {{ selectedOrder.printerName }}
       .f(v-if="selectedOrder.customerContacts && selectedOrder.customerContacts.length>0")
         label Shipping Address
-        span {{ selectedOrder.customerContacts[0].shippingAddress}}
+        span {{ selectedOrder.address}}
       .f(v-if="!isOrderCancel && selectedOrder.notes")
         label Notes
         span {{ selectedOrder.notes }}
