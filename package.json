@@ -36,7 +36,7 @@
     "pico-emitter": "^1.2.1",
     "pinia": "^2.0.35",
     "primeicons": "^6.0.1",
-    "primevue": "3.29.2",
+    "primevue": "^3.29.2",
     "store": "^2.0.12",
     "uuid": "^9.0.1",
     "v-image-magnifier": "^1.1.1",
