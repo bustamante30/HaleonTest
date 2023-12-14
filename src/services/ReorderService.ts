@@ -471,7 +471,6 @@ class ReorderService {
         return response;
       })
       .catch((error: any) => {
-        console.error("[Error getting pdf]:", error);
         logger.error("[Error getting pdf]:", error);
         return false;
       });
