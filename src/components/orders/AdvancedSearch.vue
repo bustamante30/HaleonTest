@@ -166,6 +166,10 @@ async function handleDateClick(dateRefId: number): Promise<void> {
             (advancedFilters.value as any)[(searchReference as any).fieldName] =
               (searchStore as any).value;
           }
+          let [startDate, startDateFallback] =
+            advancedFilters.value["startDate"];
+          startDate = startDate !== null ? startDate : startDateFallback;
+          advancedFilters.value["startDate"] = [startDate, startDate];
         }
       }
     });
