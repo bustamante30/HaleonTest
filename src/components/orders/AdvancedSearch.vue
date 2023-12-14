@@ -166,9 +166,9 @@ async function handleDateClick(dateRefId: number): Promise<void> {
             (advancedFilters.value as any)[(searchReference as any).fieldName] =
               (searchStore as any).value;
           }
-          let [startDate, startDateFallback] =
-            advancedFilters.value["startDate"];
-          startDate = startDate !== null ? startDate : startDateFallback;
+          let [startDate, tempValue] = advancedFilters.value["startDate"];
+          // Check if "startDate" is not null, if it is, use the value from "tempValue" as a fallback
+          startDate = startDate !== null ? startDate : tempValue;
           advancedFilters.value["startDate"] = [startDate, startDate];
         }
       }
