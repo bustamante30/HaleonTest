@@ -159,6 +159,11 @@ const base64toBlob = (data: string) => {
   return new Blob([out], { type: "application/pdf" });
 };
 
+interface GetOrderResponse {
+  orderHasLenfiles: boolean;
+  isCartOrder: boolean;
+}
+
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     firstLoad: false,
@@ -267,8 +272,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       const details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
-    async getOrderById(reorderId: any): Promise<any> {
-      const promise = new Promise((resolve) => {
+    async getOrderById(reorderId: any): Promise<GetOrderResponse> {
+      const promise = new Promise<GetOrderResponse>((resolve) => {
         /* 1.Reset previously loaded order
           2.SGS | Cart?
           3.Fetch / load order object with direct props
@@ -354,7 +359,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                     Promise.allSettled(promises).then(async (promiseResult) => {
                       if (promiseResult[1]["value"].order === null) {
                         this.notifyOrderCannotBeProcessed();
-                        resolve({ orderHasLenfiles: false });
+                        resolve({
+                          orderHasLenfiles: false,
+                          isCartOrder: false,
+                        });
                       } else {
                         this.selectedOrder.allDataLoaded = true;
                         this.orders.splice(
@@ -366,7 +374,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                           1,
                           this.selectedOrder,
                         );
-                        resolve({ orderHasLenfiles: true });
+                        resolve({ orderHasLenfiles: true, isCartOrder: false });
                       }
                     });
                   } else {
@@ -381,7 +389,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 },
               );
             } else {
-              resolve({ orderHasLenfiles: true });
+              resolve({ orderHasLenfiles: true, isCartOrder: false });
             }
           }
         }
