@@ -22,14 +22,15 @@
             span Shipping Address/Location: {{ selectedOrder.address  }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button#thumbnail.sm(v-if="checkPDF()" label="View PDF" @click="viewPreview")
+          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+            :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
+          sgs-button#thumbnail.sm(v-if="checkPDF()" label="Scroll to PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`" @expand="getPdf")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName} | click to show/hide`" @expand="getPdf")
           sgs-spinner(v-if="loadingPdf" class="pdf-loader")
           iframe.pdf(:src="pdfUri")
       template(#footer)

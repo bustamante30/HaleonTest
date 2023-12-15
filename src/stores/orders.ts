@@ -142,11 +142,9 @@ const isDateFilterSame = (dateRange1, dateRange2) => {
   );
 };
 
-const base64toBlob = (data: string) => {
+const base64toBlob = (data: string, type: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
-  const base64WithoutPrefix = data.substr(
-    "data:application/pdf;base64,".length,
-  );
+  const base64WithoutPrefix = data.substr(("data:" + type + ";base64,").length);
 
   const bytes = atob(base64WithoutPrefix);
   let length = bytes.length;
@@ -156,7 +154,7 @@ const base64toBlob = (data: string) => {
     out[length] = bytes.charCodeAt(length);
   }
 
-  return new Blob([out], { type: "application/pdf" });
+  return new Blob([out], { type: type });
 };
 
 interface GetOrderResponse {
@@ -913,6 +911,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
             lenProcessed++;
+            debugger;
             for (let i = 0; i < res.length; i++) {
               for (const color of order.editionColors) {
                 this.setLenData(color, res[i].lenPath, res[i].lenData, false);
@@ -1121,10 +1120,12 @@ export const useOrdersStore = defineStore("ordersStore", {
               order.editionColors.push(colorCopy);
             } else {
               expectedColors += res.length - 1;
+              debugger;
               for (let i = 0; i < res.length; i++) {
                 const colorCopy: any = JSON.parse(JSON.stringify(color));
                 colorCopy.lenPath = res[i].lenPath;
-                colorCopy.lenData = res[i].lenData;
+                const blob = base64toBlob(res[i].lenData, "image");
+                colorCopy.lenData = URL.createObjectURL(blob);
                 colorCopy.checkboxId = faker.datatype.uuid();
                 colorCopy.totalSets = 0;
                 colorCopy.showComments = false;
@@ -1188,7 +1189,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         if (response) {
           for (const pdfName in response) {
             const base64String = response[pdfName];
-            const blob = base64toBlob(base64String);
+            const blob = base64toBlob(base64String, "application/pdf");
             response[pdfName] = URL.createObjectURL(blob);
           }
           return response;
