@@ -30,8 +30,9 @@
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder")
+      h1.title.pdf-header PDFs:
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :unique-key="`${pdfName}`" :header="`${pdfName} -- [click to show/hide]`" @expand="getPdf")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :unique-key="`${pdfName}`" :header="`${pdfName}`" @expand="getPdf")
           sgs-spinner(v-if="loadingPdf" class="pdf-loader")
           iframe.pdf(:src="pdfUri")
       template(#footer)
@@ -193,4 +194,6 @@ iframe.pdf
 .pdf-loader
   position: initial
   margin-top: 5rem
+.pdf-header
+  margin: 0px 40px
 </style>
