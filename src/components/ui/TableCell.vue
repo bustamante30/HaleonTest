@@ -8,7 +8,8 @@ span.table-cell(:class="{ disabled: get(data, config.field) === 'NA' }" :title="
   span(v-else-if="config.type === 'link'")
     a(@click="navigate(config, data)") {{ get(data, config.field) }}
   span.image(v-else-if="config.type === 'image'")
-    prime-image(:src="get(data, config.field)" alt="Image" preview 
+    prime-image(
+      :src="get(data, config.field)" alt="Image" preview 
       :image-style="{ height: '2rem', width: 'auto', maxWidth: '100%', 'aspect-ratio': 'auto 640 / 360' }"
       :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
   span.image(v-else-if="config.type === 'lenImage'")

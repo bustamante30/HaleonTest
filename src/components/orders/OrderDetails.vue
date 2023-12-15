@@ -22,7 +22,8 @@
             span Shipping Address/Location: {{ selectedOrder.address  }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+          prime-image.image(
+            :src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
             :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
           sgs-button#thumbnail.sm(v-if="checkPDF()" label="Scroll to PDF" @click="viewPreview")
         .details
@@ -30,7 +31,7 @@
       .card
         order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName} | click to show/hide`" @expand="getPdf")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :unique-key="`${pdfName}`" :header="`${pdfName} -- [click to show/hide]`" @expand="getPdf")
           sgs-spinner(v-if="loadingPdf" class="pdf-loader")
           iframe.pdf(:src="pdfUri")
       template(#footer)
@@ -71,15 +72,15 @@ onMounted(async () => {
   isCartOrder = !!metadata.isCartOrder;
 });
 
-async function getPdf(header) {
-  if (!ordersStore.selectedOrder.pdfData[header]) {
+async function getPdf(key) {
+  if (!ordersStore.selectedOrder.pdfData[key]) {
     loadingPdf = true;
     const sgsId = isCartOrder
       ? ordersStore.selectedOrder.originalOrderId
       : props.selectedId;
-    const thePdfData = await ordersStore.getPdf(sgsId, header);
+    const thePdfData = await ordersStore.getPdf(sgsId, key);
     loadingPdf = false;
-    ordersStore.selectedOrder.pdfData[header] = thePdfData;
+    ordersStore.selectedOrder.pdfData[key] = thePdfData;
   }
 }
 function checkPDF(): boolean {
@@ -191,5 +192,5 @@ iframe.pdf
 
 .pdf-loader
   position: initial
-    margin-top: 5rem
+  margin-top: 5rem
 </style>

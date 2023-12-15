@@ -142,6 +142,11 @@ const isDateFilterSame = (dateRange1, dateRange2) => {
   );
 };
 
+const getBlobUrl = (data: string, type: string) => {
+  const blob = base64toBlob(data, type);
+  return URL.createObjectURL(blob);
+};
+
 const base64toBlob = (data: string, type: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
   const base64WithoutPrefix = data.substr(("data:" + type + ";base64,").length);
@@ -911,10 +916,10 @@ export const useOrdersStore = defineStore("ordersStore", {
         for (const sequence of sequenceList) {
           ReorderService.getLen(order.originalOrderId, sequence).then((res) => {
             lenProcessed++;
-            debugger;
             for (let i = 0; i < res.length; i++) {
               for (const color of order.editionColors) {
-                this.setLenData(color, res[i].lenPath, res[i].lenData, false);
+                const lenData = getBlobUrl(res[i].lenData, "image");
+                this.setLenData(color, res[i].lenPath, lenData, false);
               }
             }
             if (lenProcessed === order.colors.length) {
@@ -1120,12 +1125,10 @@ export const useOrdersStore = defineStore("ordersStore", {
               order.editionColors.push(colorCopy);
             } else {
               expectedColors += res.length - 1;
-              debugger;
               for (let i = 0; i < res.length; i++) {
                 const colorCopy: any = JSON.parse(JSON.stringify(color));
                 colorCopy.lenPath = res[i].lenPath;
-                const blob = base64toBlob(res[i].lenData, "image");
-                colorCopy.lenData = URL.createObjectURL(blob);
+                colorCopy.lenData = getBlobUrl(res[i].lenData, "image");
                 colorCopy.checkboxId = faker.datatype.uuid();
                 colorCopy.totalSets = 0;
                 colorCopy.showComments = false;
@@ -1179,20 +1182,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     getPdf(sgsId: string, pdfName: string) {
       return ReorderService.getPdf(sgsId, pdfName).then((response: any) => {
         if (response) {
-          const blob = base64toBlob(response);
-          return URL.createObjectURL(blob);
-        }
-      });
-    },
-    getPdfData(sgsId: string) {
-      return ReorderService.getPdfs(sgsId).then((response: any) => {
-        if (response) {
-          for (const pdfName in response) {
-            const base64String = response[pdfName];
-            const blob = base64toBlob(base64String, "application/pdf");
-            response[pdfName] = URL.createObjectURL(blob);
-          }
-          return response;
+          return getBlobUrl(response, "application/pdf");
         }
       });
     },

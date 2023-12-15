@@ -478,19 +478,6 @@ class ReorderService {
       });
   }
 
-  public static getPdfs(sgsId: string) {
-    return httpService
-      .get<string>(`v1/Reorder/${sgsId.split("-")[0]}/pdfs`)
-      .then((response: any) => {
-        return response;
-      })
-      .catch((error: any) => {
-        console.error("[Error getting pdfs]:", error);
-        logger.error("[Error getting pdfs]:", error);
-        return false;
-      });
-  }
-
   public static decorateColours(colors: Color[] | undefined) {
     if (colors)
       colors.forEach((color) => {

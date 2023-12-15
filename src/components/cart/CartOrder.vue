@@ -7,7 +7,8 @@
     span {{ order.description }}
   .summary
     .thumbnail
-      prime-image.image(:src="order.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+      prime-image.image(
+        :src="order.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
         :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
     .details
       .f

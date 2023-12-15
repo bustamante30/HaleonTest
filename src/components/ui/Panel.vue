@@ -17,6 +17,10 @@ import { ref, watch } from "vue";
 
 const emit = defineEmits(["expand"]);
 const props = defineProps({
+  uniqueKey: {
+    type: String,
+    default: null,
+  },
   header: {
     type: String,
     default: null,
@@ -39,7 +43,7 @@ watch(
 function toggle() {
   isExpanded.value = !isExpanded.value;
   if (isExpanded.value) {
-    emit("expand", props.header);
+    emit("expand", props.uniqueKey, props.header);
   }
 }
 </script>
