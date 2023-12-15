@@ -29,8 +29,8 @@
       .card
         order-shirttail(:data="selectedOrder")
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
-          sgs-spinner(v-if="loadingPdfs")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`" @expand="getPdf")
+          sgs-spinner(v-if="loadingPdf" class="pdf-loader")
           iframe.pdf(:src="pdfUri")
       template(#footer)
         footer
@@ -59,14 +59,28 @@ const props = defineProps({
 });
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 const loadingOrder = computed(() => ordersStore.loading.order);
-const loadingPdfs = computed(() => ordersStore.loading.pdfs);
+let loadingPdf: boolean = false;
+let isCartOrder: boolean = false;
 const orderHasLenfiles = ref(true);
 const colors = computed(() => ordersStore.selectedOrder.colors);
 
 onMounted(async () => {
-  orderHasLenfiles.value = await ordersStore.getOrderById(props.selectedId);
+  const metadata = await ordersStore.getOrderById(props.selectedId);
+  orderHasLenfiles.value = metadata.orderHasLenfiles;
+  isCartOrder = !!metadata.isCartOrder;
 });
 
+async function getPdf(header) {
+  if (!ordersStore.selectedOrder.pdfData[header]) {
+    loadingPdf = true;
+    const sgsId = isCartOrder
+      ? ordersStore.selectedOrder.originalOrderId
+      : props.selectedId;
+    const thePdfData = await ordersStore.getPdf(sgsId, header);
+    loadingPdf = false;
+    ordersStore.selectedOrder.pdfData[header] = thePdfData;
+  }
+}
 function checkPDF(): boolean {
   if (
     !ordersStore.selectedOrder ||
@@ -173,4 +187,8 @@ iframe.pdf
   min-height: 40rem
   margin: $s 0
   border: none
+
+.pdf-loader
+  position: initial
+    margin-top: 5rem
 </style>

@@ -159,6 +159,11 @@ const base64toBlob = (data: string) => {
   return new Blob([out], { type: "application/pdf" });
 };
 
+interface GetOrderResponse {
+  orderHasLenfiles: boolean;
+  isCartOrder: boolean;
+}
+
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
     firstLoad: false,
@@ -173,7 +178,6 @@ export const useOrdersStore = defineStore("ordersStore", {
       order: false,
       cart: false,
       reorder: false,
-      pdfs: false,
     },
     filters: {} as any,
     selectedOrder: null as any,
@@ -268,8 +272,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       const details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
-    async getOrderById(reorderId: any): Promise<boolean> {
-      const promise: Promise<boolean> = new Promise((resolve) => {
+    async getOrderById(reorderId: any): Promise<GetOrderResponse> {
+      const promise = new Promise<GetOrderResponse>((resolve) => {
         /* 1.Reset previously loaded order
           2.SGS | Cart?
           3.Fetch / load order object with direct props
@@ -277,7 +281,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           5.Decorate for display
           6.Prepare options for platetype dropdown in Reorder Step */
         this.loading.order = true;
-        this.loading.pdfs = true;
         this.selectedOrder = null;
         this.checkout = {
           expectedDate: null,
@@ -303,13 +306,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.selectedOrder = cartOrder;
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
             this.getBarcodeAndShirtail(cartOrder);
-            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
-              if (response) {
-                this.selectedOrder.pdfData = response;
-              }
-              this.loading.pdfs = false;
-            });
             this.getLenFiles(cartOrder);
+            resolve({ orderHasLenfiles: true, isCartOrder: true });
           } else {
             // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
             this.selectedOrder = this.orders?.find(
@@ -351,12 +349,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                           this.selectedOrder.thumbNailPath = response;
                       },
                     );
-                    this.getPdfData(details.jobId).then((response: any) => {
-                      if (response) {
-                        this.selectedOrder.pdfData = response;
-                      }
-                      this.loading.pdfs = false;
-                    });
                     const promises: Promise<any>[] = [];
                     this.mapColorAndCustomerDetailsToOrder(details);
                     promises.push(
@@ -368,7 +360,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                     Promise.allSettled(promises).then(async (promiseResult) => {
                       if (promiseResult[1]["value"].order === null) {
                         this.notifyOrderCannotBeProcessed();
-                        resolve(false);
+                        resolve({
+                          orderHasLenfiles: false,
+                          isCartOrder: false,
+                        });
                       } else {
                         this.selectedOrder.allDataLoaded = true;
                         this.orders.splice(
@@ -380,7 +375,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                           1,
                           this.selectedOrder,
                         );
-                        resolve(true);
+                        resolve({ orderHasLenfiles: true, isCartOrder: false });
                       }
                     });
                   } else {
@@ -394,6 +389,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                   }
                 },
               );
+            } else {
+              resolve({ orderHasLenfiles: true, isCartOrder: false });
             }
           }
         }
@@ -1176,6 +1173,14 @@ export const useOrdersStore = defineStore("ordersStore", {
         life: 15000,
         link,
         linkLabel,
+      });
+    },
+    getPdf(sgsId: string, pdfName: string) {
+      return ReorderService.getPdf(sgsId, pdfName).then((response: any) => {
+        if (response) {
+          const blob = base64toBlob(response);
+          return URL.createObjectURL(blob);
+        }
       });
     },
     getPdfData(sgsId: string) {
