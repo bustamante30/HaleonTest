@@ -142,11 +142,14 @@ const isDateFilterSame = (dateRange1, dateRange2) => {
   );
 };
 
-const base64toBlob = (data: string) => {
+const getBlobUrl = (data: string, type: string) => {
+  const blob = base64toBlob(data, type);
+  return URL.createObjectURL(blob);
+};
+
+const base64toBlob = (data: string, type: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
-  const base64WithoutPrefix = data.substr(
-    "data:application/pdf;base64,".length,
-  );
+  const base64WithoutPrefix = data.substr(("data:" + type + ";base64,").length);
 
   const bytes = atob(base64WithoutPrefix);
   let length = bytes.length;
@@ -156,7 +159,7 @@ const base64toBlob = (data: string) => {
     out[length] = bytes.charCodeAt(length);
   }
 
-  return new Blob([out], { type: "application/pdf" });
+  return new Blob([out], { type: type });
 };
 
 interface GetOrderResponse {
@@ -915,7 +918,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             lenProcessed++;
             for (let i = 0; i < res.length; i++) {
               for (const color of order.editionColors) {
-                this.setLenData(color, res[i].lenPath, res[i].lenData, false);
+                const lenData = getBlobUrl(res[i].lenData, "image");
+                this.setLenData(color, res[i].lenPath, lenData, false);
               }
             }
             if (lenProcessed === order.colors.length) {
@@ -1124,7 +1128,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               for (let i = 0; i < res.length; i++) {
                 const colorCopy: any = JSON.parse(JSON.stringify(color));
                 colorCopy.lenPath = res[i].lenPath;
-                colorCopy.lenData = res[i].lenData;
+                colorCopy.lenData = getBlobUrl(res[i].lenData, "image");
                 colorCopy.checkboxId = faker.datatype.uuid();
                 colorCopy.totalSets = 0;
                 colorCopy.showComments = false;
@@ -1178,20 +1182,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     getPdf(sgsId: string, pdfName: string) {
       return ReorderService.getPdf(sgsId, pdfName).then((response: any) => {
         if (response) {
-          const blob = base64toBlob(response);
-          return URL.createObjectURL(blob);
-        }
-      });
-    },
-    getPdfData(sgsId: string) {
-      return ReorderService.getPdfs(sgsId).then((response: any) => {
-        if (response) {
-          for (const pdfName in response) {
-            const base64String = response[pdfName];
-            const blob = base64toBlob(base64String);
-            response[pdfName] = URL.createObjectURL(blob);
-          }
-          return response;
+          return getBlobUrl(response, "application/pdf");
         }
       });
     },

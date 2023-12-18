@@ -13,7 +13,10 @@
             span.material-icons.outline close
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+          prime-image(
+            :src="selectedOrder.thumbNailPath" alt="Image" preview 
+            :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+            :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
         .card.details
           .f
             label Item Code

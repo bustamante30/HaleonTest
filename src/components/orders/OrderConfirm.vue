@@ -8,7 +8,9 @@
           span.material-icons.outline close
     .card.context
       .thumbnail(v-if="selection && selection.thumbNailPath")
-        prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+        prime-image.image(
+          :src="selection.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+          :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
       .details
         .f
           label Client
