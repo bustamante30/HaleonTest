@@ -25,12 +25,13 @@
           prime-image.image(
             :src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
             :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
-          sgs-button#thumbnail.sm(v-if="checkPDF()" label="Scroll to PDF" @click="viewPreview")
+          sgs-button#thumbnail.sm(v-if="checkPDF" label="Scroll to PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder")
-      h1.title.pdf-header PDFs:
+      header.pdf-panel-header(v-if="checkPDF")
+        h3.title PDFs:
       .card#preview(ref="preview")
         sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :unique-key="`${pdfName}`" :header="`${pdfName}`" @expand="getPdf")
           sgs-spinner(v-if="loadingPdf" class="pdf-loader")
@@ -84,7 +85,7 @@ async function getPdf(key) {
     ordersStore.selectedOrder.pdfData[key] = thePdfData;
   }
 }
-function checkPDF(): boolean {
+const checkPDF = computed(() => {
   if (
     !ordersStore.selectedOrder ||
     !ordersStore.selectedOrder.pdfData ||
@@ -92,7 +93,7 @@ function checkPDF(): boolean {
   )
     return false;
   else return true;
-}
+});
 
 async function buy() {
   if (selectedOrder.value.statusId != 1) {
@@ -194,6 +195,10 @@ iframe.pdf
 .pdf-loader
   position: initial
   margin-top: 5rem
-.pdf-header
-  margin: 0px 40px
+.pdf-panel-header
+  background: #f8f9fa
+  border: solid #dee2e6
+  border-width: 0 0 1px 0
+  padding: $s50 0 $s50 $s
+  margin: 1rem 2rem
 </style>
