@@ -178,6 +178,7 @@ window.resetRotateAndShowMagnifier = function () {
   }
 };
 
+//remove 'stopEvent' function once issue present at https://github.com/primefaces/primevue/issues/4968 is fixed
 window.stopEvent = function (e) {
   e.stopPropagation();
 };
