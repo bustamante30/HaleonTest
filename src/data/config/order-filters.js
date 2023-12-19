@@ -11,7 +11,7 @@ function filterConfig() {
           },
           {
             name: "startDate",
-            label: "Order Date",
+            label: "Order Date (Select a range)",
             short: "Ordered",
             type: "daterange",
           },
