@@ -178,6 +178,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       order: false,
       cart: false,
       reorder: false,
+      confirm: false,
     },
     filters: {} as any,
     selectedOrder: null as any,
