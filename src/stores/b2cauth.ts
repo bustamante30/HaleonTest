@@ -110,6 +110,47 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       }
       this.account = accounts[0];
     },
+    async ssoLogin(email: string) {
+      const account = this.msalB2cInstance.getAccountByUsername(email);
+      if (account) {
+        this.account = account;
+      }
+      const silentRequest = {
+        scopes: [
+          "openid",
+          "profile",
+          "email",
+          import.meta.env.VITE_B2C_TOKEN_SCOPE,
+        ],
+        loginHint: email,
+      };
+      try {
+        const loginResponse =
+          await this.msalB2cInstance.ssoSilent(silentRequest);
+        localStorage.setItem("AuthType", "AzureAdB2C");
+        await this.updateUserStore(loginResponse);
+        console.log(
+          "SSO Login is success and the response is :" + loginResponse,
+        );
+      } catch (err) {
+        if (err) {
+          this.msalB2cInstance
+            .loginRedirect({
+              scopes: [import.meta.env.VITE_B2C_TOKEN_SCOPE],
+              loginHint: this.userEmail,
+            })
+            .then((tokenResponse) => {
+              console.log("SSO Login redirect response" + tokenResponse);
+              this.updateUserStore(tokenResponse);
+            })
+            .catch(async (e) => {
+              console.log("SSO login error loginRedirect: ", e);
+            });
+        } else {
+          // handle error
+        }
+      }
+    },
     async login() {
       try {
         let response;

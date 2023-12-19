@@ -1,0 +1,48 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template>
+  <div v-if="userLoggedIn">
+    <a>Please wait while we are loading profile information</a>
+  </div>
+  <div v-else><a> Please wait you will be redirected to login page....</a></div>
+</template>
+
+<script setup="ts">
+import { onMounted, computed, watch } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import { useB2CAuthStore } from "@/stores/b2cauth";
+import router from "@/router";
+import { useRoute } from "vue-router";
+const authStore = useAuthStore();
+const b2cAuthStore = useB2CAuthStore();
+const route = useRoute();
+const userLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
+const b2cUserLoggedIn = computed(() => b2cAuthStore.currentB2CUser.isLoggedIn);
+onMounted(async () => {
+  let userType = route.query.userType;
+  if (userType && userType == "EXT" && route.query.hint) {
+    await b2cAuthStore.ssoLogin(route.query.hint);
+  } else if (userType && userType == "INT") {
+    await authStore.login();
+  }
+});
+
+watch(userLoggedIn, () => {
+  if (authStore.currentUser.isLoggedIn) {
+    router.push({ name: "dashboard" });
+  }
+});
+
+watch(b2cUserLoggedIn, () => {
+  if (b2cAuthStore.currentB2CUser.isLoggedIn) {
+    router.push({ name: "dashboard" });
+  }
+});
+</script>
+<style scoped>
+a {
+  text-align: center;
+  display: block;
+}
+@media (min-width: 1024px) {
+}
+</style>
