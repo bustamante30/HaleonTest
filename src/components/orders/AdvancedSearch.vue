@@ -166,6 +166,11 @@ async function handleDateClick(dateRefId: number): Promise<void> {
             (advancedFilters.value as any)[(searchReference as any).fieldName] =
               (searchStore as any).value;
           }
+          if (advancedFilters.value["startDate"].length > 0) {
+            let [startDate, endDate] = advancedFilters.value["startDate"];
+            endDate = isNaN(endDate) ? startDate : endDate;
+            advancedFilters.value["startDate"] = [startDate, endDate];
+          }
         }
       }
     });

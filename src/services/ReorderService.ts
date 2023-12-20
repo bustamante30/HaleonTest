@@ -466,15 +466,14 @@ class ReorderService {
       });
   }
 
-  public static getPdfs(sgsId: string) {
+  public static getPdf(sgsId: string, pdfName: string) {
     return httpService
-      .get<string>(`v1/Reorder/${sgsId.split("-")[0]}/pdfs`)
+      .get<string>(`v1/Reorder/${sgsId.split("-")[0]}/pdfs/${pdfName}`)
       .then((response: any) => {
         return response;
       })
       .catch((error: any) => {
-        console.error("[Error getting pdfs]:", error);
-        logger.error("[Error getting pdfs]:", error);
+        logger.error("[Error getting pdf]:", error);
         return false;
       });
   }

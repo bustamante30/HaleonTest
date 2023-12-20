@@ -57,8 +57,8 @@ const tableConfig = {
       width: 12,
     },
     {
-      header: "Status",
-      field: "orderStatus",
+      header: "Order #",
+      field: "id",
       width: 5,
     },
   ],

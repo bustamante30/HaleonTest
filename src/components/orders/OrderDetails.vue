@@ -22,15 +22,19 @@
             span Shipping Address/Location: {{ selectedOrder.address  }} 
       .card.summary(v-if="selectedOrder")
         .thumbnail
-          prime-image.image(:src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
-          sgs-button#thumbnail.sm(v-if="checkPDF()" label="View PDF" @click="viewPreview")
+          prime-image.image(
+            :src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+            :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
+          sgs-button#thumbnail.sm(v-if="checkPDF" label="Scroll to PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
       .card
         order-shirttail(:data="selectedOrder")
+      header.pdf-panel-header(v-if="checkPDF")
+        h3.title PDFs:
       .card#preview(ref="preview")
-        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :header="`${pdfName}`")
-          sgs-spinner(v-if="loadingPdfs")
+        sgs-panel(v-for="(pdfUri, pdfName) in selectedOrder.pdfData" :key="`${pdfName}`" :unique-key="`${pdfName}`" :header="`${pdfName}`" @expand="getPdf")
+          sgs-spinner(v-if="loadingPdf" class="pdf-loader")
           iframe.pdf(:src="pdfUri")
       template(#footer)
         footer
@@ -59,15 +63,29 @@ const props = defineProps({
 });
 const selectedOrder = computed(() => ordersStore.selectedOrder);
 const loadingOrder = computed(() => ordersStore.loading.order);
-const loadingPdfs = computed(() => ordersStore.loading.pdfs);
+let loadingPdf: boolean = false;
+let isCartOrder: boolean = false;
 const orderHasLenfiles = ref(true);
 const colors = computed(() => ordersStore.selectedOrder.colors);
 
 onMounted(async () => {
-  orderHasLenfiles.value = await ordersStore.getOrderById(props.selectedId);
+  const metadata = await ordersStore.getOrderById(props.selectedId);
+  orderHasLenfiles.value = metadata.orderHasLenfiles;
+  isCartOrder = !!metadata.isCartOrder;
 });
 
-function checkPDF(): boolean {
+async function getPdf(key) {
+  if (!ordersStore.selectedOrder.pdfData[key]) {
+    loadingPdf = true;
+    const sgsId = isCartOrder
+      ? ordersStore.selectedOrder.originalOrderId
+      : props.selectedId;
+    const thePdfData = await ordersStore.getPdf(sgsId, key);
+    loadingPdf = false;
+    ordersStore.selectedOrder.pdfData[key] = thePdfData;
+  }
+}
+const checkPDF = computed(() => {
   if (
     !ordersStore.selectedOrder ||
     !ordersStore.selectedOrder.pdfData ||
@@ -75,7 +93,7 @@ function checkPDF(): boolean {
   )
     return false;
   else return true;
-}
+});
 
 async function buy() {
   if (selectedOrder.value.statusId != 1) {
@@ -173,4 +191,14 @@ iframe.pdf
   min-height: 40rem
   margin: $s 0
   border: none
+
+.pdf-loader
+  position: initial
+  margin-top: 5rem
+.pdf-panel-header
+  background: #f8f9fa
+  border: solid #dee2e6
+  border-width: 0 0 1px 0
+  padding: $s50 0 $s50 $s
+  margin: 1rem 2rem
 </style>

@@ -8,7 +8,9 @@
           span.material-icons.outline close
     .card.context
       .thumbnail(v-if="selection && selection.thumbNailPath")
-        prime-image.image(:src="selection.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
+        prime-image.image(
+          :src="selection.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
+          :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
       .details
         .f
           label Client
@@ -58,7 +60,7 @@
           span(v-if="checkout.isUrgent") Additional charges may be applicable for urgent orders
         .actions
           sgs-button#cancel-po.default.sm(label="Cancel" @click="cancelPOForm")
-          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" :label="checkout.isUrgent ? 'Confirm as Urgent' : 'Confirm'" @click="placeOrder($event)")
+          sgs-button#confirm-order.alert.sm(:icon="loading.reorder ? 'progress_activity' : ''" :icon-class="loading.reorder ? 'spin' : ''" :label="checkout.isUrgent ? 'Confirm as Urgent' : 'Confirm'" :disabled="loading.confirm" @click="placeOrder($event)")
           
 
 </template>
@@ -198,6 +200,7 @@ function checkDuplicatePONumbers() {
 }
 
 async function placeOrder() {
+  ordersStore.loading.confirm = true;
   if (validatePOForm() && checkDuplicatePONumbers()) {
     ordersStore.loading.reorder = true;
     if (ordersStore.selectedOrder.statusId === 1) {
@@ -214,6 +217,7 @@ async function placeOrder() {
           draftResult.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
+        ordersStore.loading.confirm = false;
       } else {
         let index = cartStore.cartOrders.indexOf(ordersStore.selectedOrder);
         cartStore.cartOrders[index] = draftResult.data;
@@ -235,6 +239,7 @@ async function placeOrder() {
           compResult.exceptionDetails.Message,
           { severity: "error", life: 5000 },
         );
+        ordersStore.loading.confirm = false;
       } else {
         ordersStore.setOrderInStore(compResult.data);
         resetPOForm();
@@ -242,7 +247,7 @@ async function placeOrder() {
       }
     }
   }
-
+  ordersStore.loading.confirm = false;
   ordersStore.loading.reorder = false;
 }
 

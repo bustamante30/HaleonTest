@@ -142,11 +142,14 @@ const isDateFilterSame = (dateRange1, dateRange2) => {
   );
 };
 
-const base64toBlob = (data: string) => {
+const getBlobUrl = (data: string, type: string) => {
+  const blob = base64toBlob(data, type);
+  return URL.createObjectURL(blob);
+};
+
+const base64toBlob = (data: string, type: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
-  const base64WithoutPrefix = data.substr(
-    "data:application/pdf;base64,".length,
-  );
+  const base64WithoutPrefix = data.substr(("data:" + type + ";base64,").length);
 
   const bytes = atob(base64WithoutPrefix);
   let length = bytes.length;
@@ -156,8 +159,13 @@ const base64toBlob = (data: string) => {
     out[length] = bytes.charCodeAt(length);
   }
 
-  return new Blob([out], { type: "application/pdf" });
+  return new Blob([out], { type: type });
 };
+
+interface GetOrderResponse {
+  orderHasLenfiles: boolean;
+  isCartOrder: boolean;
+}
 
 export const useOrdersStore = defineStore("ordersStore", {
   state: () => ({
@@ -173,7 +181,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       order: false,
       cart: false,
       reorder: false,
-      pdfs: false,
+      confirm: false,
     },
     filters: {} as any,
     selectedOrder: null as any,
@@ -268,8 +276,8 @@ export const useOrdersStore = defineStore("ordersStore", {
       const details = JSON.parse(JSON.stringify(result));
       this.successfullReorder = details;
     },
-    async getOrderById(reorderId: any): Promise<boolean> {
-      const promise: Promise<boolean> = new Promise((resolve) => {
+    async getOrderById(reorderId: any): Promise<GetOrderResponse> {
+      const promise = new Promise<GetOrderResponse>((resolve) => {
         /* 1.Reset previously loaded order
           2.SGS | Cart?
           3.Fetch / load order object with direct props
@@ -277,7 +285,6 @@ export const useOrdersStore = defineStore("ordersStore", {
           5.Decorate for display
           6.Prepare options for platetype dropdown in Reorder Step */
         this.loading.order = true;
-        this.loading.pdfs = true;
         this.selectedOrder = null;
         this.checkout = {
           expectedDate: null,
@@ -303,13 +310,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.selectedOrder = cartOrder;
             this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
             this.getBarcodeAndShirtail(cartOrder);
-            this.getPdfData(cartOrder.originalOrderId).then((response: any) => {
-              if (response) {
-                this.selectedOrder.pdfData = response;
-              }
-              this.loading.pdfs = false;
-            });
             this.getLenFiles(cartOrder);
+            resolve({ orderHasLenfiles: true, isCartOrder: true });
           } else {
             // MySGS(order.sgsId) and Photon Order(order.originalOrderId) loaded from dashboard
             this.selectedOrder = this.orders?.find(
@@ -351,12 +353,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                           this.selectedOrder.thumbNailPath = response;
                       },
                     );
-                    this.getPdfData(details.jobId).then((response: any) => {
-                      if (response) {
-                        this.selectedOrder.pdfData = response;
-                      }
-                      this.loading.pdfs = false;
-                    });
                     const promises: Promise<any>[] = [];
                     this.mapColorAndCustomerDetailsToOrder(details);
                     promises.push(
@@ -368,7 +364,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                     Promise.allSettled(promises).then(async (promiseResult) => {
                       if (promiseResult[1]["value"].order === null) {
                         this.notifyOrderCannotBeProcessed();
-                        resolve(false);
+                        resolve({
+                          orderHasLenfiles: false,
+                          isCartOrder: false,
+                        });
                       } else {
                         this.selectedOrder.allDataLoaded = true;
                         this.orders.splice(
@@ -380,7 +379,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                           1,
                           this.selectedOrder,
                         );
-                        resolve(true);
+                        resolve({ orderHasLenfiles: true, isCartOrder: false });
                       }
                     });
                   } else {
@@ -394,6 +393,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                   }
                 },
               );
+            } else {
+              resolve({ orderHasLenfiles: true, isCartOrder: false });
             }
           }
         }
@@ -911,7 +912,8 @@ export const useOrdersStore = defineStore("ordersStore", {
             lenProcessed++;
             for (let i = 0; i < res.length; i++) {
               for (const color of order.editionColors) {
-                this.setLenData(color, res[i].lenPath, res[i].lenData, false);
+                const lenData = getBlobUrl(res[i].lenData, "image");
+                this.setLenData(color, res[i].lenPath, lenData, false);
               }
             }
             if (lenProcessed === order.colors.length) {
@@ -1120,7 +1122,7 @@ export const useOrdersStore = defineStore("ordersStore", {
               for (let i = 0; i < res.length; i++) {
                 const colorCopy: any = JSON.parse(JSON.stringify(color));
                 colorCopy.lenPath = res[i].lenPath;
-                colorCopy.lenData = res[i].lenData;
+                colorCopy.lenData = getBlobUrl(res[i].lenData, "image");
                 colorCopy.checkboxId = faker.datatype.uuid();
                 colorCopy.totalSets = 0;
                 colorCopy.showComments = false;
@@ -1171,15 +1173,10 @@ export const useOrdersStore = defineStore("ordersStore", {
         linkLabel,
       });
     },
-    getPdfData(sgsId: string) {
-      return ReorderService.getPdfs(sgsId).then((response: any) => {
+    getPdf(sgsId: string, pdfName: string) {
+      return ReorderService.getPdf(sgsId, pdfName).then((response: any) => {
         if (response) {
-          for (const pdfName in response) {
-            const base64String = response[pdfName];
-            const blob = base64toBlob(base64String);
-            response[pdfName] = URL.createObjectURL(blob);
-          }
-          return response;
+          return getBlobUrl(response, "application/pdf");
         }
       });
     },

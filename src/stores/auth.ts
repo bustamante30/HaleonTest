@@ -148,7 +148,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.setItem("token", this.accessToken);
       this.accessTokenUpdatedOn = new Date();
       const user = await UserService.getUserClaimInfo();
-      if (user !== null) {
+      if (user !== null && user.status === undefined) {
         localStorage.setItem("Claims", user.claims);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.currentUser = { ...this.currentUser, ...user } as any;
