@@ -799,7 +799,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         isValid,
         hasEmptyPlateDescription,
         hasUniquePlates,
-        hasEmptyPlateThickness,
         hasComments,
       } = validation(colour);
       if (!hasUniquePlates)
@@ -812,12 +811,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         notificationsStore.addNotification(
           Constants.WARNING,
           Constants.AVAILABLE_LIST,
-          { severity: "warn" },
-        );
-      if (hasEmptyPlateThickness)
-        notificationsStore.addNotification(
-          Constants.WARNING,
-          Constants.THICKNESS_LIST,
           { severity: "warn" },
         );
       if (!hasComments)
@@ -1011,7 +1004,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       } else {
         plate.thicknessList =
-          availableThicknesses.length === 0
+          availableThicknesses.length !== 1
             ? thicknessList
             : availableThicknesses;
         if (plate.thicknessList.length === 1) {
