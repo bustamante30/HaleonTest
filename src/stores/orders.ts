@@ -1006,9 +1006,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       } else {
         plate.thicknessList =
-          availableThicknesses.length !== 1
+          availableThicknesses.length == 0
             ? thicknessList
-            : availableThicknesses;
+            : availableThicknesses.length == 1
+            ? availableThicknesses
+            : [];
         if (plate.thicknessList.length === 1) {
           plate.plateThicknessId = plate.thicknessList[0].thicknessId;
           plate.plateThicknessDescription =
