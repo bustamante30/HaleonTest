@@ -96,9 +96,11 @@ const handleSortPagination = (
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
     } else {
-      const sortByFieldName =
-        filters.sortBy === "mySgsNumber" ? "sgsId" : filters.sortBy;
-      resultForCache = sortBy(resultForCache, [sortByFieldName]);
+      let sortByColumns = [filters.sortBy];
+      if (filters.sortBy === "mySgsNumber") {
+        sortByColumns = ["sgsId_0", "sgsId_1"];
+      }
+      resultForCache = sortBy(resultForCache, sortByColumns);
     }
 
     if (!filters.sortOrder) {
