@@ -332,8 +332,8 @@ const clearSearchTags = (index: number) => {
 
 const clearAllSearchTags = () => {
   initClearAllSearchTags();
-  changeDateFilter(dateFilter.value[0]);
   orderTable.value.clearColumnFilters();
+  changeDateFilter(dateFilter.value[0]);
 };
 
 const initClearAllSearchTags = () => {

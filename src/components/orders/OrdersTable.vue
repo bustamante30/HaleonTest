@@ -346,6 +346,8 @@ const columnFilters = ref({
 function clearColumnFilters() {
   for (const property in columnFilters.value) {
     columnFilters.value[property].value = "";
+    const mutationName = mutationMap[property];
+    filterStore.commit(mutationName, null);
   }
 }
 
