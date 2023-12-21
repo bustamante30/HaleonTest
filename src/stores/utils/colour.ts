@@ -73,10 +73,6 @@ const validation = (colour: any) => {
     colour.plateDetails.find(
       (plate: any) => plate.sets > 0 && !plate.plateTypeId,
     ) != null;
-  const hasEmptyPlateThickness =
-    colour.plateDetails.find(
-      (plate: any) => plate.sets > 0 && !plate.plateThicknessId,
-    ) != null;
   const noCommentPlates = colour.plateDetails.filter(
     (x) => x.sets > 0 && (!x.comments || x.comments === ""),
   );
@@ -85,14 +81,12 @@ const validation = (colour: any) => {
     hasUniquePlates &&
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
-    !hasEmptyPlateThickness &&
     hasComments;
 
   return {
     isValid,
     hasEmptyPlateDescription,
     hasUniquePlates,
-    hasEmptyPlateThickness,
     hasComments,
   };
 };
