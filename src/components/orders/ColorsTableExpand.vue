@@ -106,7 +106,7 @@ watch(selected, (colors, prevColors) => {
 
 watch(
   () => props.loading,
-  (selection, prevSelection) => {
+  () => {
     selected.value = props?.data?.filter((c: any) => {
       return c.totalSets > 0;
     }) as never[];
