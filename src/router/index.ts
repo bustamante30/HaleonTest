@@ -63,6 +63,11 @@ const router = createRouter({
       component: () => import("@/pages/FaqPage.vue"),
     },
     {
+      path: "/launch",
+      name: "launch",
+      component: () => import("@/pages/auth/Launch.vue"),
+    },
+    {
       path: "/users",
       name: "users",
       meta: {

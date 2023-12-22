@@ -226,6 +226,18 @@
       )
         template(#body="{ data }")
           table-cell( :config="config.cols[9]" :data="data")
+
+      Column(
+        v-if="props.userType ==='INT' && (props.status === undefined || props.status.value === 4)"
+        field="Order"
+        :header="setOrderNumberHeader()"
+        :sortable="true"
+        :header-style="stylify(config.cols[10].width)"
+        :body-style="stylify(config.cols[10].width)"
+      )
+        template(#body="{ data }")
+          table-cell( :config="config.cols[10]" :data="data")
+
           //- Action column
       Column(
         field="actions"
@@ -318,6 +330,9 @@ watch(
 watch(selected, (value) => {
   selected = value;
 });
+defineExpose({
+  clearColumnFilters,
+});
 
 const orderStore = useOrdersStore();
 const dropdownOptions = ref<string[]>([]);
@@ -327,6 +342,14 @@ const columnFilters = ref({
   orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
   packType: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
+
+function clearColumnFilters() {
+  for (const property in columnFilters.value) {
+    columnFilters.value[property].value = "";
+    const mutationName = mutationMap[property];
+    filterStore.commit(mutationName, null);
+  }
+}
 
 const mutationMap: { [key: string]: string } = {
   brandName: "setBrandNameFilter",
@@ -394,6 +417,10 @@ function onPage(event: any) {
 function setSgsNumberHeader() {
   if (props.status && props.status.value == 4) return "SGS Ref #";
   else return "Order #";
+}
+
+function setOrderNumberHeader() {
+  return "Order #";
 }
 
 function handleOrderValidation(data: any) {

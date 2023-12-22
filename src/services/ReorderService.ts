@@ -307,33 +307,44 @@ class ReorderService {
           const hasDataForAllDates = !!values?.hasDataForAllDates;
           const dataNotPaged = !!values?.dataNotPaged;
           const reorderedData: ReorderDto[] = values?.data
-            ? values.data.map((item: ReorderDto) => ({
-                id: item.id,
-                sgsId:
+            ? values.data.map((item: ReorderDto) => {
+                const [sgsId_0, sgsId_1] =
                   item.sgsId != null
                     ? item.sgsId
-                    : item.id
-                    ? item.id.toString()
-                    : "",
-                brandName: item.brandName,
-                description: item.description,
-                weight: item.weight,
-                printerId: item.printerId,
-                printerName: item.printerName,
-                packType: item.packType, // Renamed to packStatus to match DTO
-                createdAt: item.createdAt ? item.createdAt : null,
-                submittedDate: item.submittedDate ? item.submittedDate : null,
-                cancelledDate: item.cancelledDate ? item.cancelledDate : null,
-                orderStatus: item.orderStatus ? item.orderStatus : null,
-                createdBy: item.createdBy,
-                statusId: item.statusId,
-                thumbNailPath: new URL(
-                  "@/assets/images/no_thumbnail.png",
-                  import.meta.url,
-                ).pathname,
-                itemCode: item.itemCode,
-                originalOrderId: item.originalOrderId,
-              }))
+                        .toString()
+                        .split("-")
+                        .map((s) => parseInt(s))
+                    : [null, null];
+                return {
+                  id: item.id,
+                  sgsId:
+                    item.sgsId != null
+                      ? item.sgsId
+                      : item.id
+                      ? item.id.toString()
+                      : "",
+                  sgsId_0,
+                  sgsId_1,
+                  brandName: item.brandName,
+                  description: item.description,
+                  weight: item.weight,
+                  printerId: item.printerId,
+                  printerName: item.printerName,
+                  packType: item.packType, // Renamed to packStatus to match DTO
+                  createdAt: item.createdAt ? item.createdAt : null,
+                  submittedDate: item.submittedDate ? item.submittedDate : null,
+                  cancelledDate: item.cancelledDate ? item.cancelledDate : null,
+                  orderStatus: item.orderStatus ? item.orderStatus : null,
+                  createdBy: item.createdBy,
+                  statusId: item.statusId,
+                  thumbNailPath: new URL(
+                    "@/assets/images/no_thumbnail.png",
+                    import.meta.url,
+                  ).pathname,
+                  itemCode: item.itemCode,
+                  originalOrderId: item.originalOrderId,
+                };
+              })
             : [];
 
           const totalRecords: number = values?.totalRecords ?? 1000;
@@ -474,19 +485,6 @@ class ReorderService {
       })
       .catch((error: any) => {
         logger.error("[Error getting pdf]:", error);
-        return false;
-      });
-  }
-
-  public static getPdfs(sgsId: string) {
-    return httpService
-      .get<string>(`v1/Reorder/${sgsId.split("-")[0]}/pdfs`)
-      .then((response: any) => {
-        return response;
-      })
-      .catch((error: any) => {
-        console.error("[Error getting pdfs]:", error);
-        logger.error("[Error getting pdfs]:", error);
         return false;
       });
   }

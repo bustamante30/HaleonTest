@@ -39,7 +39,7 @@ export default {
     },
     {
       header: "New/ Common",
-      field: "isNew",
+      field: "newColour",
       width: 6,
     },
     {
