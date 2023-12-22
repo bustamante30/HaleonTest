@@ -39,8 +39,9 @@ v-model="selectedDate" name="datefilter" :options="dateFilter" appendTo="body"
               span Clear All
               span.pi.pi-times.icon(@click="clearAllSearchTags") 
         orders-table(
-:config="config" :data="orders" :userType="userType" :role ="roleKey" :showMultipleSelection="showMultipleSelection" :status="selectedStatus" :loading="loadingOrders" @add="addToCart"
-        @reorder="reorder" @cancel="cancelOrder" @audit="auditOrder" @addMultipleToCart="addMultipleToCart" @ordervalidation ="handleOrderValidation")
+ref="orderTable" :config="config" :data="orders" :userType="userType" :role ="roleKey"
+:showMultipleSelection="showMultipleSelection" :status="selectedStatus" :loading="loadingOrders" @add="addToCart" @reorder="reorder"
+@cancel="cancelOrder" @audit="auditOrder" @addMultipleToCart="addMultipleToCart" @ordervalidation ="handleOrderValidation")
       prime-confirm-dialog
         template(#message="slotProps")
           div.dialogLayout
@@ -116,6 +117,7 @@ const auditData = ref();
 const selectedDate = ref(() => dateFilter.value[0]);
 const selectedStatus = ref();
 const showMyOrders = ref(true);
+const orderTable = ref();
 const dateFilter = computed(() => getDateFilter());
 const statusList = computed(() => ordersStore.statusList);
 const orders = computed(() => ordersStore.orders);
@@ -263,6 +265,7 @@ function searchByStatus() {
   ordersStore.setFilters(filters.value);
 }
 function searchKeyword(event: any) {
+  orderTable.value.clearColumnFilters();
   showMyOrders.value = false;
   if (event) {
     searchExecuted.value = true;
@@ -287,6 +290,7 @@ function searchKeyword(event: any) {
   }
 }
 function search(filters: any) {
+  orderTable.value.clearColumnFilters();
   showMyOrders.value = false;
   searchExecuted.value = true;
   ordersStore.pageState.page = 1;
@@ -328,6 +332,7 @@ const clearSearchTags = (index: number) => {
 
 const clearAllSearchTags = () => {
   initClearAllSearchTags();
+  orderTable.value.clearColumnFilters();
   changeDateFilter(dateFilter.value[0]);
 };
 

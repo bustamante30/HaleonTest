@@ -96,9 +96,11 @@ const handleSortPagination = (
     if (filters?.sortBy?.toLowerCase().includes("date")) {
       resultForCache = sortBydate(resultForCache);
     } else {
-      const sortByFieldName =
-        filters.sortBy === "mySgsNumber" ? "sgsId" : filters.sortBy;
-      resultForCache = sortBy(resultForCache, [sortByFieldName]);
+      let sortByColumns = [filters.sortBy];
+      if (filters.sortBy === "mySgsNumber") {
+        sortByColumns = ["sgsId_0", "sgsId_1"];
+      }
+      resultForCache = sortBy(resultForCache, sortByColumns);
     }
 
     if (!filters.sortOrder) {
@@ -801,7 +803,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         isValid,
         hasEmptyPlateDescription,
         hasUniquePlates,
-        hasEmptyPlateThickness,
         hasComments,
       } = validation(colour);
       if (!hasUniquePlates)
@@ -814,12 +815,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         notificationsStore.addNotification(
           Constants.WARNING,
           Constants.AVAILABLE_LIST,
-          { severity: "warn" },
-        );
-      if (hasEmptyPlateThickness)
-        notificationsStore.addNotification(
-          Constants.WARNING,
-          Constants.THICKNESS_LIST,
           { severity: "warn" },
         );
       if (!hasComments)
@@ -1015,9 +1010,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       } else {
         plate.thicknessList =
-          availableThicknesses.length === 0
+          availableThicknesses.length == 0
             ? thicknessList
-            : availableThicknesses;
+            : availableThicknesses.length == 1
+            ? availableThicknesses
+            : [];
         if (plate.thicknessList.length === 1) {
           plate.plateThicknessId = plate.thicknessList[0].thicknessId;
           plate.plateThicknessDescription =

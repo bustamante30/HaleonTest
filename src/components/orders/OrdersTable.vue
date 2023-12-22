@@ -330,6 +330,9 @@ watch(
 watch(selected, (value) => {
   selected = value;
 });
+defineExpose({
+  clearColumnFilters,
+});
 
 const orderStore = useOrdersStore();
 const dropdownOptions = ref<string[]>([]);
@@ -339,6 +342,14 @@ const columnFilters = ref({
   orderDate: { value: "", matchMode: FilterMatchMode.BETWEEN },
   packType: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
+
+function clearColumnFilters() {
+  for (const property in columnFilters.value) {
+    columnFilters.value[property].value = "";
+    const mutationName = mutationMap[property];
+    filterStore.commit(mutationName, null);
+  }
+}
 
 const mutationMap: { [key: string]: string } = {
   brandName: "setBrandNameFilter",
