@@ -308,8 +308,9 @@ export const useOrdersStore = defineStore("ordersStore", {
               (plateType: any) => plateType.value !== 256,
             );
             this.selectedOrder = cartOrder;
-            this.mapColorAndCustomerDetailsToOrder(this.selectedOrder);
+            this.mapColorAndCustomerDetailsToOrder(cartOrder);
             this.getBarcodeAndShirtail(cartOrder);
+            this.loading.cart = true;
             this.getLenFiles(cartOrder);
             resolve({ orderHasLenfiles: true, isCartOrder: true });
           } else {
@@ -926,6 +927,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             if (lenProcessed === order.colors.length) {
               this.getAvailablePlates(order, asyncAvailablePlatesCall).then(
                 () => {
+                  this.loading.cart = false;
                   resolve({ status: "finished", order: order });
                 },
               );

@@ -37,7 +37,7 @@
             label Printer
             span {{ selectedOrder.printerName }}
       .card
-        colors-table(:config="config" :data="colors" :is-editable="true" :loading="loading.order" @update="updateColor")
+        colors-table(:config="config" :data="colors" :is-editable="true" :loading="loadingCart" @update="updateColor")
       template(#footer)
         footer
           .secondary-actions &nbsp;
@@ -90,7 +90,7 @@ const isCartMessageVisible = ref(false);
 const cartCount = computed(() => cartStore.cartCount);
 const isOrderInCart = computed(() => cartStore.isOrderInCart(props.selectedId));
 const colors = computed(() => ordersStore.selectedOrder.editionColors);
-const loadingCart = computed(() => cartStore.loading);
+const loadingCart = computed(() => ordersStore.loading.cart);
 const disableReorder = computed(() => {
   const totalSets = colors.value && colors.value.filter((x) => x.totalSets);
   return !(totalSets && totalSets.length);
