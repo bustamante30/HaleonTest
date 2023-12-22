@@ -78,6 +78,8 @@ import ReorderService from "@/services/ReorderService";
 import { useRoute } from "vue-router";
 import * as Constants from "@/services/Constants";
 import { Logger } from "@/logger/logger";
+import { useWebPubSubStore } from "@/stores/webpubsub";
+import { NotificationService } from "@/services/NotificationService";
 
 const logger = new Logger("stores-auth");
 
@@ -88,6 +90,7 @@ const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
+const webpusbsubStore = useWebPubSubStore();
 const showConfirmDialog = ref(false);
 
 const currentUser = computed(() => authStore.currentUser);
@@ -160,8 +163,10 @@ const init = () => {
 };
 onMounted(() => {
   init();
+  initWebPubSub();
 });
 const route = useRoute();
+let pubSubAccessToken;
 // Watch for query change and refresh the dashboad thro. init()
 watch(
   () => route.query["q"],
@@ -182,6 +187,7 @@ watch(currentUser, () => {
     changeDateFilter(dateFilter.value[0]);
   }
   isAdminAddDraftTab();
+  initWebPubSub();
 });
 watch(currentB2CUser, () => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
@@ -190,7 +196,23 @@ watch(currentB2CUser, () => {
     changeDateFilter(dateFilter.value[0]);
   }
   isAdminAddDraftTab();
+  initWebPubSub();
 });
+
+async function initWebPubSub() {
+  if (!webpusbsubStore.isConnected) {
+    pubSubAccessToken = await NotificationService.getNotification();
+    if (pubSubAccessToken) {
+      await webpusbsubStore.connect(pubSubAccessToken.token as string);
+    }
+  } else {
+    await webpusbsubStore.disconnect();
+    pubSubAccessToken = await NotificationService.getNotification();
+    if (pubSubAccessToken) {
+      await webpusbsubStore.connect(pubSubAccessToken.token as string);
+    }
+  }
+}
 
 function isAdminAddDraftTab() {
   const exists = statusList.value.some((obj) => obj.name === "Draft");

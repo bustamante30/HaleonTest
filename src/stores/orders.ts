@@ -1276,5 +1276,17 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.loading.ordersList = false;
       }
     },
+
+    async updateOrder(message: any) {
+      const receivedMessage = JSON.parse(message);
+      const oldRefId = receivedMessage.OldRefId;
+      const newSGSRef = receivedMessage.NewSGSRef;
+      const orderIndex = this.orders.findIndex(
+        (order) => String(order.sgsId) === String(oldRefId),
+      );
+      if (orderIndex >= 0) {
+        this.orders[orderIndex].sgsId = newSGSRef;
+      }
+    },
   },
 });
