@@ -20,7 +20,7 @@ import Column from "primevue/column";
 import TableActions from "@/components/ui/TableActions.vue";
 import TableCell from "@/components/ui/TableCell.vue";
 import { ref, watch } from "vue";
-import { useUsersStore, IterateUserPerPage } from "@/stores/users";
+import { useUsersStore } from "@/stores/users";
 
 const props = defineProps({
   data: {
@@ -44,7 +44,6 @@ const props = defineProps({
 const emit = defineEmits(["editUser", "deleteUser", "resend"]);
 const userStore = useUsersStore();
 const currentPage = ref(1);
-const totalRecords = ref(0);
 
 watch(currentPage, async (newPage, oldPage) => {
   if (newPage !== oldPage) {
@@ -76,59 +75,7 @@ function onPageChange(event) {
 
 async function fetchData(newPage) {
   const printerId = userStore.selected.id;
-  const userIdValue = 0;
-  //const userType = "";
-  const searchValue = "";
-  const pageCount = 30;
-  let usersResponse;
-
-  if (props.userType === "users") {
-    usersResponse = await userStore.searchUsers(
-      printerId,
-      userIdValue,
-      "EXT",
-      searchValue,
-      newPage + 1,
-      pageCount,
-    );
-
-    if (usersResponse) {
-      userStore.selected = {
-        ...userStore.selected,
-        users: [
-          ...IterateUserPerPage(
-            usersResponse.data,
-            usersResponse.totalRecords,
-            newPage + 1,
-          ),
-        ],
-      };
-      totalRecords.value = usersResponse.totalRecords;
-    }
-  } else {
-    usersResponse = await userStore.searchUsers(
-      printerId,
-      userIdValue,
-      "INT",
-      searchValue,
-      newPage + 1,
-      pageCount,
-    );
-
-    if (usersResponse) {
-      userStore.selected = {
-        ...userStore.selected,
-        internalUsers: [
-          ...IterateUserPerPage(
-            usersResponse.data,
-            usersResponse.totalRecords,
-            newPage + 1,
-          ),
-        ],
-      };
-      totalRecords.value = usersResponse.totalRecords;
-    }
-  }
+  await userStore.assignPaginatedData(newPage, printerId, props.userType);
 }
 </script>
 

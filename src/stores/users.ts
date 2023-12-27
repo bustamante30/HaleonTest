@@ -590,5 +590,61 @@ export const useUsersStore = defineStore("users", {
         logger.error("[Error searching users]:", error);
       }
     },
+    async assignPaginatedData(
+      newPage: any,
+      printerId: number,
+      userType: string,
+    ) {
+      const userIdValue = 0;
+      const searchValue = "";
+      const pageCount = 30;
+      let usersResponse;
+
+      if (userType === "users") {
+        usersResponse = await this.searchUsers(
+          printerId,
+          userIdValue,
+          "EXT",
+          searchValue,
+          newPage + 1,
+          pageCount,
+        );
+
+        if (usersResponse) {
+          this.selected = {
+            ...this.selected,
+            users: [
+              ...IterateUserPerPage(
+                usersResponse.data,
+                usersResponse.totalRecords,
+                newPage + 1,
+              ),
+            ],
+          };
+        }
+      } else {
+        usersResponse = await this.searchUsers(
+          printerId,
+          userIdValue,
+          "INT",
+          searchValue,
+          newPage + 1,
+          pageCount,
+        );
+
+        if (usersResponse) {
+          this.selected = {
+            ...this.selected,
+            internalUsers: [
+              ...IterateUserPerPage(
+                usersResponse.data,
+                usersResponse.totalRecords,
+                newPage + 1,
+              ),
+            ],
+          };
+        }
+      }
+    },
   },
 });
