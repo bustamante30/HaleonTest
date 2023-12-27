@@ -10,7 +10,7 @@ const httpService = new ApiService(baseUrl);
 export class NotificationService {
   public static getPubSubToken() {
     return httpService
-      .get("v1/notification")
+      .get("v1/notification/pubsubtoken")
       .then((response) => {
         return response;
       })
