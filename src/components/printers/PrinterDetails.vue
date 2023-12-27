@@ -30,6 +30,7 @@ import { config as userConfig } from "@/data/config/user-table";
 import { config as internalUserConfig } from "@/data/config/internal-user-table";
 import UserTable from "./UserTable.vue";
 import PrinterProviders from "./PrinterProvider.vue";
+import { useUsersStore } from "@/stores/users";
 
 defineProps({
   printer: {
@@ -59,6 +60,7 @@ const emit = defineEmits([
 
 const tab = ref("users");
 const query = ref();
+const userStore = useUsersStore();
 
 watch(query, (changeQuery) => {
   if (changeQuery === "") {
@@ -68,6 +70,9 @@ watch(query, (changeQuery) => {
 
 function selectTab(tabName) {
   tab.value = tabName;
+  if (tab.value !== "settings") {
+    userStore.assignPaginatedData(0, userStore.selected.id, tab.value);
+  }
 }
 
 function create() {
