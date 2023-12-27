@@ -203,16 +203,17 @@ watch(currentB2CUser, () => {
 
 async function initWebPubSub() {
   if (!webpusbsubStore.isConnected) {
-    pubSubAccessToken = await NotificationService.getNotification();
-    if (pubSubAccessToken) {
-      await webpusbsubStore.connect(pubSubAccessToken.token as string);
-    }
+    await invokeWebPubSub();
   } else {
     await webpusbsubStore.disconnect();
-    pubSubAccessToken = await NotificationService.getNotification();
-    if (pubSubAccessToken) {
-      await webpusbsubStore.connect(pubSubAccessToken.token as string);
-    }
+    await invokeWebPubSub();
+  }
+}
+
+async function invokeWebPubSub() {
+  pubSubAccessToken = await NotificationService.getPubSubToken();
+  if (pubSubAccessToken) {
+    await webpusbsubStore.connect(pubSubAccessToken.token as string);
   }
 }
 

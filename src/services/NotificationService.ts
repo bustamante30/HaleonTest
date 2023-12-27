@@ -8,7 +8,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL ?? Constants.API_LOCAL_URL;
 const httpService = new ApiService(baseUrl);
 
 export class NotificationService {
-  public static getNotification() {
+  public static getPubSubToken() {
     return httpService
       .get("v1/notification")
       .then((response) => {

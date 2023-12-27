@@ -1266,11 +1266,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         this.loading.ordersList = false;
       }
     },
-
-    async updateOrder(message: any) {
-      const receivedMessage = JSON.parse(message);
-      const oldRefId = receivedMessage.OldRefId;
-      const newSGSRef = receivedMessage.NewSGSRef;
+    async updateOrderSgsId(oldRefId, newSGSRef) {
       const orderIndex = this.orders.findIndex(
         (order) => String(order.sgsId) === String(oldRefId),
       );

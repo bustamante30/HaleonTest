@@ -35,7 +35,11 @@ export const useWebPubSubStore = defineStore("webpubsub", {
             if (e && e.message.data) {
               console.log(`Received message ${e.message.data}`);
               const orderStore = useOrdersStore();
-              orderStore.updateOrder(e.message.data);
+              const receivedMessage = JSON.parse(e.message.data as string);
+              orderStore.updateOrderSgsId(
+                receivedMessage.OldRefId,
+                receivedMessage.NewSGSRef,
+              );
             }
           });
         }
