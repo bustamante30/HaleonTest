@@ -76,9 +76,11 @@ import { useConfirm } from "primevue/useconfirm";
 import { useNotificationsStore } from "@/stores/notifications";
 import router from "@/router";
 import ReorderService from "@/services/ReorderService";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter, type LocationQueryRaw } from "vue-router";
 import * as Constants from "@/services/Constants";
 import { Logger } from "@/logger/logger";
+import { useWebPubSubStore } from "@/stores/webpubsub";
+import { NotificationService } from "@/services/NotificationService";
 
 const logger = new Logger("stores-auth");
 
@@ -89,7 +91,9 @@ const cartStore = useCartStore();
 const authStore = useAuthStore();
 const sendToPmStore = useSendToPmStore();
 const authb2cStore = useB2CAuthStore();
+const webpusbsubStore = useWebPubSubStore();
 const showConfirmDialog = ref(false);
+const vuerouter = useRouter();
 
 const currentUser = computed(() => authStore.currentUser);
 const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
@@ -152,18 +156,18 @@ const searchTags = ref([]);
 provide("options", options);
 
 const init = () => {
-  showMyOrders.value = true;
   initClearAllSearchTags();
   ordersStore.initAdvancedFilters();
-  selectedStatus.value = statusList.value[0];
-  changeDateFilter(dateFilter.value[0]);
   isAdminAddDraftTab();
   ordersStore.firstLoad = true;
+  setQueryParams();
 };
 onMounted(() => {
   init();
+  initWebPubSub();
 });
 const route = useRoute();
+let pubSubAccessToken;
 // Watch for query change and refresh the dashboad thro. init()
 watch(
   () => route.query["q"],
@@ -181,18 +185,48 @@ watch(currentUser, () => {
   if (authStore.currentUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    changeDateFilter(dateFilter.value[0]);
   }
   isAdminAddDraftTab();
+  initWebPubSub();
+  setQueryParams();
 });
 watch(currentB2CUser, () => {
   if (authb2cStore.currentB2CUser.isLoggedIn && !ordersStore.firstLoad) {
     ordersStore.firstLoad = true;
     ordersStore.initAdvancedFilters();
-    changeDateFilter(dateFilter.value[0]);
   }
   isAdminAddDraftTab();
+  initWebPubSub();
+  setQueryParams();
 });
+
+async function initWebPubSub() {
+  if (!webpusbsubStore.isConnected) {
+    await invokeWebPubSub();
+  } else {
+    await webpusbsubStore.disconnect();
+    await invokeWebPubSub();
+  }
+}
+
+async function setQueryParams() {
+  const query = route.query;
+  showMyOrders.value = query.toggle === "false" ? false : true;
+  selectedStatus.value =
+    statusList.value.find((x) => x.value.toString() === query.status) ||
+    statusList.value[0];
+  changeDateFilter(
+    dateFilter.value.find((x: any) => x.label === query.period) ||
+      dateFilter.value[0],
+  );
+}
+
+async function invokeWebPubSub() {
+  pubSubAccessToken = await NotificationService.getPubSubToken();
+  if (pubSubAccessToken) {
+    await webpusbsubStore.connect(pubSubAccessToken.token as string);
+  }
+}
 
 function isAdminAddDraftTab() {
   const exists = statusList.value.some((obj) => obj.name === "Draft");
@@ -234,6 +268,16 @@ function changeDateFilter(dtFilter: any) {
   filters.value.status = selectedStatus.value.value;
   addPrinterFilter();
   ordersStore.setFilters(filters.value);
+  updateQueryString();
+}
+
+function updateQueryString() {
+  const query: LocationQueryRaw = {
+    period: selectedDate.value as any,
+    status: selectedStatus.value?.value,
+    toggle: showMyOrders.value.toString(),
+  };
+  vuerouter.push({ query });
 }
 
 function addPrinterFilter() {
@@ -253,6 +297,7 @@ function handleOrderToggle() {
     isAdvancedSearch: false,
   };
   ordersStore.setFilters(toggleFilter);
+  updateQueryString();
 }
 function searchByStatus() {
   if (!selectedStatus?.value?.value) return;
@@ -263,6 +308,7 @@ function searchByStatus() {
   filters.value.isAdvancedSearch = false;
   addPrinterFilter();
   ordersStore.setFilters(filters.value);
+  updateQueryString();
 }
 function searchKeyword(event: any) {
   orderTable.value.clearColumnFilters();

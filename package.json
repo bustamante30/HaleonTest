@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^2.37.0",
+    "@azure/web-pubsub-client": "^1.0.0-beta.3",
     "@microsoft/applicationinsights-web": "^3.0.5",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
