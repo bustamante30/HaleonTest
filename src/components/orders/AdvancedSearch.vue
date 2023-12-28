@@ -41,7 +41,7 @@ import "primeicons/primeicons.css";
 import SuggesterService from "@/services/SuggesterService";
 import { useSearchhistoryStore } from "@/stores/searchHistory";
 import dayjs from "dayjs";
-import { keysIn } from "lodash";
+import { isNull, keysIn } from "lodash";
 import { useOrdersStore } from "@/stores/orders";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -194,6 +194,15 @@ function reset() {
 }
 
 async function search(advancedSearchParameters?) {
+  if (advancedSearchParameters?.startDate?.length > 0) {
+    let [startDate, endDate] = advancedSearchParameters["startDate"];
+    if (isNull(endDate)) {
+      endDate = isNull(endDate) ? startDate : endDate;
+      startDate = dayjs(startDate).startOf("day").toDate();
+      endDate = dayjs(endDate).endOf("day").toDate();
+    }
+    advancedSearchParameters["startDate"] = [startDate, endDate];
+  }
   await searchhistoryStore.setSearchHistory(advancedSearchParameters, true);
   advancedSearchParameters = {
     ...advancedSearchParameters,
