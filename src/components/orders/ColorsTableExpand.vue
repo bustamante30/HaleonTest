@@ -1,6 +1,10 @@
 <!-- eslint-disable vue/attribute-hyphenation --><!-- eslint-disable vue/no-template-shadow --><!-- eslint-disable vue/no-v-model-argument -->
 <template lang="pug">
 data-table.colors-table.p-datatable-sm(v-model:selection="selected" v-model:expandedRows="expandedRows" :value="sortedColors" scrollable scrollHeight="flex" :rows="30" :dataKey="config.dataKey" :loading="loading" :style="{ minHeight: '25rem'}")
+  template(#header)
+    .table-header
+      sgs-button#expand-all.sm.secondary(v-if="!isExpanded" label="Expand All" icon="Add" @click="expandAll")
+      sgs-button#collapse-all.sm.secondary(v-if="isExpanded" label="Collapse All" icon="Remove" @click="collapseAll")
   column(expander headerStyle="width: 3rem")
   column(v-if="isEditable" selectionMode="multiple" headerStyle="width: 3rem")
   column(v-for="(col, i) in config.cols" :key=i :field="col.field" :header="col.header" :headerStyle="stylify(col.width)" :bodyStyle="stylify(col.width)" :frozen="col.freeze ? true : false" :alignFrozen="col.freeze")
@@ -49,9 +53,18 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 
 const selected = ref([] as never[]);
-const expandedRows = ref([] as never[]);
+const expandedRows = ref([] as any[]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
+const isExpanded = ref(false);
+const expandAll = () => {
+  expandedRows.value = sortedColors.value.filter((c: any) => c.mcgColourId);
+  isExpanded.value = true;
+};
+const collapseAll = () => {
+  expandedRows.value = null as any;
+  isExpanded.value = false;
+};
 
 onBeforeMount(() => {
   // When back from confirmation page, do not reset sets(quantity)
@@ -158,7 +171,10 @@ async function updatePlate(params: any) {
 .colors-table
   header
     +flex-fill
-
+  .table-header
+    +flex($h: left)
+    +flex-wrap
+    gap: $s
   .actions
     +flex($h: right)
 </style>
