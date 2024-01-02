@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@playwright/test": "^1.40.1",
     "@rollup/plugin-dsv": "^3.0.2",
     "@rollup/plugin-terser": "^0.4.4",
     "@tsconfig/node18": "^2.0.1",

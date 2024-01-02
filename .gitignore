@@ -8,3 +8,7 @@
 /package-lock.json
 /.gitignore
 yarn.lock
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
