@@ -57,14 +57,6 @@ const expandedRows = ref([] as any[]);
 
 const sortedColors = computed(() => sortBy(props.data, props.config.sortBy));
 const isExpanded = ref(false);
-const expandAll = () => {
-  expandedRows.value = sortedColors.value.filter((c: any) => c.mcgColourId);
-  isExpanded.value = true;
-};
-const collapseAll = () => {
-  expandedRows.value = null as any;
-  isExpanded.value = false;
-};
 
 onBeforeMount(() => {
   // When back from confirmation page, do not reset sets(quantity)
@@ -135,6 +127,19 @@ function addPlate(params: any) {
 
 function removePlate(params: any) {
   ordersStore.removePlate(params);
+}
+
+function expandAll() {
+  expandedRows.value = sortedColors.value.reduce(
+    (acc, p) => ((acc as any)[(p as any).checkboxId] = true) && acc,
+    {},
+  ) as any;
+  isExpanded.value = true;
+}
+
+function collapseAll() {
+  expandedRows.value = null as any;
+  isExpanded.value = false;
 }
 
 async function updatePlate(params: any) {
