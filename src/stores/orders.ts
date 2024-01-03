@@ -1013,8 +1013,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           availableThicknesses.length == 0
             ? thicknessList
             : availableThicknesses.length == 1
-            ? availableThicknesses
-            : [];
+              ? availableThicknesses
+              : [];
         if (plate.thicknessList.length === 1) {
           plate.plateThicknessId = plate.thicknessList[0].thicknessId;
           plate.plateThicknessDescription =
