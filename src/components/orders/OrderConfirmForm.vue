@@ -32,9 +32,15 @@
         prime-textarea(v-model="checkoutForm.notes" @update:model-value="updateCheckout()")
   aside
     label.doc-label Attach Documents
-    label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-      input(type="file" multiple)
-      span Drag &amp; Drop files here ...
+    .file-acceptance-message.card
+      div File types accepted are PDF, Image, and Microsoft Word
+      div Max file size is 10MB
+    .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+      p Drag &amp; Drop files here ...
+      p.upload-option-divider OR
+      label.file-upload(for="file-upload")
+        input(id="file-upload" type="file" multiple @change="onFileSelected")
+        sgs-button.button(label="Browse for files" icon="upload" class="sm neutral")
     .upload(v-if="validFiles && validFiles.length > 0")
       h4 Uploaded Files:
       ul.files 
@@ -81,21 +87,23 @@ const notificationsStore = useNotificationsStore();
 const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
 );
-const isValidFileType = (file: File) => {
-  const forbiddenExtensions = [
-    ".exe",
-    ".bat",
-    ".com",
-    ".cmd",
-    ".inf",
-    ".ipa",
-    ".osx",
-    ".pif",
-    ".run",
-    ".wsh",
+function isInvalidFileSize(file) {
+  return file.size > 10 * 1048576; //1MiB = 1048576 bytes
+}
+const isInvalidFileType = (file: File) => {
+  const allowedExtensions = [
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".rtf",
+    ".doc",
+    ".docx",
   ];
   const lowercaseName = file.name.toLowerCase();
-  return forbiddenExtensions.some((extension) =>
+  return !allowedExtensions.some((extension) =>
     lowercaseName.endsWith(extension),
   );
 };
@@ -200,19 +208,40 @@ async function convertAndSendFile(file): Promise<FileUploadResponse> {
   return await FileUploadService.uploadFile(formdata);
 }
 
+async function onFileSelected(e) {
+  var filesToUpload = Array.from(e.target.files);
+  if (filesToUpload.length === 0) {
+    return;
+  }
+  await uploadFiles(filesToUpload);
+}
+
 async function onDrop(event) {
   event.preventDefault();
-  const uploadFiles = Array.from(event.dataTransfer.files);
+  const filesToUpload = Array.from(event.dataTransfer.files);
+  await uploadFiles(filesToUpload);
+}
+
+async function uploadFiles(filesToUpload) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uploadPromises = uploadFiles.map(async (file: any) => {
-    if (isValidFileType(file)) {
-      notificationsStore.addNotification(
-        Constants.INVALID_FILE,
-        Constants.INVALID_FILE_MSG,
-        { severity: "error", position: "top-right" },
-      );
-      return null;
+  const errors = filesToUpload.map((file: any) => {
+    if (isInvalidFileType(file)) {
+      return Constants.INVALID_FILE_TYPE_MSG_2.replace("{filename}", file.name);
+    } else if (isInvalidFileSize(file)) {
+      return Constants.INVALID_FILE_SIZE_MSG.replace("{filename}", file.name);
     } else {
+      return null;
+    }
+  });
+  if (errors.filter((response) => response !== null).length > 0) {
+    notificationsStore.addNotification(
+      Constants.INVALID_FILE_TITLE,
+      errors.join(""),
+      { severity: "error", position: "top-right", life: null },
+    );
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const uploadPromises = filesToUpload.map(async (file: any) => {
       const response = await convertAndSendFile(file);
       if (response.status === "OK") {
         validFiles.value.push({
@@ -228,18 +257,18 @@ async function onDrop(event) {
         );
         return null;
       }
+    });
+    const results = await Promise.all(uploadPromises);
+    const successfulUploads = results.filter((response) => response !== null);
+    if (successfulUploads.length > 0) {
+      notificationsStore.addNotification(
+        Constants.UPLOAD_SUCCESSFULL,
+        `You have uploaded ${successfulUploads.length} files successfully`,
+        { severity: "success", position: "top-right" },
+      );
     }
-  });
-  const results = await Promise.all(uploadPromises);
-  const successfulUploads = results.filter((response) => response !== null);
-  if (successfulUploads.length > 0) {
-    notificationsStore.addNotification(
-      Constants.UPLOAD_SUCCESSFULL,
-      `You have uploaded ${successfulUploads.length} files successfully`,
-      { severity: "success", position: "top-right" },
-    );
+    updateCheckout();
   }
-  updateCheckout();
 }
 
 const removeItemByProperty = (index: number) => {
@@ -350,18 +379,47 @@ function onDragOver(event) {
         color: $sgs-red
 .doc-label
   padding: 1rem
-.drop-zone
-  min-height: 5rem
+.drag-drop-message
+  +flex
+  flex-direction: column
+  text-align: center
+  font-size: 0.9rem
+  font-weight: 600
+  opacity: 0.8
   margin: $s
-  border: 1px dashed rgba($sgs-gray, 0.3)
-  border-radius: 5px
-  +flex(center, center)
-  .highlight
-    background: rgba($sgs-blue, 0.1)
-  input[type="file"]
-    display: none
+  border: 1px dashed #ccc
+  &.highlight
+    background: rgba($sgs-blue, 0.2)
+    border: 1px solid $sgs-blue
+  padding: $s
   &:hover
-    border: 1px dashed rgba($sgs-gray, 1)
+    opacity: 1
+  p.upload-option-divider
+    width: 4rem
+    position: relative
+    margin: $s 0
+    color: #999
+    font-size: 0.8rem
+    font-weight: 600
+    &:before, &:after
+      content: " "
+      width: 3rem
+      height: 2px
+      background: #eee
+    &:before
+      +absolute-ww
+    &:after
+      +absolute-ee
+  .file-upload
+    display: inline-block
+    cursor: pointer
+    > .button:hover
+      pointer-events: none
+    > input[type="file"]
+      display: none
+.file-acceptance-message
+  background-color: $sgs-yellow
+  margin: $s
 .upload
   h4
     padding: 0 $s

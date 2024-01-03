@@ -28,9 +28,12 @@ sgs-scrollpanel.report-issue
     .f
       label
         span Include support material (screen image / recording) if needed
-      label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-        input#files(type="file" multiple @input="handleInput($event)")
-        span Drag &amp; Drop files here ...
+      .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+        p Drag &amp; Drop files here ...
+        p.upload-option-divider OR
+        label.file-upload(for="file-upload")
+          input(id="file-upload" type="file" multiple @change="onFileSelected")
+          sgs-button.button(label="Browse for files" icon="upload" class="sm neutral")
       .upload(v-if="validFiles.length > 0")
         h4 Uploaded Files:
         ui.files
@@ -170,11 +173,12 @@ function onDragOver(event: DragEvent) {
   event.preventDefault();
 }
 
-function handleInput(e) {
-  const files = e.target.files;
-  if (files) {
-    addFiles(Array.from(files));
+function onFileSelected(e) {
+  var filesToUpload = Array.from(e.target.files);
+  if (filesToUpload.length === 0) {
+    return;
   }
+  addFiles(filesToUpload);
 }
 
 function isValidFileType(file) {
@@ -202,9 +206,9 @@ async function addFiles(files) {
   const uploadPromises = files.map(async (file) => {
     if (isValidFileType(file)) {
       notificationsStore.addNotification(
-        Constants.INVALID_FILE,
-        Constants.INVALID_FILE_MSG,
-        { severity: "error", position: "top-right" },
+        Constants.INVALID_FILE_TYPE_TITLE,
+        Constants.INVALID_FILE_TYPE_MSG,
+        { severity: "error", position: "top-right", life: null },
       );
       return null;
     } else if (file.size > Constants.MAX_FILE_SIZE) {
@@ -298,41 +302,69 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   strong.value
     padding: 0 $s50
 
-  .drop-zone
-    min-height: 7rem
+  .drag-drop-message
+    +flex
+    flex-direction: column
+    text-align: center
+    font-size: 0.9rem
+    font-weight: 600
+    opacity: 0.8
     margin: $s 0
-    border: 1px dashed rgba($sgs-gray, 0.3)
-    border-radius: 5px
-    +flex(center, center)
-    input[type="file"]
-      display: none
+    border: 1px dashed #ccc
+    &.highlight
+      background: rgba($sgs-blue, 0.2)
+      border: 1px solid $sgs-blue
+    padding: $s
     &:hover
-      border: 1px dashed rgba($sgs-gray, 1)
+      opacity: 1
+    p.upload-option-divider
+      width: 4rem
+      position: relative
+      margin: $s 0
+      color: #999
+      font-size: 0.8rem
+      font-weight: 600
+      &:before, &:after
+        content: " "
+        width: 3rem
+        height: 2px
+        background: #eee
+      &:before
+        +absolute-ww
+      &:after
+        +absolute-ee
+    .file-upload
+      display: inline-block
+      cursor: pointer
+      > .button:hover
+        pointer-events: none
+      > input[type="file"]
+        display: none
 
   .actions
     +flex($h: right)
 
-.upload
-  h4
-    padding: 0 $s
-  .file
-    +reset
-    li
-      +flex
-      padding: $s25 $s
-      white-space: nowrap
-      border-bottom: 1px solid #eee
-      &:last-child
-        border-bottom: none
-      .name
-        flex: 1
-        overflow: hidden
-        text-overflow: ellipsis
-      .delete
-        visibility: hidden
-        margin-right: $s125
-      &:hover
-        background: rgba($sgs-blue, 0.1)
+  .upload
+    h4
+      padding: 0 $s
+    .files
+      +reset
+      li
+        +flex
+        padding: $s25 $s
+        white-space: nowrap
+        border-bottom: 1px solid #eee
+        &:last-child
+          border-bottom: none
+        .name
+          flex: 1
+          overflow: hidden
+          text-overflow: ellipsis
         .delete
-          visibility: visible
+          visibility: hidden
+          margin-right: $s125
+        &:hover
+          background: rgba($sgs-blue, 0.1)
+          .delete
+            visibility: visible
 </style>
