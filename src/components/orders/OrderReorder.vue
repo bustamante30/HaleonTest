@@ -15,8 +15,7 @@
         .thumbnail
           prime-image(
             :src="selectedOrder.thumbNailPath" alt="Image" preview 
-            :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
-            :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
+            :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
         .card.details
           .f
             label Item Code
