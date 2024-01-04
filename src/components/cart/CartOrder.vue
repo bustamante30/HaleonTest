@@ -8,8 +8,7 @@
   .summary
     .thumbnail
       prime-image.image(
-        :src="order.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
-        :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
+        :src="order.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
     .details
       .f
         label Item Code

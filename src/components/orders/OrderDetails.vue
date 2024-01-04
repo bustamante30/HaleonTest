@@ -23,8 +23,7 @@
       .card.summary(v-if="selectedOrder")
         .thumbnail
           prime-image.image(
-            :src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }"
-            :pt="{ toolbar: {onclick: 'stopEvent(event)'}}")
+            :src="selectedOrder.thumbNailPath" alt="Image" preview :image-style="{ height: '100%', width: 'auto', maxWidth: '100%' }")
           sgs-button#thumbnail.sm(v-if="checkPDF" label="Scroll to PDF" @click="viewPreview")
         .details
           colors-table.p-datatable-sm(:config="config" :data="colors" :loading="loadingOrder")
