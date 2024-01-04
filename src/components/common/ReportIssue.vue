@@ -33,7 +33,7 @@ sgs-scrollpanel.report-issue
         p.upload-option-divider OR
         label.file-upload(for="file-upload")
           input(id="file-upload" type="file" multiple @change="onFileSelected")
-          sgs-button.button(label="Browse for files" icon="upload" class="sm neutral")
+          sgs-button.file-upload-button(label="Browse for files" icon="upload" class="sm neutral")
       .upload(v-if="validFiles.length > 0")
         h4 Uploaded Files:
         ui.files
@@ -310,7 +310,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
     font-weight: 600
     opacity: 0.8
     margin: $s 0
-    border: 1px dashed #ccc
+    border: 1px dashed $grey
     &.highlight
       background: rgba($sgs-blue, 0.2)
       border: 1px solid $sgs-blue
@@ -321,14 +321,14 @@ async function onDeleteClick(file: ValidFiles, index: number) {
       width: 4rem
       position: relative
       margin: $s 0
-      color: #999
+      color: $grey
       font-size: 0.8rem
       font-weight: 600
       &:before, &:after
         content: " "
         width: 3rem
         height: 2px
-        background: #eee
+        background: $grey-light-2
       &:before
         +absolute-ww
       &:after
@@ -336,7 +336,7 @@ async function onDeleteClick(file: ValidFiles, index: number) {
     .file-upload
       display: inline-block
       cursor: pointer
-      > .button:hover
+      > .file-upload-button:hover
         pointer-events: none
       > input[type="file"]
         display: none
