@@ -53,7 +53,7 @@ jobs:
             ${{ parameters.environment }}-Imgcarrier-ui-ViteAadTokenScope,
             ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CClientId,
             ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CTokenScope,
-            ${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl
+            ${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl,
             ${{ parameters.environment }}-Imgcarrier-ui-ViteOcpApimgmtSubscriptionKey
           RunAsPreJob: false
 
