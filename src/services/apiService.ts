@@ -26,7 +26,6 @@ class ApiService {
     axios.interceptors.request.use((config: ExtendedAxiosRequestConfig) => {
       const authType = localStorage.getItem("AuthType");
       const claims = localStorage.getItem("Claims");
-      debugger;
       const apiManagementSubscriptionKey = import.meta.env
         .VITE_OCP_APIM_SUBSCRIPTION_KEY;
       config.headers = {
