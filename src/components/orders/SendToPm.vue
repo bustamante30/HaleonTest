@@ -68,9 +68,15 @@
             label(for="comments") Comments
             prime-textarea#comments(v-model="sendForm.comments" name="comments" rows="10")
       aside
-        label.drop-zone(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-          input(type="file" multiple)
-          span Drag &amp; Drop files here ...
+        .file-acceptance-message.card
+          div File types accepted are PDF, Image, and Microsoft Office
+          div Max file size is 10MB
+        .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
+          p Drag &amp; Drop files here ...
+          p.upload-option-divider OR
+          label.file-upload(for="file-upload")
+            input(id="file-upload" type="file" multiple @change="onFileSelected")
+            sgs-button.file-upload-button(label="Browse for files" icon="upload" class="sm neutral")
         .upload(v-if="sendUpload && sendUpload.length > 0")
           h4(v-if="hasValidFiles") Uploaded Files:
           ul.files 
@@ -208,33 +214,63 @@ function onDragOver(event) {
   event.preventDefault();
 }
 
-function isValidFileType(file) {
-  return (
-    file.name.toLowerCase().endsWith(".exe") ||
-    file.name.toLowerCase().endsWith(".bat") ||
-    file.name.toLowerCase().endsWith(".com") ||
-    file.name.toLowerCase().endsWith(".cmd") ||
-    file.name.toLowerCase().endsWith(".inf") ||
-    file.name.toLowerCase().endsWith(".ipa") ||
-    file.name.toLowerCase().endsWith(".osx") ||
-    file.name.toLowerCase().endsWith(".pif") ||
-    file.name.toLowerCase().endsWith(".run") ||
-    file.name.toLowerCase().endsWith(".wsh")
+function isInvalidFileSize(file) {
+  return file.size > 10 * 1048576; //1MiB = 1048576
+}
+const isInvalidFileType = (file: File) => {
+  const allowedExtensions = [
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".doc",
+    ".docx",
+    ".rtf",
+    ".ppt",
+    ".pptx",
+    ".xls",
+    ".xlsx",
+  ];
+  const lowercaseName = file.name.toLowerCase();
+  return !allowedExtensions.some((extension) =>
+    lowercaseName.endsWith(extension),
   );
+};
+
+async function onFileSelected(e) {
+  var filesToUpload = Array.from(e.target.files);
+  if (filesToUpload.length === 0) {
+    return;
+  }
+  await uploadFiles(filesToUpload);
 }
 
 async function onDrop(event: any) {
   event.preventDefault();
-  const uploadFiles = Array.from(event.dataTransfer.files);
-  const uploadPromises = uploadFiles.map(async (file: any) => {
-    if (isValidFileType(file)) {
-      notificationsStore.addNotification(
-        Constants.INVALID_FILE,
-        Constants.INVALID_FILE_MSG,
-        { severity: "error", position: "top-right" },
-      );
-      return null;
+  const filesToUpload = Array.from(event.dataTransfer.files);
+  await uploadFiles(filesToUpload);
+}
+
+async function uploadFiles(filesToUpload) {
+  const errors = filesToUpload.map((file: any) => {
+    if (isInvalidFileType(file)) {
+      return Constants.INVALID_FILE_TYPE_MSG_2.replace("{filename}", file.name);
+    } else if (isInvalidFileSize(file)) {
+      return Constants.INVALID_FILE_SIZE_MSG.replace("{filename}", file.name);
     } else {
+      return null;
+    }
+  });
+  if (errors.filter((response) => response !== null).length > 0) {
+    notificationsStore.addNotification(
+      Constants.INVALID_FILE_TITLE,
+      errors.join(""),
+      { severity: "error", position: "top-right", life: null },
+    );
+  } else {
+    const uploadPromises = filesToUpload.map(async (file: any) => {
       const response = await convertAndSendFile(file);
       if (response.status === "OK") {
         validFiles.value.push({
@@ -250,18 +286,18 @@ async function onDrop(event: any) {
         );
         return null;
       }
+    });
+    const results = await Promise.all(uploadPromises);
+    const successfulUploads = results.filter((response) => response !== null);
+    if (successfulUploads.length > 0) {
+      if (validFiles.value.length > 0)
+        await sendToPmstore.uploadData(validFiles.value as []);
+      notificationsStore.addNotification(
+        Constants.UPLOAD_SUCCESSFULL,
+        Constants.UPLOAD_SUCCESSFULL_MSG,
+        { severity: "success", position: "top-right" },
+      );
     }
-  });
-  const results = await Promise.all(uploadPromises);
-  const successfulUploads = results.filter((response) => response !== null);
-  if (successfulUploads.length > 0) {
-    if (validFiles.value.length > 0)
-      await sendToPmstore.uploadData(validFiles.value as []);
-    notificationsStore.addNotification(
-      Constants.UPLOAD_SUCCESSFULL,
-      Constants.UPLOAD_SUCCESSFULL_MSG,
-      { severity: "success", position: "top-right" },
-    );
   }
 }
 
@@ -417,18 +453,46 @@ span.input
       text-align: left
       flex: 1
 
-.drop-zone
-  min-height: 20rem
-  margin: $s
-  border: 1px dashed rgba($sgs-gray, 0.3)
-  border-radius: 5px
-  +flex(center, center)
-  .highlight
-    background: rgba($sgs-blue, 0.1)
-  input[type="file"]
-    display: none
+.drag-drop-message
+  +flex
+  flex-direction: column
+  text-align: center
+  font-size: 0.9rem
+  font-weight: 600
+  opacity: 0.8
+  margin: $s 0
+  border: 1px dashed $grey
+  &.highlight
+    background: rgba($sgs-blue, 0.2)
+    border: 1px solid $sgs-blue
+  padding: $s
   &:hover
-    border: 1px dashed rgba($sgs-gray, 1)
+    opacity: 1
+  p.upload-option-divider
+    width: 4rem
+    position: relative
+    margin: $s 0
+    color: $grey
+    font-size: 0.8rem
+    font-weight: 600
+    &:before, &:after
+      content: " "
+      width: 3rem
+      height: 2px
+      background: $grey-light-2
+    &:before
+      +absolute-ww
+    &:after
+      +absolute-ee
+  .file-upload
+    display: inline-block
+    cursor: pointer
+    > .file-upload-button:hover
+      pointer-events: none
+    > input[type="file"]
+      display: none
+.file-acceptance-message
+  background-color: $sgs-yellow
 
 .required
   &:after

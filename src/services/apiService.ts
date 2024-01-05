@@ -26,11 +26,14 @@ class ApiService {
     axios.interceptors.request.use((config: ExtendedAxiosRequestConfig) => {
       const authType = localStorage.getItem("AuthType");
       const claims = localStorage.getItem("Claims");
+      const apiManagementSubscriptionKey = import.meta.env
+        .VITE_OCP_APIM_SUBSCRIPTION_KEY;
       config.headers = {
         ...config.headers,
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Authorization-Scheme": authType,
         Claims: claims,
+        "Ocp-Apim-Subscription-Key": apiManagementSubscriptionKey,
       };
       return config;
     });

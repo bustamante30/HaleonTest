@@ -17,8 +17,12 @@ export const REPORT_ISSUE_SUCCESS =
   "Your request has been successfully submitted.  Someone will contact you shortly.";
 export const REPORT_ISSUE_FAILURE =
   "Sorry, your request was not submitted. Please try again or reach out to your SGS & Co contact";
-export const INVALID_FILE = `Invalid file type.`;
-export const INVALID_FILE_MSG = `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh.)`;
+export const INVALID_FILE_TITLE = `Invalid file(s).`;
+export const INVALID_FILE_TYPE_TITLE = `Invalid file type.`;
+export const INVALID_FILE_TYPE_MSG = `File with the given format cannot be uploaded(exe,bat,com,cmd,inf,ipa,osx,pif,run,wsh.)`;
+export const INVALID_FILE_TYPE_MSG_2 = `<p>'{filename}' file with given format cannot be uploaded.</p>`;
+export const INVALID_FILE_SIZE_TITLE = `Invalid file size.`;
+export const INVALID_FILE_SIZE_MSG = `<p>'{filename}' file exceeds the maximum file size requirements. File size should be 10MB or less.</p>`;
 export const FILE_SIZE_EXCEEDS = "File size exceeds the limit (25 MB).";
 export const UPLOAD_SUCCESSFULL = `Uploaded successfully`;
 export const UPLOAD_FAILED = `Upload failed `;
