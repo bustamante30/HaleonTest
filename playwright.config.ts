@@ -35,7 +35,11 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], storageState: "state.json" },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "state.json",
+        viewport: { width: 1920, height: 1080 },
+      },
     },
 
     {
