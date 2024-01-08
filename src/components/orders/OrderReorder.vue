@@ -36,6 +36,9 @@
           .f
             label Printer
             span {{ selectedOrder.printerName }}
+          .f
+            label Shipping Address/Location
+            span {{ selectedOrder.address}}
       .card
         colors-table(:config="config" :data="colors" :is-editable="true" :loading="loadingCart" @update="updateColor")
       template(#footer)
