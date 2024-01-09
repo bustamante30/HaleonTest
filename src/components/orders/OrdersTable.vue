@@ -434,6 +434,7 @@ function handleOrderValidation(data: any) {
   +container
 
 .orders-table
+  width: 100%
   header
     +flex-fill
 .global-custom-button

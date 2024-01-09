@@ -13,7 +13,9 @@ module.exports = async () => {
     .locator("#passwordNext")
     .getByRole("button", { name: "Next" })
     .click();
-  await page.waitForURL("http://localhost:3000/dashboard");
+  await page.waitForURL(
+    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+  );
   expect(page).toHaveURL(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );
