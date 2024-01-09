@@ -71,12 +71,7 @@
         .file-acceptance-message.card
           div File types accepted are PDF, Image, and Microsoft Office
           div Max file size is 10MB
-        .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-          p Drag &amp; Drop files here ...
-          p.upload-option-divider OR
-          label.file-upload(for="file-upload")
-            input(id="file-upload" type="file" multiple @change="onFileSelected")
-            sgs-button.file-upload-button(label="Browse for files" icon="upload" class="sm neutral")
+        file-upload(@files-input="uploadFiles")
         .upload(v-if="sendUpload && sendUpload.length > 0")
           h4(v-if="hasValidFiles") Uploaded Files:
           ul.files 
@@ -93,6 +88,7 @@
 <!-- eslint-disable no-undef --><!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
 import ColorsTableEdit from "./ColorsTableEdit.vue";
+import FileUpload from "../common/FileUpload.vue";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
@@ -138,7 +134,6 @@ const printerName = computed(() => {
   return user?.printerName || "";
 });
 const emit = defineEmits(["create", "submit"]);
-const entering = ref();
 const sendForm = ref(props.order);
 let isFormVisible = ref(false);
 const isb2cUserLoggedIn = computed(
@@ -210,10 +205,6 @@ function minSelectableDate() {
   return DateTime.now().startOf("hour").toJSDate();
 }
 
-function onDragOver(event) {
-  event.preventDefault();
-}
-
 function isInvalidFileSize(file) {
   return file.size > 10 * 1048576; //1MiB = 1048576
 }
@@ -238,20 +229,6 @@ const isInvalidFileType = (file: File) => {
     lowercaseName.endsWith(extension),
   );
 };
-
-async function onFileSelected(e) {
-  var filesToUpload = Array.from(e.target.files);
-  if (filesToUpload.length === 0) {
-    return;
-  }
-  await uploadFiles(filesToUpload);
-}
-
-async function onDrop(event: any) {
-  event.preventDefault();
-  const filesToUpload = Array.from(event.dataTransfer.files);
-  await uploadFiles(filesToUpload);
-}
 
 async function uploadFiles(filesToUpload) {
   const errors = filesToUpload.map((file: any) => {
@@ -453,44 +430,6 @@ span.input
       text-align: left
       flex: 1
 
-.drag-drop-message
-  +flex
-  flex-direction: column
-  text-align: center
-  font-size: 0.9rem
-  font-weight: 600
-  opacity: 0.8
-  margin: $s 0
-  border: 1px dashed $grey
-  &.highlight
-    background: rgba($sgs-blue, 0.2)
-    border: 1px solid $sgs-blue
-  padding: $s
-  &:hover
-    opacity: 1
-  p.upload-option-divider
-    width: 4rem
-    position: relative
-    margin: $s 0
-    color: $grey
-    font-size: 0.8rem
-    font-weight: 600
-    &:before, &:after
-      content: " "
-      width: 3rem
-      height: 2px
-      background: $grey-light-2
-    &:before
-      +absolute-ww
-    &:after
-      +absolute-ee
-  .file-upload
-    display: inline-block
-    cursor: pointer
-    > .file-upload-button:hover
-      pointer-events: none
-    > input[type="file"]
-      display: none
 .file-acceptance-message
   background-color: $sgs-yellow
 
