@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Platetype validation", async ({ page }) => {
+test("platetype validation in reorder flow", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );
@@ -13,17 +13,15 @@ test("Platetype validation", async ({ page }) => {
     .locator("a")
     .click();
   await page.getByRole("button", { name: "redo Re-Order" }).click();
-  await page
-    .locator(".p-selection-column > .p-checkbox > .p-checkbox-box")
-    .first()
-    .click();
   await page.getByRole("button", { name: "Add Expand All" }).click();
-  await page.waitForLoadState("domcontentloaded");
   await page
-    .locator("#pv_id_224_6_expansion button")
-    .first()
-    .click({ timeout: 80000 });
+    .locator(
+      "tr:nth-child(17) > .p-selection-column > .p-checkbox > .p-checkbox-box",
+    )
+    .click();
   await page.getByRole("button", { name: "Re-Order Now" }).click();
   await page.getByRole("button", { name: "Re-Order Now" }).click();
-  await expect(page.getByRole("heading", { name: "Warning" })).toBeVisible();
+  await expect(
+    page.locator(".p-highlight > td:nth-child(8) > .table-cell > .disabled"),
+  ).toBeVisible();
 });

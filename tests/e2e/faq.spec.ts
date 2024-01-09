@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 
-test("FAQ test", async ({ page }) => {
+test("faq test", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );

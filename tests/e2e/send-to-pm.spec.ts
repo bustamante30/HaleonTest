@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Send to pm test", async ({ page }) => {
+test("send to pm test", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );

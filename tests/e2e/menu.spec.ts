@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Menu selection test", async ({ page }) => {
+test("menu selection test", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=false",
   );

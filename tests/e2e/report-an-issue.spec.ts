@@ -1,27 +1,21 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
-  await page.goto("http://localhost:3000/faq");
-  await page.getByRole("banner").nth(1).click();
+test("report an issue test", async ({ page }) => {
+  await page.goto(
+    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+  );
+  await page.getByRole("main").nth(2).click();
   await page.getByRole("button", { name: "Help expand_more" }).click();
   await page.getByLabel("Report an Issue").locator("a").click();
-  await page.locator("#pv_id_48").getByLabel("-- None --").click();
-  await page.getByLabel("Incorrect Search List").click();
+  await page.locator("#issue").click();
+  await page.getByLabel("Submission request error").click();
+  await page.getByText("Briefly describe the issuehelp_outline").click();
   await page.getByLabel("-- None --").click();
   await page.getByLabel("Chrome").click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Browser Versions$/ })
-    .getByRole("textbox")
-    .click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Browser Versions$/ })
-    .getByRole("textbox")
-    .fill("1");
-  await page.locator("textarea").click();
-  await page.locator("textarea").fill("test for playwright");
-  await page.getByText("Drag & Drop files here").click();
-  await page.locator("body").setInputFiles("MicrosoftTeams-image (3).png");
+  await page.locator("#version").click();
+  await page.locator("#version").fill("3");
+  await page.locator("#description").click();
+  await page.locator("#description").fill("Playwright testing");
   await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByText("Your request has been")).toBeVisible();
 });

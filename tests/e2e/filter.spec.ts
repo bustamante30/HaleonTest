@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 
-test("Dahboard filter test", async ({ page }) => {
+test("dashboard filter test", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );
