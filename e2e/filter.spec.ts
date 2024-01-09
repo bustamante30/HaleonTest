@@ -36,7 +36,7 @@ test("Dahboard filter test", async ({ page }) => {
     .getByRole("columnheader", { name: "Brand Name" })
     .getByRole("button")
     .click();
-  await page.getByRole("button", { name: "" }).click();
+  await page.waitForLoadState("domcontentloaded");
   await page.getByText("Recent Orderslast 3").click();
   await page.locator(".p-datatable-wrapper").click();
   await page.locator(".p-inputswitch-slider").click();

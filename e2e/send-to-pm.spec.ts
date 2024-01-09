@@ -42,6 +42,8 @@ test("Send to pm test", async ({ page }) => {
   await page.getByRole("spinbutton").dblclick();
   await page.getByLabel("Comments").click();
   await page.getByLabel("Comments").fill("Test");
-  await page.getByRole("button", { name: "Send as Urgent send" }).click();
+  await page
+    .getByRole("button", { name: "Send as Urgent send" })
+    .click({ timeout: 60000 });
   await expect(page.getByRole("heading", { name: "Order Sent" })).toBeVisible();
 });

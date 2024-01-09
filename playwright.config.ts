@@ -38,7 +38,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         storageState: "state.json",
-        viewport: { width: 1920, height: 1080 },
+        // viewport: { width: 1920, height: 1080 },
       },
     },
 

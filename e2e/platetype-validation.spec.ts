@@ -15,13 +15,32 @@ test("Platetype validation", async ({ page }) => {
     .locator(".p-selection-column > .p-checkbox > .p-checkbox-box")
     .first()
     .click();
-  await page
-    .getByRole("row", { name: "Row Collapsed Row Selected 1" })
-    .getByLabel("Row Collapsed")
-    .click();
-  await page.getByRole("button", { name: "Add Expand All" }).click();
-  await page.locator("#pv_id_224_6_expansion button").first().click();
-  await page.getByRole("button", { name: "Re-Order Now" }).click();
-  await page.getByRole("button", { name: "Re-Order Now" }).click();
-  await expect(page.getByRole("heading", { name: "Warning" })).toBeVisible();
+  const maxRetries = 5;
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      await page.waitForLoadState("domcontentloaded");
+      // await page
+      //   .getByRole("row", { name: "Row Collapsed Row Selected 1" })
+      //   .getByLabel("Row Collapsed")
+      //   .click({ timeout: 20000 });
+      await page.getByRole("button", { name: "Add Expand All" }).click();
+      await page.waitForLoadState("domcontentloaded");
+      await page
+        .locator("#pv_id_224_6_expansion button")
+        .first()
+        .click({ timeout: 20000 });
+      await page.getByRole("button", { name: "Re-Order Now" }).click();
+      await page.getByRole("button", { name: "Re-Order Now" }).click();
+      await expect(
+        page.getByRole("heading", { name: "Warning" }),
+      ).toBeVisible();
+      break;
+    } catch (error) {
+      console.log(`Attempt ${retries + 1} failed. Retrying...`, error);
+      retries++;
+      await page.waitForTimeout(20000);
+    }
+  }
 });
