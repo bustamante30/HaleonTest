@@ -16,7 +16,10 @@
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
     "pre-commit": "git diff-index --cached --quiet HEAD -- || npx lint-staged --allow-empty && git update-index --refresh",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "playwright test",
+    "test:chrome": "playwright test --project=chrome",
+    "test:firefox": "playwright test --project=firefox"
   },
   "lint-staged": {
     "*.{ts,js,jsx,vue,html,css,json,md}": [
