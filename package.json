@@ -18,6 +18,7 @@
     "pre-commit": "git diff-index --cached --quiet HEAD -- || npx lint-staged --allow-empty && git update-index --refresh",
     "prepare": "husky install",
     "test": "playwright test",
+    "test:report": "playwright show-report",
     "test:chrome": "playwright test --project=chrome",
     "test:firefox": "playwright test --project=firefox"
   },
