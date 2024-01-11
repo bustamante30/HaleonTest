@@ -5,6 +5,7 @@ test("send to pm test", async ({ page }) => {
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );
   await page.locator("a").filter({ hasText: "Send to PM" }).click();
+  await page.waitForLoadState("domcontentloaded");
   await page.getByLabel("Brand").click();
   await page.getByLabel("Brand").fill("Testing");
   await page.getByLabel("Purchase Order #").click();
