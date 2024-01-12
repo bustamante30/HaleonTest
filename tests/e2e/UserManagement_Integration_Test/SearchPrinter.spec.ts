@@ -5,8 +5,9 @@ test.describe("PrinterList", () => {
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    // Navigate to the login page
-    //await page.goto("http://localhost:3000/");
+    await page.goto(
+      "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    );
     // Navigate to User mgmt
     await page.getByRole("button", { name: "Manage Users" }).click();
     await page.goto("http://localhost:3000/users?role=super");

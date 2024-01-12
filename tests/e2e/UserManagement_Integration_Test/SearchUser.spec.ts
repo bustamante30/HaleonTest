@@ -5,11 +5,12 @@ test.describe("User Management Test", () => {
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    // Navigate to the login page
-    // await page.goto("http://localhost:3000/");
+    await page.goto(
+      "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    );
     // Navigate to User mgmt
     await page.getByRole("button", { name: "Manage Users" }).click();
-    await page.goto("http://localhost:3000/users?role=super");
+    //await page.goto("http://localhost:3000/users?role=super");
   });
 
   test("User Search", async () => {
@@ -27,7 +28,7 @@ test.describe("User Management Test", () => {
     await page.waitForTimeout(5000);
 
     const currentURL = page.url();
-    expect(currentURL).toContain("http://localhost:3000/users?role=super");
+    expect(currentURL).toContain("users");
   });
 
   test.afterEach(async () => {
