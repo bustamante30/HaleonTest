@@ -46,7 +46,7 @@ test("reorder flow testing", async ({ page }) => {
     .filter({ hasText: /^Delivery Datecalendar_month$/ })
     .getByRole("combobox")
     .click();
-  await page.getByText("25").click();
+  await page.getByText("25", { exact: true }).click();
   await page.locator("span").filter({ hasText: "Add add" }).click();
   await page.locator("textarea").fill("1234");
   await page.waitForLoadState("domcontentloaded");
