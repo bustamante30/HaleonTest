@@ -30,7 +30,7 @@ stages:
     condition: |
       and(
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/master')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/master')
       )
     variables:
       - group: "dev-azure-imgcarrier-ui-static-variable-group"
@@ -48,7 +48,7 @@ stages:
       and(
         succeeded('Build_DEV'),
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/master')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/master')
       )
     dependsOn: Build_Dev
     variables:
@@ -66,7 +66,7 @@ stages:
     condition: |
       and(
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
     variables:
       - group: "qa-azure-imgcarrier-ui-static-variable-group"
@@ -84,7 +84,7 @@ stages:
       and(
         succeeded('Build_QA'),
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
     dependsOn:
       - Build_QA
@@ -104,7 +104,7 @@ stages:
       and(
         succeeded('Deploy_QA'),
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
     dependsOn:
       - Build_QA
@@ -125,7 +125,7 @@ stages:
       and(
         succeeded('Build_STAGING'),
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
     dependsOn:
       - Build_QA
@@ -170,7 +170,7 @@ stages:
       and(
         succeeded('Build_PROD'),
         ne(variables['Build.Reason'], 'PullRequest'),
-        eq(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
     dependsOn:
       - Build_QA
