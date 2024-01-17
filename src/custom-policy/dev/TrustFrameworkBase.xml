@@ -545,7 +545,7 @@
           <Metadata>
             <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
-            <Item Key="client_id">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
+            <Item Key="client_id">c0e78a64-f892-4fe4-a35c-b59caca51993</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
             <Item Key="response_mode">form_post</Item>
@@ -587,8 +587,8 @@
           <Protocol Name="OpenIdConnect" />
           <Metadata>
             <Item Key="ProviderName">https://sts.windows.net/</Item>
-            <Item Key="METADATA">https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration</Item>
-            <Item Key="authorization_endpoint">https://login.microsoftonline.com/{tenant}/oauth2/token</Item>
+            <Item Key="METADATA">https://login.microsoftonline.com/sgscophotondev/.well-known/openid-configuration</Item>
+            <Item Key="authorization_endpoint">https://login.microsoftonline.com/sgscophotondev/oauth2/token</Item>
             <Item Key="response_types">id_token</Item>
             <Item Key="response_mode">query</Item>
             <Item Key="scope">email openid</Item>
@@ -673,12 +673,23 @@
             <PersistedClaim ClaimTypeReferenceId="signInNames.emailAddress" />
           </PersistedClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="newUser" PartnerClaimType="newClaimsPrincipalCreated" />
-            <!-- The following other mails claim is needed for the case when a user is created, we
-            get otherMails from directory. Self-asserted provider also has an
-                 OutputClaims, and if this is absent, Self-Asserted provider will prompt the user for otherMails. -->
-            <OutputClaim ClaimTypeReferenceId="otherMails" />
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
@@ -693,17 +704,23 @@
             <InputClaim ClaimTypeReferenceId="alternativeSecurityId" PartnerClaimType="alternativeSecurityId" Required="true" />
           </InputClaims>
           <OutputClaims>
-            <!-- Required claims -->
-
-            <OutputClaim ClaimTypeReferenceId="objectId"/>
-
-            <!-- Optional claims -->
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
-            <OutputClaim ClaimTypeReferenceId="displayName"/>
-            <OutputClaim ClaimTypeReferenceId="otherMails"/>
-            <OutputClaim ClaimTypeReferenceId="givenName"/>
-            <OutputClaim ClaimTypeReferenceId="surname"/>
-            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"/>
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
         </TechnicalProfile>
@@ -712,6 +729,25 @@
           <Metadata>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
           </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
+          </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingAlternativeSecurityId" />
         </TechnicalProfile>
 
@@ -759,16 +795,23 @@
             <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
           </InputClaims>
           <OutputClaims>
-            <!-- Required claims -->
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="localAccountAuthentication" />
-
-            <!-- Optional claims -->
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
-            <OutputClaim ClaimTypeReferenceId="displayName" />
-            <OutputClaim ClaimTypeReferenceId="accountEnabled" />
-            <OutputClaim ClaimTypeReferenceId="otherMails" />
-            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" />
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="AssertAccountEnabledIsTrue" />
@@ -785,11 +828,31 @@
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
           </InputClaims>
+          
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="objectId" />
             <PersistedClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
 
           </PersistedClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
+          </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
 
@@ -813,6 +876,25 @@
             <PersistedClaim ClaimTypeReferenceId="givenName" />
             <PersistedClaim ClaimTypeReferenceId="surname" />
           </PersistedClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
+          </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
 
@@ -827,17 +909,23 @@
             <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
           </InputClaims>
           <OutputClaims>
-
-            <!-- Optional claims -->
-            <OutputClaim ClaimTypeReferenceId="displayName" />
-            <OutputClaim ClaimTypeReferenceId="otherMails" />
-            <OutputClaim ClaimTypeReferenceId="givenName" />
-            <OutputClaim ClaimTypeReferenceId="surname" />
-            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress"/>
-            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="idpUserId"/>
-            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid"/>
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName" PartnerClaimType="upn"/>
+            <OutputClaim ClaimTypeReferenceId="objectId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:DefaultObjectId}" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultUPN" PartnerClaimType="upn" />
+            <OutputClaim ClaimTypeReferenceId="displayName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="givenName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultGivenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultFamilyName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="email" AlwaysUseDefaultValue="true"
+              DefaultValue="DefaultEmail" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress"
+              AlwaysUseDefaultValue="true" PartnerClaimType="emailAddress"
+              DefaultValue="DefaultEmailAddress" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+              DefaultValue="{Policy:TenantObjectId}" PartnerClaimType="tid" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
