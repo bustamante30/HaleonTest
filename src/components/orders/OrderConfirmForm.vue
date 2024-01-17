@@ -33,7 +33,7 @@
   aside
     label.doc-label Attach Documents
     .file-acceptance-message.card
-      div File types accepted are PDF, Image, and Microsoft Word
+      div File types accepted are PDF, Image, Email, and Microsoft Word
       div Max file size is 10MB
     file-upload(@files-input="uploadFiles")
     .upload(v-if="validFiles && validFiles.length > 0")
@@ -97,6 +97,7 @@ const isInvalidFileType = (file: File) => {
     ".rtf",
     ".doc",
     ".docx",
+    ".eml",
   ];
   const lowercaseName = file.name.toLowerCase();
   return !allowedExtensions.some((extension) =>
