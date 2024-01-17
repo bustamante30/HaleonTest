@@ -27,10 +27,6 @@ variables:
 stages:
   - stage: Build_Dev
     displayName: "Build Dev"
-    condition: |
-      and(
-        ne(variables['Build.Reason'], 'PullRequest')
-      )
     variables:
       - group: "dev-azure-imgcarrier-ui-static-variable-group"
     jobs:
