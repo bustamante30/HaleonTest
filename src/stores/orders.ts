@@ -745,10 +745,17 @@ export const useOrdersStore = defineStore("ordersStore", {
                 );
                 if (plateOcurrences.length > 1) {
                   if (colour.lenPath == Constants.NO_VISUALS) {
-                    if (
-                      plateOcurrences[0].comments ===
-                      plateOcurrences[1].comments
-                    )
+                    let sameComments = false;
+                    for (let i = 0; i < plateOcurrences.length; i++)
+                      for (let j = i + 1; j < plateOcurrences.length; j++)
+                        if (
+                          plateOcurrences[i].comments ===
+                          plateOcurrences[j].comments
+                        ) {
+                          sameComments = true;
+                          break;
+                        }
+                    if (sameComments)
                       notificationsStore.addNotification(
                         Constants.WARNING,
                         Constants.ADD_COMMENTS,
@@ -804,6 +811,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         hasEmptyPlateDescription,
         hasUniquePlates,
         hasComments,
+        hasDifferentComments,
       } = validation(colour);
       if (!hasUniquePlates)
         notificationsStore.addNotification(
@@ -821,6 +829,12 @@ export const useOrdersStore = defineStore("ordersStore", {
         notificationsStore.addNotification(
           Constants.WARNING,
           `Enter a comment for all the  ${colour.colourName} plate(s)`,
+          { severity: "warn", life: 5000 },
+        );
+      if (!hasDifferentComments)
+        notificationsStore.addNotification(
+          Constants.WARNING,
+          Constants.ADD_COMMENTS + ` of  ${colour.colourName} colour`,
           { severity: "warn", life: 5000 },
         );
       return isValid;
@@ -1010,11 +1024,11 @@ export const useOrdersStore = defineStore("ordersStore", {
         }
       } else {
         plate.thicknessList =
-          availableThicknesses.length == 0
+          availableThicknesses.length == 1
+            ? availableThicknesses
+            : thicknessList.length == 1
             ? thicknessList
-            : availableThicknesses.length == 1
-              ? availableThicknesses
-              : [];
+            : [];
         if (plate.thicknessList.length === 1) {
           plate.plateThicknessId = plate.thicknessList[0].thicknessId;
           plate.plateThicknessDescription =
