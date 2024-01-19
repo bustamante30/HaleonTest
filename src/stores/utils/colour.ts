@@ -83,7 +83,8 @@ const validation = (colour: any) => {
     for (let i = 0; i < colour.plateDetails.length; i++)
       for (let j = i + 1; j < colour.plateDetails.length; j++)
         if (
-          colour.plateDetails[i].comments === colour.plateDetails[j].comments
+          colour.plateDetails[i].comments.toLowerCase() ===
+          colour.plateDetails[j].comments.toLowerCase()
         ) {
           hasDifferentComments = false;
           break;
