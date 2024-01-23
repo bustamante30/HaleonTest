@@ -749,8 +749,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                     for (let i = 0; i < plateOcurrences.length; i++)
                       for (let j = i + 1; j < plateOcurrences.length; j++)
                         if (
-                          plateOcurrences[i].comments ===
-                          plateOcurrences[j].comments
+                          plateOcurrences[i].comments.toLowerCase() ===
+                          plateOcurrences[j].comments.toLowerCase()
                         ) {
                           sameComments = true;
                           break;
@@ -834,7 +834,7 @@ export const useOrdersStore = defineStore("ordersStore", {
       if (!hasDifferentComments)
         notificationsStore.addNotification(
           Constants.WARNING,
-          Constants.ADD_COMMENTS + ` of  ${colour.colourName} colour`,
+          `${colour.colourName} colour: ` + Constants.ADD_COMMENTS,
           { severity: "warn", life: 5000 },
         );
       return isValid;
