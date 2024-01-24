@@ -86,7 +86,7 @@
             <Item Key="scope">email profile</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
-            <Item Key="client_id">70409938910-1ottbt7vsgn5jqvdalgsh7n1n5fl7h0p.apps.googleusercontent.com</Item>
+            <Item Key="client_id">649829115993-tcv0jv3p1csjqpvophi3c5dntsjda2v4.apps.googleusercontent.com</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleSecret" />
@@ -98,8 +98,7 @@
             <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
             <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="google.com" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource"
-              DefaultValue="socialIdpAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
@@ -127,7 +126,7 @@
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
             <!-- <Item Key="client_id">amzn1.application-oa2-client.941aa452b0d54f1c8023879419737dd1</Item> -->
-            <Item Key="client_id">amzn1.application-oa2-client.a62d7e6bf1bc49c38e95e7b3b51bae7e</Item>
+            <Item Key="client_id">amzn1.application-oa2-client.716fbba44d7e464ab13f0314c4a122a7</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_AmazonSecret" />
@@ -137,8 +136,7 @@
             <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
             <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="amazon.com" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource"
-              DefaultValue="socialIdpAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
@@ -154,14 +152,14 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">c0e78a64-f892-4fe4-a35c-b59caca51993</Item>
-            <Item Key="IdTokenAudience">4b8bfbc7-8299-4015-8141-bbf18f0c57ab</Item>
+            <Item Key="client_id">4b8bfbc7-8299-4015-8141-bbf18f0c57ab</Item>
+            <Item Key="IdTokenAudience">c0e78a64-f892-4fe4-a35c-b59caca51993</Item>
           </Metadata>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="client_id"
-              DefaultValue="c0e78a64-f892-4fe4-a35c-b59caca51993" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource"
               DefaultValue="4b8bfbc7-8299-4015-8141-bbf18f0c57ab" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource"
+              DefaultValue="c0e78a64-f892-4fe4-a35c-b59caca51993" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
@@ -183,7 +181,9 @@
             <Item Key="scope">name email openid</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="response_types">code</Item>
-            <Item Key="external_user_identity_claim_id">sub</Item>
+            <Item Key="external_user_identity_claim_id">
+              
+            </Item>
             <Item Key="response_mode">form_post</Item>
             <Item Key="ReadBodyClaimsOnIdpRedirect">user.name.firstName user.name.lastName user.email</Item>
             <Item Key="client_id">com.sgscophotondev.azure-ad-b2c-service</Item>
