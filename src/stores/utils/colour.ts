@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { faker } from "@faker-js/faker";
 import { sum } from "lodash";
+import * as Constants from "@/services/Constants";
 
 const colorDecorator = (colors: any[], masterPlateTypes: any[]) => {
   return colors?.map((color: any) => {
@@ -77,17 +78,30 @@ const validation = (colour: any) => {
     (x) => x.sets > 0 && (!x.comments || x.comments === ""),
   );
   const hasComments = !colour.showComments || noCommentPlates.length === 0;
+  let hasDifferentComments = true;
+  if (colour.lenPath === Constants.NO_VISUALS)
+    for (let i = 0; i < colour.plateDetails.length; i++)
+      for (let j = i + 1; j < colour.plateDetails.length; j++)
+        if (
+          colour.plateDetails[i].comments.toLowerCase() ===
+          colour.plateDetails[j].comments.toLowerCase()
+        ) {
+          hasDifferentComments = false;
+          break;
+        }
   const isValid =
     hasUniquePlates &&
     totalSets <= 10 &&
     !hasEmptyPlateDescription &&
-    hasComments;
+    hasComments &&
+    hasDifferentComments;
 
   return {
     isValid,
     hasEmptyPlateDescription,
     hasUniquePlates,
     hasComments,
+    hasDifferentComments,
   };
 };
 
@@ -109,8 +123,8 @@ const flattenColors = (colors: any[] = []) => {
           imageCarrierId: color.custImageIdNo
             ? color.custImageIdNo
             : color.custCarrierIdNo
-              ? color.custCarrierIdNo
-              : color.imageCarrierId,
+            ? color.custCarrierIdNo
+            : color.imageCarrierId,
           serialNumber: plate.serialNumber,
           isActive: true,
           isNew: color.isNew,

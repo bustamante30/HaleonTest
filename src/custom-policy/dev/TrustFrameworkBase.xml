@@ -4,10 +4,10 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
-  TenantId="sgscophoton.onmicrosoft.com"
+  TenantId="sgscophotondev.onmicrosoft.com"
   PolicyId="B2C_1A_TrustFrameworkBase"
-  PublicPolicyUri="http://sgscophoton.onmicrosoft.com/B2C_1A_TrustFrameworkBase"
-  TenantObjectId="55585cc8-a22e-4b2d-a859-26d84e110f59">
+  PublicPolicyUri="http://sgscophotondev.onmicrosoft.com/B2C_1A_TrustFrameworkBase"
+  TenantObjectId="758029d1-9377-4235-b281-68b2a8645f6b">
 
   <BuildingBlocks>
     <ClaimsSchema>
@@ -545,7 +545,7 @@
           <Metadata>
             <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
-            <Item Key="client_id">d56363f1-4b89-4ab8-852e-d165e321b775</Item>
+            <Item Key="client_id">c0e78a64-f892-4fe4-a35c-b59caca51993</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
             <Item Key="response_mode">form_post</Item>

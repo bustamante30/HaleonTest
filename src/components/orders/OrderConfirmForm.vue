@@ -33,14 +33,9 @@
   aside
     label.doc-label Attach Documents
     .file-acceptance-message.card
-      div File types accepted are PDF, Image, and Microsoft Word
+      div File types accepted are PDF, Image, Email, and Microsoft Word
       div Max file size is 10MB
-    .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-      p Drag &amp; Drop files here ...
-      p.upload-option-divider OR
-      label.file-upload(for="file-upload")
-        input(id="file-upload" type="file" multiple @change="onFileSelected")
-        sgs-button.file-upload-button(label="Browse for files" icon="upload" class="sm neutral")
+    file-upload(@files-input="uploadFiles")
     .upload(v-if="validFiles && validFiles.length > 0")
       h4 Uploaded Files:
       ul.files 
@@ -62,6 +57,7 @@ import {
   type FileDelete,
 } from "@/services/FileUploadService";
 import * as Constants from "@/services/Constants";
+import FileUpload from "../common/FileUpload.vue";
 
 type ValidFiles = {
   fileName: string;
@@ -101,6 +97,7 @@ const isInvalidFileType = (file: File) => {
     ".rtf",
     ".doc",
     ".docx",
+    ".eml",
   ];
   const lowercaseName = file.name.toLowerCase();
   return !allowedExtensions.some((extension) =>
@@ -108,7 +105,6 @@ const isInvalidFileType = (file: File) => {
   );
 };
 const isUserLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-let entering = ref();
 const checkoutForm = ref();
 let validFiles = ref<ValidFiles[]>([]);
 
@@ -208,20 +204,6 @@ async function convertAndSendFile(file): Promise<FileUploadResponse> {
   return await FileUploadService.uploadFile(formdata);
 }
 
-async function onFileSelected(e) {
-  var filesToUpload = Array.from(e.target.files);
-  if (filesToUpload.length === 0) {
-    return;
-  }
-  await uploadFiles(filesToUpload);
-}
-
-async function onDrop(event) {
-  event.preventDefault();
-  const filesToUpload = Array.from(event.dataTransfer.files);
-  await uploadFiles(filesToUpload);
-}
-
 async function uploadFiles(filesToUpload) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors = filesToUpload.map((file: any) => {
@@ -300,10 +282,6 @@ async function onDeleteClick(file: ValidFiles, index: number) {
   }
   updateCheckout();
 }
-
-function onDragOver(event) {
-  event.preventDefault();
-}
 </script>
 
 <style lang="sass" scoped>
@@ -380,43 +358,7 @@ function onDragOver(event) {
 .doc-label
   padding: 1rem
 .drag-drop-message
-  +flex
-  flex-direction: column
-  text-align: center
-  font-size: 0.9rem
-  font-weight: 600
-  opacity: 0.8
   margin: $s
-  border: 1px dashed $grey
-  &.highlight
-    background: rgba($sgs-blue, 0.2)
-    border: 1px solid $sgs-blue
-  padding: $s
-  &:hover
-    opacity: 1
-  p.upload-option-divider
-    width: 4rem
-    position: relative
-    margin: $s 0
-    color: $grey
-    font-size: 0.8rem
-    font-weight: 600
-    &:before, &:after
-      content: " "
-      width: 3rem
-      height: 2px
-      background: $grey-light-2
-    &:before
-      +absolute-ww
-    &:after
-      +absolute-ee
-  .file-upload
-    display: inline-block
-    cursor: pointer
-    > .file-upload-button:hover
-      pointer-events: none
-    > input[type="file"]
-      display: none
 .file-acceptance-message
   background-color: $sgs-yellow
   margin: $s

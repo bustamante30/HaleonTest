@@ -28,12 +28,7 @@ sgs-scrollpanel.report-issue
     .f
       label
         span Include support material (screen image / recording) if needed
-      .drag-drop-message(for="files" :class="{ highlight: entering }" @dragover="onDragOver" @drop="onDrop" @dragenter="entering = true" @dragleave="entering = false")
-        p Drag &amp; Drop files here ...
-        p.upload-option-divider OR
-        label.file-upload(for="file-upload")
-          input(id="file-upload" type="file" multiple @change="onFileSelected")
-          sgs-button.file-upload-button(label="Browse for files" icon="upload" class="sm neutral")
+      file-upload(@files-input="addFiles")
       .upload(v-if="validFiles.length > 0")
         h4 Uploaded Files:
         ui.files
@@ -55,12 +50,12 @@ import { useNotificationsStore } from "@/stores/notifications";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import * as Constants from "@/services/Constants";
+import FileUpload from "../common/FileUpload.vue";
 
 const emit = defineEmits(["close"]);
 const issueTypes = ref(Constants.ISSUE_TYPE);
 const browsers = ref(Constants.BROWSERS);
 const notificationsStore = useNotificationsStore();
-const entering = ref();
 let validFiles = ref<ValidFiles[]>([]);
 const isb2cUserLoggedIn = computed(
   () => authb2cStore.currentB2CUser.isLoggedIn,
@@ -169,18 +164,6 @@ async function getUserName() {
   return displayName;
 }
 
-function onDragOver(event: DragEvent) {
-  event.preventDefault();
-}
-
-function onFileSelected(e) {
-  var filesToUpload = Array.from(e.target.files);
-  if (filesToUpload.length === 0) {
-    return;
-  }
-  addFiles(filesToUpload);
-}
-
 function isValidFileType(file) {
   return (
     file.name.toLowerCase().endsWith(".exe") ||
@@ -194,12 +177,6 @@ function isValidFileType(file) {
     file.name.toLowerCase().endsWith(".run") ||
     file.name.toLowerCase().endsWith(".wsh")
   );
-}
-
-async function onDrop(event) {
-  event.preventDefault();
-  const fileList = Array.from(event.dataTransfer.files);
-  addFiles(fileList);
 }
 
 async function addFiles(files) {
@@ -301,45 +278,6 @@ async function onDeleteClick(file: ValidFiles, index: number) {
         opacity: 1
   strong.value
     padding: 0 $s50
-
-  .drag-drop-message
-    +flex
-    flex-direction: column
-    text-align: center
-    font-size: 0.9rem
-    font-weight: 600
-    opacity: 0.8
-    margin: $s 0
-    border: 1px dashed $grey
-    &.highlight
-      background: rgba($sgs-blue, 0.2)
-      border: 1px solid $sgs-blue
-    padding: $s
-    &:hover
-      opacity: 1
-    p.upload-option-divider
-      width: 4rem
-      position: relative
-      margin: $s 0
-      color: $grey
-      font-size: 0.8rem
-      font-weight: 600
-      &:before, &:after
-        content: " "
-        width: 3rem
-        height: 2px
-        background: $grey-light-2
-      &:before
-        +absolute-ww
-      &:after
-        +absolute-ee
-    .file-upload
-      display: inline-block
-      cursor: pointer
-      > .file-upload-button:hover
-        pointer-events: none
-      > input[type="file"]
-        display: none
 
   .actions
     +flex($h: right)
