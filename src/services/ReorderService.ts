@@ -321,8 +321,8 @@ class ReorderService {
                     item.sgsId != null
                       ? item.sgsId
                       : item.id
-                      ? item.id.toString()
-                      : "",
+                        ? item.id.toString()
+                        : "",
                   sgsId_0,
                   sgsId_1,
                   brandName: item.brandName,
@@ -499,8 +499,8 @@ class ReorderService {
         color.imageCarrierId = color.custImageIdNo
           ? color.custImageIdNo
           : color.custCarrierIdNo
-          ? color.custCarrierIdNo
-          : color.imageCarrierId;
+            ? color.custCarrierIdNo
+            : color.imageCarrierId;
         color.totalSets = color.sets;
       });
   }
@@ -546,7 +546,7 @@ class ReorderService {
 
   public static async validateOrder(jobNo: string) {
     return httpService
-      .post<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
+      .get<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
       .then((response: APIResponse<boolean>) => {
         return response;
       })
