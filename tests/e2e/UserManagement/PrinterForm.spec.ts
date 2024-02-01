@@ -6,7 +6,7 @@ test("PrinterForm saves printer", async ({ page }) => {
   );
 
   // Navigate to User mgmt
-  await page.getByRole("button", { name: "Manage Users" }).click();
+  await (await page.getByRole("button", { name: "Manage Users" })).click();
 
   await page.goto("http://localhost:3000/users?role=super");
   const randomSuffix = Math.floor(Math.random() * 1000);

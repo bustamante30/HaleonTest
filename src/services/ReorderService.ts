@@ -321,8 +321,8 @@ class ReorderService {
                     item.sgsId != null
                       ? item.sgsId
                       : item.id
-                      ? item.id.toString()
-                      : "",
+                        ? item.id.toString()
+                        : "",
                   sgsId_0,
                   sgsId_1,
                   brandName: item.brandName,
@@ -499,8 +499,8 @@ class ReorderService {
         color.imageCarrierId = color.custImageIdNo
           ? color.custImageIdNo
           : color.custCarrierIdNo
-          ? color.custCarrierIdNo
-          : color.imageCarrierId;
+            ? color.custCarrierIdNo
+            : color.imageCarrierId;
         color.totalSets = color.sets;
       });
   }

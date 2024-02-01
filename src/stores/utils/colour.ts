@@ -123,8 +123,8 @@ const flattenColors = (colors: any[] = []) => {
           imageCarrierId: color.custImageIdNo
             ? color.custImageIdNo
             : color.custCarrierIdNo
-            ? color.custCarrierIdNo
-            : color.imageCarrierId,
+              ? color.custCarrierIdNo
+              : color.imageCarrierId,
           serialNumber: plate.serialNumber,
           isActive: true,
           isNew: color.isNew,
