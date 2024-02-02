@@ -4,12 +4,12 @@
     .f
       label.required Delivery Date
       span.input.calendar
-        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
+        prime-calendar(v-model="checkoutForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
         span.material-icons calendar_month
     .f
       label.required Delivery time
       span.input.calendar    
-        prime-calendar(v-model="checkoutForm.expectedDate" :min-date="minSelectableDate()" :time-only="true" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
+        prime-calendar(v-model="checkoutForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" :time-only="true" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
 
 
     .f.po-numbers(v-for="po, i in checkoutForm.purchaseOrder" :key="i")

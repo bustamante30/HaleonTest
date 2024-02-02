@@ -45,12 +45,12 @@
                 span Delivery Date 
                 span.warn(v-if="sendForm.isUrgent") &nbsp;(Urgent Order)
               span.input.calendar(name="date")
-                prime-calendar.sm(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
+                prime-calendar.sm(v-model="sendForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
                 span.material-icons calendar_month
             .f
               label.required(for="time") Delivery time
               span.input.calendar(name="time")
-                prime-calendar(v-model="sendForm.expectedDate" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
+                prime-calendar(v-model="sendForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
             .f
               label(for="code") Code #
               .field-group
