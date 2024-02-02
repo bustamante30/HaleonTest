@@ -54,7 +54,8 @@ jobs:
             ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CClientId,
             ${{ parameters.environment }}-Imgcarrier-ui-ViteB2CTokenScope,
             ${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl,
-            ${{ parameters.environment }}-Imgcarrier-ui-ViteOcpApimgmtSubscriptionKey
+            ${{ parameters.environment }}-Imgcarrier-ui-ViteOcpApimgmtSubscriptionKey,
+            ${{ parameters.environment }}-Imgcarrier-ui-ViteAppinsightsInstrumentationkey
           RunAsPreJob: false
 
       - script: |
@@ -65,6 +66,7 @@ jobs:
           echo "##vso[task.setvariable variable=VITE_B2C_TOKEN_SCOPE]$(${{ parameters.environment }}-Imgcarrier-ui-ViteB2CTokenScope)"
           echo "##vso[task.setvariable variable=VITE_SERVICE_NOW_INTERNAL_URL]$(${{ parameters.environment }}-Imgcarrier-ui-ViteServiceNowInternalUrl)"
           echo "##vso[task.setvariable variable=VITE_OCP_APIM_SUBSCRIPTION_KEY]$(${{ parameters.environment }}-Imgcarrier-ui-ViteOcpApimgmtSubscriptionKey)"
+          echo "##vso[task.setvariable variable=VITE_APPINSIGHTS_INSTRUMENTATIONKEY]$(${{ parameters.environment }}-Imgcarrier-ui-ViteAppinsightsInstrumentationkey)"
         displayName: "Configure env variables"
 
         # Get last successful commit from Azure Devops CLI
