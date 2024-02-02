@@ -546,7 +546,7 @@ class ReorderService {
 
   public static async validateOrder(jobNo: string) {
     return httpService
-      .post<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
+      .get<any>("v1/Reorder/info/ValidateOrder?jobnumber=" + jobNo)
       .then((response: APIResponse<boolean>) => {
         return response;
       })

@@ -365,6 +365,14 @@ export const useOrdersStore = defineStore("ordersStore", {
                       this.getEditableColors(reorderId, this.selectedOrder),
                     );
                     Promise.allSettled(promises).then(async (promiseResult) => {
+                      if (
+                        promiseResult[1]["value"].order === Constants.NO_VISUALS
+                      ) {
+                        const authStore = useAuthStore();
+                        if (authStore.currentUser.isLoggedIn) {
+                          promiseResult[1]["value"].order = null;
+                        }
+                      }
                       if (promiseResult[1]["value"].order === null) {
                         this.notifyOrderCannotBeProcessed();
                         resolve({
@@ -1111,9 +1119,13 @@ export const useOrdersStore = defineStore("ordersStore", {
           order.originalOrderId ? order.originalOrderId : order.sgsId,
           order.printerName,
         );
+        const authStore = useAuthStore();
         order.colors.forEach((color) => {
           ReorderService.getLen(jobNumber, color.sequenceNumber).then((res) => {
             if (res.length == 0) {
+              if (authStore.currentUser.isLoggedIn) {
+                resolve({ status: "finished", order: Constants.NO_VISUALS });
+              }
               const colorCopy: any = JSON.parse(JSON.stringify(color));
               colorCopy.lenPath = Constants.NO_VISUALS;
               colorCopy.lenData = new URL(
