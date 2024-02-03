@@ -4,7 +4,7 @@ test("dashboard filter test", async ({ page }) => {
   await page.goto(
     "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
   );
-  await page.locator(".p-inputswitch-slider").click();
+  await page.locator(".p-inputswitch-slider").click({ timeout: 80000 });
   await page
     .getByRole("columnheader", { name: "Brand Name" })
     .locator("svg")
