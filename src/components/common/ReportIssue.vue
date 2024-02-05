@@ -9,22 +9,22 @@ sgs-scrollpanel.report-issue
     .f
       label.required
         span Please select your issue from the following options
-      prime-dropdown(v-model="issue.issueType" :options="issueTypes" placeholder="-- None --")
+      prime-dropdown(id="issue" v-model="issue.issueType" :options="issueTypes" placeholder="-- None --")
     .field-group
       .f
         label.required
           span Browser
-        prime-dropdown(v-model="issue.browser" :options="browsers" placeholder="-- None --"  )
+        prime-dropdown(id="browser" v-model="issue.browser" :options="browsers" placeholder="-- None --"  )
       .f
         label.required
           span Browser Versions
-        prime-inputtext(v-model="issue.browserVersion")
+        prime-inputtext(id="version" v-model="issue.browserVersion")
     .f
       label.required
         span Briefly describe the issue
         span.tip(v-tooltip.right="{ value: 'Tell us what issue you are experiencing' }")
           i.material-icons help_outline
-      prime-textarea(v-model="issue.description")
+      prime-textarea(id="description" v-model="issue.description")
     .f
       label
         span Include support material (screen image / recording) if needed
