@@ -186,4 +186,4 @@ stages:
           environment: "prod"
           ArtifactName: "$(ArtifactName)"
           AzureServiceConnName: "$(AzureServiceConnName_PROD)"
-          BuildNumber: "$(STAGE_BuildNumber)"
+          BuildNumber: "$(PROD_BuildNumber)"
