@@ -100,6 +100,7 @@ import {
 } from "@/services/FileUploadService";
 import { DateTime, Interval } from "luxon";
 import * as Constants from "@/services/Constants";
+import { normalizeAndReplaceBlobName } from "@/stores/utils/photon";
 const props = defineProps({
   order: {
     type: Object,
@@ -249,10 +250,11 @@ async function uploadFiles(filesToUpload) {
     );
   } else {
     const uploadPromises = filesToUpload.map(async (file: any) => {
-      const response = await convertAndSendFile(file);
+      const fileName = normalizeAndReplaceBlobName(file.name);
+      const response = await convertAndSendFile(file, fileName);
       if (response.status === "OK") {
         validFiles.value.push({
-          fileName: file.name as string,
+          fileName: fileName,
           uri: response.uri,
         });
         return response;
@@ -279,8 +281,7 @@ async function uploadFiles(filesToUpload) {
   }
 }
 
-async function convertAndSendFile(file): Promise<FileUploadResponse> {
-  const fileName = file.name.replace(/[(!$%&[\]{}]/g, "-");
+async function convertAndSendFile(file, fileName): Promise<FileUploadResponse> {
   const id = await getUserId();
 
   const formdata = new FormData();
