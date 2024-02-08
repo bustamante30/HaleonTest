@@ -74,4 +74,14 @@ const mapColorPlateTypes = (colors) => {
   return plateTypes;
 };
 
-export { mapPhotonOrderDetail, mapColorPlateTypes };
+const normalizeAndReplaceBlobName = (str) => {
+  const normalizedStr = str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove diacritics
+  const result = normalizedStr.replace(/[^a-zA-Z0-9\s.-]/g, "_"); // Replace non-alphanumeric characters with underscores
+  return result;
+};
+
+export {
+  mapPhotonOrderDetail,
+  mapColorPlateTypes,
+  normalizeAndReplaceBlobName,
+};
