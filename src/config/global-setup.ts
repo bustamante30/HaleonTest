@@ -3,7 +3,8 @@ import { expect, chromium } from "playwright/test";
 module.exports = async () => {
   const browser = await chromium.launch({ headless: false });
   const page = await browser.newPage();
-  const currentUrl = "http://localhost:3000"; // Set the default URL
+  // const currentUrl = "http://localhost:3000"; // Set the default URL
+  const currentUrl = "https://photondev.sgsco.com/";
   await page.goto(currentUrl);
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
