@@ -13,6 +13,8 @@ variables:
 stages:
   - stage: Build_Dev
     displayName: "Build Dev"
+    variables:
+      - group: "stage-azure-imgcarrier-ui-static-variable-group"
     jobs:
       - template: buildTemplate.yaml
         parameters:
