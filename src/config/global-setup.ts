@@ -3,30 +3,29 @@ import { expect, chromium } from "playwright/test";
 module.exports = async () => {
   const browser = await chromium.launch({
     args: ['--auth-server-whitelist="_"'],
+    headless: false,
   }); //for production mode
 
   // const browser = await chromium.launch({ headless: false }); //for dev mode
 
-  context = await browser.newContext({
+  await browser.newContext({
     userAgent:
       "Opera/9.80 (Android; Opera Mini/12.0.1987/37.7327; U; pl) Presto/2.12.423 Version/12.16",
   });
 
   const page = await browser.newPage();
-  // const currentUrl = "http://localhost:3000"; // Set the default URL
-  const currentUrl = "http://localhost:3000";
-  await page.goto(currentUrl);
+  await page.goto(process.env.VITE_BASE_URL ?? "https://photondev.sgsco.com/");
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
   await page.getByRole("button", { name: "Login As A Client" }).click();
   await page.getByRole("link", { name: "Google" }).click();
   await page
     .getByLabel("Email or phone")
-    .fill(process.env.VITE_PLAYWRIGHT_USERNAME ?? "test");
+    .fill(process.env.VITE_PLAYWRIGHT_GMAIL_USERNAME ?? "test");
   await page.getByRole("button", { name: "Next" }).click();
   await page
     .getByLabel("Enter your password")
-    .fill(process.env.VITE_PLAYWRIGHT_PASSWORD ?? "test@123");
+    .fill(process.env.VITE_PLAYWRIGHT_GMAIL_PASSWORD ?? "test@123");
   await page
     .locator("#passwordNext")
     .getByRole("button", { name: "Next" })

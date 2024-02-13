@@ -44,12 +44,20 @@ export default defineConfig({
 
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"], channel: "firefox" },
+      use: {
+        ...devices["Desktop Firefox"],
+        channel: "firefox",
+        storageState: "state.json",
+      },
     },
 
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"], channel: "webkit" },
+      use: {
+        ...devices["Desktop Safari"],
+        channel: "webkit",
+        storageState: "state.json",
+      },
     },
 
     /* Test against mobile viewports. */
