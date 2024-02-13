@@ -1,10 +1,20 @@
 import { expect, chromium } from "playwright/test";
 
 module.exports = async () => {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({
+    args: ['--auth-server-whitelist="_"'],
+  }); //for production mode
+
+  // const browser = await chromium.launch({ headless: false }); //for dev mode
+
+  context = await browser.newContext({
+    userAgent:
+      "Opera/9.80 (Android; Opera Mini/12.0.1987/37.7327; U; pl) Presto/2.12.423 Version/12.16",
+  });
+
   const page = await browser.newPage();
   // const currentUrl = "http://localhost:3000"; // Set the default URL
-  const currentUrl = "https://photondev.sgsco.com/";
+  const currentUrl = "http://localhost:3000";
   await page.goto(currentUrl);
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
