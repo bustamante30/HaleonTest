@@ -20,7 +20,7 @@ const authB2CConfig = {
     authority: import.meta.env.VITE_B2C_AUTHORITY,
     knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY],
     redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL,
-    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_USER_APP_BASE_URL,
     navigateToLoginRequestUrl: true,
   },
 };
@@ -67,6 +67,7 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       decodedToken: {},
       isValidIdentityProvider: false,
       userEmail: "",
+      landingPageUrl: import.meta.env.VITE_USER_APP_BASE_URL,
     };
   },
   actions: {
@@ -261,7 +262,9 @@ export const useB2CAuthStore = defineStore("b2cauth", {
       localStorage.clear();
       sessionStorage.clear();
       this.msalB2cInstance
-        .logoutRedirect({ postLogoutRedirectUri: "/b2clogin" })
+        .logoutRedirect({
+          postLogoutRedirectUri: authB2CConfig.auth.postLogoutRedirectUri,
+        })
         .then(() => {
           console.log("logout successful");
           logger.log("logout successful");

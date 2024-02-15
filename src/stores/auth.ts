@@ -14,7 +14,7 @@ const authConfig = {
     authority: import.meta.env.VITE_AAD_AUTHORITY,
     responseMode: "query",
     redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,
-    postLogoutRedirectUri: import.meta.env.VITE_LOGOUT_URL,
+    postLogoutRedirectUri: import.meta.env.VITE_USER_APP_BASE_URL,
   },
 };
 
@@ -131,7 +131,9 @@ export const useAuthStore = defineStore("auth", {
       localStorage.clear();
       sessionStorage.clear();
       await this.msalInstance
-        .logoutRedirect({ postLogoutRedirectUri: "/login" })
+        .logoutRedirect({
+          postLogoutRedirectUri: authConfig.auth.postLogoutRedirectUri,
+        })
         .then(() => {
           console.log("logout successful");
           logger.log("Logout - logout successful");
