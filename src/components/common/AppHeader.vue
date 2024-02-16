@@ -1,6 +1,6 @@
 <template lang="pug">
 header.app-header
-  app-logo.logo(:size="1.5")
+  app-logo.logo(:size="1.5" @click="goToLandingPage")
   .tools
     nav.app-navigation
       a.dashboardLink(@click="redirect('/dashboard')") Dashboard
@@ -36,7 +36,7 @@ const currentB2CUser = computed(() => authb2cStore.currentB2CUser);
 const IsExternalAdmin = ref("");
 const emit = defineEmits(["report", "demo", "faq"]);
 
-const menu = computed(() => [...navigation(emit, IsExternalAdmin.value)]);
+const menu = computed(() => [...navigation(emit)]);
 
 onMounted(async () => {
   if (store.get("currentUser")) {
@@ -74,6 +74,9 @@ watch(currentB2CUser, async (value) => {
     await cartStore.getCartCount();
   }
 });
+async function goToLandingPage() {
+  window.location.href = authb2cStore.landingPageUrl + "/dashboard";
+}
 async function redirect(path) {
   router.push(`${path}?q=${Date.now()}`);
 }
@@ -89,6 +92,7 @@ async function redirect(path) {
   +flex-fill
   .logo
     margin: 0 $s 0 0
+    cursor: pointer
   h3
     line-height: 1
     margin: 0 0 $s25
