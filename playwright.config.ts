@@ -45,6 +45,11 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: [
+            "--disable-blink-features=AutomationControlled", // needed for gsl so google doesn't flag it as not secure
+          ],
+        },
         channel: "chrome",
         storageState: "state.json",
       },

@@ -1,11 +1,11 @@
 import { expect, chromium } from "playwright/test";
 
 module.exports = async () => {
-  const browserServer = await chromium.launchServer();
-  const wsEndpoint = browserServer.wsEndpoint();
-  // Use web socket endpoint later to establish a connection.
-  const browser = await chromium.connect(wsEndpoint);
-  // const browser = await chromium.launch({ headless: false });
+  // const browserServer = await chromium.launchServer();
+  // const wsEndpoint = browserServer.wsEndpoint();
+  // // Use web socket endpoint later to establish a connection.
+  // const browser = await chromium.connect(wsEndpoint);
+  const browser = await chromium.launch({ headless: false });
   await browser.newContext();
   const page = await browser.newPage();
   await page.goto(process.env.VITE_BASE_URL ?? "https://photondev.sgsco.com/");
