@@ -95,6 +95,19 @@ jobs:
             echo "##vso[task.setVariable variable=IMGCARRIERAPPBUILT]true"
           fi
 
+      - script: |
+          echo Write your commands here
+          npx playwright install --with-deps
+          npm cache clean --force
+          echo Hello World
+        displayName: "Install Playwright browsers"
+
+      - script: |
+          npx playwright test
+        displayName: "Run Playwright tests"
+        env:
+          CI: 'true'
+      
       - task: CopyFiles@2
         displayName: "Copy staticwebapp.config to dist"
         condition: succeededOrFailed()
@@ -114,6 +127,24 @@ jobs:
         enabled: true
         displayName: "Zip ImageCarrier-UI app"
 
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        inputs:
+          searchFolder: 'test-results'
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'e2e-junit-results.xml'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: 'My End-To-End Tests'
+        condition: succeededOrFailed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: playwright-report
+          artifact: playwright-report
+          publishLocation: 'pipeline'
+        condition: succeededOrFailed()
+      
       - task: PublishBuildArtifacts@1
         condition: eq(variables.IMGCARRIERAPPBUILT, 'true')
         inputs:
