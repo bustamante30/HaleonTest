@@ -1,18 +1,12 @@
 import { expect, chromium } from "playwright/test";
 
 module.exports = async () => {
-  const browser = await chromium.launch({
-    args: ['--auth-server-whitelist="_"'],
-    headless: false,
-  }); //for production mode
-
-  // const browser = await chromium.launch({ headless: false }); //for dev mode
-
-  await browser.newContext({
-    userAgent:
-      "Opera/9.80 (Android; Opera Mini/12.0.1987/37.7327; U; pl) Presto/2.12.423 Version/12.16",
-  });
-
+  // const browserServer = await chromium.launchServer();
+  // const wsEndpoint = browserServer.wsEndpoint();
+  // // Use web socket endpoint later to establish a connection.
+  // const browser = await chromium.connect(wsEndpoint);
+  const browser = await chromium.launch({ headless: false });
+  await browser.newContext();
   const page = await browser.newPage();
   await page.goto(process.env.VITE_BASE_URL ?? "https://photondev.sgsco.com/");
   const origin = await page.evaluate(() => window.location.origin);
@@ -23,6 +17,7 @@ module.exports = async () => {
     .getByLabel("Email or phone")
     .fill(process.env.VITE_PLAYWRIGHT_GMAIL_USERNAME ?? "test");
   await page.getByRole("button", { name: "Next" }).click();
+  await page.screenshot({ path: "test-screenshot.png" });
   await page
     .getByLabel("Enter your password")
     .fill(process.env.VITE_PLAYWRIGHT_GMAIL_PASSWORD ?? "test@123");
