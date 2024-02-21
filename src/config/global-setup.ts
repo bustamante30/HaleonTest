@@ -42,7 +42,19 @@ module.exports = async () => {
       `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
     );
   } else {
-    console.log("No login method specified");
+    await page.goto("https://photondev.sgsco.com/");
+    await page.getByRole("button", { name: "Login as SGS & Co User" }).click();
+    await page.getByPlaceholder("someone@example.com").click();
+    await page
+      .getByPlaceholder("someone@example.com")
+      .fill("ahilsnekapriya.balakrishnan-contractor@sgsco.com");
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.getByPlaceholder("Password").click();
+    await page.getByPlaceholder("Password").fill("Ayyappa5#");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await page.getByText("Don't show this again").click();
+    await page.getByRole("button", { name: "Yes" }).click();
+    await expect(page.getByText("Welcome To Image Carrier")).toBeVisible();
   }
   await page.context().storageState({ path: "state.json" });
   await browser.close();
