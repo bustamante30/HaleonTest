@@ -19,21 +19,15 @@ const userLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
 const b2cUserLoggedIn = computed(() => b2cAuthStore.currentB2CUser.isLoggedIn);
 onMounted(async () => {
   let userType = route.query.userType;
+  let user;
   if (userType && userType == "EXT" && route.query.hint) {
     await b2cAuthStore.ssoLogin(route.query.hint);
+    user = b2cAuthStore.currentB2CUser;
   } else if (userType && userType == "INT") {
     await authStore.login();
+    user = authStore.currentUser;
   }
-});
-
-watch(userLoggedIn, () => {
-  if (authStore.currentUser.isLoggedIn) {
-    router.push({ name: "dashboard" });
-  }
-});
-
-watch(b2cUserLoggedIn, () => {
-  if (b2cAuthStore.currentB2CUser.isLoggedIn) {
+  if (user && user.isLoggedIn) {
     router.push({ name: "dashboard" });
   }
 });
