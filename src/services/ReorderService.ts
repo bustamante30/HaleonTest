@@ -131,6 +131,11 @@ class ReorderService {
       let hasPlates = false;
       for (const plateType of color.plateDetails) {
         if (plateType.sets > 0) {
+          if (!plateType.previousPlateTypeId) {
+            plateType.previousPlateTypeId = color.previousPlateTypeId;
+            plateType.previousPlateTypeDescription =
+              color.previousPlateTypeDescription;
+          }
           hasPlates = true;
           delete plateType.checkboxId;
           delete plateType.plateList;
@@ -321,8 +326,8 @@ class ReorderService {
                     item.sgsId != null
                       ? item.sgsId
                       : item.id
-                        ? item.id.toString()
-                        : "",
+                      ? item.id.toString()
+                      : "",
                   sgsId_0,
                   sgsId_1,
                   brandName: item.brandName,
@@ -499,8 +504,8 @@ class ReorderService {
         color.imageCarrierId = color.custImageIdNo
           ? color.custImageIdNo
           : color.custCarrierIdNo
-            ? color.custCarrierIdNo
-            : color.imageCarrierId;
+          ? color.custCarrierIdNo
+          : color.imageCarrierId;
         color.totalSets = color.sets;
       });
   }
