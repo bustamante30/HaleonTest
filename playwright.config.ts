@@ -29,7 +29,7 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
-    headless: false,
+    headless: true,
 
     // Artifacts
     screenshot: "on",
@@ -45,11 +45,11 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        launchOptions: {
-          args: [
-            "--disable-blink-features=AutomationControlled", // needed for gsl so google doesn't flag it as not secure
-          ],
-        },
+        // launchOptions: {
+        //   args: [
+        //     "--disable-blink-features=AutomationControlled", // needed for gsl so google doesn't flag it as not secure
+        //   ],
+        // },
         channel: "chrome",
         storageState: "state.json",
       },

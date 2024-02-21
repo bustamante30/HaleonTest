@@ -9,6 +9,7 @@ test("advanced search test", async ({ page }) => {
   );
 
   // Open advanced search
+  await page.waitForLoadState("domcontentloaded");
   await page
     .getByRole("button", { name: "filter_list Advanced Search" })
     .click();
