@@ -21,7 +21,7 @@ variables:
   ArtifactName: "ImageCarrierUI"
   DEV_BuildNumber: "imagecarrier-ui-dev-$(Build.BuildId).zip"
   QA_BuildNumber: "imagecarrier-ui-qa-$(Build.BuildId).zip"
-  STAGE_BuildNumber: "imagecarrier-ui-stage-$(Build.BuildId).zip"
+  # STAGE_BuildNumber: "imagecarrier-ui-stage-$(Build.BuildId).zip"
   PROD_BuildNumber: "imagecarrier-ui-prod-$(Build.BuildId).zip"
 
 stages:
@@ -98,62 +98,62 @@ stages:
           AzureServiceConnName: "$(AzureServiceConnName)"
           BuildNumber: "$(QA_BuildNumber)"
 
-  - stage: Build_STAGING
-    displayName: "Build STAGING"
+  # - stage: Build_STAGING
+  #   displayName: "Build STAGING"
+  #   condition: |
+  #     and(
+  #       succeeded('Deploy_QA'),
+  #       ne(variables['Build.Reason'], 'PullRequest'),
+  #       startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+  #     )
+  #   dependsOn:
+  #     - Build_QA
+  #     - Deploy_QA
+  #   variables:
+  #     - group: "stage-azure-imgcarrier-ui-static-variable-group"
+  #   jobs:
+  #     - template: buildTemplate.yaml
+  #       parameters:
+  #         environment: "stage"
+  #         ArtifactName: "$(ArtifactName)"
+  #         BuildNumber: "$(STAGE_BuildNumber)"
+  #         AzureServiceConnName: "$(AzureServiceConnName)"
+
+  # - stage: Deploy_STAGING
+  #   displayName: "Deploy to STAGING"
+  #   condition: |
+  #     and(
+  #       succeeded('Build_STAGING'),
+  #       ne(variables['Build.Reason'], 'PullRequest'),
+  #       startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
+  #     )
+  #   dependsOn:
+  #     - Build_QA
+  #     - Deploy_QA
+  #     - Build_STAGING
+  #   variables:
+  #     - group: "stage-azure-imgcarrier-ui-static-variable-group"
+  #   jobs:
+  #     - template: deploymentTemplate.yaml
+  #       parameters:
+  #         environment: "stage"
+  #         ArtifactName: "$(ArtifactName)"
+  #         AzureServiceConnName: "$(AzureServiceConnName)"
+  #         BuildNumber: "$(STAGE_BuildNumber)"
+
+  - stage: Build_PROD
+    displayName: 'Build PROD'
     condition: |
       and(
         succeeded('Deploy_QA'),
         ne(variables['Build.Reason'], 'PullRequest'),
         startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
       )
-    dependsOn:
-      - Build_QA
-      - Deploy_QA
-    variables:
-      - group: "stage-azure-imgcarrier-ui-static-variable-group"
-    jobs:
-      - template: buildTemplate.yaml
-        parameters:
-          environment: "stage"
-          ArtifactName: "$(ArtifactName)"
-          BuildNumber: "$(STAGE_BuildNumber)"
-          AzureServiceConnName: "$(AzureServiceConnName)"
-
-  - stage: Deploy_STAGING
-    displayName: "Deploy to STAGING"
-    condition: |
-      and(
-        succeeded('Build_STAGING'),
-        ne(variables['Build.Reason'], 'PullRequest'),
-        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
-      )
-    dependsOn:
-      - Build_QA
-      - Deploy_QA
-      - Build_STAGING
-    variables:
-      - group: "stage-azure-imgcarrier-ui-static-variable-group"
-    jobs:
-      - template: deploymentTemplate.yaml
-        parameters:
-          environment: "stage"
-          ArtifactName: "$(ArtifactName)"
-          AzureServiceConnName: "$(AzureServiceConnName)"
-          BuildNumber: "$(STAGE_BuildNumber)"
-
-  - stage: Build_PROD
-    displayName: 'Build PROD'
-    condition: |
-      and(
-        succeeded('Deploy_STAGING'),
-        ne(variables['Build.Reason'], 'PullRequest'),
-        startsWith(variables['Build.SourceBranch'], 'refs/heads/release/MVP-v')
-      )
     dependsOn: 
     - Build_QA
     - Deploy_QA
-    - Build_STAGING
-    - Deploy_STAGING
+    # - Build_STAGING
+    # - Deploy_STAGING
     variables:
       - group: 'prod-azure-imgcarrier-ui-static-variable-group'
     jobs:
@@ -175,8 +175,8 @@ stages:
     dependsOn:
       - Build_QA
       - Deploy_QA
-      - Build_STAGING
-      - Deploy_STAGING
+      # - Build_STAGING
+      # - Deploy_STAGING
       - Build_PROD
     variables:
       - group: "prod-azure-imgcarrier-ui-static-variable-group"
