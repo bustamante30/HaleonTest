@@ -1,8 +1,13 @@
 import { test } from "@playwright/test";
 
 test("faq test", async ({ page }) => {
+  // await page.goto(
+  //   "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+  // );
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
   await page.getByRole("banner").nth(1).click();
   await page.getByRole("button", { name: "Help expand_more" }).click();

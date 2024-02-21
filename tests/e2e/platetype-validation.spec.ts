@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 test("platetype validation in reorder flow", async ({ page }) => {
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
   await page.locator(".p-datatable-wrapper").click();
   await page

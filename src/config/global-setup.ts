@@ -1,14 +1,12 @@
 import { expect, chromium } from "playwright/test";
 
 module.exports = async () => {
-  // const browserServer = await chromium.launchServer();
-  // const wsEndpoint = browserServer.wsEndpoint();
-  // // Use web socket endpoint later to establish a connection.
-  // const browser = await chromium.connect(wsEndpoint);
   const browser = await chromium.launch({ headless: true });
   await browser.newContext();
   const page = await browser.newPage();
-  await page.goto(process.env.VITE_BASE_URL ?? "https://photondev.sgsco.com/");
+  await page.goto(
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/",
+  );
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
   if (process.env.VITE_PLAYWRIGHT_LOGIN === "EXTERNAL") {

@@ -3,14 +3,14 @@ import { test, expect } from "@playwright/test";
 test('UserForm emits "save" event on save action after mocking authentication', async ({
   page,
 }) => {
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
 
   // Navigate to User mgmt
   await page.getByRole("button", { name: "Manage Users" }).click();
-  //await page.waitForURL("http://localhost:3000/users?role=super");
-  //await page.goto("http://localhost:3000/users?role=super");
 
   await page.click("#add-user");
   const randomSuffix = Math.floor(Math.random() * 1000);

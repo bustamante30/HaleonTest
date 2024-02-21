@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 test("menu selection test", async ({ page }) => {
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=false",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
   await page.getByRole("button", { name: "Manage Users" }).click();
   await expect(page.getByRole("heading")).toContainText("Manage Users");
