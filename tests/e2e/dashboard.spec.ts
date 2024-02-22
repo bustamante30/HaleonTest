@@ -53,7 +53,7 @@ test.describe("Dashboard", () => {
     await page.locator(".p-datatable-wrapper").click();
     await page.locator(".p-inputswitch-slider").click();
   });
-  test("keyword search test", async ({ page }) => {
+  test("keyword search test", async () => {
     await page.getByPlaceholder("Search by printer, code,").click();
     await page.getByPlaceholder("Search by printer, code,").fill("P470718E");
     await page.getByPlaceholder("Search by printer, code,").press("Enter");
