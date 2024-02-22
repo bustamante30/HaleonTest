@@ -7,7 +7,7 @@
 </template>
 
 <script setup="ts">
-import { onMounted, computed, watch } from "vue";
+import { onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useB2CAuthStore } from "@/stores/b2cauth";
 import router from "@/router";
@@ -16,7 +16,6 @@ const authStore = useAuthStore();
 const b2cAuthStore = useB2CAuthStore();
 const route = useRoute();
 const userLoggedIn = computed(() => authStore.currentUser.isLoggedIn);
-const b2cUserLoggedIn = computed(() => b2cAuthStore.currentB2CUser.isLoggedIn);
 onMounted(async () => {
   let userType = route.query.userType;
   let user;
