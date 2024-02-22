@@ -35,6 +35,7 @@ test.describe("Advanced Search", () => {
     await page.getByRole("button", { name: "Search", exact: true }).click();
     await page.getByLabel("Page 4").click();
   });
+
   test.afterEach(async () => {
     await page.close();
   });
