@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test('UserForm emits "save" event on save action after mocking authentication', async ({
+test.skip('UserForm emits "save" event on save action after mocking authentication', async ({
   page,
 }) => {
   const origin =

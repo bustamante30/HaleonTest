@@ -10,11 +10,10 @@ test.describe("Dashboard", () => {
       `${process.env.VITE_PLAYWRIGHT_BASE_URL}/dashboard?period=last+3+months&status=4&toggle=true`,
     );
 
-    // Wait for the page to load after opening advanced search
+    // Wait for the page to load after opening dashboard
     await page.waitForLoadState("domcontentloaded");
   });
   test("dashboard filter test", async () => {
-    await page.locator(".p-inputswitch-slider").click({ timeout: 80000 });
     await page
       .getByRole("columnheader", { name: "Brand Name" })
       .locator("svg")
@@ -39,7 +38,6 @@ test.describe("Dashboard", () => {
       .click();
     await page.getByPlaceholder("Search by Description").fill("mars");
     await page.getByRole("button", { name: "" }).click();
-    await page.getByRole("button", { name: "" }).click();
     await page
       .getByRole("columnheader", { name: "Item Code" })
       .locator("div")
@@ -51,13 +49,13 @@ test.describe("Dashboard", () => {
     await page.waitForLoadState("domcontentloaded");
     await page.getByText("Recent Orderslast 3").click();
     await page.locator(".p-datatable-wrapper").click();
-    await page.locator(".p-inputswitch-slider").click();
   });
+
   test("keyword search test", async () => {
     await page.getByPlaceholder("Search by printer, code,").click();
     await page.getByPlaceholder("Search by printer, code,").fill("P470718E");
     await page.getByPlaceholder("Search by printer, code,").press("Enter");
-    await page.locator("#pv_id_21_0").getByText("P470718E").click();
+    await page.locator("#pv_id_21_0").getByText("P470718E").nth(1).click();
     await page.getByText("Clear All").click();
     await page
       .locator("div")
