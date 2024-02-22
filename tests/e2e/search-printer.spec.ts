@@ -5,10 +5,9 @@ test.describe("PrinterList", () => {
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    const origin =
-      process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
+    // Navigate to the initial page
     await page.goto(
-      `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
+      `${process.env.VITE_PLAYWRIGHT_BASE_URL}/dashboard?period=last+3+months&status=4&toggle=true`,
     );
     // Navigate to User mgmt
     await page.getByRole("button", { name: "Manage Users" }).click();
