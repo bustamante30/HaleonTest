@@ -1,13 +1,5 @@
-const nav = (emit, isAdmin) => {
-  const adminMenu = [];
-  if (isAdmin === "PMSuperAdminUser") {
-    adminMenu.push({ label: "Manage Users", to: "/users?role=super" });
-  } else if (isAdmin === "PrinterAdmin") {
-    adminMenu.push({ label: "Manage Users", to: "/users" });
-  }
-
+const nav = (emit) => {
   return [
-    ...adminMenu,
     {
       label: "Help",
       items: [

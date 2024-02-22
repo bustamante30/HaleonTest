@@ -686,6 +686,8 @@ export const useOrdersStore = defineStore("ordersStore", {
           id: 0,
           plateTypeId: null,
           plateTypeDescription: null,
+          previousPlateTypeId: -2,
+          previousPlateTypeDescription: "NewPlate",
           plateThicknessId: colour.fullThicknessList[0].thicknessId,
           plateThicknessDescription: colour.fullThicknessList[0].thicknessDesc,
           comments: "",
@@ -1067,6 +1069,29 @@ export const useOrdersStore = defineStore("ordersStore", {
                   (i) => i.colorSequence === color.sequenceNumber,
                 );
               if (availablePlateInfo != null) {
+                //asign previous plate details:
+                //when only one available plate, we set by default that value
+                switch (availablePlateInfo.availablePlates.length) {
+                  case 0: {
+                    color.previousPlateTypeId = -1;
+                    color.previousPlateTypeDescription = "NS/Mixed";
+                    break;
+                  }
+                  case 1: {
+                    color.previousPlateTypeId =
+                      availablePlateInfo.availablePlates[0].plateTypeId;
+                    color.previousPlateTypeDescription =
+                      availablePlateInfo.availablePlates[0].plateTypeName;
+                    break;
+                  }
+                  default: {
+                    color.previousPlateTypeId = 0;
+                    color.previousPlateTypeDescription =
+                      availablePlateInfo.availablePlates
+                        .map((x) => x.plateTypeName)
+                        .join(",");
+                  }
+                }
                 color.plateDetails.forEach((plate) => {
                   this.setPlateInfo(
                     plate,
@@ -1081,6 +1106,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                   );
                 });
               } else {
+                color.previousPlateTypeId = -1;
+                color.previousPlateTypeDescription = "NS/Mixed";
                 color.plateDetails.forEach((plate) => {
                   plate.hasAlternateOptions =
                     response.data.PrinterPlateList.length > 0;

@@ -131,6 +131,11 @@ class ReorderService {
       let hasPlates = false;
       for (const plateType of color.plateDetails) {
         if (plateType.sets > 0) {
+          if (!plateType.previousPlateTypeId) {
+            plateType.previousPlateTypeId = color.previousPlateTypeId;
+            plateType.previousPlateTypeDescription =
+              color.previousPlateTypeDescription;
+          }
           hasPlates = true;
           delete plateType.checkboxId;
           delete plateType.plateList;
