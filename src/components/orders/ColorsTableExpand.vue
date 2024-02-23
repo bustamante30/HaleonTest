@@ -75,6 +75,7 @@ onBeforeMount(() => {
       updateColor({ checkboxId, field: "sets", value: 0 });
     });
   }
+  assignSelectedColors();
 });
 
 function stylify(width: any) {
@@ -112,11 +113,16 @@ watch(selected, (colors, prevColors) => {
 watch(
   () => props.loading,
   () => {
-    selected.value = props?.data?.filter((c: any) => {
-      return c.totalSets > 0;
-    }) as never[];
+    assignSelectedColors();
   },
 );
+
+function assignSelectedColors() {
+  const selectedColors = props?.data?.filter((c: any) => {
+    return c.totalSets > 0;
+  }) as never[];
+  selected.value = [...selectedColors];
+}
 function updateColor({ checkboxId, field, value }: any) {
   emit("update", { checkboxId, field, value });
 }
