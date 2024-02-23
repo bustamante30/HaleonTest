@@ -3,8 +3,8 @@
   span.avatar(@click="togglePopup()") {{ initials }}
   .mask(v-if="isPopupVisible" @click="togglePopup")
   .popup(v-if="isPopupVisible")
-    h4 {{ authb2cStore.currentB2CUser.displayName ? authb2cStore.currentB2CUser.displayName : (authStore.currentUser.displayName || 'Hi User') }}
-      h6 {{ authb2cStore.currentB2CUser.email ? authb2cStore.currentB2CUser.email : (authStore.currentUser.email ||'User@gmail.com') }}
+    h4 {{ (authb2cStore.currentB2CUser.isLoggedIn ? authb2cStore.currentB2CUser.displayName : authStore.currentUser.displayName) || 'Hi User' }}
+      h6 {{ (authb2cStore.currentB2CUser.isLoggedIn ? authb2cStore.currentB2CUser.email : authStore.currentUser.email) ||'User@gmail.com' }}
       footer
         sgs-button#logout.sm(label="Logout" @click="logout()")
 </template>
