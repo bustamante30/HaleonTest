@@ -130,7 +130,7 @@ watch(ordersStore.selectedOrder, async (value) => {
 function formatExpectedDateTime(order) {
   if (order?.expectedDate) {
     const formattedDate = DateTime.fromISO(order.expectedDate);
-    return formattedDate.toFormat("LLL dd, yyyy hh:mm a");
+    return formattedDate.toLocaleString(DateTime.DATETIME_MED);
   }
   return "";
 }
