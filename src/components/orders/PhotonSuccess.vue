@@ -5,9 +5,9 @@
     .card.disclaimer
       h1 Order Number: {{ selectedOrder.id }}
     .card.context
-      .f
+      .f(v-if="selectedOrder.submittedDate")
         label Order Date
-        span {{ DateTime.now().toFormat('dd LLL, yyyy hh:mm a') }}
+        span {{ selectedOrder.submittedDateDisplay }}
       .f(v-if="selectedOrder.expectedDate")
         label Expected Delivery Date
         span {{ expectedDate }}
@@ -91,7 +91,18 @@ onBeforeMount(async () => {
   if (response.result) {
     let orderDetails = JSON.parse(JSON.stringify(response.data));
     await usersStore.getUser(orderDetails.createdBy, 0);
-    if (orderDetails?.statusId == 4) {
+    if (orderDetails.statusId == 4) {
+      if (
+        typeof orderDetails.submittedDate === "string" &&
+        orderDetails.submittedDate?.includes("T")
+      ) {
+        const formattedDate = (orderDetails.submittedDate + "").includes("Z")
+          ? orderDetails.submittedDate
+          : orderDetails.submittedDate + "Z";
+        orderDetails.submittedDateDisplay = DateTime.fromISO(
+          formattedDate,
+        ).toLocaleString(DateTime.DATETIME_MED);
+      }
       await ordersStore.setOrderInStore(orderDetails);
       expectedDate.value = formatExpectedDateTime(orderDetails);
     } else {
@@ -119,7 +130,7 @@ watch(ordersStore.selectedOrder, async (value) => {
 function formatExpectedDateTime(order) {
   if (order?.expectedDate) {
     const formattedDate = DateTime.fromISO(order.expectedDate);
-    return formattedDate.toFormat("dd LLL, yyyy hh:mm a");
+    return formattedDate.toFormat("LLL dd, yyyy hh:mm a");
   }
   return "";
 }
