@@ -8,9 +8,11 @@ import AppLogo from "@/components/common/AppLogo.vue";
   main
     h1 Having Trouble?
     p
-      | You have not been authorized to access this application.
+      span You have not been authorized to access this application.
       br/
-      | Please contact SGS help desk or your administrator to access this application.
+      span Please contact &nbsp;
+      a(href="mailto: Support.Photon@SGSCO.com") Support.Photon@SGSCO.com 
+      span &nbsp;or your internal Photon support administrator to access this application.
 </template>
 
 <style lang="sass" scoped>
@@ -28,8 +30,8 @@ import AppLogo from "@/components/common/AppLogo.vue";
   main
     width: 40rem
     min-height: 0rem
-    padding: $s3
-    margin: $s3 auto
+    padding: $s2
+    margin: 0 auto $s
     text-align: center
     h1
       margin: 0 auto $s
@@ -37,5 +39,9 @@ import AppLogo from "@/components/common/AppLogo.vue";
       color: $sgs-white
       padding: $s50 $s
     p
-      opacity: 0.9
+      span
+        opacity: 0.9
+      a
+        color: #fff
+        display: inline-block
 </style>
