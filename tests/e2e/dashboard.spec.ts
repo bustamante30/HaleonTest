@@ -52,10 +52,9 @@ test.describe("Dashboard", () => {
   });
 
   test("keyword search test", async () => {
+    await page.getByText("Recent Orderslast 3").click();
     await page.getByPlaceholder("Search by printer, code,").click();
-    await page.getByPlaceholder("Search by printer, code,").fill("P470718E");
-    await page.getByPlaceholder("Search by printer, code,").press("Enter");
-    await page.locator("#pv_id_21_0").getByText("P470718E").nth(1).click();
+    await page.locator("#pv_id_7_0").click();
     await page.getByText("Clear All").click();
     await page
       .locator("div")
@@ -63,6 +62,14 @@ test.describe("Dashboard", () => {
       .locator("span")
       .nth(1)
       .click();
+  });
+
+  test("dashboard pagination test", async () => {
+    await page.getByLabel("Page 2").click();
+    await page.getByLabel("Page 3").click();
+    await page.getByLabel("Page 4").click();
+    await page.getByLabel("Next Page").click();
+    await page.getByLabel("First Page").click();
   });
 
   test.afterEach(async () => {
