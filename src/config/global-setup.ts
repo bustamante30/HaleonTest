@@ -52,7 +52,9 @@ module.exports = async () => {
     await page.getByRole("button", { name: "Sign in" }).click();
     await page.getByText("Don't show this again").click();
     await page.getByRole("button", { name: "Yes" }).click();
-    await expect(page.getByText("Welcome To Image Carrier")).toBeVisible();
+    await expect(page.getByText("Welcome To Image Carrier")).toBeVisible({
+      timeout: 10000,
+    });
   }
   await page.context().storageState({ path: "state.json" });
   await browser.close();

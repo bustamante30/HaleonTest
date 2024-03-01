@@ -28,7 +28,8 @@ test.describe("Advanced Search", () => {
     await page.waitForLoadState("domcontentloaded");
     await page
       .getByLabel("Choose Date")
-      .getByText("5", { exact: true }.nth(1))
+      .getByText("29", { exact: true })
+      .nth(1)
       .click({ timeout: 80000 });
     await page.getByText("PrinterPrinter NameNo results").click();
     // Click on the Search button
