@@ -10,7 +10,7 @@ module.exports = async () => {
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
   if (process.env.VITE_PLAYWRIGHT_LOGIN === "EXTERNAL") {
-    await page.getByRole("button", { name: "Login As A Client" }).click();
+    await page.getByRole("button", { name: "Login as a Client" }).click();
     await page.getByRole("link", { name: "Google" }).click();
     await page
       .getByLabel("Email or phone")
