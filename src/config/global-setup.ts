@@ -7,7 +7,7 @@ module.exports = async () => {
   await page.goto(currentUrl);
   const origin = await page.evaluate(() => window.location.origin);
   await page.goto(`${origin}/dashboard`);
-  await page.getByRole("button", { name: "Login As A Client" }).click();
+  await page.getByRole("button", { name: "Login as a Client" }).click();
   await page.getByRole("link", { name: "Google" }).click();
   await page
     .getByLabel("Email or phone")
