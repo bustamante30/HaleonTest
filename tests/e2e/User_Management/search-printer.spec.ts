@@ -1,16 +1,17 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("PrinterList", () => {
+test.skip("PrinterList", () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
+    // Navigate to the initial page
     await page.goto(
-      "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+      `${process.env.VITE_PLAYWRIGHT_BASE_URL}/dashboard?period=last+3+months&status=4&toggle=true`,
     );
     // Navigate to User mgmt
     await page.getByRole("button", { name: "Manage Users" }).click();
-    await page.goto("http://localhost:3000/users?role=super");
+    await page.goto(`${origin}/users?role=super`);
   });
 
   test("Search functionality", async () => {

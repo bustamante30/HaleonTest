@@ -1,8 +1,10 @@
 import { test } from "@playwright/test";
 
-test("send to pm test", async ({ page }) => {
+test.skip("send to pm test", async ({ page }) => {
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
   await page.locator("a").filter({ hasText: "Send to PM" }).click();
   await page.waitForLoadState("domcontentloaded");

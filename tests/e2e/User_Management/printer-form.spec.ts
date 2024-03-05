@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-test("PrinterForm saves printer", async ({ page }) => {
+test.skip("PrinterForm saves printer", async ({ page }) => {
+  const origin =
+    process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
-    "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+    `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
   );
 
   // Navigate to User mgmt

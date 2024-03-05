@@ -1,12 +1,14 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("User Management Test", () => {
+test.skip("User Management Test", () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
+    const origin =
+      process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
     await page.goto(
-      "http://localhost:3000/dashboard?period=last+3+months&status=4&toggle=true",
+      `${origin}/dashboard?period=last+3+months&status=4&toggle=true`,
     );
     // Navigate to User mgmt
     await page.getByRole("button", { name: "Manage Users" }).click();

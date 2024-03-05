@@ -29,6 +29,14 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+    headless: true,
+
+    // Artifacts
+    screenshot: "on",
+    video: "on",
+    contextOptions: {
+      locale: "ja-JP",
+    },
   },
 
   /* Configure projects for major browsers */
@@ -37,6 +45,11 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
+        // launchOptions: {
+        //   args: [
+        //     "--disable-blink-features=AutomationControlled", // needed for gsl so google doesn't flag it as not secure
+        //   ],
+        // },
         channel: "chrome",
         storageState: "state.json",
       },
@@ -44,12 +57,20 @@ export default defineConfig({
 
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"], channel: "firefox" },
+      use: {
+        ...devices["Desktop Firefox"],
+        channel: "firefox",
+        storageState: "state.json",
+      },
     },
 
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"], channel: "webkit" },
+      use: {
+        ...devices["Desktop Safari"],
+        channel: "webkit",
+        storageState: "state.json",
+      },
     },
 
     /* Test against mobile viewports. */
