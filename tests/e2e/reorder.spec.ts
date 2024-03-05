@@ -29,9 +29,8 @@ test.describe("Reorder", () => {
       .click();
 
     await page.getByRole("button", { name: "redo Re-Order" }).click();
-    await page
-      .locator("tr:nth-child(7) > td > .p-row-toggler")
-      .click({ timeout: 60000 });
+    await page.locator("tr:nth-child(2) > td > .p-row-toggler").click();
+    await page.waitForLoadState("domcontentloaded");
     await page.getByText("Change").click();
     await page.getByLabel("Select Plate Type...").click();
     await page.getByText("DuPont_DPL").click();

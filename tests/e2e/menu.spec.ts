@@ -16,7 +16,7 @@ test.describe("Help Menu", () => {
     await page.getByLabel("Report an Issue").locator("a").click();
     const page1 = await page1Promise;
     await page1.goto(
-      "https://sgsit.service-now.com/serviceportal?id=sc_cat_item&sys_id=77dae006db7fed50c473de06f4961941",
+      "https://sgsdev.service-now.com/serviceportal?id=sc_cat_item&sys_id=77dae006db7fed50c473de06f4961941",
     );
   });
   test("help menu selection test", async () => {
