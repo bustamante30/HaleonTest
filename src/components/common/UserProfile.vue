@@ -48,7 +48,7 @@ const initials = computed(() => {
     }
   }
   // Default value if any of the properties are null
-  return "AB";
+  return " ";
 });
 
 const isPopupVisible = ref(false);
