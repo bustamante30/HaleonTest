@@ -1,7 +1,7 @@
 import { expect, chromium } from "playwright/test";
 
 module.exports = async () => {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
   await browser.newContext();
   const page = await browser.newPage();
   await page.goto(
