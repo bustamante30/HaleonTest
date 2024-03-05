@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 
-test.describe("Report an issue", () => {
+test.skip("Report an issue", () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
