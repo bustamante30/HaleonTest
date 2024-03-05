@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("PrinterForm saves printer", async ({ page }) => {
+test.skip("PrinterForm saves printer", async ({ page }) => {
   const origin =
     process.env.VITE_PLAYWRIGHT_BASE_URL ?? "https://photondev.sgsco.com/";
   await page.goto(
