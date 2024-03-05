@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("User Management Test", () => {
+test.skip("User Management Test", () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {

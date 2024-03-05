@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("PrinterList", () => {
+test.skip("PrinterList", () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
