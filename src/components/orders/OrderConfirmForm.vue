@@ -7,7 +7,7 @@
         prime-calendar(v-model="checkoutForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
         span.material-icons calendar_month
     .f
-      label.required Delivery time
+      label.required Delivery Time
       span.input.calendar    
         prime-calendar(v-model="checkoutForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" :time-only="true" append-to="body" hour-format="12" required="true" @update:model-value="updateExpectedDate()")
 

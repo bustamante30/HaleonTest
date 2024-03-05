@@ -48,7 +48,7 @@
                 prime-calendar.sm(v-model="sendForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
                 span.material-icons calendar_month
             .f
-              label.required(for="time") Delivery time
+              label.required(for="time") Delivery Time
               span.input.calendar(name="time")
                 prime-calendar(v-model="sendForm.expectedDate" show-other-months="true" select-other-months="true" :min-date="minSelectableDate()" time-only append-to="body" hour-format="12" required="true" @update:model-value="updateUrgent")
             .f
