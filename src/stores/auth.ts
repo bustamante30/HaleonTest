@@ -13,7 +13,7 @@ const authConfig = {
     clientId: import.meta.env.VITE_AAD_CLIEND_ID,
     authority: import.meta.env.VITE_AAD_AUTHORITY,
     responseMode: "query",
-    redirectUri: import.meta.env.VITE_AAD_REDIRECT_URL,
+    redirectUri: import.meta.env.VITE_AAD_IMG_CAR_REDIRECT_URL,
     postLogoutRedirectUri: import.meta.env.VITE_USER_APP_BASE_URL,
   },
 };

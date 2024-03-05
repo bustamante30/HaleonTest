@@ -19,7 +19,7 @@ const authB2CConfig = {
     clientId: import.meta.env.VITE_B2C_CLIENT_ID,
     authority: import.meta.env.VITE_B2C_AUTHORITY,
     knownAuthorities: [import.meta.env.VITE_B2C_KNOWN_AUTHORITY],
-    redirectUri: import.meta.env.VITE_B2C_REDIRECT_URL,
+    redirectUri: import.meta.env.VITE_B2C_IMG_CAR_REDIRECT_URL,
     postLogoutRedirectUri: import.meta.env.VITE_USER_APP_BASE_URL,
     navigateToLoginRequestUrl: true,
   },
