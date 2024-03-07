@@ -69,7 +69,7 @@
             prime-textarea#comments(v-model="sendForm.comments" name="comments" rows="10")
       aside
         .file-acceptance-message.card
-          div File types accepted are PDF, Image, Email, and Microsoft Office
+          div File types accepted are PDF, Image, E-Mail, and all Microsoft Office documents
           div Max file size is 10MB
         file-upload(@files-input="uploadFiles")
         .upload(v-if="sendUpload && sendUpload.length > 0")
@@ -217,14 +217,14 @@ const isInvalidFileType = (file: File) => {
     ".jpeg",
     ".tif",
     ".tiff",
+    ".rtf",
     ".doc",
     ".docx",
-    ".rtf",
+    ".eml",
     ".ppt",
     ".pptx",
     ".xls",
     ".xlsx",
-    ".eml",
   ];
   const lowercaseName = file.name.toLowerCase();
   return !allowedExtensions.some((extension) =>
