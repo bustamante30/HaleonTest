@@ -59,6 +59,7 @@ import {
 import * as Constants from "@/services/Constants";
 import FileUpload from "../common/FileUpload.vue";
 import { normalizeAndReplaceBlobName } from "@/stores/utils/photon";
+import { v4 as uuidv4 } from "uuid";
 
 type ValidFiles = {
   fileName: string;
@@ -205,8 +206,11 @@ async function convertAndSendFile(file, fileName): Promise<FileUploadResponse> {
   formdata.append("FileName", fileName);
   formdata.append("Data", "");
   formdata.append("isReorderDocs", "yes");
+  formdata.append("reorderDocsFolderName", reorderDocsFolderName);
   return await FileUploadService.uploadFile(formdata);
 }
+
+const reorderDocsFolderName = uuidv4();
 
 async function uploadFiles(filesToUpload) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
