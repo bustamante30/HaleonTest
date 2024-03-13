@@ -16,6 +16,7 @@ export default defineConfig({
     vueJsx(),
     dsv(),
   ],
+  base: "/imagecarrierreorder/",
   server: {
     host: "localhost",
     port: 3000,
